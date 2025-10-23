@@ -50,187 +50,85 @@ export default function Etapa3DadosVitais({ dadosPaciente, onProxima, onAnterior
       setAnalyzing(true);
       
       try {
-        // Método principal: Análise direta com visão de imagem
         const analise = await base44.integrations.Core.InvokeLLM({
-          prompt: `Você é um cardiologista especialista e está interpretando um ELETROCARDIOGRAMA (ECG) de 12 derivações.
+          prompt: `Você é um cardiologista analisando um ECG de 12 derivações.
 
-PACIENTE:
-- Sexo: ${dadosPaciente.sexo}
-- Idade: ${dadosPaciente.idade} anos
-- Sintoma: Dor torácica
+Paciente: ${dadosPaciente.sexo}, ${dadosPaciente.idade} anos, com dor torácica.
 
-IMPORTANTE: Você DEVE analisar a imagem do traçado eletrocardiográfico que está sendo fornecida.
+Analise o ECG da imagem e forneça um relatório estruturado:
 
-═══════════════════════════════════════════════════════════════
-ANÁLISE AUTOMATIZADA DE ELETROCARDIOGRAMA
-═══════════════════════════════════════════════════════════════
+1. RITMO E FREQUÊNCIA
+   - Ritmo: 
+   - FC: ___ bpm
 
-Por favor, analise CUIDADOSAMENTE o traçado e forneça um relatório COMPLETO:
+2. INTERVALOS
+   - PR: ___ ms (normal 120-200)
+   - QRS: ___ ms (normal <120)
+   - QT/QTc: ___ ms
 
-1️⃣ RITMO E FREQUÊNCIA CARDÍACA
-   - Identifique o ritmo (sinusal, FA, flutter, etc.)
-   - Conte a frequência cardíaca em bpm
-   - Avalie regularidade
+3. EIXO CARDÍACO
+   - Eixo QRS: 
 
-2️⃣ INTERVALOS (meça no traçado):
-   - Intervalo PR: ____ ms (normal 120-200ms)
-   - Complexo QRS: ____ ms (normal <120ms)
-   - Intervalo QT: ____ ms
-   - QTc corrigido: ____ ms (normal <450ms homens, <460ms mulheres)
+4. SEGMENTO ST (MUITO IMPORTANTE)
+   - Supradesnivelamento ST ≥1mm?: SIM/NÃO
+   - Derivações com supra ST:
+   - Infradesnivelamento ST?: SIM/NÃO
+   - Derivações com infra ST:
 
-3️⃣ EIXO CARDÍACO
-   - Determine o eixo QRS em graus
-   - Normal / Desvio esquerda / Desvio direita
+5. ONDAS T
+   - Inversão de T:
+   - Derivações:
 
-4️⃣ ⚠️⚠️⚠️ SEGMENTO ST - ANÁLISE CRÍTICA ⚠️⚠️⚠️
+6. ONDAS Q
+   - Q patológicas (>40ms):
+   - Derivações:
 
-PROCURE CUIDADOSAMENTE POR:
+7. BLOQUEIOS
+   - BRD/BRE:
+   - BAV:
 
-A) SUPRADESNIVELAMENTO DO SEGMENTO ST (≥1mm):
-   ▸ PRESENTE em alguma derivação? [SIM/NÃO]
-   ▸ Se SIM, listar derivações: _______________
-   ▸ Magnitude da elevação: ___ mm
-   ▸ Morfologia: Côncava / Convexa / Retificada
-   
-   🚨 SE HOUVER SUPRA ST ≥1mm EM 2+ DERIVAÇÕES CONTÍGUAS:
-      ⚠️⚠️⚠️ SUSPEITA DE IAMCSST (IAM COM SUPRA DE ST) ⚠️⚠️⚠️
-      
-   Localização do IAM:
-   - V1-V4: Parede ANTERIOR (artéria descendente anterior)
-   - II, III, aVF: Parede INFERIOR (artéria coronária direita)
-   - I, aVL, V5-V6: Parede LATERAL (circunflexa)
-   - V7-V9: Parede POSTERIOR
-   - V3R-V4R: Ventrículo direito
+8. CONCLUSÃO
 
-B) INFRADESNIVELAMENTO DO SEGMENTO ST (≥1mm):
-   ▸ Presente? [SIM/NÃO]
-   ▸ Derivações: _______________
-   ▸ Pode ser isquemia subendocárdica ou mudança recíproca
+INTERPRETAÇÃO:
 
-5️⃣ ONDAS T
-   - Inversão de onda T? [SIM/NÃO] Em quais derivações?
-   - Ondas T apiculadas (hipercalemia)?
-   - Ondas T bifásicas (Síndrome de Wellens)?
+SE HOUVER SUPRA ST ≥1mm EM 2+ DERIVAÇÕES CONTÍGUAS:
+⚠️ POSSÍVEL IAMCSST
+Localização:
+Artéria:
 
-6️⃣ ONDAS Q
-   - Ondas Q patológicas (>40ms ou >1/3 do QRS)? [SIM/NÃO]
-   - Localização: _______________
-   - Sugere IAM prévio/em evolução
+DIAGNÓSTICO SUGERIDO:
 
-7️⃣ BLOQUEIOS DE CONDUÇÃO
-   - Bloqueio de ramo direito (BRD)? [SIM/NÃO]
-   - Bloqueio de ramo esquerdo (BRE)? [SIM/NÃO]
-   - BAV 1º/2º/3º grau? [SIM/NÃO]
-
-8️⃣ PADRÕES ESPECÍFICOS (marque se identificar):
-   □ Síndrome de Wellens (ondas T invertidas V2-V3)
-   □ Padrão de Winter (infra ST + ondas T altas)
-   □ Critérios de Sgarbossa (IAM + BRE)
-   □ Síndrome de Brugada (supra ST V1-V3)
-   □ Pericardite aguda (supra ST difuso)
-   □ Repolarização precoce benigna
-
-═══════════════════════════════════════════════════════════════
-🎯 CONCLUSÃO E INTERPRETAÇÃO FINAL
-═══════════════════════════════════════════════════════════════
-
-DIAGNÓSTICO PRINCIPAL SUGERIDO:
-[Descreva o achado mais importante]
-
-🚨 SE HOUVER IAMCSST:
-⚠️⚠️⚠️ IAMCSST - ATIVAR PROTOCOLO DE REPERFUSÃO ⚠️⚠️⚠️
-Localização: _______
-Artéria envolvida: _______
-AÇÃO URGENTE: Fibrinolítico ou ICP primária
-
-DIAGNÓSTICOS DIFERENCIAIS:
-1. _______________
-2. _______________
-3. _______________
-
-CONDUTA SUGERIDA:
-- Troponina seriada (0h e 1h ou 3h)
-- [Outras condutas baseadas nos achados]
-
-═══════════════════════════════════════════════════════════════
-⚠️ NOTA: Esta é uma análise automatizada por IA. 
-Todo ECG DEVE ser revisado por um médico qualificado.
-═══════════════════════════════════════════════════════════════`,
-          file_urls: novosFiles,
-          add_context_from_internet: false
+CONDUTA RECOMENDADA:`,
+          file_urls: novosFiles
         });
 
         setAnaliseEcg(analise);
 
       } catch (error) {
-        console.error("Erro na análise primária:", error);
-        
-        // Método alternativo: prompt simplificado
-        try {
-          const analiseAlternativa = await base44.integrations.Core.InvokeLLM({
-            prompt: `Analise este ECG de paciente com dor torácica (${dadosPaciente.sexo}, ${dadosPaciente.idade} anos).
+        console.error("Erro ao analisar ECG:", error);
+        setAnaliseEcg(`ECG ANEXADO COM SUCESSO
 
-OLHE A IMAGEM e responda:
+${novosFiles.length} arquivo(s) de ECG carregado(s) e disponível(is) para visualização.
 
-1. Frequência cardíaca: ___ bpm
-2. Ritmo: ___________
-3. Intervalo PR: ___ ms
-4. QRS: ___ ms
-5. QT: ___ ms
-
-🚨 CRÍTICO - SEGMENTO ST:
-- Há ELEVAÇÃO do ST ≥1mm? [SIM/NÃO]
-- Em quais derivações? ___________
-- Se SIM em 2+ derivações → ⚠️ SUSPEITA DE IAM
-
-6. Infra ST presente? ___________
-7. Ondas T invertidas? ___________
-8. Ondas Q patológicas? ___________
-9. Bloqueios? ___________
-
-CONCLUSÃO:
-[Normal / Alterações inespecíficas / Sugestivo de SCA / Sugestivo de IAM]
-
-Se IAM: Localização _________ | Artéria _________
-
-RECOMENDAÇÃO: ___________`,
-            file_urls: novosFiles,
-            add_context_from_internet: false
-          });
-          
-          setAnaliseEcg(analiseAlternativa);
-          
-        } catch (error2) {
-          console.error("Erro na análise alternativa:", error2);
-          setAnaliseEcg(`⚠️ ANÁLISE AUTOMÁTICA NÃO DISPONÍVEL
-
-ECG anexado com sucesso, porém a análise automatizada não pôde ser realizada neste momento.
+⚠️ Análise automática não disponível no momento.
 
 AÇÃO NECESSÁRIA:
-✓ ECG foi carregado e está disponível para visualização
-✓ Médico deve interpretar manualmente o traçado
-✓ Atenção especial para:
-  - Supradesnivelamento do segmento ST (IAM)
-  - Infradesnivelamento ST (isquemia)
-  - Ondas T invertidas
-  - Ondas Q patológicas
-  - Bloqueios de condução
+O médico deve interpretar manualmente o traçado.
 
-📋 PROTOCOLO MANUAL DE ANÁLISE:
-1. Verificar ritmo e frequência
-2. Medir intervalos PR, QRS, QT
-3. Avaliar segmento ST em TODAS as derivações
-4. Procurar alterações de onda T
-5. Identificar ondas Q patológicas
+PONTOS DE ATENÇÃO NA ANÁLISE:
+✓ Ritmo e frequência cardíaca
+✓ Intervalos PR, QRS, QT
+✓ SEGMENTO ST (supra/infra)
+✓ Ondas T (inversões)
+✓ Ondas Q patológicas
+✓ Bloqueios de condução
 
-${novosFiles.length} arquivo(s) de ECG disponível(is) para revisão médica.`);
-        }
+Meta: Identificar IAMCSST (supra ST ≥1mm em 2+ derivações)`);
       }
 
     } catch (error) {
-      console.error("Erro geral ao processar ECG:", error);
-      alert("Erro ao processar ECG. Tente novamente.");
-      setAnaliseEcg("Erro ao processar ECG. Por favor, tente anexar novamente.");
+      console.error("Erro ao fazer upload:", error);
+      alert("Erro ao anexar ECG. Tente novamente.");
     }
     
     setUploading(false);
@@ -336,12 +234,12 @@ ${novosFiles.length} arquivo(s) de ECG disponível(is) para revisão médica.`);
 
   const tempoTriagemEcg = dadosPaciente.tempo_triagem_ecg_minutos;
 
-  // Verificar se há alerta de IAM na análise
   const temAlertaIAM = analiseEcg && (
     analiseEcg.includes("IAMCSST") || 
-    analiseEcg.includes("IAM COM SUPRA DE ST") ||
-    analiseEcg.includes("SUPRADESNIVELAMENTO") ||
-    analiseEcg.includes("SUSPEITA DE IAM")
+    analiseEcg.includes("IAM COM SUPRA") ||
+    analiseEcg.includes("POSSÍVEL IAMCSST") ||
+    analiseEcg.toUpperCase().includes("SUPRA ST") ||
+    analiseEcg.includes("SUPRADESNIVELAMENTO")
   );
 
   return (
@@ -538,9 +436,7 @@ ${novosFiles.length} arquivo(s) de ECG disponível(is) para revisão médica.`);
             <Alert className="border-blue-500 bg-blue-50">
               <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
               <AlertDescription className="text-blue-800">
-                Analisando ECG com Inteligência Artificial... 
-                <br />
-                Avaliando intervalos PR, QT, QRS, segmento ST e ondas...
+                Analisando ECG com Inteligência Artificial... Aguarde...
               </AlertDescription>
             </Alert>
           )}
@@ -549,7 +445,7 @@ ${novosFiles.length} arquivo(s) de ECG disponível(is) para revisão médica.`);
             <Alert className="border-red-500 bg-red-50">
               <AlertCircle className="h-4 w-4 text-red-600" />
               <AlertDescription className="text-red-800 font-semibold">
-                🚨 ALERTA: IA detectou possível SUPRADESNIVELAMENTO do segmento ST compatível com IAM!
+                🚨 ALERTA: IA detectou possível alteração compatível com IAM!
                 <br />
                 Revise a análise completa abaixo.
               </AlertDescription>
@@ -558,10 +454,10 @@ ${novosFiles.length} arquivo(s) de ECG disponível(is) para revisão médica.`);
 
           {analiseEcg && (
             <div className="border-l-4 border-l-blue-600 bg-blue-50 p-4 rounded">
-              <h4 className="font-semibold text-blue-900 mb-2">📊 Análise Automatizada de ECG por IA:</h4>
+              <h4 className="font-semibold text-blue-900 mb-2">📊 Análise Automatizada de ECG:</h4>
               <pre className="text-sm text-blue-800 whitespace-pre-wrap font-sans">{analiseEcg}</pre>
               <p className="text-xs text-blue-600 mt-3 italic">
-                ⚠️ Esta é uma análise automatizada e não substitui a interpretação médica
+                ⚠️ Esta é uma análise automatizada. Todo ECG deve ser revisado por médico qualificado.
               </p>
             </div>
           )}
