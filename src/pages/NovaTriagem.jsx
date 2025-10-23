@@ -7,7 +7,7 @@ import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Check, Copy, Mail } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Copy, Mail, ExternalLink } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,7 +40,7 @@ export default function NovaTriagem() {
   const [dadosPaciente, setDadosPaciente] = useState({});
   const [pacienteId, setPacienteId] = useState(null);
   const [aguardandoMedico, setAguardandoMedico] = useState(false);
-  const [idPacienteParaMedico, setIdPacienteParaMedico] = useState("");
+  const [linkCompletoMedico, setLinkCompletoMedico] = useState("");
   const [carregando, setCarregando] = useState(true);
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -131,7 +131,12 @@ export default function NovaTriagem() {
     
     if (etapaAtual === 4 && !isRetriagem) {
       setAguardandoMedico(true);
-      setIdPacienteParaMedico(idPaciente);
+      // Criar link completo e funcional
+      const origem = window.location.origin;
+      const caminho = window.location.pathname;
+      const linkFinal = `${origem}${caminho}?id=${idPaciente}`;
+      setLinkCompletoMedico(linkFinal);
+      console.log("Link gerado:", linkFinal);
       return;
     }
     
@@ -151,9 +156,13 @@ export default function NovaTriagem() {
     setEtapaAtual(5);
   };
 
-  const copiarId = () => {
-    navigator.clipboard.writeText(idPacienteParaMedico);
-    alert("ID copiado! Vá no menu 'Histórico' e cole este ID na busca.");
+  const copiarLink = () => {
+    navigator.clipboard.writeText(linkCompletoMedico);
+    alert("Link completo copiado! Cole no navegador para abrir.");
+  };
+
+  const abrirLinkEmNovaAba = () => {
+    window.open(linkCompletoMedico, '_blank');
   };
 
   const irParaHistorico = () => {
@@ -170,102 +179,32 @@ export default function NovaTriagem() {
 
 ${dadosPaciente.triagem_cardiologica?.alerta_iam ? '⚠️⚠️⚠️ ALERTA DE PROVÁVEL IAM ⚠️⚠️⚠️\n\n' : ''}
 
-═══ ETAPA 1: DADOS DO PACIENTE ═══
+═══ DADOS DO PACIENTE ═══
 
 Nome Completo: ${dadosPaciente.nome_completo || '-'}
 Idade: ${dadosPaciente.idade || '-'} anos
 Sexo: ${dadosPaciente.sexo || '-'}
 Prontuário: ${dadosPaciente.prontuario || '-'}
 
-Data/Hora de Chegada: ${dadosPaciente.data_hora_chegada ? format(new Date(dadosPaciente.data_hora_chegada), "dd/MM/yyyy 'às' HH:mm") : '-'}
-Início dos Sintomas: ${dadosPaciente.data_hora_inicio_sintomas ? format(new Date(dadosPaciente.data_hora_inicio_sintomas), "dd/MM/yyyy 'às' HH:mm") : '-'}
-Início da Triagem: ${dadosPaciente.data_hora_inicio_triagem ? format(new Date(dadosPaciente.data_hora_inicio_triagem), "dd/MM/yyyy 'às' HH:mm") : '-'}
+═══ CLASSIFICAÇÃO DE RISCO ═══
 
+Cor: ${dadosPaciente.classificacao_risco?.cor || '-'}
+Tempo Triagem-ECG: ${dadosPaciente.tempo_triagem_ecg_minutos || '-'} min
 
-═══ ETAPA 2: TRIAGEM CARDIOLÓGICA (SBC 2025) ═══
+═══ LINK PARA CONTINUIDADE DO ATENDIMENTO ═══
 
-1. Dor/desconforto no peito (cicatriz umbilical → mandíbula): ${dadosPaciente.triagem_cardiologica?.dor_desconforto_peito ? 'SIM' : 'NÃO'}
-2. Duração maior que 10 minutos: ${dadosPaciente.triagem_cardiologica?.duracao_maior_10min ? 'SIM' : 'NÃO'}
-3. Irradiação (braços, mandíbula, pescoço): ${dadosPaciente.triagem_cardiologica?.irradiacao ? 'SIM' : 'NÃO'}
-4. Dor epigástrica: ${dadosPaciente.triagem_cardiologica?.dor_epigastrica ? 'SIM' : 'NÃO'}
-5. Dispneia ou diaforese: ${dadosPaciente.triagem_cardiologica?.dispneia_diaforese ? 'SIM' : 'NÃO'}
-6. >50 anos e/ou diabetes/DCV conhecida: ${dadosPaciente.triagem_cardiologica?.idade_fatores_risco ? 'SIM' : 'NÃO'}
+Copie e cole este link no navegador para continuar o atendimento:
 
-${dadosPaciente.triagem_cardiologica?.alerta_iam ? '>>> ALERTA IAM ATIVADO <<<\n' : ''}
+${linkCompletoMedico}
 
-
-═══ ETAPA 3: DADOS VITAIS ═══
-
-Pressão Arterial:
-  • Braço Esquerdo: ${dadosPaciente.dados_vitais?.pa_braco_esquerdo || '-'} mmHg
-  • Braço Direito: ${dadosPaciente.dados_vitais?.pa_braco_direito || '-'} mmHg
-
-Sinais Vitais:
-  • Frequência Cardíaca: ${dadosPaciente.dados_vitais?.frequencia_cardiaca || '-'} bpm
-  • Frequência Respiratória: ${dadosPaciente.dados_vitais?.frequencia_respiratoria || '-'} irpm
-  • Temperatura: ${dadosPaciente.dados_vitais?.temperatura || '-'} °C
-  • SpO2: ${dadosPaciente.dados_vitais?.spo2 || '-'}%
-
-Comorbidades:
-  • Diabetes: ${dadosPaciente.dados_vitais?.diabetes ? 'SIM' : 'NÃO'}
-  • DPOC: ${dadosPaciente.dados_vitais?.dpoc ? 'SIM' : 'NÃO'}
-  • Glicemia Capilar: ${dadosPaciente.dados_vitais?.glicemia_capilar || '-'} mg/dL
-
-ELETROCARDIOGRAMA (ECG):
-  • Número de ECGs anexados: ${dadosPaciente.ecg_files?.length || 0}
-  • Tempo Triagem → ECG: ${dadosPaciente.tempo_triagem_ecg_minutos || '-'} minutos
-  ${dadosPaciente.tempo_triagem_ecg_minutos && dadosPaciente.tempo_triagem_ecg_minutos <= 10 ? '  ✓ DENTRO DA META (≤10 min)' : dadosPaciente.tempo_triagem_ecg_minutos ? '  ⚠️ ACIMA DA META DE 10 MINUTOS' : ''}
-
-${dadosPaciente.ecg_files?.length > 0 ? `
-Links dos ECGs:
-${dadosPaciente.ecg_files.map((url, i) => `  ${i+1}. ${url}`).join('\n')}
-` : ''}
-
-${dadosPaciente.analise_ecg_ia ? `
-─────────────────────────────────────────────
-ANÁLISE DO ECG POR INTELIGÊNCIA ARTIFICIAL:
-─────────────────────────────────────────────
-
-${dadosPaciente.analise_ecg_ia}
-
-─────────────────────────────────────────────
-` : ''}
-
-
-═══ ETAPA 4: CLASSIFICAÇÃO DE RISCO (MANCHESTER) ═══
-
-COR DE CLASSIFICAÇÃO: ${dadosPaciente.classificacao_risco?.cor || '-'}
-TEMPO MÁXIMO DE ATENDIMENTO: ${dadosPaciente.classificacao_risco?.tempo_atendimento_max || '-'}
-
-Discriminadores Identificados:
-${dadosPaciente.classificacao_risco?.discriminadores?.map(d => `  • ${d}`).join('\n') || '  Nenhum'}
-
-Enfermeiro(a) Responsável: ${dadosPaciente.enfermeiro_nome || '-'} (COREN ${dadosPaciente.enfermeiro_coren || '-'})
-
-
-═══════════════════════════════════════════════════════════════
-  AÇÃO NECESSÁRIA
-═══════════════════════════════════════════════════════════════
-
-⚕️ AVALIAÇÃO MÉDICA URGENTE NECESSÁRIA
-
-ID DO PACIENTE PARA CONTINUIDADE DO ATENDIMENTO:
-${idPacienteParaMedico}
-
-INSTRUÇÕES PARA O MÉDICO:
-1. Copie o ID acima
-2. Acesse o menu "Histórico" no sistema
-3. Cole o ID no campo de busca
-4. Clique em "Ver Detalhes" no paciente encontrado
-5. O sistema continuará automaticamente na Etapa 5 (Avaliação Médica)
-
+Instruções:
+1. Copie o link acima
+2. Cole em uma nova aba do navegador
+3. O sistema abrirá automaticamente na Etapa 5 (Avaliação Médica)
 
 ═══════════════════════════════════════════════════════════════
 Sistema de Triagem de Dor Torácica
 Autor: Walber Alves Frazão Júnior - COREN 110.238
-Enfermeiro Emergencista
-Pós-graduado em Cardiologia, Neurologia e Auditoria em Serviços de Saúde
-Protocolos: Diretriz SBC 2025 / Sistema Manchester
 ═══════════════════════════════════════════════════════════════
     `;
 
@@ -317,50 +256,49 @@ Protocolos: Diretriz SBC 2025 / Sistema Manchester
               <Alert className="border-orange-500 bg-orange-50 mb-6">
                 <AlertDescription className="text-orange-800 text-center">
                   <strong className="block mb-2 text-lg">⚠️ AVALIAÇÃO MÉDICA NECESSÁRIA</strong>
-                  <p>Paciente aguardando avaliação médica</p>
+                  <p>Use o link abaixo para continuar o atendimento</p>
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-4 mb-6">
                 <div className="bg-blue-50 p-6 rounded-lg border-2 border-blue-500">
                   <Label className="text-sm font-medium mb-3 block text-center text-blue-900">
-                    ID DO PACIENTE PARA CONTINUIDADE DO ATENDIMENTO:
+                    LINK PARA CONTINUIDADE DO ATENDIMENTO:
                   </Label>
-                  <div className="bg-white p-5 rounded border-2 border-blue-600 mb-4">
-                    <p className="text-4xl font-bold text-center text-blue-900 font-mono tracking-wider">
-                      {idPacienteParaMedico}
+                  <div className="bg-white p-4 rounded border-2 border-blue-600 mb-4">
+                    <p className="text-sm text-blue-900 font-mono break-all">
+                      {linkCompletoMedico}
                     </p>
                   </div>
-                  <div className="flex gap-2">
-                    <Button onClick={copiarId} variant="outline" className="flex-1">
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button onClick={copiarLink} variant="outline" className="w-full">
                       <Copy className="w-4 h-4 mr-2" />
-                      Copiar ID
+                      Copiar Link
                     </Button>
-                    <Button onClick={irParaHistorico} className="flex-1 bg-green-600 hover:bg-green-700">
-                      Ir para Histórico
+                    <Button onClick={abrirLinkEmNovaAba} className="w-full bg-green-600 hover:bg-green-700">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Abrir Link
                     </Button>
                   </div>
                 </div>
 
                 <div className="bg-green-50 border-2 border-green-500 rounded-lg p-4">
                   <p className="text-sm font-bold text-green-900 mb-3 text-center">
-                    📋 COMO CONTINUAR O ATENDIMENTO:
+                    ✅ COMO USAR O LINK:
                   </p>
                   <ol className="list-decimal pl-5 space-y-2 text-sm text-green-800">
-                    <li><strong>Copie o ID</strong> do paciente acima (clique no botão "Copiar ID")</li>
-                    <li><strong>Vá para o menu "Histórico"</strong> no menu lateral</li>
-                    <li><strong>Cole o ID</strong> no campo de busca</li>
-                    <li><strong>Clique em "Ver Detalhes"</strong> no paciente encontrado</li>
-                    <li>O sistema abrirá automaticamente na <strong>Etapa 5 (Avaliação Médica)</strong></li>
+                    <li><strong>Clique em "Abrir Link"</strong> para abrir em nova aba OU</li>
+                    <li><strong>Clique em "Copiar Link"</strong> e cole no navegador</li>
+                    <li>O sistema abrirá <strong>automaticamente na Etapa 5</strong> (Avaliação Médica)</li>
                   </ol>
                 </div>
 
                 <div className="bg-purple-50 border border-purple-300 rounded-lg p-4">
                   <p className="text-sm font-semibold text-purple-900 mb-2">
-                    ⚡ ATALHO RÁPIDO:
+                    ⚡ ATALHO RÁPIDO (mesma tela):
                   </p>
                   <p className="text-sm text-purple-800 mb-3">
-                    Se você é o médico que vai atender, pode continuar diretamente nesta tela:
+                    Se você é o médico que vai atender, continue aqui mesmo:
                   </p>
                   <Button
                     onClick={continuarParaMedico}
@@ -377,14 +315,13 @@ Protocolos: Diretriz SBC 2025 / Sistema Manchester
                   variant="outline"
                 >
                   <Mail className="w-4 h-4 mr-2" />
-                  Enviar Relatório Completo por Email
+                  Enviar Relatório com Link por Email
                 </Button>
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <h3 className="font-semibold text-blue-900 mb-2">Resumo da Triagem:</h3>
                 <div className="space-y-1 text-sm text-blue-800">
-                  <p><strong>ID:</strong> {idPacienteParaMedico}</p>
                   <p><strong>Classificação:</strong> {dadosPaciente.classificacao_risco?.cor || '-'}</p>
                   <p><strong>Tempo Triagem-ECG:</strong> {dadosPaciente.tempo_triagem_ecg_minutos || '-'} min</p>
                   {dadosPaciente.triagem_cardiologica?.alerta_iam && (
