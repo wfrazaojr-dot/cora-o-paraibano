@@ -49,39 +49,110 @@ export default function Etapa3DadosVitais({ dadosPaciente, onProxima, onAnterior
 
       setAnalyzing(true);
       const analise = await base44.integrations.Core.InvokeLLM({
-        prompt: `Você é um cardiologista especialista em análise de ECG. Analise os traçados eletrocardiográficos fornecidos e forneça uma interpretação COMPLETA E DETALHADA.
+        prompt: `Você é um sistema de interpretação automatizada de ECG similar aos aparelhos com IA integrada (ex: GE MAC, Philips PageWriter, Mortara).
 
-Paciente: ${dadosPaciente.sexo}, ${dadosPaciente.idade} anos
+DADOS DO PACIENTE:
+- Sexo: ${dadosPaciente.sexo}
+- Idade: ${dadosPaciente.idade} anos
 
-Foque especialmente em:
-1. ECG NORMAL vs ECG COM ALTERAÇÕES
-2. ELEVAÇÃO DO SEGMENTO ST (>=1mm em 2+ derivações, exceto V3-V4 que seguem critérios específicos por sexo/idade)
-3. Identificação de PADRÕES CRÍTICOS:
-   - Síndrome de Wellens
-   - Padrão/Síndrome de Winter
-   - Bloqueio de Ramo Esquerdo (aplicar critérios de Sgarbossa)
-   - IAM de tronco da coronária esquerda
-   - IAM de ventrículo direito (V3R, V4R)
-4. DIFERENCIAIS importantes:
-   - Distúrbio de repolarização precoce
-   - Pericardite
-   - Síndrome de Brugada
-   - Síndrome do QT Longo
-5. Arritmias, taquicardias e bradicardias
+INSTRUÇÕES PARA ANÁLISE:
 
-Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de intervenção urgente.`,
+Analise o(s) traçado(s) de ECG fornecido(s) e forneça um relatório ESTRUTURADO seguindo este formato exato:
+
+═══════════════════════════════════════
+ANÁLISE AUTOMÁTICA DE ECG
+═══════════════════════════════════════
+
+1. RITMO E FREQUÊNCIA
+   - Ritmo: [Sinusal / Fibrilação Atrial / Flutter Atrial / Outro]
+   - Frequência Cardíaca: [valor] bpm
+   - Regularidade: [Regular / Irregular]
+
+2. INTERVALOS E ONDAS (em milissegundos)
+   - Intervalo PR: [valor] ms [Normal: 120-200ms / Curto / Prolongado]
+   - Duração QRS: [valor] ms [Normal: <120ms / Alargado se ≥120ms]
+   - Intervalo QT: [valor] ms
+   - QTc (corrigido): [valor] ms [Normal: <450ms homens, <460ms mulheres]
+   - Onda P: [Presente/Ausente] [Morfologia]
+
+3. EIXO CARDÍACO
+   - Eixo QRS: [Normal / Desvio à esquerda / Desvio à direita / Eixo indeterminado]
+   - Estimativa: [graus]
+
+4. ⚠️ ANÁLISE DO SEGMENTO ST (CRÍTICO)
+   - SUPRADESNIVELAMENTO (≥1mm em 2+ derivações contíguas):
+     * Presente: [SIM/NÃO]
+     * Localização: [Anterior/Inferior/Lateral/Septal/Não aplicável]
+     * Derivações afetadas: [listar]
+     * Magnitude: [em mm]
+   
+   - INFRADESNIVELAMENTO (≥1mm):
+     * Presente: [SIM/NÃO]
+     * Derivações: [listar]
+     * Possível isquemia recíproca: [SIM/NÃO]
+
+5. ALTERAÇÕES DA ONDA T
+   - Ondas T invertidas: [SIM/NÃO] [Derivações]
+   - Ondas T apiculadas: [SIM/NÃO]
+   - Possível isquemia: [SIM/NÃO]
+
+6. ONDAS Q PATOLÓGICAS
+   - Presentes: [SIM/NÃO]
+   - Localização: [Derivações]
+   - Sugestão de IAM prévio: [SIM/NÃO]
+
+7. BLOQUEIOS E DISTÚRBIOS DE CONDUÇÃO
+   - Bloqueio de ramo direito: [SIM/NÃO]
+   - Bloqueio de ramo esquerdo: [SIM/NÃO]
+   - Bloqueio divisional: [SIM/NÃO]
+   - Bloqueio AV: [Ausente / 1º grau / 2º grau / 3º grau]
+
+8. HIPERTROFIAS
+   - Hipertrofia ventricular esquerda: [SIM/NÃO] [Critérios]
+   - Hipertrofia ventricular direita: [SIM/NÃO]
+   - Crescimento atrial: [SIM/NÃO]
+
+9. PADRÕES ESPECÍFICOS IDENTIFICADOS
+   Marque se presente:
+   □ Padrão de Wellens (ondas T bifásicas/invertidas em V2-V3)
+   □ Síndrome de Winter (infraST com ondas T altas em precordiais)
+   □ Critérios de Sgarbossa (IAM + BRE)
+   □ Padrão de Brugada (elevação ST em V1-V3 com aspecto "corcova")
+   □ Síndrome do QT longo
+   □ Repolarização precoce benigna
+   □ Pericardite (supra ST difuso + infraPR)
+
+10. 🚨 CONCLUSÃO E ALERTA
+    
+    INTERPRETAÇÃO PRINCIPAL:
+    [Descreva o achado mais importante]
+    
+    ⚠️ ALERTA DE EMERGÊNCIA:
+    [Se houver SUPRADESNIVELAMENTO DO ST compatível com IAM]
+    ⚠️⚠️⚠️ POSSÍVEL IAMCSST (IAM COM SUPRA DE ST) ⚠️⚠️⚠️
+    Localização: [parede do coração afetada]
+    Artéria provável: [coronária direita/descendente anterior/circunflexa]
+    AÇÃO: Ativar protocolo de reperfusão IMEDIATAMENTE
+    
+    DIAGNÓSTICOS DIFERENCIAIS SUGERIDOS:
+    1. [Diagnóstico mais provável]
+    2. [Segunda possibilidade]
+    3. [Terceira possibilidade]
+    
+    RECOMENDAÇÕES:
+    - [Ações sugeridas baseadas nos achados]
+    - [Exames complementares se necessário]
+    - [Urgência da avaliação médica]
+
+═══════════════════════════════════════
+
+OBSERVAÇÃO IMPORTANTE: Esta é uma análise automatizada por IA e NÃO substitui a interpretação médica. Todo ECG deve ser revisado por um médico qualificado.
+
+═══════════════════════════════════════`,
         file_urls: novosFiles,
       });
 
       setAnaliseEcg(analise);
-      
-      onProxima({
-        dados_vitais: dados,
-        ecg_files: novosFiles,
-        data_hora_ecg: dataHoraEcg,
-        tempo_triagem_ecg_minutos: tempoMinutos,
-        analise_ecg_ia: analise
-      });
 
     } catch (error) {
       console.error("Erro ao processar ECG:", error);
@@ -173,16 +244,29 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
       alert("Por favor, anexe pelo menos um arquivo de ECG");
       return;
     }
+    
+    const dataHoraEcg = dadosPaciente.data_hora_ecg || new Date().toISOString();
+    const tempoMinutos = dadosPaciente.tempo_triagem_ecg_minutos || (dadosPaciente.data_hora_inicio_triagem 
+      ? differenceInMinutes(new Date(dataHoraEcg), new Date(dadosPaciente.data_hora_inicio_triagem))
+      : 0);
+    
     onProxima({ 
       dados_vitais: dados,
       ecg_files: ecgFiles,
-      data_hora_ecg: dadosPaciente.data_hora_ecg, 
-      tempo_triagem_ecg_minutos: dadosPaciente.tempo_triagem_ecg_minutos,
+      data_hora_ecg: dataHoraEcg, 
+      tempo_triagem_ecg_minutos: tempoMinutos,
       analise_ecg_ia: analiseEcg
     });
   };
 
   const tempoTriagemEcg = dadosPaciente.tempo_triagem_ecg_minutos;
+
+  // Verificar se há alerta de IAM na análise
+  const temAlertaIAM = analiseEcg && (
+    analiseEcg.includes("IAMCSST") || 
+    analiseEcg.includes("IAM COM SUPRA DE ST") ||
+    analiseEcg.includes("SUPRADESNIVELAMENTO")
+  );
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -378,15 +462,31 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
             <Alert className="border-blue-500 bg-blue-50">
               <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
               <AlertDescription className="text-blue-800">
-                Analisando ECG com Inteligência Artificial... Isso pode levar alguns segundos.
+                Analisando ECG com Inteligência Artificial... 
+                <br />
+                Avaliando intervalos PR, QT, QRS, segmento ST e ondas...
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {temAlertaIAM && (
+            <Alert className="border-red-500 bg-red-50">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-800 font-semibold">
+                🚨 ALERTA: IA detectou possível SUPRADESNIVELAMENTO do segmento ST compatível com IAM!
+                <br />
+                Revise a análise completa abaixo.
               </AlertDescription>
             </Alert>
           )}
 
           {analiseEcg && (
             <div className="border-l-4 border-l-blue-600 bg-blue-50 p-4 rounded">
-              <h4 className="font-semibold text-blue-900 mb-2">Análise de ECG por IA:</h4>
+              <h4 className="font-semibold text-blue-900 mb-2">📊 Análise Automatizada de ECG por IA:</h4>
               <pre className="text-sm text-blue-800 whitespace-pre-wrap font-sans">{analiseEcg}</pre>
+              <p className="text-xs text-blue-600 mt-3 italic">
+                ⚠️ Esta é uma análise automatizada e não substitui a interpretação médica
+              </p>
             </div>
           )}
         </div>
