@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -125,16 +126,16 @@ export default function NovaTriagem() {
     const dadosAtualizados = { ...dadosPaciente, ...dadosEtapa };
     setDadosPaciente(dadosAtualizados);
     
-    await salvarMutation.mutateAsync(dadosAtualizados);
+    const resultado = await salvarMutation.mutateAsync(dadosAtualizados);
+    const idPaciente = resultado.id || pacienteId; // Use the ID from the mutation result or current patientId
     
     // Se terminou etapa 4 e não é retriagem, mostrar tela de aguardo para médico
     if (etapaAtual === 4 && !isRetriagem) {
       setAguardandoMedico(true);
-      // Gerar link completo com protocolo e domínio
-      const baseUrl = window.location.origin;
-      const path = window.location.pathname.split('?')[0];
-      const link = `${baseUrl}${path}?id=${pacienteId}`;
-      setLinkMedico(link);
+      // Gerar link completo com protocolo e domínio usando createPageUrl
+      const pageUrl = createPageUrl("NovaTriagem"); // Get the base path for NovaTriagem
+      const fullUrl = `${window.location.origin}${pageUrl}?id=${idPaciente}`;
+      setLinkMedico(fullUrl);
       return;
     }
     
@@ -160,7 +161,6 @@ export default function NovaTriagem() {
   };
 
   const enviarPorEmail = () => {
-    // Construir relatório detalhado
     const assunto = encodeURIComponent(`[URGENTE] Avaliação Médica - ${dadosPaciente.nome_completo} - ${dadosPaciente.classificacao_risco?.cor || 'Classificação Não Definida'}`);
     
     let relatorio = `
@@ -239,6 +239,8 @@ TEMPO MÁXIMO DE ATENDIMENTO: ${dadosPaciente.classificacao_risco?.tempo_atendim
 
 Discriminadores Identificados:
 ${dadosPaciente.classificacao_risco?.discriminadores?.map(d => `  • ${d}`).join('\n') || '  Nenhum'}
+
+Enfermeiro(a) Responsável: ${dadosPaciente.enfermeiro_nome || '-'} (COREN ${dadosPaciente.enfermeiro_coren || '-'})
 
 
 ═══════════════════════════════════════════════════════════════
