@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -27,9 +26,6 @@ export default function Etapa3DadosVitais({ dadosPaciente, onProxima, onAnterior
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [analiseEcg, setAnaliseEcg] = useState(dadosPaciente.analise_ecg_ia || "");
-  // New state variables for professional identification
-  const [nomeProfissional, setNomeProfissional] = useState(dadosPaciente.nome_profissional || "");
-  const [crmProfissional, setCrmProfissional] = useState(dadosPaciente.crm_profissional || "");
 
   const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files).slice(0, 3);
@@ -56,7 +52,6 @@ export default function Etapa3DadosVitais({ dadosPaciente, onProxima, onAnterior
         prompt: `Você é um cardiologista especialista em análise de ECG. Analise os traçados eletrocardiográficos fornecidos e forneça uma interpretação COMPLETA E DETALHADA.
 
 Paciente: ${dadosPaciente.sexo}, ${dadosPaciente.idade} anos
-Profissional Responsável: ${nomeProfissional} (CRM: ${crmProfissional || 'não informado'})
 
 Foque especialmente em:
 1. ECG NORMAL vs ECG COM ALTERAÇÕES
@@ -85,9 +80,7 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
         ecg_files: novosFiles,
         data_hora_ecg: dataHoraEcg,
         tempo_triagem_ecg_minutos: tempoMinutos,
-        analise_ecg_ia: analise,
-        nome_profissional: nomeProfissional,
-        crm_profissional: crmProfissional
+        analise_ecg_ia: analise
       });
 
     } catch (error) {
@@ -103,7 +96,6 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
     if (!glicemia || isNaN(glicemia)) return null;
 
     if (dados.diabetes) {
-      // Paciente COM diabetes
       if (glicemia < 70 || glicemia > 400) {
         return { 
           texto: "Valores críticos: < 70 ou > 400 mg/dL (requer correção imediata)", 
@@ -124,7 +116,6 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
         };
       }
     } else {
-      // Paciente SEM diabetes
       if (glicemia < 60 || glicemia > 400) {
         return { 
           texto: "Valores críticos: < 60 ou > 400 mg/dL", 
@@ -146,7 +137,6 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
     if (!spo2 || isNaN(spo2)) return null;
 
     if (dados.dpoc) {
-      // Paciente COM DPOC
       if (spo2 >= 88 && spo2 <= 92) {
         return { 
           texto: "SpO2 Alvo DPOC: 88% a 92% - Dentro da meta", 
@@ -161,7 +151,6 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
         };
       }
     } else {
-      // Paciente SEM DPOC
       if (spo2 >= 92 && spo2 <= 96) {
         return { 
           texto: "SpO2 Alvo: 92% a 96% - Dentro da meta", 
@@ -189,9 +178,7 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
       ecg_files: ecgFiles,
       data_hora_ecg: dadosPaciente.data_hora_ecg, 
       tempo_triagem_ecg_minutos: dadosPaciente.tempo_triagem_ecg_minutos,
-      analise_ecg_ia: analiseEcg, 
-      nome_profissional: nomeProfissional,
-      crm_profissional: crmProfissional
+      analise_ecg_ia: analiseEcg
     });
   };
 
@@ -334,41 +321,14 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
         )}
       </div>
 
-      {/* Professional Identification fields */}
-      <div className="border-t pt-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-3">Identificação do Profissional</h3>
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="nome_profissional">Nome do Profissional</Label>
-            <Input
-              id="nome_profissional"
-              placeholder="Ex: Dr. João Silva"
-              value={nomeProfissional}
-              onChange={(e) => setNomeProfissional(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="crm_profissional">CRM do Profissional</Label>
-            <Input
-              id="crm_profissional"
-              placeholder="Ex: 123456/SP"
-              value={crmProfissional}
-              onChange={(e) => setCrmProfissional(e.target.value)}
-              required
-            />
-          </div>
-        </div>
-      </div>
-
       <div className="border-t pt-6">
         <Label className="text-lg font-semibold mb-3 block">Anexar ECG (até 3 arquivos)</Label>
         <div className="space-y-4">
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
             <input
               type="file"
-              accept="image/*,.pdf" // Updated to accept images from camera
-              capture="environment" // Added to enable rear camera on mobile
+              accept="image/*,.pdf"
+              capture="environment"
               multiple
               onChange={handleFileUpload}
               className="hidden"
