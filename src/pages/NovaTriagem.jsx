@@ -132,10 +132,8 @@ export default function NovaTriagem() {
     // Se terminou etapa 4 e não é retriagem, mostrar tela de aguardo para médico
     if (etapaAtual === 4 && !isRetriagem) {
       setAguardandoMedico(true);
-      // Construir link de forma mais simples e direta
-      const currentPath = window.location.pathname;
-      const fullUrl = `${window.location.origin}${currentPath}?id=${idPaciente}`;
-      setLinkMedico(fullUrl);
+      // Criar link simples com apenas o ID
+      setLinkMedico(`ID do Paciente: ${idPaciente}`);
       return;
     }
     
@@ -156,11 +154,13 @@ export default function NovaTriagem() {
   };
 
   const copiarLink = () => {
-    navigator.clipboard.writeText(linkMedico);
-    alert("Link copiado para área de transferência!");
+    const idPaciente = linkMedico.replace('ID do Paciente: ', '');
+    navigator.clipboard.writeText(idPaciente);
+    alert("ID do paciente copiado! Use este ID para buscar o paciente no Histórico.");
   };
 
   const enviarPorEmail = () => {
+    const idPaciente = linkMedico.replace('ID do Paciente: ', '');
     const assunto = encodeURIComponent(`[URGENTE] Avaliação Médica - ${dadosPaciente.nome_completo} - ${dadosPaciente.classificacao_risco?.cor || 'Classificação Não Definida'}`);
     
     let relatorio = `
@@ -249,10 +249,13 @@ Enfermeiro(a) Responsável: ${dadosPaciente.enfermeiro_nome || '-'} (COREN ${dad
 
 ⚕️ AVALIAÇÃO MÉDICA URGENTE NECESSÁRIA
 
-Para continuar o atendimento e registrar a avaliação médica, 
-acesse o link abaixo:
+ID DO PACIENTE: ${idPaciente}
 
-${linkMedico}
+INSTRUÇÕES PARA O MÉDICO:
+1. Acesse o sistema (mesma URL que você usa normalmente)
+2. Vá para o menu "Histórico"
+3. Busque pelo ID do paciente: ${idPaciente}
+4. Clique em "Ver Detalhes" para continuar o atendimento
 
 O sistema está em stand-by aguardando a continuidade médica.
 Todas as informações anteriores foram salvas e estarão disponíveis.
@@ -285,6 +288,8 @@ Protocolos: Diretriz SBC 2025 / Sistema Manchester
   }
 
   if (aguardandoMedico) {
+    const idPaciente = linkMedico.replace('ID do Paciente: ', '');
+    
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
         <div className="max-w-3xl mx-auto">
@@ -315,27 +320,33 @@ Protocolos: Diretriz SBC 2025 / Sistema Manchester
               <Alert className="border-orange-500 bg-orange-50 mb-6">
                 <AlertDescription className="text-orange-800 text-center">
                   <strong className="block mb-2 text-lg">⚠️ AVALIAÇÃO MÉDICA NECESSÁRIA</strong>
-                  <p>Médico deve acessar o link abaixo para continuar</p>
-                  <p className="text-sm mt-1">Sistema em stand-by até avaliação médica</p>
+                  <p>Use o ID do paciente abaixo para continuar o atendimento</p>
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-4 mb-6">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <Label className="text-sm font-medium mb-2 block">Link para o Médico:</Label>
+                <div className="bg-gray-50 p-6 rounded-lg border-2 border-blue-500">
+                  <Label className="text-sm font-medium mb-3 block">ID do Paciente:</Label>
                   <div className="flex gap-2">
                     <Input 
-                      value={linkMedico} 
+                      value={idPaciente} 
                       readOnly 
-                      className="font-mono text-sm"
+                      className="font-mono text-xl font-bold text-center"
                     />
                     <Button onClick={copiarLink} variant="outline">
                       <Copy className="w-4 h-4" />
                     </Button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    ℹ️ Copie este link e cole em qualquer navegador para continuar o atendimento
-                  </p>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm font-semibold text-blue-900 mb-2">📋 Instruções para o Médico:</p>
+                  <ol className="list-decimal pl-5 space-y-2 text-sm text-blue-800">
+                    <li>Copie o ID do paciente acima</li>
+                    <li>Vá para o menu <strong>"Histórico"</strong></li>
+                    <li>Cole o ID na busca ou procure pelo nome do paciente</li>
+                    <li>Clique em <strong>"Ver Detalhes"</strong> para continuar</li>
+                  </ol>
                 </div>
 
                 <Button 
@@ -346,19 +357,6 @@ Protocolos: Diretriz SBC 2025 / Sistema Manchester
                   <Mail className="w-4 h-4 mr-2" />
                   Enviar Relatório Completo por Email
                 </Button>
-                
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-800">
-                  <p className="font-semibold mb-1">ℹ️ O email incluirá:</p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li>Dados completos do paciente</li>
-                    <li>Respostas da triagem cardiológica</li>
-                    <li>Todos os sinais vitais</li>
-                    <li>Links dos ECGs anexados</li>
-                    <li>Análise completa do ECG por IA</li>
-                    <li>Classificação de risco e discriminadores</li>
-                    <li>Link para continuar atendimento</li>
-                  </ul>
-                </div>
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
