@@ -131,10 +131,7 @@ export default function NovaTriagem() {
     
     if (etapaAtual === 4 && !isRetriagem) {
       setAguardandoMedico(true);
-      // Criar link absoluto removendo parâmetros antigos e adicionando apenas o ID
-      const urlBase = window.location.href.split('?')[0];
-      const linkCompleto = `${urlBase}?id=${idPaciente}`;
-      setLinkMedico(linkCompleto);
+      setLinkMedico(idPaciente);
       return;
     }
     
@@ -156,7 +153,11 @@ export default function NovaTriagem() {
 
   const copiarLink = () => {
     navigator.clipboard.writeText(linkMedico);
-    alert("Link copiado! Cole no navegador para abrir.");
+    alert("ID copiado para área de transferência!");
+  };
+
+  const abrirParaMedico = () => {
+    window.open(`${window.location.pathname}?id=${linkMedico}`, '_blank');
   };
 
   const enviarPorEmail = () => {
@@ -248,14 +249,14 @@ Enfermeiro(a) Responsável: ${dadosPaciente.enfermeiro_nome || '-'} (COREN ${dad
 
 ⚕️ AVALIAÇÃO MÉDICA URGENTE NECESSÁRIA
 
-LINK PARA CONTINUIDADE DO ATENDIMENTO:
+ID DO PACIENTE PARA CONTINUIDADE DO ATENDIMENTO:
 ${linkMedico}
 
 INSTRUÇÕES:
-1. Copie o link acima
-2. Cole em um navegador (Chrome, Firefox, Edge, etc.)
-3. O sistema abrirá direto no atendimento do paciente
-4. Continue a partir da Etapa 5 (Avaliação Médica)
+1. Copie o ID acima
+2. Acesse a tela de Histórico de Atendimentos
+3. Cole o ID no campo de busca para encontrar o paciente
+4. Clique em "Ver Detalhes" para continuar o atendimento a partir da Etapa 5 (Avaliação Médica)
 
 
 ═══════════════════════════════════════════════════════════════
@@ -315,32 +316,42 @@ Protocolos: Diretriz SBC 2025 / Sistema Manchester
               <Alert className="border-orange-500 bg-orange-50 mb-6">
                 <AlertDescription className="text-orange-800 text-center">
                   <strong className="block mb-2 text-lg">⚠️ AVALIAÇÃO MÉDICA NECESSÁRIA</strong>
-                  <p>Copie o link abaixo e envie para o médico</p>
+                  <p>Use o ID do paciente para continuar o atendimento</p>
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-4 mb-6">
-                <div className="bg-gray-50 p-6 rounded-lg border-2 border-blue-500">
-                  <Label className="text-sm font-medium mb-3 block">Link para Continuidade do Atendimento:</Label>
+                <div className="bg-blue-50 p-6 rounded-lg border-2 border-blue-500">
+                  <Label className="text-sm font-medium mb-3 block text-center">ID DO PACIENTE:</Label>
+                  <div className="bg-white p-4 rounded border-2 border-blue-600 mb-3">
+                    <p className="text-3xl font-bold text-center text-blue-900 font-mono">{linkMedico}</p>
+                  </div>
                   <div className="flex gap-2">
-                    <Input 
-                      value={linkMedico} 
-                      readOnly 
-                      className="font-mono text-sm"
-                    />
-                    <Button onClick={copiarLink} variant="outline">
-                      <Copy className="w-4 h-4" />
+                    <Button onClick={copiarLink} variant="outline" className="flex-1">
+                      <Copy className="w-4 h-4 mr-2" />
+                      Copiar ID
+                    </Button>
+                    <Button onClick={abrirParaMedico} className="flex-1 bg-blue-600 hover:bg-blue-700">
+                      Abrir em Nova Aba
                     </Button>
                   </div>
                 </div>
 
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <p className="text-sm font-semibold text-green-900 mb-2">✅ OPÇÃO 1 - Continuar Diretamente:</p>
+                  <ol className="list-decimal pl-5 space-y-2 text-sm text-green-800">
+                    <li>Clique no botão "Abrir em Nova Aba" acima</li>
+                    <li>O atendimento abrirá automaticamente na Etapa 5</li>
+                  </ol>
+                </div>
+
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm font-semibold text-blue-900 mb-2">📋 Instruções para o Médico:</p>
+                  <p className="text-sm font-semibold text-blue-900 mb-2">📋 OPÇÃO 2 - Buscar no Histórico:</p>
                   <ol className="list-decimal pl-5 space-y-2 text-sm text-blue-800">
-                    <li>Copie o link acima (botão de copiar)</li>
-                    <li>Abra uma nova aba no navegador</li>
-                    <li>Cole o link e pressione Enter</li>
-                    <li>O sistema abrirá direto no atendimento do paciente</li>
+                    <li>Vá no menu lateral → "Histórico"</li>
+                    <li>Cole o ID na barra de busca</li>
+                    <li>Clique em "Ver Detalhes" no paciente encontrado</li>
+                    <li>O sistema continuará na Etapa 5 (Avaliação Médica)</li>
                   </ol>
                 </div>
 
@@ -357,6 +368,7 @@ Protocolos: Diretriz SBC 2025 / Sistema Manchester
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <h3 className="font-semibold text-blue-900 mb-2">Resumo da Triagem:</h3>
                 <div className="space-y-1 text-sm text-blue-800">
+                  <p><strong>ID:</strong> {linkMedico}</p>
                   <p><strong>Classificação:</strong> {dadosPaciente.classificacao_risco?.cor || '-'}</p>
                   <p><strong>Tempo Triagem-ECG:</strong> {dadosPaciente.tempo_triagem_ecg_minutos || '-'} min</p>
                   {dadosPaciente.triagem_cardiologica?.alerta_iam && (
