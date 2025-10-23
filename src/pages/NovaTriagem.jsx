@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -156,21 +157,110 @@ export default function NovaTriagem() {
   };
 
   const enviarPorEmail = () => {
-    const assunto = encodeURIComponent(`Avaliação Médica - ${dadosPaciente.nome_completo}`);
-    const corpo = encodeURIComponent(`
-Olá,
+    // Construir relatório detalhado
+    const assunto = encodeURIComponent(`[URGENTE] Avaliação Médica - ${dadosPaciente.nome_completo} - ${dadosPaciente.classificacao_risco?.cor || 'Classificação Não Definida'}`);
+    
+    let relatorio = `
+═══════════════════════════════════════════════════════════════
+  RELATÓRIO DE TRIAGEM - SOLICITAÇÃO DE AVALIAÇÃO MÉDICA
+═══════════════════════════════════════════════════════════════
 
-O paciente ${dadosPaciente.nome_completo} necessita de avaliação médica.
+${dadosPaciente.triagem_cardiologica?.alerta_iam ? '⚠️⚠️⚠️ ALERTA DE PROVÁVEL IAM ⚠️⚠️⚠️\n\n' : ''}
 
-Classificação de Risco: ${dadosPaciente.classificacao_risco?.cor}
-${dadosPaciente.triagem_cardiologica?.alerta_iam ? "⚠️ ALERTA DE PROVÁVEL IAM" : ""}
+═══ ETAPA 1: DADOS DO PACIENTE ═══
 
-Acesse o link abaixo para continuar o atendimento:
+Nome Completo: ${dadosPaciente.nome_completo || '-'}
+Idade: ${dadosPaciente.idade || '-'} anos
+Sexo: ${dadosPaciente.sexo || '-'}
+Prontuário: ${dadosPaciente.prontuario || '-'}
+
+Data/Hora de Chegada: ${dadosPaciente.data_hora_chegada ? format(new Date(dadosPaciente.data_hora_chegada), "dd/MM/yyyy 'às' HH:mm") : '-'}
+Início dos Sintomas: ${dadosPaciente.data_hora_inicio_sintomas ? format(new Date(dadosPaciente.data_hora_inicio_sintomas), "dd/MM/yyyy 'às' HH:mm") : '-'}
+Início da Triagem: ${dadosPaciente.data_hora_inicio_triagem ? format(new Date(dadosPaciente.data_hora_inicio_triagem), "dd/MM/yyyy 'às' HH:mm") : '-'}
+
+
+═══ ETAPA 2: TRIAGEM CARDIOLÓGICA (SBC 2025) ═══
+
+1. Dor/desconforto no peito (cicatriz umbilical → mandíbula): ${dadosPaciente.triagem_cardiologica?.dor_desconforto_peito ? 'SIM' : 'NÃO'}
+2. Duração maior que 10 minutos: ${dadosPaciente.triagem_cardiologica?.duracao_maior_10min ? 'SIM' : 'NÃO'}
+3. Irradiação (braços, mandíbula, pescoço): ${dadosPaciente.triagem_cardiologica?.irradiacao ? 'SIM' : 'NÃO'}
+4. Dor epigástrica: ${dadosPaciente.triagem_cardiologica?.dor_epigastrica ? 'SIM' : 'NÃO'}
+5. Dispneia ou diaforese: ${dadosPaciente.triagem_cardiologica?.dispneia_diaforese ? 'SIM' : 'NÃO'}
+6. >50 anos e/ou diabetes/DCV conhecida: ${dadosPaciente.triagem_cardiologica?.idade_fatores_risco ? 'SIM' : 'NÃO'}
+
+${dadosPaciente.triagem_cardiologica?.alerta_iam ? '>>> ALERTA IAM ATIVADO <<<\n' : ''}
+
+
+═══ ETAPA 3: DADOS VITAIS ═══
+
+Pressão Arterial:
+  • Braço Esquerdo: ${dadosPaciente.dados_vitais?.pa_braco_esquerdo || '-'} mmHg
+  • Braço Direito: ${dadosPaciente.dados_vitais?.pa_braco_direito || '-'} mmHg
+
+Sinais Vitais:
+  • Frequência Cardíaca: ${dadosPaciente.dados_vitais?.frequencia_cardiaca || '-'} bpm
+  • Frequência Respiratória: ${dadosPaciente.dados_vitais?.frequencia_respiratoria || '-'} irpm
+  • Temperatura: ${dadosPaciente.dados_vitais?.temperatura || '-'} °C
+  • SpO2: ${dadosPaciente.dados_vitais?.spo2 || '-'}%
+
+Comorbidades:
+  • Diabetes: ${dadosPaciente.dados_vitais?.diabetes ? 'SIM' : 'NÃO'}
+  • DPOC: ${dadosPaciente.dados_vitais?.dpoc ? 'SIM' : 'NÃO'}
+  • Glicemia Capilar: ${dadosPaciente.dados_vitais?.glicemia_capilar || '-'} mg/dL
+
+ELETROCARDIOGRAMA (ECG):
+  • Número de ECGs anexados: ${dadosPaciente.ecg_files?.length || 0}
+  • Tempo Triagem → ECG: ${dadosPaciente.tempo_triagem_ecg_minutos || '-'} minutos
+  ${dadosPaciente.tempo_triagem_ecg_minutos && dadosPaciente.tempo_triagem_ecg_minutos <= 10 ? '  ✓ DENTRO DA META (≤10 min)' : dadosPaciente.tempo_triagem_ecg_minutos ? '  ⚠️ ACIMA DA META DE 10 MINUTOS' : ''}
+
+${dadosPaciente.ecg_files?.length > 0 ? `
+Links dos ECGs:
+${dadosPaciente.ecg_files.map((url, i) => `  ${i+1}. ${url}`).join('\n')}
+` : ''}
+
+${dadosPaciente.analise_ecg_ia ? `
+─────────────────────────────────────────────
+ANÁLISE DO ECG POR INTELIGÊNCIA ARTIFICIAL:
+─────────────────────────────────────────────
+
+${dadosPaciente.analise_ecg_ia}
+
+─────────────────────────────────────────────
+` : ''}
+
+
+═══ ETAPA 4: CLASSIFICAÇÃO DE RISCO (MANCHESTER) ═══
+
+COR DE CLASSIFICAÇÃO: ${dadosPaciente.classificacao_risco?.cor || '-'}
+TEMPO MÁXIMO DE ATENDIMENTO: ${dadosPaciente.classificacao_risco?.tempo_atendimento_max || '-'}
+
+Discriminadores Identificados:
+${dadosPaciente.classificacao_risco?.discriminadores?.map(d => `  • ${d}`).join('\n') || '  Nenhum'}
+
+
+═══════════════════════════════════════════════════════════════
+  AÇÃO NECESSÁRIA
+═══════════════════════════════════════════════════════════════
+
+⚕️ AVALIAÇÃO MÉDICA URGENTE NECESSÁRIA
+
+Para continuar o atendimento e registrar a avaliação médica, 
+acesse o link abaixo:
+
 ${linkMedico}
 
----
+O sistema está em stand-by aguardando a continuidade médica.
+Todas as informações anteriores foram salvas e estarão disponíveis.
+
+
+═══════════════════════════════════════════════════════════════
 Sistema de Triagem de Dor Torácica
-    `);
+Autor: Walber Alves Frazão Júnior - COREN 110.238
+Protocolos: Diretriz SBC 2025 / Sistema Manchester
+═══════════════════════════════════════════════════════════════
+    `;
+
+    const corpo = encodeURIComponent(relatorio);
     window.location.href = `mailto:?subject=${assunto}&body=${corpo}`;
   };
 
@@ -244,17 +334,36 @@ Sistema de Triagem de Dor Torácica
                   variant="outline"
                 >
                   <Mail className="w-4 h-4 mr-2" />
-                  Enviar Link por Email
+                  Enviar Relatório Completo por Email
                 </Button>
+                
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-800">
+                  <p className="font-semibold mb-1">ℹ️ O email incluirá:</p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>Dados completos do paciente</li>
+                    <li>Respostas da triagem cardiológica</li>
+                    <li>Todos os sinais vitais</li>
+                    <li>Links dos ECGs anexados</li>
+                    <li>Análise completa do ECG por IA</li>
+                    <li>Classificação de risco e discriminadores</li>
+                    <li>Link para continuar atendimento</li>
+                  </ul>
+                </div>
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <h3 className="font-semibold text-blue-900 mb-2">Resumo da Triagem:</h3>
                 <div className="space-y-1 text-sm text-blue-800">
-                  <p><strong>Classificação:</strong> {dadosPaciente.classificacao_risco?.cor}</p>
-                  <p><strong>Tempo Triagem-ECG:</strong> {dadosPaciente.tempo_triagem_ecg_minutos} min</p>
+                  <p><strong>Classificação:</strong> {dadosPaciente.classificacao_risco?.cor || '-'}</p>
+                  <p><strong>Tempo Triagem-ECG:</strong> {dadosPaciente.tempo_triagem_ecg_minutos || '-'} min</p>
                   {dadosPaciente.triagem_cardiologica?.alerta_iam && (
                     <p className="text-red-600 font-bold">⚠️ ALERTA DE PROVÁVEL IAM</p>
+                  )}
+                  {dadosPaciente.ecg_files?.length > 0 && (
+                    <p><strong>ECGs anexados:</strong> {dadosPaciente.ecg_files.length}</p>
+                  )}
+                  {dadosPaciente.analise_ecg_ia && (
+                    <p className="text-green-600 font-semibold">✓ Análise por IA disponível</p>
                   )}
                 </div>
               </div>
