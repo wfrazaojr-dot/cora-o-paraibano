@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, FileImage } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -56,9 +57,18 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
   const [classificacao, setClassificacao] = useState(dadosPaciente.classificacao_risco || null);
 
   useEffect(() => {
+    // Initialize selected discriminators if IAM alert is present from previous steps
+    if (dadosPaciente.triagem_cardiologica?.alerta_iam && !discriminadoresSelecionados.includes("Alerta de provável IAM (triagem cardiológica)")) {
+      setDiscriminadoresSelecionados(prev => [...prev, "Alerta de provável IAM (triagem cardiológica)"]);
+    }
+  }, [dadosPaciente.triagem_cardiologica?.alerta_iam]);
+
+
+  useEffect(() => {
     if (discriminadoresSelecionados.length > 0) {
-      let cor = "Azul";
+      let cor = "Azul"; // Default to Azul if no higher-priority discriminators are selected
       
+      // Determine the highest classification based on selected discriminators
       if (discriminadoresSelecionados.some(d => discriminadores.vermelha.includes(d))) {
         cor = "Vermelha";
       } else if (discriminadoresSelecionados.some(d => discriminadores.laranja.includes(d))) {
@@ -69,22 +79,27 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
         cor = "Verde";
       }
 
-      if (dadosPaciente.triagem_cardiologica?.alerta_iam) {
+      // Override to Laranja if IAM alert is present, ensuring it's the minimum
+      if (dadosPaciente.triagem_cardiologica?.alerta_iam && (cor === "Azul" || cor === "Verde" || cor === "Amarela")) {
         cor = "Laranja";
-        if (!discriminadoresSelecionados.includes("Alerta de provável IAM (triagem cardiológica)")) {
-          setDiscriminadoresSelecionados([...discriminadoresSelecionados, "Alerta de provável IAM (triagem cardiológica)"]);
-        }
       }
-
+      
       setClassificacao({
         cor,
         tempo_atendimento_max: temposAtendimento[cor],
         discriminadores: discriminadoresSelecionados
       });
+    } else {
+      setClassificacao(null); // No discriminators selected, no classification
     }
-  }, [discriminadoresSelecionados]);
+  }, [discriminadoresSelecionados, dadosPaciente.triagem_cardiologica?.alerta_iam]);
 
   const toggleDiscriminador = (discriminador) => {
+    // Prevent unchecking IAM alert if it's automatically set
+    if (discriminador === "Alerta de provável IAM (triagem cardiológica)" && dadosPaciente.triagem_cardiologica?.alerta_iam) {
+      return;
+    }
+
     if (discriminadoresSelecionados.includes(discriminador)) {
       setDiscriminadoresSelecionados(discriminadoresSelecionados.filter(d => d !== discriminador));
     } else {
@@ -114,6 +129,41 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Classificação de Risco</h2>
         <p className="text-gray-600">Sistema Manchester - Selecione os discriminadores identificados</p>
       </div>
+
+      {dadosPaciente.ecg_files && dadosPaciente.ecg_files.length > 0 && (
+        <div className="border-l-4 border-l-blue-600 bg-blue-50 p-4 rounded">
+          <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+            <FileImage className="w-5 h-5" />
+            ECGs Anexados ({dadosPaciente.ecg_files.length})
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {dadosPaciente.ecg_files.map((url, index) => (
+              <div key={index} className="border rounded overflow-hidden bg-white">
+                <img 
+                  src={url} 
+                  alt={`ECG ${index + 1}`} 
+                  className="w-full h-48 object-contain"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+                <div style={{display: 'none'}} className="w-full h-48 items-center justify-center bg-gray-100">
+                  <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm">
+                    Ver ECG {index + 1}
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+          {dadosPaciente.analise_ecg_ia && (
+            <div className="mt-4 p-3 bg-white rounded border border-blue-200">
+              <p className="text-xs font-semibold text-blue-900 mb-1">Análise por IA:</p>
+              <p className="text-xs text-blue-800 whitespace-pre-wrap">{dadosPaciente.analise_ecg_ia.substring(0, 300)}...</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {dadosPaciente.triagem_cardiologica?.alerta_iam && (
         <Alert className="border-orange-500 bg-orange-50">

@@ -17,7 +17,9 @@ const medicamentosComuns = [
   { medicamento: "Captopril", dose: "6,25-12,5 mg", via: "VO" },
   { medicamento: "Enalapril", dose: "2,5-5 mg", via: "VO" },
   { medicamento: "Morfina", dose: "2-4 mg", via: "EV" },
-  { medicamento: "Nitroglicerina", dose: "0,4 mg SL", via: "SL" },
+  { medicamento: "Nitroglicerina", dose: "50 mg/250 ml (diluir)", via: "EV" },
+  { medicamento: "Nitrato (Dinitrato de Isossorbida)", dose: "5 mg", via: "SL" },
+  { medicamento: "Nitrato (Mononitrato de Isossorbida)", dose: "5 mg", via: "SL" },
 ];
 
 export default function Etapa6Prescricao({ dadosPaciente, onProxima, onAnterior }) {
@@ -126,7 +128,7 @@ export default function Etapa6Prescricao({ dadosPaciente, onProxima, onAnterior 
                     <Input
                       value={med.via}
                       onChange={(e) => atualizarMedicamento(index, "via", e.target.value)}
-                      placeholder="Ex: VO, EV, SC"
+                      placeholder="Ex: VO, EV, SC, SL"
                     />
                   </div>
                   <div className="flex items-end gap-2">

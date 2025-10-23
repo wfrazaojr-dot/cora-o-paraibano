@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, FileImage, Activity } from "lucide-react";
 import { format } from "date-fns";
 
 export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnterior }) {
@@ -30,6 +30,45 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Avaliação Médica</h2>
         <p className="text-gray-600">Registro da avaliação clínica e diagnósticos</p>
       </div>
+
+      {dadosPaciente.ecg_files && dadosPaciente.ecg_files.length > 0 && (
+        <div className="border-l-4 border-l-blue-600 bg-blue-50 p-4 rounded">
+          <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+            <FileImage className="w-5 h-5" />
+            ECGs do Paciente
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+            {dadosPaciente.ecg_files.map((url, index) => (
+              <div key={index} className="border rounded overflow-hidden bg-white">
+                <img 
+                  src={url} 
+                  alt={`ECG ${index + 1}`} 
+                  className="w-full h-48 object-contain cursor-pointer hover:opacity-80"
+                  onClick={() => window.open(url, '_blank')}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+                <div style={{display: 'none'}} className="w-full h-48 items-center justify-center bg-gray-100">
+                  <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm">
+                    Ver ECG {index + 1}
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+          {dadosPaciente.analise_ecg_ia && (
+            <div className="p-4 bg-white rounded border border-blue-200">
+              <p className="text-sm font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                <Activity className="w-4 h-4" />
+                Análise do ECG por Inteligência Artificial:
+              </p>
+              <pre className="text-sm text-blue-800 whitespace-pre-wrap font-sans">{dadosPaciente.analise_ecg_ia}</pre>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="data_avaliacao">Data e Hora da Avaliação</Label>

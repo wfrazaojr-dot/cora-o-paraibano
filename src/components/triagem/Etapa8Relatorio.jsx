@@ -15,7 +15,7 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [checklistConcluido, setChecklistConcluido] = useState(false);
-  const [enviandoEmail, setEnviandoEmail] = useState(false);
+  const [gerandoPDF, setGerandoPDF] = useState(false);
 
   const finalizarMutation = useMutation({
     mutationFn: async (dados) => {
@@ -27,110 +27,182 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
     },
   });
 
-  const gerarRelatorioPDF = () => {
-    const conteudo = `
-=================================================================
-           RELATÓRIO DE ATENDIMENTO - DOR TORÁCICA
-=================================================================
+  const gerarRelatorioPDF = async () => {
+    setGerandoPDF(true);
+    try {
+      // Gerar HTML do relatório
+      const htmlRelatorio = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Relatório de Atendimento - Dor Torácica</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+    h1 { color: #DC2626; text-align: center; border-bottom: 3px solid #DC2626; padding-bottom: 10px; }
+    h2 { color: #DC2626; margin-top: 30px; border-bottom: 2px solid #EF4444; padding-bottom: 5px; }
+    h3 { color: #374151; margin-top: 20px; }
+    .section { margin-bottom: 25px; }
+    .info-row { display: flex; margin-bottom: 8px; }
+    .label { font-weight: bold; min-width: 200px; }
+    .alert { background: #FEE2E2; border-left: 4px solid #DC2626; padding: 10px; margin: 15px 0; }
+    .ecg-container { margin: 20px 0; }
+    .ecg-img { max-width: 100%; height: auto; border: 1px solid #ccc; margin: 10px 0; }
+    .analise { background: #EFF6FF; border-left: 4px solid #3B82F6; padding: 15px; margin: 15px 0; white-space: pre-wrap; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    table, th, td { border: 1px solid #ddd; }
+    th, td { padding: 10px; text-align: left; }
+    th { background-color: #f3f4f6; font-weight: bold; }
+    .footer { margin-top: 50px; padding-top: 20px; border-top: 2px solid #DC2626; font-size: 12px; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>RELATÓRIO DE ATENDIMENTO - DOR TORÁCICA</h1>
+  
+  <div class="section">
+    <h2>DADOS DO PACIENTE</h2>
+    <div class="info-row"><span class="label">Nome:</span> ${dadosPaciente.nome_completo}</div>
+    <div class="info-row"><span class="label">Idade:</span> ${dadosPaciente.idade} anos</div>
+    <div class="info-row"><span class="label">Sexo:</span> ${dadosPaciente.sexo}</div>
+    <div class="info-row"><span class="label">Prontuário:</span> ${dadosPaciente.prontuario}</div>
+    <div class="info-row"><span class="label">Data/Hora Chegada:</span> ${format(new Date(dadosPaciente.data_hora_chegada), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</div>
+    <div class="info-row"><span class="label">Início dos Sintomas:</span> ${format(new Date(dadosPaciente.data_hora_inicio_sintomas), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</div>
+  </div>
 
-DADOS DO PACIENTE
------------------------------------------------------------------
-Nome: ${dadosPaciente.nome_completo}
-Idade: ${dadosPaciente.idade} anos | Sexo: ${dadosPaciente.sexo}
-Prontuário: ${dadosPaciente.prontuario}
-Data/Hora Chegada: ${format(new Date(dadosPaciente.data_hora_chegada), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-Início dos Sintomas: ${format(new Date(dadosPaciente.data_hora_inicio_sintomas), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+  <div class="section">
+    <h2>CLASSIFICAÇÃO DE RISCO</h2>
+    <div class="info-row"><span class="label">Cor:</span> <strong>${dadosPaciente.classificacao_risco?.cor}</strong></div>
+    <div class="info-row"><span class="label">Tempo Máximo:</span> ${dadosPaciente.classificacao_risco?.tempo_atendimento_max}</div>
+    <div class="info-row"><span class="label">Discriminadores:</span> ${dadosPaciente.classificacao_risco?.discriminadores?.join(", ")}</div>
+  </div>
 
-CLASSIFICAÇÃO DE RISCO
------------------------------------------------------------------
-Cor: ${dadosPaciente.classificacao_risco?.cor}
-Tempo Máximo: ${dadosPaciente.classificacao_risco?.tempo_atendimento_max}
-Discriminadores: ${dadosPaciente.classificacao_risco?.discriminadores?.join(", ")}
+  ${dadosPaciente.triagem_cardiologica?.alerta_iam ? '<div class="alert">⚠️ ALERTA DE PROVÁVEL IAM DETECTADO</div>' : ''}
 
-TRIAGEM CARDIOLÓGICA
------------------------------------------------------------------
-${dadosPaciente.triagem_cardiologica?.alerta_iam ? "⚠️ ALERTA DE PROVÁVEL IAM DETECTADO" : "Sem alerta de IAM"}
+  <div class="section">
+    <h2>DADOS VITAIS</h2>
+    <table>
+      <tr><th>Parâmetro</th><th>Valor</th></tr>
+      <tr><td>PA Braço Esquerdo</td><td>${dadosPaciente.dados_vitais?.pa_braco_esquerdo || "-"}</td></tr>
+      <tr><td>PA Braço Direito</td><td>${dadosPaciente.dados_vitais?.pa_braco_direito || "-"}</td></tr>
+      <tr><td>Frequência Cardíaca</td><td>${dadosPaciente.dados_vitais?.frequencia_cardiaca || "-"} bpm</td></tr>
+      <tr><td>Frequência Respiratória</td><td>${dadosPaciente.dados_vitais?.frequencia_respiratoria || "-"} irpm</td></tr>
+      <tr><td>Temperatura</td><td>${dadosPaciente.dados_vitais?.temperatura || "-"} °C</td></tr>
+      <tr><td>SpO2</td><td>${dadosPaciente.dados_vitais?.spo2 || "-"} %</td></tr>
+      <tr><td>Glicemia Capilar</td><td>${dadosPaciente.dados_vitais?.glicemia_capilar || "-"} mg/dL</td></tr>
+      <tr><td>Diabetes</td><td>${dadosPaciente.dados_vitais?.diabetes ? "Sim" : "Não"}</td></tr>
+      <tr><td>DPOC</td><td>${dadosPaciente.dados_vitais?.dpoc ? "Sim" : "Não"}</td></tr>
+    </table>
+  </div>
 
-DADOS VITAIS
------------------------------------------------------------------
-PA Esquerdo: ${dadosPaciente.dados_vitais?.pa_braco_esquerdo || "-"}
-PA Direito: ${dadosPaciente.dados_vitais?.pa_braco_direito || "-"}
-FC: ${dadosPaciente.dados_vitais?.frequencia_cardiaca || "-"} bpm
-FR: ${dadosPaciente.dados_vitais?.frequencia_respiratoria || "-"} irpm
-Temperatura: ${dadosPaciente.dados_vitais?.temperatura || "-"} °C
-SpO2: ${dadosPaciente.dados_vitais?.spo2 || "-"} %
-Glicemia: ${dadosPaciente.dados_vitais?.glicemia_capilar || "-"} mg/dL
-Diabetes: ${dadosPaciente.dados_vitais?.diabetes ? "Sim" : "Não"}
-DPOC: ${dadosPaciente.dados_vitais?.dpoc ? "Sim" : "Não"}
+  <div class="section">
+    <h2>ELETROCARDIOGRAMA</h2>
+    <div class="info-row"><span class="label">Tempo Triagem-ECG:</span> ${dadosPaciente.tempo_triagem_ecg_minutos || "-"} minutos ${dadosPaciente.tempo_triagem_ecg_minutos <= 10 ? "✓ Dentro da meta" : "⚠️ Acima da meta"}</div>
+    
+    ${dadosPaciente.ecg_files && dadosPaciente.ecg_files.length > 0 ? `
+    <div class="ecg-container">
+      <h3>ECGs Anexados:</h3>
+      ${dadosPaciente.ecg_files.map((url, i) => `
+        <div>
+          <p><strong>ECG ${i+1}:</strong></p>
+          <img src="${url}" alt="ECG ${i+1}" class="ecg-img" />
+        </div>
+      `).join('')}
+    </div>
+    ` : '<p>Nenhum ECG anexado</p>'}
+    
+    ${dadosPaciente.analise_ecg_ia ? `
+    <div class="analise">
+      <h3>Análise de ECG por Inteligência Artificial:</h3>
+      ${dadosPaciente.analise_ecg_ia}
+    </div>
+    ` : ''}
+  </div>
 
-ELETROCARDIOGRAMA
------------------------------------------------------------------
-Tempo Triagem-ECG: ${dadosPaciente.tempo_triagem_ecg_minutos || "-"} minutos
-${dadosPaciente.tempo_triagem_ecg_minutos <= 10 ? "✓ Dentro da meta de 10 minutos" : "⚠️ Acima da meta de 10 minutos"}
+  <div class="section">
+    <h2>AVALIAÇÃO MÉDICA</h2>
+    <div class="info-row"><span class="label">Data/Hora Avaliação:</span> ${dadosPaciente.avaliacao_medica?.data_hora_avaliacao ? format(new Date(dadosPaciente.avaliacao_medica.data_hora_avaliacao), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR }) : "-"}</div>
+    
+    <h3>Antecedentes:</h3>
+    <p>${dadosPaciente.avaliacao_medica?.antecedentes || "Não informado"}</p>
+    
+    <h3>Quadro Clínico Atual:</h3>
+    <p>${dadosPaciente.avaliacao_medica?.quadro_atual || "Não informado"}</p>
+    
+    <h3>Hipóteses Diagnósticas:</h3>
+    <p>${dadosPaciente.avaliacao_medica?.hipoteses_diagnosticas || "Não informado"}</p>
+    
+    <h3>Diagnóstico Confirmado:</h3>
+    <p><strong>${dadosPaciente.avaliacao_medica?.diagnostico_confirmado || "Não informado"}</strong></p>
+    
+    <h3>Observações:</h3>
+    <p>${dadosPaciente.avaliacao_medica?.observacoes || "Não informado"}</p>
+  </div>
 
-ANÁLISE DE ECG (IA):
-${dadosPaciente.analise_ecg_ia || "Não disponível"}
+  <div class="section">
+    <h2>PRESCRIÇÃO MEDICAMENTOSA</h2>
+    ${dadosPaciente.prescricao_medicamentos?.length > 0 ? `
+    <table>
+      <tr><th>#</th><th>Medicamento</th><th>Dose</th><th>Via</th><th>Status</th></tr>
+      ${dadosPaciente.prescricao_medicamentos.map((m, i) => `
+        <tr>
+          <td>${i+1}</td>
+          <td>${m.medicamento}</td>
+          <td>${m.dose}</td>
+          <td>${m.via}</td>
+          <td>${m.administrado ? "✓ Administrado" : "⚠️ Não administrado"}</td>
+        </tr>
+      `).join('')}
+    </table>
+    ` : '<p>Nenhum medicamento prescrito</p>'}
+  </div>
 
-AVALIAÇÃO MÉDICA
------------------------------------------------------------------
-Data/Hora: ${dadosPaciente.avaliacao_medica?.data_hora_avaliacao ? format(new Date(dadosPaciente.avaliacao_medica.data_hora_avaliacao), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR }) : "-"}
+  <div class="section">
+    <h2>EXAMES SOLICITADOS</h2>
+    ${dadosPaciente.exames_solicitados?.length > 0 ? `
+    <ul>
+      ${dadosPaciente.exames_solicitados.map(e => `<li>${e}</li>`).join('')}
+    </ul>
+    ` : '<p>Nenhum exame solicitado</p>'}
+  </div>
 
-Antecedentes:
-${dadosPaciente.avaliacao_medica?.antecedentes || "Não informado"}
-
-Quadro Atual:
-${dadosPaciente.avaliacao_medica?.quadro_atual || "Não informado"}
-
-Hipóteses Diagnósticas:
-${dadosPaciente.avaliacao_medica?.hipoteses_diagnosticas || "Não informado"}
-
-Diagnóstico Confirmado:
-${dadosPaciente.avaliacao_medica?.diagnostico_confirmado || "Não informado"}
-
-Observações:
-${dadosPaciente.avaliacao_medica?.observacoes || "Não informado"}
-
-PRESCRIÇÃO MEDICAMENTOSA
------------------------------------------------------------------
-${dadosPaciente.prescricao_medicamentos?.length > 0 
-  ? dadosPaciente.prescricao_medicamentos.map((m, i) => 
-      `${i+1}. ${m.medicamento} - ${m.dose} (${m.via}) ${m.administrado ? "✓ Administrado" : "⚠️ Não administrado"}`
-    ).join("\n")
-  : "Nenhum medicamento prescrito"}
-
-EXAMES SOLICITADOS
------------------------------------------------------------------
-${dadosPaciente.exames_solicitados?.length > 0 
-  ? dadosPaciente.exames_solicitados.map((e, i) => `${i+1}. ${e}`).join("\n")
-  : "Nenhum exame solicitado"}
-
-=================================================================
-Sistema de Triagem de Dor Torácica
-Autor: Walber Alves Frazão Júnior - COREN 110.238
-Protocolos: Diretriz Brasileira de Atendimento à Dor Torácica 
-na Unidade de Emergência – 2025 / Sistema Manchester
-=================================================================
+  <div class="footer">
+    <p><strong>Sistema de Triagem de Dor Torácica</strong></p>
+    <p>Autor: Walber Alves Frazão Júnior - COREN 110.238</p>
+    <p>Protocolos: Diretriz Brasileira de Atendimento à Dor Torácica na Unidade de Emergência – 2025 / Sistema Manchester</p>
+    <p>Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm:ss", { locale: ptBR })}</p>
+  </div>
+</body>
+</html>
 `;
 
-    const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Relatorio_${dadosPaciente.nome_completo.replace(/ /g, '_')}_${format(new Date(), 'yyyyMMdd_HHmm')}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+      // Criar um blob com o HTML
+      const blob = new Blob([htmlRelatorio], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Relatorio_${dadosPaciente.nome_completo.replace(/ /g, '_')}_${format(new Date(), 'yyyyMMdd_HHmm')}.html`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      // Abrir em nova aba para impressão como PDF
+      const printWindow = window.open(url);
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
+
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      alert("Erro ao gerar relatório. Tente novamente.");
+    }
+    setGerandoPDF(false);
   };
 
-  const enviarPorEmail = async () => {
-    const email = prompt("Digite o email da Central de Regulação:");
-    if (!email) return;
-
-    setEnviandoEmail(true);
-    try {
-      const conteudo = `
-RELATÓRIO DE ATENDIMENTO - DOR TORÁCICA
+  const abrirEmailComRelatorio = () => {
+    const assunto = encodeURIComponent(`[URGENTE] Regulação - ${dadosPaciente.nome_completo} - ${dadosPaciente.classificacao_risco?.cor}`);
+    const corpo = encodeURIComponent(`
+SOLICITAÇÃO DE REGULAÇÃO - DOR TORÁCICA
 
 PACIENTE: ${dadosPaciente.nome_completo}
 IDADE: ${dadosPaciente.idade} anos | SEXO: ${dadosPaciente.sexo}
@@ -143,24 +215,15 @@ DIAGNÓSTICO: ${dadosPaciente.avaliacao_medica?.diagnostico_confirmado || "Em in
 
 TEMPO TRIAGEM-ECG: ${dadosPaciente.tempo_triagem_ecg_minutos} minutos
 
-Para relatório completo, acesse o sistema.
+IMPORTANTE: Relatório completo em anexo (gerar PDF antes de enviar).
+
+Por favor, baixe o relatório em PDF através do botão "Baixar Relatório (PDF)" e anexe neste email.
 
 ---
-Gerado pelo Sistema de Triagem de Dor Torácica
-`;
+Sistema de Triagem de Dor Torácica
+    `);
 
-      await base44.integrations.Core.SendEmail({
-        to: email,
-        subject: `[URGENTE] Relatório - ${dadosPaciente.nome_completo} - ${dadosPaciente.classificacao_risco?.cor}`,
-        body: conteudo,
-        from_name: "Sistema Triagem Dor Torácica"
-      });
-
-      alert("Email enviado com sucesso!");
-    } catch (error) {
-      alert("Erro ao enviar email. Tente novamente.");
-    }
-    setEnviandoEmail(false);
+    window.location.href = `mailto:?subject=${assunto}&body=${corpo}`;
   };
 
   const handleFinalizar = async () => {
@@ -226,7 +289,7 @@ Gerado pelo Sistema de Triagem de Dor Torácica
         <AlertDescription className="text-red-800">
           <strong className="block mb-2">⚠️ NECESSIDADE DE REGULAÇÃO</strong>
           Este paciente requer transferência para unidade especializada. 
-          Clique abaixo para gerar o relatório e enviar para a Central de Regulação.
+          Gere o relatório em PDF e envie para a Central de Regulação.
         </AlertDescription>
       </Alert>
 
@@ -236,28 +299,34 @@ Gerado pelo Sistema de Triagem de Dor Torácica
           variant="outline"
           className="w-full"
           type="button"
+          disabled={gerandoPDF}
         >
           <FileText className="w-4 h-4 mr-2" />
-          Baixar Relatório (TXT)
+          {gerandoPDF ? "Gerando..." : "Baixar Relatório (PDF)"}
         </Button>
 
         <Button
-          onClick={enviarPorEmail}
+          onClick={abrirEmailComRelatorio}
           variant="outline"
           className="w-full"
-          disabled={enviandoEmail}
           type="button"
         >
-          {enviandoEmail ? (
-            <>Enviando...</>
-          ) : (
-            <>
-              <Mail className="w-4 h-4 mr-2" />
-              Enviar por Email
-            </>
-          )}
+          <Mail className="w-4 h-4 mr-2" />
+          Enviar por Email
         </Button>
       </div>
+
+      <Alert className="border-blue-500 bg-blue-50">
+        <AlertDescription className="text-blue-800 text-sm">
+          <strong>Instruções:</strong> 
+          <ol className="list-decimal pl-5 mt-2 space-y-1">
+            <li>Clique em "Baixar Relatório (PDF)" para gerar e baixar o relatório completo</li>
+            <li>Imprima como PDF através do navegador (Ctrl+P ou Cmd+P)</li>
+            <li>Clique em "Enviar por Email" para abrir seu cliente de email</li>
+            <li>Anexe o PDF gerado ao email e envie para a Central de Regulação</li>
+          </ol>
+        </AlertDescription>
+      </Alert>
 
       <div className="flex justify-between pt-4">
         <Button type="button" variant="outline" onClick={onAnterior}>
