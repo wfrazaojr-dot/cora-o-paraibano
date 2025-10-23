@@ -28,11 +28,17 @@ export default function Historico() {
     initialData: [],
   });
 
-  const pacientesFiltrados = pacientes.filter(p =>
-    p.nome_completo?.toLowerCase().includes(busca.toLowerCase()) ||
-    p.prontuario?.includes(busca) ||
-    p.classificacao_risco?.cor?.toLowerCase().includes(busca.toLowerCase())
-  );
+  const pacientesFiltrados = pacientes.filter(p => {
+    const termoBusca = busca.toLowerCase().trim();
+    if (!termoBusca) return true;
+    
+    return (
+      p.nome_completo?.toLowerCase().includes(termoBusca) ||
+      p.prontuario?.includes(termoBusca) ||
+      p.classificacao_risco?.cor?.toLowerCase().includes(termoBusca) ||
+      p.id?.toLowerCase().includes(termoBusca)
+    );
+  });
 
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
@@ -47,12 +53,21 @@ export default function Historico() {
             <div className="relative">
               <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
               <Input
-                placeholder="Buscar por nome, prontuário ou classificação..."
+                placeholder="Buscar por nome, prontuário, classificação ou ID do paciente..."
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
                 className="pl-10"
               />
             </div>
+            {busca && (
+              <p className="text-sm text-gray-500 mt-2">
+                {pacientesFiltrados.length === 0 ? (
+                  <span className="text-red-600">Nenhum paciente encontrado com "{busca}"</span>
+                ) : (
+                  <span>Mostrando {pacientesFiltrados.length} resultado(s) para "{busca}"</span>
+                )}
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -64,7 +79,9 @@ export default function Historico() {
             {isLoading ? (
               <div className="p-8 text-center text-gray-500">Carregando...</div>
             ) : pacientesFiltrados.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">Nenhum paciente encontrado</div>
+              <div className="p-8 text-center text-gray-500">
+                {busca ? `Nenhum paciente encontrado` : `Nenhum paciente cadastrado`}
+              </div>
             ) : (
               <div className="divide-y">
                 {pacientesFiltrados.map((paciente) => (
@@ -76,6 +93,9 @@ export default function Historico() {
                             <h3 className="font-semibold text-lg text-gray-900">{paciente.nome_completo}</h3>
                             <p className="text-sm text-gray-600">
                               {paciente.idade} anos • {paciente.sexo} • Pront. {paciente.prontuario}
+                            </p>
+                            <p className="text-xs text-gray-500 font-mono mt-1">
+                              ID: {paciente.id}
                             </p>
                           </div>
                           {paciente.classificacao_risco?.cor && (
