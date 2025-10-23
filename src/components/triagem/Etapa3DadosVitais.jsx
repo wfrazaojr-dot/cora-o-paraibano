@@ -93,32 +93,81 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
 
   const getGlicemiaStatus = () => {
     const glicemia = parseFloat(dados.glicemia_capilar);
-    if (!glicemia) return null;
+    if (!glicemia || isNaN(glicemia)) return null;
 
     if (dados.diabetes) {
+      // Paciente COM diabetes
       if (glicemia < 70 || glicemia > 400) {
-        return { texto: "Valores críticos: < 70 ou > 400 mg/dL (requer correção imediata)", cor: "text-red-600" };
+        return { 
+          texto: "Valores críticos: < 70 ou > 400 mg/dL (requer correção imediata)", 
+          cor: "text-red-600 font-semibold",
+          bg: "bg-red-50 border-red-300"
+        };
+      } else if (glicemia >= 80 && glicemia <= 180) {
+        return { 
+          texto: "Valores aceitáveis: 80 a 180 mg/dL (meta de glicemia)", 
+          cor: "text-green-600 font-semibold",
+          bg: "bg-green-50 border-green-300"
+        };
+      } else {
+        return { 
+          texto: "Valores aceitáveis: 80 a 180 mg/dL (meta de glicemia) - Fora da meta ideal", 
+          cor: "text-orange-600 font-semibold",
+          bg: "bg-orange-50 border-orange-300"
+        };
       }
-      if (glicemia >= 80 && glicemia <= 180) {
-        return { texto: "Valores aceitáveis: 80 a 180 mg/dL (meta de glicemia)", cor: "text-green-600" };
-      }
-      return { texto: "Fora da meta ideal", cor: "text-orange-600" };
     } else {
+      // Paciente SEM diabetes
       if (glicemia < 60 || glicemia > 400) {
-        return { texto: "Valores críticos: < 60 ou > 400 mg/dL", cor: "text-red-600" };
+        return { 
+          texto: "Valores críticos: < 60 ou > 400 mg/dL", 
+          cor: "text-red-600 font-semibold",
+          bg: "bg-red-50 border-red-300"
+        };
+      } else {
+        return { 
+          texto: "Valores aceitáveis: 70 a 400 mg/dL", 
+          cor: "text-green-600 font-semibold",
+          bg: "bg-green-50 border-green-300"
+        };
       }
-      return { texto: "Valores aceitáveis: 70 a 400 mg/dL", cor: "text-green-600" };
     }
   };
 
   const getSpo2Status = () => {
     const spo2 = parseFloat(dados.spo2);
-    if (!spo2) return null;
+    if (!spo2 || isNaN(spo2)) return null;
 
     if (dados.dpoc) {
-      return { texto: "SpO2 Alvo DPOC: 88% a 92%", cor: spo2 >= 88 && spo2 <= 92 ? "text-green-600" : "text-orange-600" };
+      // Paciente COM DPOC
+      if (spo2 >= 88 && spo2 <= 92) {
+        return { 
+          texto: "SpO2 Alvo DPOC: 88% a 92% - Dentro da meta", 
+          cor: "text-green-600 font-semibold",
+          bg: "bg-green-50 border-green-300"
+        };
+      } else {
+        return { 
+          texto: "SpO2 Alvo DPOC: 88% a 92% - Fora da meta", 
+          cor: "text-orange-600 font-semibold",
+          bg: "bg-orange-50 border-orange-300"
+        };
+      }
     } else {
-      return { texto: "SpO2 Alvo: 92% a 96%", cor: spo2 >= 92 && spo2 <= 96 ? "text-green-600" : "text-orange-600" };
+      // Paciente SEM DPOC
+      if (spo2 >= 92 && spo2 <= 96) {
+        return { 
+          texto: "SpO2 Alvo: 92% a 96% - Dentro da meta", 
+          cor: "text-green-600 font-semibold",
+          bg: "bg-green-50 border-green-300"
+        };
+      } else {
+        return { 
+          texto: "SpO2 Alvo: 92% a 96% - Fora da meta", 
+          cor: "text-orange-600 font-semibold",
+          bg: "bg-orange-50 border-orange-300"
+        };
+      }
     }
   };
 
@@ -205,9 +254,11 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
             onChange={(e) => setDados({...dados, spo2: parseFloat(e.target.value)})}
           />
           {getSpo2Status() && (
-            <p className={`text-sm font-medium ${getSpo2Status().cor}`}>
-              {getSpo2Status().texto}
-            </p>
+            <div className={`text-sm p-3 rounded border ${getSpo2Status().bg}`}>
+              <p className={getSpo2Status().cor}>
+                {getSpo2Status().texto}
+              </p>
+            </div>
           )}
         </div>
       </div>
@@ -222,11 +273,11 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="sim" id="diabetes-sim" />
-              <Label htmlFor="diabetes-sim">SIM</Label>
+              <Label htmlFor="diabetes-sim" className="cursor-pointer">SIM</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="nao" id="diabetes-nao" />
-              <Label htmlFor="diabetes-nao">NÃO</Label>
+              <Label htmlFor="diabetes-nao" className="cursor-pointer">NÃO</Label>
             </div>
           </RadioGroup>
         </div>
@@ -240,11 +291,11 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="sim" id="dpoc-sim" />
-              <Label htmlFor="dpoc-sim">SIM</Label>
+              <Label htmlFor="dpoc-sim" className="cursor-pointer">SIM</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="nao" id="dpoc-nao" />
-              <Label htmlFor="dpoc-nao">NÃO</Label>
+              <Label htmlFor="dpoc-nao" className="cursor-pointer">NÃO</Label>
             </div>
           </RadioGroup>
         </div>
@@ -260,9 +311,11 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
           onChange={(e) => setDados({...dados, glicemia_capilar: parseFloat(e.target.value)})}
         />
         {getGlicemiaStatus() && (
-          <p className={`text-sm font-medium ${getGlicemiaStatus().cor}`}>
-            {getGlicemiaStatus().texto}
-          </p>
+          <div className={`text-sm p-3 rounded border ${getGlicemiaStatus().bg}`}>
+            <p className={getGlicemiaStatus().cor}>
+              {getGlicemiaStatus().texto}
+            </p>
+          </div>
         )}
       </div>
 
