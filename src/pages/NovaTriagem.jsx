@@ -132,9 +132,9 @@ export default function NovaTriagem() {
     // Se terminou etapa 4 e não é retriagem, mostrar tela de aguardo para médico
     if (etapaAtual === 4 && !isRetriagem) {
       setAguardandoMedico(true);
-      // Gerar link completo com protocolo e domínio usando createPageUrl
-      const pageUrl = createPageUrl("NovaTriagem"); // Get the base path for NovaTriagem
-      const fullUrl = `${window.location.origin}${pageUrl}?id=${idPaciente}`;
+      // Construir link de forma mais simples e direta
+      const currentPath = window.location.pathname;
+      const fullUrl = `${window.location.origin}${currentPath}?id=${idPaciente}`;
       setLinkMedico(fullUrl);
       return;
     }
@@ -334,7 +334,7 @@ Protocolos: Diretriz SBC 2025 / Sistema Manchester
                     </Button>
                   </div>
                   <p className="text-xs text-gray-500 mt-2">
-                    ℹ️ Este link pode ser aberto em qualquer dispositivo para continuar o atendimento
+                    ℹ️ Copie este link e cole em qualquer navegador para continuar o atendimento
                   </p>
                 </div>
 
