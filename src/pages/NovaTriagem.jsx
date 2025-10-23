@@ -127,13 +127,14 @@ export default function NovaTriagem() {
     setDadosPaciente(dadosAtualizados);
     
     const resultado = await salvarMutation.mutateAsync(dadosAtualizados);
-    const idPaciente = resultado.id || pacienteId; // Use the ID from the mutation result or current patientId
+    const idPaciente = resultado.id || pacienteId;
     
-    // Se terminou etapa 4 e não é retriagem, mostrar tela de aguardo para médico
     if (etapaAtual === 4 && !isRetriagem) {
       setAguardandoMedico(true);
-      // Criar link simples com apenas o ID
-      setLinkMedico(`ID do Paciente: ${idPaciente}`);
+      // Criar link absoluto removendo parâmetros antigos e adicionando apenas o ID
+      const urlBase = window.location.href.split('?')[0];
+      const linkCompleto = `${urlBase}?id=${idPaciente}`;
+      setLinkMedico(linkCompleto);
       return;
     }
     
@@ -154,13 +155,11 @@ export default function NovaTriagem() {
   };
 
   const copiarLink = () => {
-    const idPaciente = linkMedico.replace('ID do Paciente: ', '');
-    navigator.clipboard.writeText(idPaciente);
-    alert("ID do paciente copiado! Use este ID para buscar o paciente no Histórico.");
+    navigator.clipboard.writeText(linkMedico);
+    alert("Link copiado! Cole no navegador para abrir.");
   };
 
   const enviarPorEmail = () => {
-    const idPaciente = linkMedico.replace('ID do Paciente: ', '');
     const assunto = encodeURIComponent(`[URGENTE] Avaliação Médica - ${dadosPaciente.nome_completo} - ${dadosPaciente.classificacao_risco?.cor || 'Classificação Não Definida'}`);
     
     let relatorio = `
@@ -249,16 +248,14 @@ Enfermeiro(a) Responsável: ${dadosPaciente.enfermeiro_nome || '-'} (COREN ${dad
 
 ⚕️ AVALIAÇÃO MÉDICA URGENTE NECESSÁRIA
 
-ID DO PACIENTE: ${idPaciente}
+LINK PARA CONTINUIDADE DO ATENDIMENTO:
+${linkMedico}
 
-INSTRUÇÕES PARA O MÉDICO:
-1. Acesse o sistema (mesma URL que você usa normalmente)
-2. Vá para o menu "Histórico"
-3. Busque pelo ID do paciente: ${idPaciente}
-4. Clique em "Ver Detalhes" para continuar o atendimento
-
-O sistema está em stand-by aguardando a continuidade médica.
-Todas as informações anteriores foram salvas e estarão disponíveis.
+INSTRUÇÕES:
+1. Copie o link acima
+2. Cole em um navegador (Chrome, Firefox, Edge, etc.)
+3. O sistema abrirá direto no atendimento do paciente
+4. Continue a partir da Etapa 5 (Avaliação Médica)
 
 
 ═══════════════════════════════════════════════════════════════
@@ -288,8 +285,6 @@ Protocolos: Diretriz SBC 2025 / Sistema Manchester
   }
 
   if (aguardandoMedico) {
-    const idPaciente = linkMedico.replace('ID do Paciente: ', '');
-    
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
         <div className="max-w-3xl mx-auto">
@@ -320,18 +315,18 @@ Protocolos: Diretriz SBC 2025 / Sistema Manchester
               <Alert className="border-orange-500 bg-orange-50 mb-6">
                 <AlertDescription className="text-orange-800 text-center">
                   <strong className="block mb-2 text-lg">⚠️ AVALIAÇÃO MÉDICA NECESSÁRIA</strong>
-                  <p>Use o ID do paciente abaixo para continuar o atendimento</p>
+                  <p>Copie o link abaixo e envie para o médico</p>
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-4 mb-6">
                 <div className="bg-gray-50 p-6 rounded-lg border-2 border-blue-500">
-                  <Label className="text-sm font-medium mb-3 block">ID do Paciente:</Label>
+                  <Label className="text-sm font-medium mb-3 block">Link para Continuidade do Atendimento:</Label>
                   <div className="flex gap-2">
                     <Input 
-                      value={idPaciente} 
+                      value={linkMedico} 
                       readOnly 
-                      className="font-mono text-xl font-bold text-center"
+                      className="font-mono text-sm"
                     />
                     <Button onClick={copiarLink} variant="outline">
                       <Copy className="w-4 h-4" />
@@ -342,10 +337,10 @@ Protocolos: Diretriz SBC 2025 / Sistema Manchester
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <p className="text-sm font-semibold text-blue-900 mb-2">📋 Instruções para o Médico:</p>
                   <ol className="list-decimal pl-5 space-y-2 text-sm text-blue-800">
-                    <li>Copie o ID do paciente acima</li>
-                    <li>Vá para o menu <strong>"Histórico"</strong></li>
-                    <li>Cole o ID na busca ou procure pelo nome do paciente</li>
-                    <li>Clique em <strong>"Ver Detalhes"</strong> para continuar</li>
+                    <li>Copie o link acima (botão de copiar)</li>
+                    <li>Abra uma nova aba no navegador</li>
+                    <li>Cole o link e pressione Enter</li>
+                    <li>O sistema abrirá direto no atendimento do paciente</li>
                   </ol>
                 </div>
 
