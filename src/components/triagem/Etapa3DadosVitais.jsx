@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -309,17 +310,24 @@ PADRÕES CRÍTICOS:
         };
       }
     } else {
+      // NÃO DIABÉTICOS: 70 a 180 mg/dL
       if (glicemia < 60 || glicemia > 400) {
         return { 
-          texto: "Valores críticos: < 60 ou > 400 mg/dL", 
+          texto: "Valores críticos: < 60 ou > 400 mg/dL (requer correção imediata)", 
           cor: "text-red-600 font-semibold",
           bg: "bg-red-50 border-red-300"
         };
-      } else {
+      } else if (glicemia >= 70 && glicemia <= 180) {
         return { 
-          texto: "Valores aceitáveis: 70 a 400 mg/dL", 
+          texto: "Valores aceitáveis: 70 a 180 mg/dL (dentro da meta)", 
           cor: "text-green-600 font-semibold",
           bg: "bg-green-50 border-green-300"
+        };
+      } else {
+        return { 
+          texto: "Valores aceitáveis: 70 a 180 mg/dL - Fora da meta ideal", 
+          cor: "text-orange-600 font-semibold",
+          bg: "bg-orange-50 border-orange-300"
         };
       }
     }
