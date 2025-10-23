@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -6,6 +7,7 @@ import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input"; // Added Input component import
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, FileText, CheckCircle, AlertCircle, Mail } from "lucide-react";
 import { format, differenceInMinutes } from "date-fns";
@@ -16,6 +18,10 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
   const queryClient = useQueryClient();
   const [checklistConcluido, setChecklistConcluido] = useState(false);
   const [gerandoPDF, setGerandoPDF] = useState(false);
+  const [medico, setMedico] = useState({
+    nome: dadosPaciente.medico_nome || "",
+    crm: dadosPaciente.medico_crm || ""
+  });
 
   const finalizarMutation = useMutation({
     mutationFn: async (dados) => {
@@ -54,6 +60,7 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
     th, td { padding: 10px; text-align: left; }
     th { background-color: #f3f4f6; font-weight: bold; }
     .footer { margin-top: 50px; padding-top: 20px; border-top: 2px solid #DC2626; font-size: 12px; color: #666; }
+    .profissionais { background: #F0FDF4; border: 2px solid #16A34A; padding: 15px; margin: 20px 0; }
   </style>
 </head>
 <body>
@@ -95,8 +102,8 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
   </div>
 
   <div class="section">
-    <h2>ELETROCARDIOGRAMA</h2>
-    <div class="info-row"><span class="label">Tempo Triagem-ECG:</span> ${dadosPaciente.tempo_triagem_ecg_minutos || "-"} minutos ${dadosPaciente.tempo_triagem_ecg_minutos <= 10 ? "✓ Dentro da meta" : "⚠️ Acima da meta"}</div>
+    <h2>ELETROCARDIOGRAMA (ECG)</h2>
+    <div class="info-row"><span class="label">Tempo Triagem → ECG:</span> ${dadosPaciente.tempo_triagem_ecg_minutos || "-"} minutos ${dadosPaciente.tempo_triagem_ecg_minutos <= 10 ? "✓ Dentro da meta" : "⚠️ Acima da meta"}</div>
     
     ${dadosPaciente.ecg_files && dadosPaciente.ecg_files.length > 0 ? `
     <div class="ecg-container">
@@ -165,6 +172,14 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
     ` : '<p>Nenhum exame solicitado</p>'}
   </div>
 
+  <div class="profissionais">
+    <h2 style="margin-top: 0;">PROFISSIONAIS RESPONSÁVEIS</h2>
+    <div class="info-row"><span class="label">Enfermeiro(a):</span> ${dadosPaciente.enfermeiro_nome || "-"}</div>
+    <div class="info-row"><span class="label">COREN:</span> ${dadosPaciente.enfermeiro_coren || "-"}</div>
+    <div class="info-row" style="margin-top: 15px;"><span class="label">Médico(a):</span> ${medico.nome || "-"}</div>
+    <div class="info-row"><span class="label">CRM:</span> ${medico.crm || "-"}</div>
+  </div>
+
   <div class="footer">
     <p><strong>Sistema de Triagem de Dor Torácica</strong></p>
     <p>Autor: Walber Alves Frazão Júnior - COREN 110.238</p>
@@ -200,7 +215,7 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
   };
 
   const abrirEmailComRelatorio = () => {
-    const assunto = encodeURIComponent(`[URGENTE] Regulação - ${dadosPaciente.nome_completo} - ${dadosPaciente.classificacao_risco?.cor}`);
+    const assunto = encodeURIComponent(`[REGULAÇÃO] ${dadosPaciente.nome_completo} - ${dadosPaciente.classificacao_risco?.cor}`);
     const corpo = encodeURIComponent(`
 SOLICITAÇÃO DE REGULAÇÃO - DOR TORÁCICA
 
@@ -213,7 +228,9 @@ ${dadosPaciente.triagem_cardiologica?.alerta_iam ? "⚠️ ALERTA DE PROVÁVEL I
 
 DIAGNÓSTICO: ${dadosPaciente.avaliacao_medica?.diagnostico_confirmado || "Em investigação"}
 
-TEMPO TRIAGEM-ECG: ${dadosPaciente.tempo_triagem_ecg_minutos} minutos
+PROFISSIONAIS RESPONSÁVEIS:
+Enfermeiro(a): ${dadosPaciente.enfermeiro_nome || "-"} - COREN ${dadosPaciente.enfermeiro_coren || "-"}
+Médico(a): ${medico.nome || "-"} - CRM ${medico.crm || "-"}
 
 IMPORTANTE: Relatório completo em anexo (gerar PDF antes de enviar).
 
@@ -227,12 +244,19 @@ Sistema de Triagem de Dor Torácica
   };
 
   const handleFinalizar = async () => {
+    if (!medico.nome || !medico.crm) {
+      alert("Por favor, preencha o nome e CRM do médico");
+      return;
+    }
+
     const tempoTotal = differenceInMinutes(
       new Date(),
       new Date(dadosPaciente.data_hora_chegada)
     );
 
     await finalizarMutation.mutateAsync({
+      medico_nome: medico.nome,
+      medico_crm: medico.crm,
       necessita_regulacao: true,
       data_hora_encerramento: new Date().toISOString(),
       tempo_total_minutos: tempoTotal,
@@ -263,6 +287,32 @@ Sistema de Triagem de Dor Torácica
           </AlertDescription>
         </Alert>
       )}
+
+      <div className="border-t pt-6">
+        <h3 className="font-bold text-lg mb-4">Identificação do Médico Responsável</h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="medico_nome">Nome Completo do Médico *</Label>
+            <Input
+              id="medico_nome"
+              value={medico.nome}
+              onChange={(e) => setMedico({...medico, nome: e.target.value})}
+              placeholder="Digite o nome completo"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="medico_crm">Número CRM *</Label>
+            <Input
+              id="medico_crm"
+              value={medico.crm}
+              onChange={(e) => setMedico({...medico, crm: e.target.value})}
+              placeholder="Ex: 123456"
+              required
+            />
+          </div>
+        </div>
+      </div>
 
       <div className="border-l-4 border-l-blue-600 bg-blue-50 p-6 rounded">
         <h3 className="font-bold text-blue-900 mb-4 flex items-center gap-2">
@@ -336,7 +386,7 @@ Sistema de Triagem de Dor Torácica
         <Button
           onClick={handleFinalizar}
           className="bg-green-600 hover:bg-green-700"
-          disabled={!checklistConcluido || finalizarMutation.isPending}
+          disabled={!checklistConcluido || finalizarMutation.isPending || !medico.nome || !medico.crm}
         >
           <CheckCircle className="w-4 h-4 mr-2" />
           {finalizarMutation.isPending ? "Finalizando..." : "Finalizar Atendimento"}

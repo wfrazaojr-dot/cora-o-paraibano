@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, ArrowRight, FileImage } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input"; // Import Input component
 
 const discriminadores = {
   vermelha: [
@@ -55,6 +56,10 @@ const temposAtendimento = {
 export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onAnterior }) {
   const [discriminadoresSelecionados, setDiscriminadoresSelecionados] = useState([]);
   const [classificacao, setClassificacao] = useState(dadosPaciente.classificacao_risco || null);
+  const [enfermeiro, setEnfermeiro] = useState({
+    nome: dadosPaciente.enfermeiro_nome || "",
+    coren: dadosPaciente.enfermeiro_coren || ""
+  });
 
   useEffect(() => {
     // Initialize selected discriminators if IAM alert is present from previous steps
@@ -109,8 +114,14 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!enfermeiro.nome || !enfermeiro.coren) {
+      alert("Por favor, preencha o nome e COREN do enfermeiro");
+      return;
+    }
     onProxima({ 
       classificacao_risco: classificacao,
+      enfermeiro_nome: enfermeiro.nome,
+      enfermeiro_coren: enfermeiro.coren,
       status: "Aguardando Médico"
     });
   };
@@ -269,12 +280,42 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
         </div>
       )}
 
+      <div className="border-t pt-6">
+        <h3 className="font-bold text-lg mb-4">Identificação do Enfermeiro Responsável</h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="enfermeiro_nome">Nome Completo do Enfermeiro *</Label>
+            <Input
+              id="enfermeiro_nome"
+              value={enfermeiro.nome}
+              onChange={(e) => setEnfermeiro({...enfermeiro, nome: e.target.value})}
+              placeholder="Digite o nome completo"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="enfermeiro_coren">Número COREN *</Label>
+            <Input
+              id="enfermeiro_coren"
+              value={enfermeiro.coren}
+              onChange={(e) => setEnfermeiro({...enfermeiro, coren: e.target.value})}
+              placeholder="Ex: 123456"
+              required
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="flex justify-between pt-4">
         <Button type="button" variant="outline" onClick={onAnterior}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           Anterior
         </Button>
-        <Button type="submit" className="bg-red-600 hover:bg-red-700" disabled={!classificacao}>
+        <Button 
+          type="submit" 
+          className="bg-red-600 hover:bg-red-700" 
+          disabled={!classificacao || !enfermeiro.nome || !enfermeiro.coren}
+        >
           Próxima Etapa
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>

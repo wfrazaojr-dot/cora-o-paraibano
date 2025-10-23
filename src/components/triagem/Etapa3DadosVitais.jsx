@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,9 @@ export default function Etapa3DadosVitais({ dadosPaciente, onProxima, onAnterior
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [analiseEcg, setAnaliseEcg] = useState(dadosPaciente.analise_ecg_ia || "");
+  // New state variables for professional identification
+  const [nomeProfissional, setNomeProfissional] = useState(dadosPaciente.nome_profissional || "");
+  const [crmProfissional, setCrmProfissional] = useState(dadosPaciente.crm_profissional || "");
 
   const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files).slice(0, 3);
@@ -52,6 +56,7 @@ export default function Etapa3DadosVitais({ dadosPaciente, onProxima, onAnterior
         prompt: `Você é um cardiologista especialista em análise de ECG. Analise os traçados eletrocardiográficos fornecidos e forneça uma interpretação COMPLETA E DETALHADA.
 
 Paciente: ${dadosPaciente.sexo}, ${dadosPaciente.idade} anos
+Profissional Responsável: ${nomeProfissional} (CRM: ${crmProfissional || 'não informado'})
 
 Foque especialmente em:
 1. ECG NORMAL vs ECG COM ALTERAÇÕES
@@ -80,7 +85,9 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
         ecg_files: novosFiles,
         data_hora_ecg: dataHoraEcg,
         tempo_triagem_ecg_minutos: tempoMinutos,
-        analise_ecg_ia: analise
+        analise_ecg_ia: analise,
+        nome_profissional: nomeProfissional,
+        crm_profissional: crmProfissional
       });
 
     } catch (error) {
@@ -177,7 +184,15 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
       alert("Por favor, anexe pelo menos um arquivo de ECG");
       return;
     }
-    onProxima({ dados_vitais: dados });
+    onProxima({ 
+      dados_vitais: dados,
+      ecg_files: ecgFiles,
+      data_hora_ecg: dadosPaciente.data_hora_ecg, 
+      tempo_triagem_ecg_minutos: dadosPaciente.tempo_triagem_ecg_minutos,
+      analise_ecg_ia: analiseEcg, 
+      nome_profissional: nomeProfissional,
+      crm_profissional: crmProfissional
+    });
   };
 
   const tempoTriagemEcg = dadosPaciente.tempo_triagem_ecg_minutos;
@@ -319,13 +334,41 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
         )}
       </div>
 
+      {/* Professional Identification fields */}
+      <div className="border-t pt-6">
+        <h3 className="text-xl font-bold text-gray-900 mb-3">Identificação do Profissional</h3>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="nome_profissional">Nome do Profissional</Label>
+            <Input
+              id="nome_profissional"
+              placeholder="Ex: Dr. João Silva"
+              value={nomeProfissional}
+              onChange={(e) => setNomeProfissional(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="crm_profissional">CRM do Profissional</Label>
+            <Input
+              id="crm_profissional"
+              placeholder="Ex: 123456/SP"
+              value={crmProfissional}
+              onChange={(e) => setCrmProfissional(e.target.value)}
+              required
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="border-t pt-6">
         <Label className="text-lg font-semibold mb-3 block">Anexar ECG (até 3 arquivos)</Label>
         <div className="space-y-4">
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
             <input
               type="file"
-              accept=".pdf,.png,.jpg,.jpeg"
+              accept="image/*,.pdf" // Updated to accept images from camera
+              capture="environment" // Added to enable rear camera on mobile
               multiple
               onChange={handleFileUpload}
               className="hidden"
@@ -342,9 +385,9 @@ Forneça interpretação estruturada e CONCLUSÃO CLARA sobre necessidade de int
                 <Upload className="w-12 h-12 text-gray-400 mb-2" />
               )}
               <p className="text-sm font-medium text-gray-700">
-                {uploading ? "Carregando..." : "Clique para anexar ECG"}
+                {uploading ? "Carregando..." : "Clique para anexar ECG ou tirar foto"}
               </p>
-              <p className="text-xs text-gray-500 mt-1">PDF, PNG ou JPEG</p>
+              <p className="text-xs text-gray-500 mt-1">PDF ou Imagem (câmera disponível em smartphones)</p>
             </label>
           </div>
 

@@ -149,6 +149,14 @@
         }
       }
     },
+    "enfermeiro_nome": {
+      "type": "string",
+      "description": "Nome do enfermeiro respons\u00e1vel pela triagem"
+    },
+    "enfermeiro_coren": {
+      "type": "string",
+      "description": "N\u00famero COREN do enfermeiro"
+    },
     "avaliacao_medica": {
       "type": "object",
       "properties": {
@@ -172,6 +180,14 @@
           "type": "string"
         }
       }
+    },
+    "medico_nome": {
+      "type": "string",
+      "description": "Nome do m\u00e9dico respons\u00e1vel pelo atendimento"
+    },
+    "medico_crm": {
+      "type": "string",
+      "description": "N\u00famero CRM do m\u00e9dico"
     },
     "prescricao_medicamentos": {
       "type": "array",
