@@ -135,6 +135,9 @@ export default function Layout({ children, currentPageName }) {
                 <p className="text-gray-700">Walber Alves Frazão Júnior</p>
                 <p className="text-gray-600">Enfermeiro Emergencista</p>
                 <p className="text-gray-600">COREN 110.238</p>
+                <p className="text-gray-500 mt-1">Pós-graduado em Cardiologia,</p>
+                <p className="text-gray-500">Neurologia e Auditoria em</p>
+                <p className="text-gray-500">Serviços de Saúde</p>
               </div>
               <div className="text-xs text-gray-500 pt-2 border-t border-gray-200">
                 <p>© 2025 - Todos os direitos reservados</p>

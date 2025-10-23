@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Users, Stethoscope, FileText, Activity, AlertTriangle } from "lucide-react";
@@ -235,8 +236,11 @@ export default function Manual() {
                 <p>
                   <strong>Sistema desenvolvido por:</strong><br />
                   Walber Alves Frazão Júnior<br />
-                  Enfermeiro Emergencista - COREN 110.238<br />
-                  Pós-graduado em Cardiologia, Neurologia e Auditoria em Serviços de Saúde
+                  Enfermeiro Emergencista (COREN 110.238)<br />
+                  Pós-graduado em Cardiologia e Hemodinâmica (FACULDADE INVECTUS)<br />
+                  Pós-graduado em Neurologia (INSTITUTO ENSINAR BRASIL)<br />
+                  Pós-graduado em Auditoria em Serviços de Saúde (FACULDADE UNINA)<br />
+                  Pós-graduado em Urgência e Emergência (UNIFAN)
                 </p>
                 <p className="mt-4 pt-4 border-t text-xs text-gray-600">
                   © 2025 Sistema de Triagem de Dor Torácica - Todos os direitos reservados<br />

@@ -256,6 +256,8 @@ Todas as informações anteriores foram salvas e estarão disponíveis.
 ═══════════════════════════════════════════════════════════════
 Sistema de Triagem de Dor Torácica
 Autor: Walber Alves Frazão Júnior - COREN 110.238
+Enfermeiro Emergencista
+Pós-graduado em Cardiologia, Neurologia e Auditoria em Serviços de Saúde
 Protocolos: Diretriz SBC 2025 / Sistema Manchester
 ═══════════════════════════════════════════════════════════════
     `;
