@@ -55,7 +55,7 @@ export default function Etapa3DadosVitais({ dadosPaciente, onProxima, onAnterior
           properties: {
             ritmo: { 
               type: "string", 
-              description: "Tipo de ritmo cardíaco: Sinusal, Fibrilação Atrial, Flutter, Taquicardia, etc." 
+              description: "Tipo de ritmo cardíaco: Sinusal, Fibrilação Atrial, Flutter, Taquicardia, Bradicardia, etc." 
             },
             frequencia_cardiaca: { 
               type: "number", 
@@ -67,7 +67,7 @@ export default function Etapa3DadosVitais({ dadosPaciente, onProxima, onAnterior
             },
             duracao_qrs: { 
               type: "number", 
-              description: "Duração do complexo QRS em milissegundos. Normal: <120ms" 
+              description: "Duração do complexo QRS em milissegundos. Normal menor que 120ms" 
             },
             intervalo_qt: { 
               type: "number", 
@@ -83,11 +83,11 @@ export default function Etapa3DadosVitais({ dadosPaciente, onProxima, onAnterior
             },
             segmento_st_elevado: { 
               type: "boolean", 
-              description: "IMPORTANTE: Só marcar TRUE se houver ELEVAÇÃO clara do segmento ST de pelo menos 1mm (1 quadradinho pequeno) acima da linha isoelétrica em 2 ou mais derivações CONTÍGUAS. Seja CONSERVADOR e PRECISO. Não confundir repolarização precoce benigna com IAMCSST." 
+              description: "Marcar TRUE se o segmento ST estiver ACIMA da linha isoelétrica em pelo menos 1mm em 2 ou mais derivações contíguas. Seja conservador." 
             },
             derivacoes_st_elevado: { 
               type: "string", 
-              description: "Liste APENAS as derivações que apresentam elevação REAL do segmento ST ≥1mm. Exemplo: 'V2, V3, V4' ou 'II, III, aVF'. Se não houver elevação, escrever 'Nenhuma'" 
+              description: "Liste as derivações com elevação real do segmento ST. Se não houver elevação, escrever Nenhuma" 
             },
             magnitude_elevacao_st_mm: {
               type: "number",
@@ -95,11 +95,19 @@ export default function Etapa3DadosVitais({ dadosPaciente, onProxima, onAnterior
             },
             segmento_st_deprimido: { 
               type: "boolean", 
-              description: "Se há depressão do segmento ST ≥1mm abaixo da linha isoelétrica" 
+              description: "Marcar TRUE se o segmento ST estiver ABAIXO da linha isoelétrica em pelo menos 1mm em 2 derivações" 
             },
             derivacoes_st_deprimido: { 
               type: "string", 
-              description: "Derivações com depressão do ST. Se nenhuma: 'Nenhuma'" 
+              description: "Liste todas as derivações com depressão do ST. Se nenhuma escrever Nenhuma" 
+            },
+            magnitude_depressao_st_mm: {
+              type: "number",
+              description: "Magnitude da maior depressão do ST em milímetros. Se não houver, colocar 0"
+            },
+            padrao_infra_difuso_com_supra_avr: {
+              type: "boolean",
+              description: "Marcar TRUE se houver infradesnivelamento em múltiplas derivações associado a supradesnivelamento em aVR. Padrão crítico de isquemia grave."
             },
             ondas_t_invertidas: { 
               type: "boolean", 
@@ -111,7 +119,7 @@ export default function Etapa3DadosVitais({ dadosPaciente, onProxima, onAnterior
             },
             ondas_q_patologicas: { 
               type: "boolean", 
-              description: "Ondas Q patológicas: >40ms de duração OU >25% da amplitude do QRS" 
+              description: "Ondas Q patológicas com duração maior que 40ms ou amplitude maior que 25 porcento do QRS" 
             },
             derivacoes_q_patologicas: {
               type: "string",
@@ -119,39 +127,43 @@ export default function Etapa3DadosVitais({ dadosPaciente, onProxima, onAnterior
             },
             bloqueio_ramo_direito: {
               type: "boolean",
-              description: "Bloqueio de Ramo Direito: QRS ≥120ms + padrão rsR' em V1-V2"
+              description: "Bloqueio de Ramo Direito presente"
             },
             bloqueio_ramo_esquerdo: {
               type: "boolean",
-              description: "Bloqueio de Ramo Esquerdo: QRS ≥120ms + QS ou rS em V1 + R empastada em I, aVL, V5-V6"
+              description: "Bloqueio de Ramo Esquerdo presente"
             },
             bloqueio_av: {
               type: "string",
-              description: "Bloqueio AV: Nenhum, 1º grau (PR>200ms), 2º grau Mobitz I ou II, 3º grau"
+              description: "Tipo de bloqueio AV: Nenhum, 1 grau, 2 grau, 3 grau"
             },
             hipertrofia_ventricular_esquerda: {
               type: "boolean",
-              description: "HVE pelos critérios de Sokolow-Lyon ou Cornell"
+              description: "Hipertrofia ventricular esquerda presente"
             },
             padrao_identificado: {
               type: "string",
-              description: "Padrões específicos: Wellens, Winter, Sgarbossa, Brugada, Repolarização Precoce, Pericardite, ou 'Nenhum padrão específico'"
+              description: "Padrões específicos: Wellens, Winter, Sgarbossa, Brugada, Repolarização Precoce, Pericardite, Isquemia Difusa, Nenhum padrão específico"
             },
             interpretacao_resumo: { 
               type: "string", 
-              description: "Interpretação resumida em 1-2 frases do achado principal do ECG" 
+              description: "Interpretação resumida do ECG em 2 ou 3 frases" 
             },
             alerta_iam: { 
               type: "boolean", 
-              description: "Marcar TRUE APENAS se houver FORTE evidência de IAM: Supra ST ≥1mm em 2+ derivações contíguas OU padrão de Wellens OU critérios de Sgarbossa positivos. NÃO marcar TRUE para alterações inespecíficas." 
+              description: "Marcar TRUE se houver supra ST em 2 derivações contíguas ou infra ST difuso com supra aVR" 
             },
             localizacao_iam: {
               type: "string",
-              description: "Se houver IAM, qual a localização: Anterior, Inferior, Lateral, Septal, Posterior, VD, ou 'Não aplicável'"
+              description: "Localização do IAM: Anterior, Inferior, Lateral, Septal, Posterior, VD, Difuso, Não aplicável"
             },
             arteria_culpada: {
               type: "string",
-              description: "Se houver IAM, artéria provavelmente acometida: DAE (Descendente Anterior Esquerda), CD (Coronária Direita), Cx (Circunflexa), TCE (Tronco Coronária Esquerda), ou 'Não aplicável'"
+              description: "Artéria acometida: DAE, CD, Cx, TCE, Multiarterial, Não aplicável"
+            },
+            gravidade_clinica: {
+              type: "string",
+              description: "Gravidade: Crítico, Alto risco, Moderado, Baixo, Normal"
             }
           }
         };
@@ -164,101 +176,77 @@ export default function Etapa3DadosVitais({ dadosPaciente, onProxima, onAnterior
         if (resultado.status === "success" && resultado.output) {
           const d = resultado.output;
           
-          let relatorio = `═══════════════════════════════════════════════════════════════
-ANÁLISE AUTOMATIZADA DE ECG
-═══════════════════════════════════════════════════════════════
+          const relatorio = `ANÁLISE AUTOMATIZADA DE ECG
 
 1. RITMO E FREQUÊNCIA
    - Ritmo: ${d.ritmo || "Não identificado"}
    - Frequência Cardíaca: ${d.frequencia_cardiaca || "N/A"} bpm
 
 2. INTERVALOS
-   - Intervalo PR: ${d.intervalo_pr || "N/A"} ms ${d.intervalo_pr ? (d.intervalo_pr >= 120 && d.intervalo_pr <= 200 ? "(✓ Normal)" : d.intervalo_pr < 120 ? "(⚠ Curto)" : "(⚠ Prolongado)") : ""}
-   - Duração QRS: ${d.duracao_qrs || "N/A"} ms ${d.duracao_qrs ? (d.duracao_qrs < 120 ? "(✓ Normal)" : "(⚠ Alargado)") : ""}
+   - Intervalo PR: ${d.intervalo_pr || "N/A"} ms
+   - Duração QRS: ${d.duracao_qrs || "N/A"} ms
    - Intervalo QT: ${d.intervalo_qt || "N/A"} ms
    - QTc corrigido: ${d.intervalo_qtc || "N/A"} ms
 
 3. EIXO CARDÍACO
    - Eixo QRS: ${d.eixo_qrs || "Não determinado"}
 
-4. ⚠️ ANÁLISE DO SEGMENTO ST (CRÍTICO)
+4. ANÁLISE DO SEGMENTO ST
    
-   A) SUPRADESNIVELAMENTO DO ST:
+   SUPRADESNIVELAMENTO (elevação acima da linha):
    ${d.segmento_st_elevado ? `
-   🚨🚨🚨 ELEVAÇÃO DO SEGMENTO ST IDENTIFICADA 🚨🚨🚨
-   - Derivações acometidas: ${d.derivacoes_st_elevado}
-   - Magnitude da elevação: ${d.magnitude_elevacao_st_mm || "N/A"} mm
-   - Morfologia: ${d.segmento_st_elevado ? "Elevação presente" : ""}
+   ELEVAÇÃO DO SEGMENTO ST IDENTIFICADA
+   - Derivações: ${d.derivacoes_st_elevado}
+   - Magnitude: ${d.magnitude_elevacao_st_mm || "N/A"} mm
+   - POSSÍVEL IAMCSST
+   ` : "   - Sem elevação significativa do segmento ST"}
    
-   ⚠️⚠️⚠️ POSSÍVEL IAMCSST (IAM COM SUPRA DE ST) ⚠️⚠️⚠️
-   ${d.localizacao_iam && d.localizacao_iam !== "Não aplicável" ? `- Localização: Parede ${d.localizacao_iam}` : ""}
-   ${d.arteria_culpada && d.arteria_culpada !== "Não aplicável" ? `- Artéria culpada provável: ${d.arteria_culpada}` : ""}
-   ` : `   - Não há elevação significativa do segmento ST (≥1mm)`}
-   
-   B) INFRADESNIVELAMENTO DO ST:
+   INFRADESNIVELAMENTO (depressão abaixo da linha):
    ${d.segmento_st_deprimido ? `
-   - Depressão do ST presente
+   DEPRESSÃO DO SEGMENTO ST IDENTIFICADA
    - Derivações: ${d.derivacoes_st_deprimido}
-   - Pode indicar: Isquemia subendocárdica ou alteração recíproca
-   ` : `   - Sem depressão significativa do segmento ST`}
+   - Magnitude: ${d.magnitude_depressao_st_mm || "N/A"} mm
+   ` : "   - Sem depressão significativa do ST"}
+   
+   ${d.padrao_infra_difuso_com_supra_avr ? `
+   PADRÃO CRÍTICO: Infradesnivelamento difuso + Supra em aVR
+   Sugere isquemia grave, possível oclusão de tronco ou doença multiarterial
+   ` : ""}
 
 5. ONDAS T
-   ${d.ondas_t_invertidas ? `
-   - Ondas T invertidas presentes
-   - Derivações: ${d.derivacoes_t_invertidas}
-   - Pode indicar: Isquemia, IAM em evolução, ou padrão de Wellens
-   ` : `   - Ondas T sem inversões significativas`}
+   ${d.ondas_t_invertidas ? `- Inversão de T em: ${d.derivacoes_t_invertidas}` : "- Sem inversões de T"}
 
 6. ONDAS Q
-   ${d.ondas_q_patologicas ? `
-   - Ondas Q patológicas presentes
-   - Derivações: ${d.derivacoes_q_patologicas}
-   - Sugere: IAM prévio ou em evolução
-   ` : `   - Sem ondas Q patológicas`}
+   ${d.ondas_q_patologicas ? `- Ondas Q patológicas em: ${d.derivacoes_q_patologicas}` : "- Sem ondas Q patológicas"}
 
-7. BLOQUEIOS E DISTÚRBIOS DE CONDUÇÃO
-   ${d.bloqueio_ramo_direito ? "- Bloqueio de Ramo Direito (BRD)" : ""}
-   ${d.bloqueio_ramo_esquerdo ? "- Bloqueio de Ramo Esquerdo (BRE)" : ""}
-   ${d.bloqueio_av && d.bloqueio_av !== "Nenhum" ? `- Bloqueio AV: ${d.bloqueio_av}` : "- Sem bloqueios AV"}
-   ${!d.bloqueio_ramo_direito && !d.bloqueio_ramo_esquerdo ? "- Sem bloqueios de ramo" : ""}
+7. BLOQUEIOS
+   ${d.bloqueio_ramo_direito ? "- Bloqueio de Ramo Direito" : ""}
+   ${d.bloqueio_ramo_esquerdo ? "- Bloqueio de Ramo Esquerdo" : ""}
+   ${d.bloqueio_av && d.bloqueio_av !== "Nenhum" ? `- Bloqueio AV: ${d.bloqueio_av}` : ""}
 
-8. HIPERTROFIAS
-   ${d.hipertrofia_ventricular_esquerda ? "- Critérios para Hipertrofia Ventricular Esquerda presentes" : "- Sem critérios para hipertrofia ventricular"}
+8. PADRÃO ESPECÍFICO
+   ${d.padrao_identificado || "Nenhum padrão específico"}
 
-9. PADRÕES ESPECÍFICOS
-   ${d.padrao_identificado && d.padrao_identificado !== "Nenhum padrão específico" ? `
-   ⚠️ Padrão identificado: ${d.padrao_identificado}
-   ` : "- Nenhum padrão específico identificado"}
-
-═══════════════════════════════════════════════════════════════
-🎯 INTERPRETAÇÃO E CONCLUSÃO
-═══════════════════════════════════════════════════════════════
-
+INTERPRETAÇÃO
 ${d.interpretacao_resumo || "ECG analisado"}
 
 ${d.alerta_iam ? `
-🚨🚨🚨 ALERTA DE EMERGÊNCIA 🚨🚨🚨
+ALERTA DE EMERGÊNCIA
 
-FORTE SUSPEITA DE INFARTO AGUDO DO MIOCÁRDIO (IAM)
+${d.padrao_infra_difuso_com_supra_avr ? "ISQUEMIA DIFUSA E GRAVE - Possível tronco ou multiarterial" : "SUSPEITA DE IAM"}
 ${d.localizacao_iam && d.localizacao_iam !== "Não aplicável" ? `Localização: ${d.localizacao_iam}` : ""}
 ${d.arteria_culpada && d.arteria_culpada !== "Não aplicável" ? `Artéria: ${d.arteria_culpada}` : ""}
+Gravidade: ${d.gravidade_clinica || "Alto risco"}
 
-⚠️ CONDUTA URGENTE NECESSÁRIA:
-• Comunicar médico IMEDIATAMENTE
-• Avaliar reperfusão (ICP primária ou fibrinólise)
-• AAS + Antiagregante duplo
-• Anticoagulação
-• Monitorização contínua
+CONDUTA URGENTE:
+- Comunicar médico cardiologista imediatamente
+- Preparar para cateterismo
+- AAS + Antiagregante duplo
+- Anticoagulação
+- Monitorização contínua
 ` : ""}
 
-═══════════════════════════════════════════════════════════════
-📋 NOTAS IMPORTANTES
-═══════════════════════════════════════════════════════════════
-✓ Esta análise automatizada é AUXILIAR
-✓ Todo ECG deve ser interpretado por MÉDICO QUALIFICADO
-✓ Decisões clínicas devem basear-se em avaliação médica completa
-✓ Considerar quadro clínico, exames laboratoriais e evolução
-═══════════════════════════════════════════════════════════════`;
+Esta análise é auxiliar e não substitui interpretação médica.`;
 
           setAnaliseEcg(relatorio);
         } else {
@@ -268,83 +256,23 @@ ${d.arteria_culpada && d.arteria_culpada !== "Não aplicável" ? `Artéria: ${d.
       } catch (error) {
         console.error("Erro na análise automática:", error);
         
-        setAnaliseEcg(`═══════════════════════════════════════════════════════════════
-ECG ANEXADO COM SUCESSO
-═══════════════════════════════════════════════════════════════
+        setAnaliseEcg(`ECG ANEXADO COM SUCESSO
 
-${novosFiles.length} arquivo(s) de ECG carregado(s).
+${novosFiles.length} arquivo(s) carregado(s).
 Tempo desde triagem: ${tempoMinutos} minutos
 
-⚠️ Análise automática não disponível no momento.
+Análise automática não disponível.
 
-═══════════════════════════════════════════════════════════════
-CHECKLIST PARA INTERPRETAÇÃO MANUAL DO ECG
-═══════════════════════════════════════════════════════════════
+O médico deve interpretar manualmente:
+- Ritmo e frequência
+- Intervalos PR, QRS, QT
+- Segmento ST (supra/infra)
+- Ondas T e Q
+- Bloqueios
 
-O médico deve avaliar:
-
-1️⃣ RITMO E FREQUÊNCIA
-   □ Ritmo sinusal / FA / Flutter / Outro: __________
-   □ Frequência cardíaca: ______ bpm
-   □ Regular / Irregular
-
-2️⃣ INTERVALOS
-   □ PR: ______ ms (normal 120-200ms)
-   □ QRS: ______ ms (normal <120ms)
-   □ QT/QTc: ______ ms
-
-3️⃣ EIXO CARDÍACO
-   □ Eixo QRS: Normal / Desvio esquerda / Desvio direita
-
-4️⃣ ⚠️ SEGMENTO ST (CRÍTICO) - MEDIR DO PONTO J
-   
-   IMPORTANTE: Medir 80ms (2 quadradinhos) após o ponto J
-   
-   □ ELEVAÇÃO ST ≥1mm em 2+ derivações CONTÍGUAS?: 
-      SIM □ NÃO □
-   
-   □ Se SIM, derivações: __________________
-   □ Magnitude: ______ mm
-   □ Morfologia: Côncava / Convexa / Retificada
-   
-   □ DEPRESSÃO ST?: SIM □ NÃO □
-   □ Derivações: __________________
-
-5️⃣ ONDAS T
-   □ Inversão de T?: SIM □ NÃO □
-   □ Derivações: __________________
-   □ Ondas T bifásicas (Wellens)?: SIM □ NÃO □
-
-6️⃣ ONDAS Q PATOLÓGICAS
-   □ Q >40ms OU >1/3 do QRS?: SIM □ NÃO □
-   □ Localização: __________________
-
-7️⃣ BLOQUEIOS
-   □ BRD / BRE / BAV: __________________
-
-8️⃣ PADRÕES ESPECÍFICOS
-   □ Síndrome de Wellens
-   □ Padrão de Winter
-   □ Critérios de Sgarbossa (IAM + BRE)
-   □ Síndrome de Brugada
-   □ Pericardite
-   □ Repolarização precoce benigna
-
-═══════════════════════════════════════════════════════════════
-🚨 CRITÉRIOS PARA IAMCSST:
-═══════════════════════════════════════════════════════════════
-
-Supra ST ≥1mm em 2+ derivações CONTÍGUAS:
-
-ANTERIOR: V1-V6, I, aVL → DAE (Descendente Anterior)
-INFERIOR: II, III, aVF → CD (Coronária Direita)
-LATERAL: I, aVL, V5-V6 → Cx (Circunflexa)
-POSTERIOR: V7-V9 (infra ST em V1-V3 = supra posterior)
-VD: V3R, V4R → Ramo VD da CD
-
-═══════════════════════════════════════════════════════════════
-⏱️ Meta de tempo: ECG realizado em ${tempoMinutos} min ${tempoMinutos <= 10 ? '✓' : '⚠️'}
-═══════════════════════════════════════════════════════════════`);
+PADRÕES CRÍTICOS:
+- Supra ST em 2+ derivações = IAMCSST
+- Infra ST difuso + Supra aVR = Isquemia grave/tronco`);
       }
 
     } catch (error) {
@@ -459,8 +387,7 @@ VD: V3R, V4R → Ramo VD da CD
     analiseEcg.includes("IAMCSST") || 
     analiseEcg.includes("IAM COM SUPRA") ||
     analiseEcg.includes("POSSÍVEL IAMCSST") ||
-    analiseEcg.includes("FORTE SUSPEITA DE INFARTO") ||
-    analiseEcg.includes("ELEVAÇÃO DO SEGMENTO ST IDENTIFICADA") ||
+    analiseEcg.includes("SUSPEITA DE IAM") ||
     analiseEcg.includes("ALERTA DE EMERGÊNCIA")
   );
 
@@ -627,7 +554,7 @@ VD: V3R, V4R → Ramo VD da CD
               <p className="text-sm font-medium text-gray-700">
                 {uploading ? "Carregando..." : "Clique para anexar ECG ou tirar foto"}
               </p>
-              <p className="text-xs text-gray-500 mt-1">PDF ou Imagem (câmera disponível em smartphones)</p>
+              <p className="text-xs text-gray-500 mt-1">PDF ou Imagem</p>
             </label>
           </div>
 
@@ -658,7 +585,7 @@ VD: V3R, V4R → Ramo VD da CD
             <Alert className="border-blue-500 bg-blue-50">
               <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
               <AlertDescription className="text-blue-800">
-                Processando análise detalhada do ECG... Aguarde...
+                Processando análise do ECG... Aguarde...
               </AlertDescription>
             </Alert>
           )}
@@ -667,8 +594,7 @@ VD: V3R, V4R → Ramo VD da CD
             <Alert className="border-red-500 bg-red-50">
               <AlertCircle className="h-4 w-4 text-red-600" />
               <AlertDescription className="text-red-800 font-semibold">
-                🚨 ALERTA: Possível alteração compatível com IAM detectada!
-                <br />
+                ALERTA: Alteração detectada no ECG!
                 Revise a análise completa abaixo.
               </AlertDescription>
             </Alert>
@@ -676,10 +602,10 @@ VD: V3R, V4R → Ramo VD da CD
 
           {analiseEcg && (
             <div className="border-l-4 border-l-blue-600 bg-blue-50 p-4 rounded">
-              <h4 className="font-semibold text-blue-900 mb-2">📊 Análise de ECG:</h4>
+              <h4 className="font-semibold text-blue-900 mb-2">Análise de ECG:</h4>
               <pre className="text-sm text-blue-800 whitespace-pre-wrap font-sans">{analiseEcg}</pre>
               <p className="text-xs text-blue-600 mt-3 italic">
-                ⚠️ Esta análise é auxiliar. Todo ECG deve ser interpretado por médico qualificado.
+                Esta análise é auxiliar. ECG deve ser interpretado por médico qualificado.
               </p>
             </div>
           )}
