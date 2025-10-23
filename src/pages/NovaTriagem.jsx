@@ -40,7 +40,7 @@ export default function NovaTriagem() {
   const [dadosPaciente, setDadosPaciente] = useState({});
   const [pacienteId, setPacienteId] = useState(null);
   const [aguardandoMedico, setAguardandoMedico] = useState(false);
-  const [linkMedico, setLinkMedico] = useState("");
+  const [idPacienteParaMedico, setIdPacienteParaMedico] = useState("");
   const [carregando, setCarregando] = useState(true);
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -131,7 +131,7 @@ export default function NovaTriagem() {
     
     if (etapaAtual === 4 && !isRetriagem) {
       setAguardandoMedico(true);
-      setLinkMedico(idPaciente);
+      setIdPacienteParaMedico(idPaciente);
       return;
     }
     
@@ -151,13 +151,13 @@ export default function NovaTriagem() {
     setEtapaAtual(5);
   };
 
-  const copiarLink = () => {
-    navigator.clipboard.writeText(linkMedico);
-    alert("ID copiado para área de transferência!");
+  const copiarId = () => {
+    navigator.clipboard.writeText(idPacienteParaMedico);
+    alert("ID copiado! Vá no menu 'Histórico' e cole este ID na busca.");
   };
 
-  const abrirParaMedico = () => {
-    window.open(`${window.location.pathname}?id=${linkMedico}`, '_blank');
+  const irParaHistorico = () => {
+    navigate(createPageUrl("Historico"));
   };
 
   const enviarPorEmail = () => {
@@ -250,13 +250,14 @@ Enfermeiro(a) Responsável: ${dadosPaciente.enfermeiro_nome || '-'} (COREN ${dad
 ⚕️ AVALIAÇÃO MÉDICA URGENTE NECESSÁRIA
 
 ID DO PACIENTE PARA CONTINUIDADE DO ATENDIMENTO:
-${linkMedico}
+${idPacienteParaMedico}
 
-INSTRUÇÕES:
+INSTRUÇÕES PARA O MÉDICO:
 1. Copie o ID acima
-2. Acesse a tela de Histórico de Atendimentos
-3. Cole o ID no campo de busca para encontrar o paciente
-4. Clique em "Ver Detalhes" para continuar o atendimento a partir da Etapa 5 (Avaliação Médica)
+2. Acesse o menu "Histórico" no sistema
+3. Cole o ID no campo de busca
+4. Clique em "Ver Detalhes" no paciente encontrado
+5. O sistema continuará automaticamente na Etapa 5 (Avaliação Médica)
 
 
 ═══════════════════════════════════════════════════════════════
@@ -316,43 +317,58 @@ Protocolos: Diretriz SBC 2025 / Sistema Manchester
               <Alert className="border-orange-500 bg-orange-50 mb-6">
                 <AlertDescription className="text-orange-800 text-center">
                   <strong className="block mb-2 text-lg">⚠️ AVALIAÇÃO MÉDICA NECESSÁRIA</strong>
-                  <p>Use o ID do paciente para continuar o atendimento</p>
+                  <p>Paciente aguardando avaliação médica</p>
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-4 mb-6">
                 <div className="bg-blue-50 p-6 rounded-lg border-2 border-blue-500">
-                  <Label className="text-sm font-medium mb-3 block text-center">ID DO PACIENTE:</Label>
-                  <div className="bg-white p-4 rounded border-2 border-blue-600 mb-3">
-                    <p className="text-3xl font-bold text-center text-blue-900 font-mono">{linkMedico}</p>
+                  <Label className="text-sm font-medium mb-3 block text-center text-blue-900">
+                    ID DO PACIENTE PARA CONTINUIDADE DO ATENDIMENTO:
+                  </Label>
+                  <div className="bg-white p-5 rounded border-2 border-blue-600 mb-4">
+                    <p className="text-4xl font-bold text-center text-blue-900 font-mono tracking-wider">
+                      {idPacienteParaMedico}
+                    </p>
                   </div>
                   <div className="flex gap-2">
-                    <Button onClick={copiarLink} variant="outline" className="flex-1">
+                    <Button onClick={copiarId} variant="outline" className="flex-1">
                       <Copy className="w-4 h-4 mr-2" />
                       Copiar ID
                     </Button>
-                    <Button onClick={abrirParaMedico} className="flex-1 bg-blue-600 hover:bg-blue-700">
-                      Abrir em Nova Aba
+                    <Button onClick={irParaHistorico} className="flex-1 bg-green-600 hover:bg-green-700">
+                      Ir para Histórico
                     </Button>
                   </div>
                 </div>
 
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <p className="text-sm font-semibold text-green-900 mb-2">✅ OPÇÃO 1 - Continuar Diretamente:</p>
+                <div className="bg-green-50 border-2 border-green-500 rounded-lg p-4">
+                  <p className="text-sm font-bold text-green-900 mb-3 text-center">
+                    📋 COMO CONTINUAR O ATENDIMENTO:
+                  </p>
                   <ol className="list-decimal pl-5 space-y-2 text-sm text-green-800">
-                    <li>Clique no botão "Abrir em Nova Aba" acima</li>
-                    <li>O atendimento abrirá automaticamente na Etapa 5</li>
+                    <li><strong>Copie o ID</strong> do paciente acima (clique no botão "Copiar ID")</li>
+                    <li><strong>Vá para o menu "Histórico"</strong> no menu lateral</li>
+                    <li><strong>Cole o ID</strong> no campo de busca</li>
+                    <li><strong>Clique em "Ver Detalhes"</strong> no paciente encontrado</li>
+                    <li>O sistema abrirá automaticamente na <strong>Etapa 5 (Avaliação Médica)</strong></li>
                   </ol>
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm font-semibold text-blue-900 mb-2">📋 OPÇÃO 2 - Buscar no Histórico:</p>
-                  <ol className="list-decimal pl-5 space-y-2 text-sm text-blue-800">
-                    <li>Vá no menu lateral → "Histórico"</li>
-                    <li>Cole o ID na barra de busca</li>
-                    <li>Clique em "Ver Detalhes" no paciente encontrado</li>
-                    <li>O sistema continuará na Etapa 5 (Avaliação Médica)</li>
-                  </ol>
+                <div className="bg-purple-50 border border-purple-300 rounded-lg p-4">
+                  <p className="text-sm font-semibold text-purple-900 mb-2">
+                    ⚡ ATALHO RÁPIDO:
+                  </p>
+                  <p className="text-sm text-purple-800 mb-3">
+                    Se você é o médico que vai atender, pode continuar diretamente nesta tela:
+                  </p>
+                  <Button
+                    onClick={continuarParaMedico}
+                    className="w-full bg-red-600 hover:bg-red-700"
+                  >
+                    Continuar como Médico (Etapa 5)
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
                 </div>
 
                 <Button 
@@ -368,7 +384,7 @@ Protocolos: Diretriz SBC 2025 / Sistema Manchester
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <h3 className="font-semibold text-blue-900 mb-2">Resumo da Triagem:</h3>
                 <div className="space-y-1 text-sm text-blue-800">
-                  <p><strong>ID:</strong> {linkMedico}</p>
+                  <p><strong>ID:</strong> {idPacienteParaMedico}</p>
                   <p><strong>Classificação:</strong> {dadosPaciente.classificacao_risco?.cor || '-'}</p>
                   <p><strong>Tempo Triagem-ECG:</strong> {dadosPaciente.tempo_triagem_ecg_minutos || '-'} min</p>
                   {dadosPaciente.triagem_cardiologica?.alerta_iam && (
@@ -390,13 +406,6 @@ Protocolos: Diretriz SBC 2025 / Sistema Manchester
                   className="flex-1"
                 >
                   Voltar ao Dashboard
-                </Button>
-                <Button
-                  onClick={continuarParaMedico}
-                  className="flex-1 bg-red-600 hover:bg-red-700"
-                >
-                  Continuar como Médico
-                  <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </div>
             </CardContent>
