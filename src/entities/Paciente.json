@@ -1,0 +1,236 @@
+{
+  "name": "Paciente",
+  "type": "object",
+  "properties": {
+    "nome_completo": {
+      "type": "string",
+      "description": "Nome completo do paciente"
+    },
+    "idade": {
+      "type": "number",
+      "description": "Idade do paciente"
+    },
+    "sexo": {
+      "type": "string",
+      "enum": [
+        "Masculino",
+        "Feminino"
+      ],
+      "description": "Sexo do paciente"
+    },
+    "prontuario": {
+      "type": "string",
+      "description": "N\u00famero do prontu\u00e1rio"
+    },
+    "data_hora_chegada": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de chegada do paciente"
+    },
+    "data_hora_inicio_sintomas": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora do in\u00edcio dos sintomas"
+    },
+    "data_hora_inicio_triagem": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora do in\u00edcio da triagem"
+    },
+    "triagem_cardiologica": {
+      "type": "object",
+      "description": "Respostas da triagem cardiol\u00f3gica",
+      "properties": {
+        "dor_desconforto_peito": {
+          "type": "boolean"
+        },
+        "duracao_maior_10min": {
+          "type": "boolean"
+        },
+        "irradiacao": {
+          "type": "boolean"
+        },
+        "dor_epigastrica": {
+          "type": "boolean"
+        },
+        "dispneia_diaforese": {
+          "type": "boolean"
+        },
+        "idade_fatores_risco": {
+          "type": "boolean"
+        },
+        "alerta_iam": {
+          "type": "boolean",
+          "description": "Se true, emite alerta de prov\u00e1vel IAM"
+        }
+      }
+    },
+    "dados_vitais": {
+      "type": "object",
+      "properties": {
+        "pa_braco_esquerdo": {
+          "type": "string",
+          "description": "Press\u00e3o arterial bra\u00e7o esquerdo (mmHg)"
+        },
+        "pa_braco_direito": {
+          "type": "string",
+          "description": "Press\u00e3o arterial bra\u00e7o direito (mmHg)"
+        },
+        "frequencia_cardiaca": {
+          "type": "number",
+          "description": "Frequ\u00eancia card\u00edaca (bpm)"
+        },
+        "frequencia_respiratoria": {
+          "type": "number",
+          "description": "Frequ\u00eancia respirat\u00f3ria (irpm)"
+        },
+        "temperatura": {
+          "type": "number",
+          "description": "Temperatura (\u00b0C)"
+        },
+        "spo2": {
+          "type": "number",
+          "description": "SpO2 (%)"
+        },
+        "diabetes": {
+          "type": "boolean"
+        },
+        "dpoc": {
+          "type": "boolean"
+        },
+        "glicemia_capilar": {
+          "type": "number",
+          "description": "Glicemia capilar (mg/dL)"
+        }
+      }
+    },
+    "ecg_files": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs dos arquivos de ECG"
+    },
+    "data_hora_ecg": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora do carregamento do ECG"
+    },
+    "tempo_triagem_ecg_minutos": {
+      "type": "number",
+      "description": "Tempo em minutos entre triagem e ECG"
+    },
+    "analise_ecg_ia": {
+      "type": "string",
+      "description": "An\u00e1lise do ECG por intelig\u00eancia artificial"
+    },
+    "classificacao_risco": {
+      "type": "object",
+      "properties": {
+        "cor": {
+          "type": "string",
+          "enum": [
+            "Vermelha",
+            "Laranja",
+            "Amarela",
+            "Verde",
+            "Azul"
+          ]
+        },
+        "tempo_atendimento_max": {
+          "type": "string",
+          "description": "Tempo m\u00e1ximo de espera"
+        },
+        "discriminadores": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "avaliacao_medica": {
+      "type": "object",
+      "properties": {
+        "data_hora_avaliacao": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "antecedentes": {
+          "type": "string"
+        },
+        "quadro_atual": {
+          "type": "string"
+        },
+        "hipoteses_diagnosticas": {
+          "type": "string"
+        },
+        "diagnostico_confirmado": {
+          "type": "string"
+        },
+        "observacoes": {
+          "type": "string"
+        }
+      }
+    },
+    "prescricao_medicamentos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "medicamento": {
+            "type": "string"
+          },
+          "dose": {
+            "type": "string"
+          },
+          "via": {
+            "type": "string"
+          },
+          "administrado": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "exames_solicitados": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "necessita_regulacao": {
+      "type": "boolean",
+      "default": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Em Triagem",
+        "Aguardando M\u00e9dico",
+        "Em Atendimento",
+        "Transferido",
+        "Alta",
+        "\u00d3bito"
+      ],
+      "default": "Em Triagem"
+    },
+    "data_hora_encerramento": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "destino": {
+      "type": "string",
+      "description": "Destino final do paciente"
+    },
+    "tempo_total_minutos": {
+      "type": "number",
+      "description": "Tempo total de atendimento em minutos"
+    }
+  },
+  "required": [
+    "nome_completo",
+    "idade",
+    "sexo"
+  ]
+}
