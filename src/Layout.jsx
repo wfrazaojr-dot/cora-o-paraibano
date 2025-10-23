@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -78,7 +77,7 @@ export default function Layout({ children, currentPageName }) {
               </div>
               <div>
                 <h2 className="font-bold text-white text-lg">Triagem Dor Torácica</h2>
-                <p className="text-xs text-red-100">Sistema de Classificação de Risco</p>
+                <p className="text-xs text-red-100">Sistema Médico Integrado</p>
               </div>
             </div>
           </SidebarHeader>
