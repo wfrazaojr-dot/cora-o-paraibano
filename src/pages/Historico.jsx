@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {  Search, ExternalLink, Clock } from "lucide-react";
+import { Search, ExternalLink, Clock, RefreshCw } from "lucide-react";
 import { format, differenceInMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Link } from "react-router-dom";
@@ -124,6 +124,12 @@ export default function Historico() {
                           <Button variant="outline" size="sm">
                             <ExternalLink className="w-4 h-4 mr-2" />
                             Ver Detalhes
+                          </Button>
+                        </Link>
+                        <Link to={`${createPageUrl("NovaTriagem")}?id=${paciente.id}&retriagem=true`}>
+                          <Button variant="outline" size="sm" className="bg-blue-50 hover:bg-blue-100">
+                            <RefreshCw className="w-4 h-4 mr-2" />
+                            Retriagem
                           </Button>
                         </Link>
                       </div>

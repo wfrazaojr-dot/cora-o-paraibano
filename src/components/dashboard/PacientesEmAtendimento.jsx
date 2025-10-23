@@ -1,7 +1,8 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Clock, User, RefreshCw } from "lucide-react";
 import { format, differenceInMinutes } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
@@ -58,10 +59,9 @@ export default function PacientesEmAtendimento({ pacientes, isLoading }) {
                 : 0;
               
               return (
-                <Link 
+                <div 
                   key={paciente.id}
-                  to={`${createPageUrl("NovaTriagem")}?id=${paciente.id}`}
-                  className="block p-4 border rounded-lg hover:shadow-md transition-all bg-white"
+                  className="p-4 border rounded-lg hover:shadow-md transition-all bg-white"
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div>
@@ -76,7 +76,7 @@ export default function PacientesEmAtendimento({ pacientes, isLoading }) {
                       </Badge>
                     )}
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
                     <span className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
                       {tempoEspera} min
@@ -84,11 +84,24 @@ export default function PacientesEmAtendimento({ pacientes, isLoading }) {
                     <Badge variant="outline">{paciente.status}</Badge>
                   </div>
                   {paciente.triagem_cardiologica?.alerta_iam && (
-                    <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700 font-medium">
+                    <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700 font-medium">
                       ⚠️ PROVÁVEL IAM - REALIZE ECG EM ATÉ 10 MIN
                     </div>
                   )}
-                </Link>
+                  <div className="flex gap-2">
+                    <Link to={`${createPageUrl("NovaTriagem")}?id=${paciente.id}`} className="flex-1">
+                      <Button variant="outline" size="sm" className="w-full">
+                        Ver Detalhes
+                      </Button>
+                    </Link>
+                    <Link to={`${createPageUrl("NovaTriagem")}?id=${paciente.id}&retriagem=true`}>
+                      <Button variant="outline" size="sm" className="bg-blue-50 hover:bg-blue-100">
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Retriagem
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
               );
             })}
           </div>
