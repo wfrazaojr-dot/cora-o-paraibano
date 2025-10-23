@@ -1,7 +1,8 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Activity, Plus, History, BookOpen, FileText, Users, AlertCircle } from "lucide-react";
+import { Activity, Plus, History, BookOpen, FileText, Users, AlertCircle, TrendingUp } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -32,6 +33,11 @@ const navigationItems = [
     title: "Histórico",
     url: createPageUrl("Historico"),
     icon: History,
+  },
+  {
+    title: "Indicadores",
+    url: createPageUrl("Indicadores"),
+    icon: TrendingUp,
   },
   {
     title: "Protocolos",
