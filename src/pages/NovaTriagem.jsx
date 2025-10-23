@@ -40,19 +40,25 @@ export default function NovaTriagem() {
   const [pacienteId, setPacienteId] = useState(null);
   const [aguardandoMedico, setAguardandoMedico] = useState(false);
   const [linkMedico, setLinkMedico] = useState("");
+  const [carregando, setCarregando] = useState(true);
 
   const urlParams = new URLSearchParams(window.location.search);
   const idUrl = urlParams.get('id');
   const isRetriagem = urlParams.get('retriagem') === 'true';
 
-  const { data: pacienteExistente } = useQuery({
+  const { data: pacienteExistente, isLoading } = useQuery({
     queryKey: ['paciente', idUrl],
-    queryFn: () => base44.entities.Paciente.filter({ id: idUrl }),
+    queryFn: async () => {
+      const result = await base44.entities.Paciente.filter({ id: idUrl });
+      return result;
+    },
     enabled: !!idUrl,
   });
 
   useEffect(() => {
-    if (pacienteExistente && pacienteExistente[0]) {
+    if (isLoading) return;
+    
+    if (pacienteExistente && pacienteExistente.length > 0) {
       const paciente = pacienteExistente[0];
       setDadosPaciente(paciente);
       setPacienteId(paciente.id);
@@ -65,11 +71,38 @@ export default function NovaTriagem() {
           data_hora_inicio_triagem: format(new Date(), "yyyy-MM-dd'T'HH:mm")
         });
       } else if (paciente.status === "Aguardando Médico") {
-        // Se está aguardando médico, ir direto para etapa 5
+        // Se está aguardando médico, ir direto para etapa 5 (avaliação médica)
         setEtapaAtual(5);
+      } else if (paciente.status === "Em Atendimento") {
+        // Se já está em atendimento médico, descobrir em qual etapa está
+        if (paciente.avaliacao_medica) {
+          if (paciente.prescricao_medicamentos && paciente.prescricao_medicamentos.length > 0) {
+            if (paciente.exames_solicitados && paciente.exames_solicitados.length > 0) {
+              setEtapaAtual(8); // Relatório
+            } else {
+              setEtapaAtual(7); // Exames
+            }
+          } else {
+            setEtapaAtual(6); // Prescrição
+          }
+        } else {
+          setEtapaAtual(5); // Avaliação médica
+        }
+      } else if (paciente.classificacao_risco) {
+        // Se tem classificação de risco mas não está aguardando médico
+        setEtapaAtual(4);
+      } else if (paciente.dados_vitais) {
+        setEtapaAtual(3);
+      } else if (paciente.triagem_cardiologica) {
+        setEtapaAtual(2);
       }
+    } else if (!idUrl) {
+      // Nova triagem do zero
+      setEtapaAtual(1);
     }
-  }, [pacienteExistente, isRetriagem]);
+    
+    setCarregando(false);
+  }, [pacienteExistente, isLoading, isRetriagem, idUrl]);
 
   const salvarMutation = useMutation({
     mutationFn: async (dados) => {
@@ -83,6 +116,7 @@ export default function NovaTriagem() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pacientes'] });
+      queryClient.invalidateQueries({ queryKey: ['paciente', pacienteId] });
     },
   });
 
@@ -92,7 +126,7 @@ export default function NovaTriagem() {
     
     await salvarMutation.mutateAsync(dadosAtualizados);
     
-    // Se terminou etapa 4, mostrar tela de aguardo para médico
+    // Se terminou etapa 4 e não é retriagem, mostrar tela de aguardo para médico
     if (etapaAtual === 4 && !isRetriagem) {
       setAguardandoMedico(true);
       const link = `${window.location.origin}${createPageUrl("NovaTriagem")}?id=${pacienteId}`;
@@ -139,6 +173,19 @@ Sistema de Triagem de Dor Torácica
     `);
     window.location.href = `mailto:?subject=${assunto}&body=${corpo}`;
   };
+
+  if (carregando || isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8 flex items-center justify-center">
+        <Card className="shadow-xl p-8">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Carregando dados do paciente...</p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   if (aguardandoMedico) {
     return (
@@ -238,12 +285,6 @@ Sistema de Triagem de Dor Torácica
   const EtapaComponente = etapas[etapaAtual - 1].componente;
   const progresso = (etapaAtual / 8) * 100;
 
-  // Em retriagem, não mostrar etapa 1
-  if (isRetriagem && etapaAtual === 1) {
-    setEtapaAtual(2);
-    return null;
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
@@ -269,6 +310,14 @@ Sistema de Triagem de Dor Torácica
             <AlertDescription className="text-blue-800">
               <strong>Retriagem em andamento</strong> - Dados do paciente já cadastrados. 
               Atualizando nova triagem com data/hora atual.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {dadosPaciente.status === "Aguardando Médico" && etapaAtual === 5 && (
+          <Alert className="mb-6 border-green-500 bg-green-50">
+            <AlertDescription className="text-green-800">
+              <strong>Avaliação Médica</strong> - Paciente aguardando avaliação. Continue o atendimento a partir da Etapa 5.
             </AlertDescription>
           </Alert>
         )}
