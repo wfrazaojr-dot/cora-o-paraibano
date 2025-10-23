@@ -3,8 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Clock } from "lucide-react";
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
   const [dados, setDados] = useState({
@@ -28,6 +29,16 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Informações do Paciente</h2>
         <p className="text-gray-600">Preencha os dados básicos do paciente para iniciar a triagem</p>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
+        <Clock className="w-5 h-5 text-blue-600" />
+        <div className="flex-1">
+          <p className="text-sm font-medium text-blue-900">Data e Hora do Início da Triagem</p>
+          <p className="text-lg font-bold text-blue-700">
+            {format(new Date(dados.data_hora_inicio_triagem), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+          </p>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
@@ -81,7 +92,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="data_hora_chegada">Data e Hora de Chegada</Label>
+          <Label htmlFor="data_hora_chegada">Data e Hora de Chegada *</Label>
           <Input
             id="data_hora_chegada"
             type="datetime-local"
@@ -89,6 +100,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
             onChange={(e) => setDados({...dados, data_hora_chegada: e.target.value})}
             required
           />
+          <p className="text-xs text-gray-500">Pode ser ajustada se necessário</p>
         </div>
 
         <div className="space-y-2">
