@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -50,8 +49,9 @@ export default function NovaTriagem() {
   const { data: pacienteExistente, isLoading } = useQuery({
     queryKey: ['paciente', idUrl],
     queryFn: async () => {
+      if (!idUrl) return null;
       const result = await base44.entities.Paciente.filter({ id: idUrl });
-      return result;
+      return result && result.length > 0 ? result[0] : null;
     },
     enabled: !!idUrl,
   });
@@ -59,8 +59,8 @@ export default function NovaTriagem() {
   useEffect(() => {
     if (isLoading) return;
     
-    if (pacienteExistente && pacienteExistente.length > 0) {
-      const paciente = pacienteExistente[0];
+    if (pacienteExistente) {
+      const paciente = pacienteExistente;
       setDadosPaciente(paciente);
       setPacienteId(paciente.id);
       
@@ -130,7 +130,10 @@ export default function NovaTriagem() {
     // Se terminou etapa 4 e não é retriagem, mostrar tela de aguardo para médico
     if (etapaAtual === 4 && !isRetriagem) {
       setAguardandoMedico(true);
-      const link = `${window.location.origin}${createPageUrl("NovaTriagem")}?id=${pacienteId}`;
+      // Gerar link completo com protocolo e domínio
+      const baseUrl = window.location.origin;
+      const path = window.location.pathname.split('?')[0];
+      const link = `${baseUrl}${path}?id=${pacienteId}`;
       setLinkMedico(link);
       return;
     }
@@ -310,7 +313,7 @@ Protocolos: Diretriz SBC 2025 / Sistema Manchester
               <Alert className="border-orange-500 bg-orange-50 mb-6">
                 <AlertDescription className="text-orange-800 text-center">
                   <strong className="block mb-2 text-lg">⚠️ AVALIAÇÃO MÉDICA NECESSÁRIA</strong>
-                  <p>Médico deve fazer login para continuar a assistência</p>
+                  <p>Médico deve acessar o link abaixo para continuar</p>
                   <p className="text-sm mt-1">Sistema em stand-by até avaliação médica</p>
                 </AlertDescription>
               </Alert>
@@ -328,6 +331,9 @@ Protocolos: Diretriz SBC 2025 / Sistema Manchester
                       <Copy className="w-4 h-4" />
                     </Button>
                   </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    ℹ️ Este link pode ser aberto em qualquer dispositivo para continuar o atendimento
+                  </p>
                 </div>
 
                 <Button 
