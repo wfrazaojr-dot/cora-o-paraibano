@@ -290,9 +290,9 @@ PADRÕES CRÍTICOS:
     if (!glicemia || isNaN(glicemia)) return null;
 
     if (dados.diabetes) {
-      if (glicemia < 70 || glicemia > 400) {
+      if (glicemia < 54 || glicemia > 400) {
         return { 
-          texto: "Valores críticos: < 70 ou > 400 mg/dL (requer correção imediata)", 
+          texto: "Valores críticos: < 54 ou > 400 mg/dL (requer correção imediata)", 
           cor: "text-red-600 font-semibold",
           bg: "bg-red-50 border-red-300"
         };
@@ -311,9 +311,9 @@ PADRÕES CRÍTICOS:
       }
     } else {
       // NÃO DIABÉTICOS: 70 a 180 mg/dL
-      if (glicemia < 60 || glicemia > 400) {
+      if (glicemia < 54 || glicemia > 400) {
         return { 
-          texto: "Valores críticos: < 60 ou > 400 mg/dL (requer correção imediata)", 
+          texto: "Valores críticos: < 54 ou > 400 mg/dL (requer correção imediata)", 
           cor: "text-red-600 font-semibold",
           bg: "bg-red-50 border-red-300"
         };
