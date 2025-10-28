@@ -215,12 +215,27 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(url);
 
-      const printWindow = window.open(url);
-      setTimeout(() => {
-        printWindow.print();
-      }, 500);
+      // Tentar abrir para impressão, mas com verificação de erro
+      try {
+        const printWindow = window.open(url);
+        if (printWindow) {
+          setTimeout(() => {
+            try {
+              printWindow.print();
+            } catch (printError) {
+              console.log("Não foi possível acionar a impressão automaticamente. Por favor, utilize Ctrl+P (Windows) ou Cmd+P (Mac) na janela do relatório para imprimir. O arquivo HTML já foi baixado.");
+            }
+          }, 500);
+        } else {
+          alert("Popup de impressão bloqueado pelo navegador.\n\nO relatório foi baixado com sucesso.\n\nPara imprimir:\n1. Abra o arquivo HTML baixado.\n2. Use Ctrl+P (Windows) ou Cmd+P (Mac) para imprimir.");
+        }
+      } catch (error) {
+        console.log("Erro ao tentar abrir popup para impressão. O relatório foi baixado com sucesso.", error);
+        alert("Ocorreu um erro ao tentar abrir a janela de impressão. O relatório foi baixado com sucesso. Por favor, abra o arquivo HTML baixado e imprima manualmente.");
+      }
+
+      URL.revokeObjectURL(url);
 
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
