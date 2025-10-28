@@ -62,13 +62,20 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
     .footer { margin-top: 50px; padding-top: 20px; border-top: 2px solid #DC2626; font-size: 12px; color: #666; }
     .profissionais { background: #F0FDF4; border: 2px solid #16A34A; padding: 15px; margin: 20px 0; }
     .tempo-ecg { background: #FEF3C7; border: 2px solid #F59E0B; padding: 15px; margin: 15px 0; }
+    .unidade-header { background: #DBEAFE; border: 2px solid #3B82F6; padding: 15px; margin-bottom: 20px; text-align: center; }
   </style>
 </head>
 <body>
+  <div class="unidade-header">
+    <h2 style="margin: 0; color: #1E40AF; border: none;">${dadosPaciente.unidade_saude || "UNIDADE DE SAÚDE"}</h2>
+    <p style="margin: 5px 0 0 0; color: #1E40AF; font-size: 14px;">Sistema de Triagem de Dor Torácica</p>
+  </div>
+
   <h1>RELATÓRIO DE ATENDIMENTO - DOR TORÁCICA</h1>
   
   <div class="section">
     <h2>DADOS DO PACIENTE</h2>
+    <div class="info-row"><span class="label">Unidade de Atendimento:</span> <strong>${dadosPaciente.unidade_saude || "-"}</strong></div>
     <div class="info-row"><span class="label">Nome:</span> ${dadosPaciente.nome_completo}</div>
     <div class="info-row"><span class="label">Idade:</span> ${dadosPaciente.idade} anos</div>
     <div class="info-row"><span class="label">Sexo:</span> ${dadosPaciente.sexo}</div>
@@ -180,7 +187,8 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
 
   <div class="profissionais">
     <h2 style="margin-top: 0;">PROFISSIONAIS RESPONSÁVEIS</h2>
-    <div class="info-row"><span class="label">Enfermeiro(a):</span> ${dadosPaciente.enfermeiro_nome || "-"}</div>
+    <div class="info-row"><span class="label">Unidade:</span> <strong>${dadosPaciente.unidade_saude || "-"}</strong></div>
+    <div class="info-row" style="margin-top: 10px;"><span class="label">Enfermeiro(a):</span> ${dadosPaciente.enfermeiro_nome || "-"}</div>
     <div class="info-row"><span class="label">COREN:</span> ${dadosPaciente.enfermeiro_coren || "-"}</div>
     <div class="info-row" style="margin-top: 15px;"><span class="label">Médico(a):</span> ${medico.nome || "-"}</div>
     <div class="info-row"><span class="label">CRM:</span> ${medico.crm || "-"}</div>
@@ -220,9 +228,11 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
   };
 
   const abrirEmailComRelatorio = () => {
-    const assunto = encodeURIComponent(`[REGULAÇÃO] ${dadosPaciente.nome_completo} - ${dadosPaciente.classificacao_risco?.cor}`);
+    const assunto = encodeURIComponent(`[REGULAÇÃO] ${dadosPaciente.unidade_saude || "UNIDADE"} - ${dadosPaciente.nome_completo} - ${dadosPaciente.classificacao_risco?.cor}`);
     const corpo = encodeURIComponent(`
 SOLICITAÇÃO DE REGULAÇÃO - DOR TORÁCICA
+
+UNIDADE DE ORIGEM: ${dadosPaciente.unidade_saude || "NÃO INFORMADA"}
 
 PACIENTE: ${dadosPaciente.nome_completo}
 IDADE: ${dadosPaciente.idade} anos | SEXO: ${dadosPaciente.sexo}
@@ -243,6 +253,7 @@ Por favor, baixe o relatório em PDF através do botão "Baixar Relatório (PDF)
 
 ---
 Sistema de Triagem de Dor Torácica
+${dadosPaciente.unidade_saude || ""}
     `);
 
     window.location.href = `mailto:?subject=${assunto}&body=${corpo}`;
