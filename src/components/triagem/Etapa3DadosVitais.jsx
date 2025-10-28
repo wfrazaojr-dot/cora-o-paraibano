@@ -18,6 +18,8 @@ export default function Etapa3DadosVitais({ dadosPaciente, onProxima, onAnterior
     frequencia_respiratoria: "",
     temperatura: "",
     spo2: "",
+    spo2_oxigenio: "ar_ambiente",
+    spo2_litros_o2: "",
     diabetes: false,
     dpoc: false,
     glicemia_capilar: ""
@@ -310,7 +312,6 @@ PADRÕES CRÍTICOS:
         };
       }
     } else {
-      // NÃO DIABÉTICOS: 70 a 180 mg/dL
       if (glicemia < 54 || glicemia > 400) {
         return { 
           texto: "Valores críticos: < 54 ou > 400 mg/dL (requer correção imediata)", 
@@ -336,6 +337,10 @@ PADRÕES CRÍTICOS:
   const getSpo2Status = () => {
     const spo2 = parseFloat(dados.spo2);
     if (!spo2 || isNaN(spo2)) return null;
+
+    // The oxygen status should be considered for target ranges in a more complex scenario.
+    // For this update, the ranges remain based on DPOC status as per previous logic.
+    // If the requirement changes to alter target SpO2 based on O2 supplementation, this function needs modification.
 
     if (dados.dpoc) {
       if (spo2 >= 88 && spo2 <= 92) {
@@ -470,15 +475,61 @@ PADRÕES CRÍTICOS:
             value={dados.spo2}
             onChange={(e) => setDados({...dados, spo2: parseFloat(e.target.value)})}
           />
-          {getSpo2Status() && (
-            <div className={`text-sm p-3 rounded border ${getSpo2Status().bg}`}>
-              <p className={getSpo2Status().cor}>
-                {getSpo2Status().texto}
-              </p>
-            </div>
-          )}
         </div>
       </div>
+
+      {/* NOVO: Suporte de Oxigênio */}
+      <div className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
+        <Label className="text-base font-semibold text-blue-900 mb-3 block">
+          Suporte de Oxigênio
+        </Label>
+        <RadioGroup
+          value={dados.spo2_oxigenio}
+          onValueChange={(value) => setDados({...dados, spo2_oxigenio: value, spo2_litros_o2: value === "ar_ambiente" ? "" : dados.spo2_litros_o2})}
+          className="space-y-3"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="ar_ambiente" id="ar_ambiente" />
+            <Label htmlFor="ar_ambiente" className="cursor-pointer font-medium">
+              Ar ambiente (sem oxigênio suplementar)
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="o2_suplementar" id="o2_suplementar" />
+            <Label htmlFor="o2_suplementar" className="cursor-pointer font-medium">
+              Oxigênio suplementar
+            </Label>
+          </div>
+        </RadioGroup>
+
+        {dados.spo2_oxigenio === "o2_suplementar" && (
+          <div className="mt-4 space-y-2">
+            <Label htmlFor="litros_o2">Litros de O2 por minuto</Label>
+            <Input
+              id="litros_o2"
+              type="number"
+              step="0.5"
+              min="0"
+              max="15"
+              placeholder="Ex: 2 ou 5"
+              value={dados.spo2_litros_o2}
+              onChange={(e) => setDados({...dados, spo2_litros_o2: parseFloat(e.target.value)})}
+              className="bg-white"
+            />
+            <p className="text-xs text-blue-700">
+              💡 Informe quantos litros por minuto o paciente está recebendo
+            </p>
+          </div>
+        )}
+      </div>
+
+      {getSpo2Status() && (
+        <div className={`text-sm p-3 rounded border ${getSpo2Status().bg}`}>
+          <p className={getSpo2Status().cor}>
+            {getSpo2Status().texto}
+          </p>
+        </div>
+      )}
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-3">

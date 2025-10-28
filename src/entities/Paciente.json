@@ -96,6 +96,19 @@
           "type": "number",
           "description": "SpO2 (%)"
         },
+        "spo2_oxigenio": {
+          "type": "string",
+          "enum": [
+            "ar_ambiente",
+            "o2_suplementar"
+          ],
+          "default": "ar_ambiente",
+          "description": "Se paciente est\u00e1 em ar ambiente ou usando O2 suplementar"
+        },
+        "spo2_litros_o2": {
+          "type": "number",
+          "description": "Litros de O2 por minuto (se estiver usando O2 suplementar)"
+        },
         "diabetes": {
           "type": "boolean"
         },
