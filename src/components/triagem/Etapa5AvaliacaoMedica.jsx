@@ -30,9 +30,13 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
       antecedentes: "",
       quadro_atual: "",
       hipoteses_diagnosticas: "",
-      diagnostico_confirmado: "",
-      observacoes: ""
+      observacoes: "" // 'diagnostico_confirmado' removed as per outline
     };
+  });
+
+  const [medico, setMedico] = useState({
+    nome: dadosPaciente.medico_nome || "",
+    crm: dadosPaciente.medico_crm || ""
   });
 
   // Atualiza a data/hora sempre que o componente é montado e não há avaliação prévia
@@ -47,8 +51,14 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!medico.nome || !medico.crm) {
+      alert("Por favor, preencha o nome e CRM do médico");
+      return;
+    }
     onProxima({ 
       avaliacao_medica: avaliacao,
+      medico_nome: medico.nome,
+      medico_crm: medico.crm,
       status: "Em Atendimento"
     });
   };
@@ -242,10 +252,16 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                   onClick={() => window.open(url, '_blank')}
                   onError={(e) => {
                     e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
+                    // Fallback to text link if image fails to load
+                    const parent = e.target.closest('.border');
+                    if (parent) {
+                      const fallbackDiv = parent.querySelector('.fallback-link');
+                      if (fallbackDiv) fallbackDiv.style.display = 'flex';
+                    }
                   }}
                 />
-                <div style={{display: 'none'}} className="w-full h-48 items-center justify-center bg-gray-100">
+                {/* Fallback div for broken images */}
+                <div className="fallback-link w-full h-48 items-center justify-center bg-gray-100 hidden">
                   <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm">
                     Ver ECG {index + 1}
                   </a>
@@ -269,6 +285,29 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
       <div className="border-t-2 pt-6">
         <h3 className="text-xl font-bold text-gray-900 mb-4">Avaliação Clínica do Médico</h3>
         
+        <div className="grid md:grid-cols-2 gap-4 mb-4">
+          <div className="space-y-2">
+            <Label htmlFor="medico_nome">Nome Completo do Médico *</Label>
+            <Input
+              id="medico_nome"
+              value={medico.nome}
+              onChange={(e) => setMedico({...medico, nome: e.target.value})}
+              placeholder="Digite o nome completo"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="medico_crm">Número CRM *</Label>
+            <Input
+              id="medico_crm"
+              value={medico.crm}
+              onChange={(e) => setMedico({...medico, crm: e.target.value})}
+              placeholder="Ex: 123456"
+              required
+            />
+          </div>
+        </div>
+
         <div className="space-y-2 mb-4">
           <Label htmlFor="data_avaliacao">Data e Hora da Avaliação</Label>
           <Input
@@ -321,7 +360,8 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
           />
         </div>
 
-        <div className="space-y-2">
+        {/* Removed 'Diagnóstico Confirmado/Principal' input as per outline */}
+        {/* <div className="space-y-2">
           <Label htmlFor="diagnostico">Diagnóstico Confirmado/Principal</Label>
           <Input
             id="diagnostico"
@@ -329,7 +369,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
             value={avaliacao.diagnostico_confirmado}
             onChange={(e) => setAvaliacao({...avaliacao, diagnostico_confirmado: e.target.value})}
           />
-        </div>
+        </div> */}
 
         <div className="space-y-2">
           <Label htmlFor="observacoes">Observações Adicionais</Label>

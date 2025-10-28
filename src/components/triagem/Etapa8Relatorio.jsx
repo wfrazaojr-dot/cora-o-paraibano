@@ -7,7 +7,7 @@ import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input"; // Added Input component import
+import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, FileText, CheckCircle, AlertCircle, Mail } from "lucide-react";
 import { format, differenceInMinutes } from "date-fns";
@@ -61,6 +61,7 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
     th { background-color: #f3f4f6; font-weight: bold; }
     .footer { margin-top: 50px; padding-top: 20px; border-top: 2px solid #DC2626; font-size: 12px; color: #666; }
     .profissionais { background: #F0FDF4; border: 2px solid #16A34A; padding: 15px; margin: 20px 0; }
+    .tempo-ecg { background: #FEF3C7; border: 2px solid #F59E0B; padding: 15px; margin: 15px 0; }
   </style>
 </head>
 <body>
@@ -103,7 +104,12 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
 
   <div class="section">
     <h2>ELETROCARDIOGRAMA (ECG)</h2>
-    <div class="info-row"><span class="label">Tempo Triagem → ECG:</span> ${dadosPaciente.tempo_triagem_ecg_minutos || "-"} minutos ${dadosPaciente.tempo_triagem_ecg_minutos <= 10 ? "✓ Dentro da meta" : "⚠️ Acima da meta"}</div>
+    <div class="tempo-ecg">
+      <h3 style="margin-top: 0;">⏱️ TEMPOS DO ECG</h3>
+      <div class="info-row"><span class="label">Hora da Triagem:</span> ${dadosPaciente.data_hora_inicio_triagem ? format(new Date(dadosPaciente.data_hora_inicio_triagem), "HH:mm", { locale: ptBR }) : "-"}</div>
+      <div class="info-row"><span class="label">Hora do ECG:</span> ${dadosPaciente.data_hora_ecg ? format(new Date(dadosPaciente.data_hora_ecg), "HH:mm", { locale: ptBR }) : "-"}</div>
+      <div class="info-row"><span class="label">Tempo Triagem → ECG:</span> <strong>${dadosPaciente.tempo_triagem_ecg_minutos || "-"} minutos</strong> ${dadosPaciente.tempo_triagem_ecg_minutos <= 10 ? "✓ Dentro da meta" : "⚠️ Acima da meta"}</div>
+    </div>
     
     ${dadosPaciente.ecg_files && dadosPaciente.ecg_files.length > 0 ? `
     <div class="ecg-container">
@@ -191,7 +197,6 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
 </html>
 `;
 
-      // Criar um blob com o HTML
       const blob = new Blob([htmlRelatorio], { type: 'text/html;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -202,7 +207,6 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      // Abrir em nova aba para impressão como PDF
       const printWindow = window.open(url);
       setTimeout(() => {
         printWindow.print();
@@ -285,6 +289,19 @@ Sistema de Triagem de Dor Torácica
           <AlertDescription className={tempoTriagemAvaliacao <= 30 ? "text-green-800" : "text-orange-800"}>
             Tempo triagem até avaliação médica: <strong>{tempoTriagemAvaliacao} minutos</strong>
             {tempoTriagemAvaliacao <= 30 ? " ✓ Dentro da meta" : " ⚠️ Acima da meta de 30 minutos"}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {dadosPaciente.data_hora_inicio_triagem && dadosPaciente.data_hora_ecg && (
+        <Alert className="border-blue-500 bg-blue-50">
+          <AlertDescription className="text-blue-800">
+            <div className="space-y-1">
+              <p><strong>⏱️ Tempos do ECG:</strong></p>
+              <p>• Hora da Triagem: <strong>{format(new Date(dadosPaciente.data_hora_inicio_triagem), "HH:mm", { locale: ptBR })}</strong></p>
+              <p>• Hora do ECG: <strong>{format(new Date(dadosPaciente.data_hora_ecg), "HH:mm", { locale: ptBR })}</strong></p>
+              <p>• Tempo Triagem → ECG: <strong>{dadosPaciente.tempo_triagem_ecg_minutos} minutos</strong> {dadosPaciente.tempo_triagem_ecg_minutos <= 10 ? "✓ Dentro da meta" : "⚠️ Acima da meta"}</p>
+            </div>
           </AlertDescription>
         </Alert>
       )}
