@@ -66,16 +66,18 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
   </style>
 </head>
 <body>
+  ${dadosPaciente.unidade_saude ? `
   <div class="unidade-header">
-    <h2 style="margin: 0; color: #1E40AF; border: none;">${dadosPaciente.unidade_saude || "UNIDADE DE SAÚDE"}</h2>
+    <h2 style="margin: 0; color: #1E40AF; border: none;">${dadosPaciente.unidade_saude}</h2>
     <p style="margin: 5px 0 0 0; color: #1E40AF; font-size: 14px;">Sistema de Triagem de Dor Torácica</p>
   </div>
+  ` : ''}
 
   <h1>RELATÓRIO DE ATENDIMENTO - DOR TORÁCICA</h1>
   
   <div class="section">
     <h2>DADOS DO PACIENTE</h2>
-    <div class="info-row"><span class="label">Unidade de Atendimento:</span> <strong>${dadosPaciente.unidade_saude || "-"}</strong></div>
+    ${dadosPaciente.unidade_saude ? `<div class="info-row"><span class="label">Unidade de Atendimento:</span> <strong>${dadosPaciente.unidade_saude}</strong></div>` : ''}
     <div class="info-row"><span class="label">Nome:</span> ${dadosPaciente.nome_completo}</div>
     <div class="info-row"><span class="label">Idade:</span> ${dadosPaciente.idade} anos</div>
     <div class="info-row"><span class="label">Sexo:</span> ${dadosPaciente.sexo}</div>
@@ -187,7 +189,7 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
 
   <div class="profissionais">
     <h2 style="margin-top: 0;">PROFISSIONAIS RESPONSÁVEIS</h2>
-    <div class="info-row"><span class="label">Unidade:</span> <strong>${dadosPaciente.unidade_saude || "-"}</strong></div>
+    ${dadosPaciente.unidade_saude ? `<div class="info-row"><span class="label">Unidade:</span> <strong>${dadosPaciente.unidade_saude}</strong></div>` : ''}
     <div class="info-row" style="margin-top: 10px;"><span class="label">Enfermeiro(a):</span> ${dadosPaciente.enfermeiro_nome || "-"}</div>
     <div class="info-row"><span class="label">COREN:</span> ${dadosPaciente.enfermeiro_coren || "-"}</div>
     <div class="info-row" style="margin-top: 15px;"><span class="label">Médico(a):</span> ${medico.nome || "-"}</div>
@@ -232,7 +234,7 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
     const corpo = encodeURIComponent(`
 SOLICITAÇÃO DE REGULAÇÃO - DOR TORÁCICA
 
-UNIDADE DE ORIGEM: ${dadosPaciente.unidade_saude || "NÃO INFORMADA"}
+${dadosPaciente.unidade_saude ? `UNIDADE DE ORIGEM: ${dadosPaciente.unidade_saude}` : 'UNIDADE DE ORIGEM: NÃO INFORMADA'}
 
 PACIENTE: ${dadosPaciente.nome_completo}
 IDADE: ${dadosPaciente.idade} anos | SEXO: ${dadosPaciente.sexo}

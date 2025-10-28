@@ -250,7 +250,6 @@
     }
   },
   "required": [
-    "unidade_saude",
     "nome_completo",
     "idade",
     "sexo"
