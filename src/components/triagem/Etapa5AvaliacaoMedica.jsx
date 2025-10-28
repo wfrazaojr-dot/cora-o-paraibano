@@ -314,11 +314,12 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
             id="data_avaliacao"
             type="datetime-local"
             value={avaliacao.data_hora_avaliacao}
-            onChange={(e) => setAvaliacao({...avaliacao, data_hora_avaliacao: e.target.value})}
-            required
+            readOnly
+            disabled
+            className="bg-gray-100 cursor-not-allowed"
           />
-          <p className="text-xs text-gray-500">
-            ✓ Data/hora preenchida automaticamente ao acessar esta etapa
+          <p className="text-xs text-green-600 font-medium">
+            ✓ Data/hora registrada automaticamente ao acessar esta etapa (não pode ser alterada)
           </p>
         </div>
 
