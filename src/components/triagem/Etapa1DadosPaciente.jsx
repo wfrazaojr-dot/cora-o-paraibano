@@ -22,6 +22,13 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Validação manual do campo unidade_saude
+    if (!dados.unidade_saude || dados.unidade_saude.trim() === "") {
+      alert("Por favor, preencha o nome da Unidade de Saúde");
+      return;
+    }
+    
     onProxima(dados);
   };
 
@@ -42,7 +49,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
         </div>
       </div>
 
-      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+      <div className="bg-green-50 border-2 border-green-300 rounded-lg p-4">
         <div className="flex items-center gap-2 mb-3">
           <Building2 className="w-5 h-5 text-green-700" />
           <Label htmlFor="unidade_saude" className="text-base font-semibold text-green-900">
@@ -54,10 +61,11 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
           value={dados.unidade_saude}
           onChange={(e) => setDados(prev => ({...prev, unidade_saude: e.target.value}))}
           placeholder="Ex: Hospital Municipal São José, UPA Centro, etc."
-          className="text-base"
+          required
+          className="text-base border-2 border-green-400"
         />
-        <p className="text-xs text-green-700 mt-2">
-          Este nome aparecerá nos relatórios e documentos oficiais
+        <p className="text-xs text-green-700 mt-2 font-medium">
+          ⚠️ Este nome aparecerá nos relatórios e documentos oficiais - campo obrigatório
         </p>
       </div>
 
@@ -69,6 +77,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
             value={dados.nome_completo}
             onChange={(e) => setDados(prev => ({...prev, nome_completo: e.target.value}))}
             placeholder="Digite o nome completo"
+            required
           />
         </div>
 
@@ -79,6 +88,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
             value={dados.prontuario}
             onChange={(e) => setDados(prev => ({...prev, prontuario: e.target.value}))}
             placeholder="Ex: 123456"
+            required
           />
         </div>
 
@@ -90,6 +100,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
             value={dados.idade}
             onChange={(e) => setDados(prev => ({...prev, idade: parseInt(e.target.value) || ""}))}
             placeholder="Digite a idade"
+            required
             min="0"
             max="150"
           />
@@ -101,7 +112,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
             value={dados.sexo} 
             onValueChange={(value) => setDados(prev => ({...prev, sexo: value}))}
           >
-            <SelectTrigger>
+            <SelectTrigger id="sexo">
               <SelectValue placeholder="Selecione o sexo" />
             </SelectTrigger>
             <SelectContent>
@@ -118,6 +129,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
             type="datetime-local"
             value={dados.data_hora_chegada}
             onChange={(e) => setDados(prev => ({...prev, data_hora_chegada: e.target.value}))}
+            required
           />
           <p className="text-xs text-gray-500">Pode ser ajustada se necessário</p>
         </div>
@@ -129,6 +141,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
             type="datetime-local"
             value={dados.data_hora_inicio_sintomas}
             onChange={(e) => setDados(prev => ({...prev, data_hora_inicio_sintomas: e.target.value}))}
+            required
           />
         </div>
       </div>
