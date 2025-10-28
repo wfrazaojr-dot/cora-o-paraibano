@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -119,7 +120,6 @@ export default function NovaTriagem() {
     await salvarMutation.mutateAsync(dadosAtualizados);
     
     if (etapaAtual === 4 && !isRetriagem) {
-      // Após concluir triagem de enfermagem, volta para o dashboard
       alert("✅ Triagem de Enfermagem Concluída!\n\nPaciente está AGUARDANDO MÉDICO.\n\nPara continuar o atendimento:\n1. Vá no Dashboard ou Histórico\n2. Clique em 'Ver Detalhes' no paciente\n3. O sistema abrirá automaticamente na Etapa 5 (Avaliação Médica)");
       navigate(createPageUrl("Dashboard"));
       return;
