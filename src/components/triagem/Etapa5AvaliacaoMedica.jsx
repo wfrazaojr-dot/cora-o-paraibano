@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,14 +19,31 @@ const corClassificacao = {
 };
 
 export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnterior }) {
-  const [avaliacao, setAvaliacao] = useState(dadosPaciente.avaliacao_medica || {
-    data_hora_avaliacao: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-    antecedentes: "",
-    quadro_atual: "",
-    hipoteses_diagnosticas: "",
-    diagnostico_confirmado: "",
-    observacoes: ""
+  const [avaliacao, setAvaliacao] = useState(() => {
+    // Se já existe avaliação salva, usa ela
+    if (dadosPaciente.avaliacao_medica && dadosPaciente.avaliacao_medica.data_hora_avaliacao) {
+      return dadosPaciente.avaliacao_medica;
+    }
+    // Se não existe, cria nova com data/hora ATUAL
+    return {
+      data_hora_avaliacao: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+      antecedentes: "",
+      quadro_atual: "",
+      hipoteses_diagnosticas: "",
+      diagnostico_confirmado: "",
+      observacoes: ""
+    };
   });
+
+  // Atualiza a data/hora sempre que o componente é montado e não há avaliação prévia
+  useEffect(() => {
+    if (!dadosPaciente.avaliacao_medica || !dadosPaciente.avaliacao_medica.data_hora_avaliacao) {
+      setAvaliacao(prev => ({
+        ...prev,
+        data_hora_avaliacao: format(new Date(), "yyyy-MM-dd'T'HH:mm")
+      }));
+    }
+  }, [dadosPaciente.avaliacao_medica]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -260,6 +278,9 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
             onChange={(e) => setAvaliacao({...avaliacao, data_hora_avaliacao: e.target.value})}
             required
           />
+          <p className="text-xs text-gray-500">
+            ✓ Data/hora preenchida automaticamente ao acessar esta etapa
+          </p>
         </div>
 
         <div className="space-y-2">
