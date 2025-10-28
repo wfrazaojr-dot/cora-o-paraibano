@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,7 +29,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
       antecedentes: "",
       quadro_atual: "",
       hipoteses_diagnosticas: "",
-      observacoes: "" // 'diagnostico_confirmado' removed as per outline
+      observacoes: ""
     };
   });
 
@@ -252,7 +251,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                   onClick={() => window.open(url, '_blank')}
                   onError={(e) => {
                     e.target.style.display = 'none';
-                    // Fallback to text link if image fails to load
                     const parent = e.target.closest('.border');
                     if (parent) {
                       const fallbackDiv = parent.querySelector('.fallback-link');
@@ -260,7 +258,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                     }
                   }}
                 />
-                {/* Fallback div for broken images */}
                 <div className="fallback-link w-full h-48 items-center justify-center bg-gray-100 hidden">
                   <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm">
                     Ver ECG {index + 1}
@@ -336,7 +333,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="quadro_atual">Quadro Clínico Atual</Label>
+          <Label htmlFor="quadro_atual">Quadro Clínico Atual *</Label>
           <Textarea
             id="quadro_atual"
             placeholder="Características da dor torácica, dispneia, sintomas associados..."
@@ -349,7 +346,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="hipoteses">Hipóteses Diagnósticas</Label>
+          <Label htmlFor="hipoteses">Hipóteses Diagnósticas *</Label>
           <Textarea
             id="hipoteses"
             placeholder="Diagnósticos diferenciais considerados (IAM, angina, dissecção de aorta, pericardite, TEP, etc.)"
@@ -360,17 +357,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
             required
           />
         </div>
-
-        {/* Removed 'Diagnóstico Confirmado/Principal' input as per outline */}
-        {/* <div className="space-y-2">
-          <Label htmlFor="diagnostico">Diagnóstico Confirmado/Principal</Label>
-          <Input
-            id="diagnostico"
-            placeholder="Ex: IAMCSST, Angina Instável, SCA sem supra de ST..."
-            value={avaliacao.diagnostico_confirmado}
-            onChange={(e) => setAvaliacao({...avaliacao, diagnostico_confirmado: e.target.value})}
-          />
-        </div> */}
 
         <div className="space-y-2">
           <Label htmlFor="observacoes">Observações Adicionais</Label>
