@@ -4,9 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Users, Clock, AlertTriangle, Activity, TrendingUp } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Plus, Users, Clock, AlertTriangle, Activity } from "lucide-react";
 import { format, differenceInMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -16,9 +14,22 @@ import GraficoClassificacao from "../components/dashboard/GraficoClassificacao";
 import AlertasCriticos from "../components/dashboard/AlertasCriticos";
 
 export default function Dashboard() {
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: pacientes = [], isLoading } = useQuery({
-    queryKey: ['pacientes'],
-    queryFn: () => base44.entities.Paciente.list("-created_date"),
+    queryKey: ['pacientes', user?.email],
+    queryFn: async () => {
+      // Se for admin, mostra todos os pacientes
+      if (user?.role === 'admin') {
+        return base44.entities.Paciente.list("-created_date");
+      }
+      // Se for usuário comum, mostra apenas seus pacientes
+      return base44.entities.Paciente.filter({ created_by: user?.email }, "-created_date");
+    },
+    enabled: !!user,
     initialData: [],
   });
 
@@ -48,6 +59,17 @@ export default function Dashboard() {
            (p.classificacao_risco?.cor === "Laranja" && minutos > 30);
   });
 
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Activity className="w-12 h-12 text-red-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
@@ -56,6 +78,10 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold text-gray-900">Painel de Controle</h1>
             <p className="text-gray-600 mt-1">
               {format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+            </p>
+            <p className="text-sm text-blue-600 mt-1">
+              👤 {user.full_name} • {user.email}
+              {user.role === 'admin' && <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">ADMINISTRADOR</span>}
             </p>
           </div>
           <Link to={createPageUrl("NovaTriagem")}>

@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -22,9 +23,22 @@ export default function Indicadores() {
   const [anoSelecionado, setAnoSelecionado] = useState(anoAtual);
   const [mesSelecionado, setMesSelecionado] = useState(mesAtual);
 
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: pacientes = [], isLoading } = useQuery({
-    queryKey: ['pacientes'],
-    queryFn: () => base44.entities.Paciente.list("-created_date"),
+    queryKey: ['pacientes', user?.email], // Add user?.email to queryKey for refetching
+    queryFn: async () => {
+      // Se for admin, mostra todos os pacientes
+      if (user?.role === 'admin') {
+        return base44.entities.Paciente.list("-created_date");
+      }
+      // Se for usuário comum, mostra apenas seus pacientes
+      return base44.entities.Paciente.filter({ created_by: user?.email }, "-created_date");
+    },
+    enabled: !!user, // Only run this query if user data is available
     initialData: [],
   });
 
@@ -146,7 +160,7 @@ export default function Indicadores() {
 
   const anos = Array.from({ length: 5 }, (_, i) => anoAtual - 2 + i);
 
-  if (isLoading) {
+  if (isLoading || !user) {
     return (
       <div className="p-4 md:p-8 bg-gray-50 min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -163,6 +177,10 @@ export default function Indicadores() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Indicadores de Desempenho</h1>
           <p className="text-gray-600">Análise de tempos e métricas do atendimento</p>
+          <p className="text-sm text-blue-600 mt-1">
+            👤 {user.full_name} • {user.email}
+            {user.role === 'admin' && <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">ADMINISTRADOR - Vendo todos os usuários</span>}
+          </p>
         </div>
 
         {/* Filtros */}

@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, ExternalLink, Clock, RefreshCw } from "lucide-react";
-import { format, differenceInMinutes } from "date-fns";
+import { Search, ExternalLink, RefreshCw } from "lucide-react";
+import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -22,9 +22,22 @@ const corClassificacao = {
 export default function Historico() {
   const [busca, setBusca] = useState("");
 
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: pacientes = [], isLoading } = useQuery({
-    queryKey: ['pacientes'],
-    queryFn: () => base44.entities.Paciente.list("-created_date"),
+    queryKey: ['pacientes', user?.email],
+    queryFn: async () => {
+      // Se for admin, mostra todos os pacientes
+      if (user?.role === 'admin') {
+        return base44.entities.Paciente.list("-created_date");
+      }
+      // Se for usuário comum, mostra apenas seus pacientes
+      return base44.entities.Paciente.filter({ created_by: user?.email }, "-created_date");
+    },
+    enabled: !!user,
     initialData: [],
   });
 
@@ -40,12 +53,24 @@ export default function Historico() {
     );
   });
 
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-600">Carregando...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Histórico de Atendimentos</h1>
           <p className="text-gray-600">Registro completo de todos os pacientes atendidos</p>
+          <p className="text-sm text-blue-600 mt-1">
+            👤 {user.full_name} • {user.email}
+            {user.role === 'admin' && <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">ADMINISTRADOR - Vendo todos os usuários</span>}
+          </p>
         </div>
 
         <Card className="shadow-md mb-6">
@@ -97,6 +122,11 @@ export default function Historico() {
                             <p className="text-xs text-gray-500 font-mono mt-1">
                               ID: {paciente.id}
                             </p>
+                            {user.role === 'admin' && (
+                              <p className="text-xs text-blue-600 mt-1">
+                                👤 Criado por: {paciente.created_by}
+                              </p>
+                            )}
                           </div>
                           {paciente.classificacao_risco?.cor && (
                             <Badge className={`${corClassificacao[paciente.classificacao_risco.cor]} border font-semibold`}>
