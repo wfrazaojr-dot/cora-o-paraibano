@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,13 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
     data_hora_inicio_triagem: dadosPaciente.data_hora_inicio_triagem || format(new Date(), "yyyy-MM-dd'T'HH:mm"),
     status: "Em Triagem"
   });
+
+  const handleSexoChange = (value) => {
+    setDados(prevDados => ({
+      ...prevDados,
+      sexo: value
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -52,7 +59,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
         <Input
           id="unidade_saude"
           value={dados.unidade_saude}
-          onChange={(e) => setDados({...dados, unidade_saude: e.target.value})}
+          onChange={(e) => setDados(prev => ({...prev, unidade_saude: e.target.value}))}
           placeholder="Ex: Hospital Municipal São José, UPA Centro, etc."
           required
           className="text-base"
@@ -68,7 +75,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
           <Input
             id="nome_completo"
             value={dados.nome_completo}
-            onChange={(e) => setDados({...dados, nome_completo: e.target.value})}
+            onChange={(e) => setDados(prev => ({...prev, nome_completo: e.target.value}))}
             placeholder="Digite o nome completo"
             required
           />
@@ -79,7 +86,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
           <Input
             id="prontuario"
             value={dados.prontuario}
-            onChange={(e) => setDados({...dados, prontuario: e.target.value})}
+            onChange={(e) => setDados(prev => ({...prev, prontuario: e.target.value}))}
             placeholder="Ex: 123456"
             required
           />
@@ -91,7 +98,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
             id="idade"
             type="number"
             value={dados.idade}
-            onChange={(e) => setDados({...dados, idade: parseInt(e.target.value)})}
+            onChange={(e) => setDados(prev => ({...prev, idade: parseInt(e.target.value) || ""}))}
             placeholder="Digite a idade"
             required
             min="0"
@@ -101,8 +108,11 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
 
         <div className="space-y-2">
           <Label htmlFor="sexo">Sexo *</Label>
-          <Select value={dados.sexo} onValueChange={(value) => setDados({...dados, sexo: value})} required>
-            <SelectTrigger>
+          <Select 
+            value={dados.sexo} 
+            onValueChange={handleSexoChange}
+          >
+            <SelectTrigger id="sexo">
               <SelectValue placeholder="Selecione o sexo" />
             </SelectTrigger>
             <SelectContent>
@@ -118,7 +128,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
             id="data_hora_chegada"
             type="datetime-local"
             value={dados.data_hora_chegada}
-            onChange={(e) => setDados({...dados, data_hora_chegada: e.target.value})}
+            onChange={(e) => setDados(prev => ({...prev, data_hora_chegada: e.target.value}))}
             required
           />
           <p className="text-xs text-gray-500">Pode ser ajustada se necessário</p>
@@ -130,7 +140,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
             id="data_hora_inicio_sintomas"
             type="datetime-local"
             value={dados.data_hora_inicio_sintomas}
-            onChange={(e) => setDados({...dados, data_hora_inicio_sintomas: e.target.value})}
+            onChange={(e) => setDados(prev => ({...prev, data_hora_inicio_sintomas: e.target.value}))}
             required
           />
         </div>
