@@ -87,15 +87,17 @@ export default function MonitorSinaisVitais({ paciente }) {
 
     let ranges = RANGES_CRITICAL[tipo];
     
-    // Ajustar ranges para DPOC
+    // Ajustar para DPOC
     if (tipo === "spo2" && (pacienteInfo.dpoc || paciente.dados_vitais?.dpoc)) {
       ranges = RANGES_DPOC.spo2;
     }
     
-    // Ajustar ranges para Diabetes
+    // Ajustar para Diabetes
     if (tipo === "glicemia" && (pacienteInfo.diabetes || paciente.dados_vitais?.diabetes)) {
       ranges = RANGES_DIABETES.glicemia;
     }
+
+    if (!ranges) return null;
 
     if (val < ranges.critico_min || val > ranges.critico_max) {
       return { status: "critico", cor: "text-red-700 bg-red-100 border-red-400", icon: AlertTriangle };
@@ -134,6 +136,21 @@ export default function MonitorSinaisVitais({ paciente }) {
     } else {
       return { status: "normal", cor: "text-green-700 bg-green-100 border-green-400", icon: TrendingUp };
     }
+  };
+
+  const renderStatusBadge = (status) => {
+    if (!status) return null;
+    
+    const Icon = status.icon;
+    const statusText = status.status === "critico" ? "CRÍTICO" : 
+                      status.status === "alerta" ? "ALERTA" : "NORMAL";
+    
+    return (
+      <div className={`text-xs p-2 rounded border ${status.cor} flex items-center gap-2`}>
+        <Icon className="w-4 h-4" />
+        <span className="font-semibold">{statusText}</span>
+      </div>
+    );
   };
 
   const ultimaAtualizacao = vitaisAtuais.ultima_atualizacao;
@@ -178,15 +195,7 @@ export default function MonitorSinaisVitais({ paciente }) {
                   onChange={(e) => setVitais({...vitais, pa_braco_esquerdo: e.target.value})}
                   className="bg-white"
                 />
-                {paStatus(vitais.pa_braco_esquerdo) && (
-                  <div className={`text-xs p-2 rounded border ${paStatus(vitais.pa_braco_esquerdo).cor} flex items-center gap-2`}>
-                    {React.createElement(paStatus(vitais.pa_braco_esquerdo).icon, { className: "w-4 h-4" })}
-                    <span className="font-semibold">
-                      {paStatus(vitais.pa_braco_esquerdo).status === "critico" ? "CRÍTICO" : 
-                       paStatus(vitais.pa_braco_esquerdo).status === "alerta" ? "ALERTA" : "NORMAL"}
-                    </span>
-                  </div>
-                )}
+                {renderStatusBadge(paStatus(vitais.pa_braco_esquerdo))}
               </div>
 
               <div className="space-y-2">
@@ -198,15 +207,7 @@ export default function MonitorSinaisVitais({ paciente }) {
                   onChange={(e) => setVitais({...vitais, pa_braco_direito: e.target.value})}
                   className="bg-white"
                 />
-                {paStatus(vitais.pa_braco_direito) && (
-                  <div className={`text-xs p-2 rounded border ${paStatus(vitais.pa_braco_direito).cor} flex items-center gap-2`}>
-                    {React.createElement(paStatus(vitais.pa_braco_direito).icon, { className: "w-4 h-4" })}
-                    <span className="font-semibold">
-                      {paStatus(vitais.pa_braco_direito).status === "critico" ? "CRÍTICO" : 
-                       paStatus(vitais.pa_braco_direito).status === "alerta" ? "ALERTA" : "NORMAL"}
-                    </span>
-                  </div>
-                )}
+                {renderStatusBadge(paStatus(vitais.pa_braco_direito))}
               </div>
 
               <div className="space-y-2">
@@ -219,15 +220,7 @@ export default function MonitorSinaisVitais({ paciente }) {
                   onChange={(e) => setVitais({...vitais, frequencia_cardiaca: e.target.value === "" ? "" : parseFloat(e.target.value) || ""})}
                   className="bg-white"
                 />
-                {getValorStatus(vitais.frequencia_cardiaca, "fc") && (
-                  <div className={`text-xs p-2 rounded border ${getValorStatus(vitais.frequencia_cardiaca, "fc").cor} flex items-center gap-2`}>
-                    {React.createElement(getValorStatus(vitais.frequencia_cardiaca, "fc").icon, { className: "w-4 h-4" })}
-                    <span className="font-semibold">
-                      {getValorStatus(vitais.frequencia_cardiaca, "fc").status === "critico" ? "CRÍTICO" : 
-                       getValorStatus(vitais.frequencia_cardiaca, "fc").status === "alerta" ? "ALERTA" : "NORMAL"}
-                    </span>
-                  </div>
-                )}
+                {renderStatusBadge(getValorStatus(vitais.frequencia_cardiaca, "fc"))}
               </div>
 
               <div className="space-y-2">
@@ -240,15 +233,7 @@ export default function MonitorSinaisVitais({ paciente }) {
                   onChange={(e) => setVitais({...vitais, frequencia_respiratoria: e.target.value === "" ? "" : parseFloat(e.target.value) || ""})}
                   className="bg-white"
                 />
-                {getValorStatus(vitais.frequencia_respiratoria, "fr") && (
-                  <div className={`text-xs p-2 rounded border ${getValorStatus(vitais.frequencia_respiratoria, "fr").cor} flex items-center gap-2`}>
-                    {React.createElement(getValorStatus(vitais.frequencia_respiratoria, "fr").icon, { className: "w-4 h-4" })}
-                    <span className="font-semibold">
-                      {getValorStatus(vitais.frequencia_respiratoria, "fr").status === "critico" ? "CRÍTICO" : 
-                       getValorStatus(vitais.frequencia_respiratoria, "fr").status === "alerta" ? "ALERTA" : "NORMAL"}
-                    </span>
-                  </div>
-                )}
+                {renderStatusBadge(getValorStatus(vitais.frequencia_respiratoria, "fr"))}
               </div>
 
               <div className="space-y-2">
@@ -262,15 +247,7 @@ export default function MonitorSinaisVitais({ paciente }) {
                   onChange={(e) => setVitais({...vitais, temperatura: e.target.value === "" ? "" : parseFloat(e.target.value) || ""})}
                   className="bg-white"
                 />
-                {getValorStatus(vitais.temperatura, "temperatura") && (
-                  <div className={`text-xs p-2 rounded border ${getValorStatus(vitais.temperatura, "temperatura").cor} flex items-center gap-2`}>
-                    {React.createElement(getValorStatus(vitais.temperatura, "temperatura").icon, { className: "w-4 h-4" })}
-                    <span className="font-semibold">
-                      {getValorStatus(vitais.temperatura, "temperatura").status === "critico" ? "CRÍTICO" : 
-                       getValorStatus(vitais.temperatura, "temperatura").status === "alerta" ? "ALERTA" : "NORMAL"}
-                    </span>
-                  </div>
-                )}
+                {renderStatusBadge(getValorStatus(vitais.temperatura, "temperatura"))}
               </div>
 
               <div className="space-y-2">
@@ -283,15 +260,7 @@ export default function MonitorSinaisVitais({ paciente }) {
                   onChange={(e) => setVitais({...vitais, spo2: e.target.value === "" ? "" : parseFloat(e.target.value) || ""})}
                   className="bg-white"
                 />
-                {getValorStatus(vitais.spo2, "spo2", { dpoc: paciente.dados_vitais?.dpoc }) && (
-                  <div className={`text-xs p-2 rounded border ${getValorStatus(vitais.spo2, "spo2", { dpoc: paciente.dados_vitais?.dpoc }).cor} flex items-center gap-2`}>
-                    {React.createElement(getValorStatus(vitais.spo2, "spo2", { dpoc: paciente.dados_vitais?.dpoc }).icon, { className: "w-4 h-4" })}
-                    <span className="font-semibold">
-                      {getValorStatus(vitais.spo2, "spo2", { dpoc: paciente.dados_vitais?.dpoc }).status === "critico" ? "CRÍTICO" : 
-                       getValorStatus(vitais.spo2, "spo2", { dpoc: paciente.dados_vitais?.dpoc }).status === "alerta" ? "ALERTA" : "NORMAL"}
-                    </span>
-                  </div>
-                )}
+                {renderStatusBadge(getValorStatus(vitais.spo2, "spo2", { dpoc: paciente.dados_vitais?.dpoc }))}
               </div>
 
               <div className="space-y-2">
@@ -304,15 +273,7 @@ export default function MonitorSinaisVitais({ paciente }) {
                   onChange={(e) => setVitais({...vitais, glicemia_capilar: e.target.value === "" ? "" : parseFloat(e.target.value) || ""})}
                   className="bg-white"
                 />
-                {getValorStatus(vitais.glicemia_capilar, "glicemia", { diabetes: paciente.dados_vitais?.diabetes }) && (
-                  <div className={`text-xs p-2 rounded border ${getValorStatus(vitais.glicemia_capilar, "glicemia", { diabetes: paciente.dados_vitais?.diabetes }).cor} flex items-center gap-2`}>
-                    {React.createElement(getValorStatus(vitais.glicemia_capilar, "glicemia", { diabetes: paciente.dados_vitais?.diabetes }).icon, { className: "w-4 h-4" })}
-                    <span className="font-semibold">
-                      {getValorStatus(vitais.glicemia_capilar, "glicemia", { diabetes: paciente.dados_vitais?.diabetes }).status === "critico" ? "CRÍTICO" : 
-                       getValorStatus(vitais.glicemia_capicar, "glicemia", { diabetes: paciente.dados_vitais?.diabetes }).status === "alerta" ? "ALERTA" : "NORMAL"}
-                    </span>
-                  </div>
-                )}
+                {renderStatusBadge(getValorStatus(vitais.glicemia_capilar, "glicemia", { diabetes: paciente.dados_vitais?.diabetes }))}
               </div>
             </div>
           </div>
