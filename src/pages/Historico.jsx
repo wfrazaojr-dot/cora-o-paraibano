@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, ExternalLink, RefreshCw } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Search, ExternalLink, RefreshCw, Filter } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Link } from "react-router-dom";
@@ -19,8 +21,19 @@ const corClassificacao = {
   "Azul": "bg-blue-100 text-blue-800 border-blue-300"
 };
 
+const statusColors = {
+  "Em Triagem": "bg-gray-100 text-gray-800 border-gray-300",
+  "Aguardando Médico": "bg-yellow-100 text-yellow-800 border-yellow-300",
+  "Em Atendimento": "bg-blue-100 text-blue-800 border-blue-300",
+  "Aguardando Regulação": "bg-orange-100 text-orange-800 border-orange-300",
+  "Transferido": "bg-purple-100 text-purple-800 border-purple-300",
+  "Alta": "bg-green-100 text-green-800 border-green-300",
+  "Óbito": "bg-red-100 text-red-800 border-red-300"
+};
+
 export default function Historico() {
   const [busca, setBusca] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState("todos");
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -42,16 +55,28 @@ export default function Historico() {
   });
 
   const pacientesFiltrados = pacientes.filter(p => {
+    // Filtro de busca por texto
     const termoBusca = busca.toLowerCase().trim();
-    if (!termoBusca) return true;
-    
-    return (
+    const matchBusca = !termoBusca || (
       p.nome_completo?.toLowerCase().includes(termoBusca) ||
       p.prontuario?.includes(termoBusca) ||
       p.classificacao_risco?.cor?.toLowerCase().includes(termoBusca) ||
       p.id?.toLowerCase().includes(termoBusca)
     );
+
+    // Filtro de status
+    const matchStatus = filtroStatus === "todos" || p.status === filtroStatus;
+
+    return matchBusca && matchStatus;
   });
+
+  // Contadores por status
+  const contadores = {
+    todos: pacientes.length,
+    "Em Atendimento": pacientes.filter(p => p.status === "Em Atendimento").length,
+    "Aguardando Médico": pacientes.filter(p => p.status === "Aguardando Médico").length,
+    "Aguardando Regulação": pacientes.filter(p => p.status === "Aguardando Regulação").length,
+  };
 
   if (!user) {
     return (
@@ -73,29 +98,96 @@ export default function Historico() {
           </p>
         </div>
 
+        {/* Filtros */}
         <Card className="shadow-md mb-6">
-          <CardContent className="p-6">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-              <Input
-                placeholder="Buscar por nome, prontuário, classificação ou ID do paciente..."
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                className="pl-10"
-              />
+          <CardContent className="p-6 space-y-4">
+            {/* Busca */}
+            <div>
+              <Label htmlFor="busca" className="mb-2 block text-sm font-medium">Buscar paciente</Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                <Input
+                  id="busca"
+                  placeholder="Buscar por nome, prontuário, classificação ou ID do paciente..."
+                  value={busca}
+                  onChange={(e) => setBusca(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
-            {busca && (
-              <p className="text-sm text-gray-500 mt-2">
-                {pacientesFiltrados.length === 0 ? (
-                  <span className="text-red-600">Nenhum paciente encontrado com "{busca}"</span>
-                ) : (
-                  <span>Mostrando {pacientesFiltrados.length} resultado(s) para "{busca}"</span>
+
+            {/* Filtro de Status */}
+            <div>
+              <Label htmlFor="filtro-status" className="mb-2 block text-sm font-medium flex items-center gap-2">
+                <Filter className="w-4 h-4" />
+                Filtrar por Status
+              </Label>
+              <Select value={filtroStatus} onValueChange={setFiltroStatus}>
+                <SelectTrigger id="filtro-status">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">
+                    📊 Todos os Status ({contadores.todos})
+                  </SelectItem>
+                  <SelectItem value="Em Atendimento">
+                    🔵 Em Atendimento ({contadores["Em Atendimento"]})
+                  </SelectItem>
+                  <SelectItem value="Aguardando Médico">
+                    🟡 Aguardando Médico ({contadores["Aguardando Médico"]})
+                  </SelectItem>
+                  <SelectItem value="Aguardando Regulação">
+                    🟠 Aguardando Regulação ({contadores["Aguardando Regulação"]})
+                  </SelectItem>
+                  <SelectItem value="Em Triagem">
+                    ⚪ Em Triagem
+                  </SelectItem>
+                  <SelectItem value="Transferido">
+                    🟣 Transferido
+                  </SelectItem>
+                  <SelectItem value="Alta">
+                    🟢 Alta
+                  </SelectItem>
+                  <SelectItem value="Óbito">
+                    🔴 Óbito
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Resumo dos filtros */}
+            {(busca || filtroStatus !== "todos") && (
+              <div className="pt-2 border-t">
+                <p className="text-sm text-gray-600">
+                  {pacientesFiltrados.length === 0 ? (
+                    <span className="text-red-600 font-medium">
+                      Nenhum paciente encontrado com os filtros aplicados
+                    </span>
+                  ) : (
+                    <span className="text-green-600 font-medium">
+                      Mostrando {pacientesFiltrados.length} de {pacientes.length} paciente(s)
+                    </span>
+                  )}
+                </p>
+                {(busca || filtroStatus !== "todos") && (
+                  <Button
+                    onClick={() => {
+                      setBusca("");
+                      setFiltroStatus("todos");
+                    }}
+                    variant="link"
+                    size="sm"
+                    className="text-blue-600 px-0 mt-1"
+                  >
+                    Limpar filtros
+                  </Button>
                 )}
-              </p>
+              </div>
             )}
           </CardContent>
         </Card>
 
+        {/* Lista de Pacientes */}
         <Card className="shadow-md">
           <CardHeader className="border-b">
             <CardTitle>Pacientes ({pacientesFiltrados.length})</CardTitle>
@@ -105,7 +197,16 @@ export default function Historico() {
               <div className="p-8 text-center text-gray-500">Carregando...</div>
             ) : pacientesFiltrados.length === 0 ? (
               <div className="p-8 text-center text-gray-500">
-                {busca ? `Nenhum paciente encontrado` : `Nenhum paciente cadastrado`}
+                {busca || filtroStatus !== "todos" ? (
+                  <>
+                    <Search className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                    <p>Nenhum paciente encontrado com os filtros aplicados</p>
+                  </>
+                ) : (
+                  <>
+                    <p>Nenhum paciente cadastrado</p>
+                  </>
+                )}
               </div>
             ) : (
               <div className="divide-y">
@@ -128,11 +229,16 @@ export default function Historico() {
                               </p>
                             )}
                           </div>
-                          {paciente.classificacao_risco?.cor && (
-                            <Badge className={`${corClassificacao[paciente.classificacao_risco.cor]} border font-semibold`}>
-                              {paciente.classificacao_risco.cor}
+                          <div className="flex flex-col gap-2 items-end">
+                            {paciente.classificacao_risco?.cor && (
+                              <Badge className={`${corClassificacao[paciente.classificacao_risco.cor]} border font-semibold`}>
+                                {paciente.classificacao_risco.cor}
+                              </Badge>
+                            )}
+                            <Badge className={`${statusColors[paciente.status]} border font-semibold`}>
+                              {paciente.status}
                             </Badge>
-                          )}
+                          </div>
                         </div>
 
                         <div className="grid md:grid-cols-2 gap-3 mt-4">
@@ -150,10 +256,6 @@ export default function Historico() {
                               </span>
                             </div>
                           )}
-                          <div className="text-sm">
-                            <span className="text-gray-600">Status:</span>{" "}
-                            <Badge variant="outline">{paciente.status}</Badge>
-                          </div>
                           {paciente.tempo_total_minutos && (
                             <div className="text-sm">
                               <span className="text-gray-600">Tempo Total:</span>{" "}
