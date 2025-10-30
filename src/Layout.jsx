@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Activity, Plus, History, BookOpen, FileText, Users, AlertCircle, TrendingUp } from "lucide-react";
+import { Activity, Plus, History, BookOpen, FileText, Users, AlertCircle, TrendingUp, Shield } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -16,42 +16,58 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-
-const navigationItems = [
-  {
-    title: "Painel Inicial",
-    url: createPageUrl("Dashboard"),
-    icon: Activity,
-  },
-  {
-    title: "Nova Triagem",
-    url: createPageUrl("NovaTriagem"),
-    icon: Plus,
-  },
-  {
-    title: "Histórico",
-    url: createPageUrl("Historico"),
-    icon: History,
-  },
-  {
-    title: "Indicadores",
-    url: createPageUrl("Indicadores"),
-    icon: TrendingUp,
-  },
-  {
-    title: "Protocolos",
-    url: createPageUrl("Protocolos"),
-    icon: BookOpen,
-  },
-  {
-    title: "Manual",
-    url: createPageUrl("Manual"),
-    icon: FileText,
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
+
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const navigationItems = [
+    {
+      title: "Painel Inicial",
+      url: createPageUrl("Dashboard"),
+      icon: Activity,
+    },
+    {
+      title: "Nova Triagem",
+      url: createPageUrl("NovaTriagem"),
+      icon: Plus,
+    },
+    {
+      title: "Histórico",
+      url: createPageUrl("Historico"),
+      icon: History,
+    },
+    {
+      title: "Indicadores",
+      url: createPageUrl("Indicadores"),
+      icon: TrendingUp,
+    },
+    {
+      title: "Protocolos",
+      url: createPageUrl("Protocolos"),
+      icon: BookOpen,
+    },
+    {
+      title: "Manual",
+      url: createPageUrl("Manual"),
+      icon: FileText,
+    },
+  ];
+
+  // Adicionar item de Administração apenas para admins
+  if (user?.role === 'admin') {
+    navigationItems.push({
+      title: "Administração",
+      url: createPageUrl("Administracao"),
+      icon: Shield,
+    });
+  }
 
   return (
     <SidebarProvider>
