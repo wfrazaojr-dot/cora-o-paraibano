@@ -121,6 +121,62 @@
         }
       }
     },
+    "dados_vitais_medico": {
+      "type": "object",
+      "description": "Dados vitais atualizados pelo m\u00e9dico na avalia\u00e7\u00e3o",
+      "properties": {
+        "pa_braco_esquerdo": {
+          "type": "string"
+        },
+        "pa_braco_direito": {
+          "type": "string"
+        },
+        "frequencia_cardiaca": {
+          "type": "number"
+        },
+        "frequencia_respiratoria": {
+          "type": "number"
+        },
+        "temperatura": {
+          "type": "number"
+        },
+        "spo2": {
+          "type": "number"
+        },
+        "glicemia_capilar": {
+          "type": "number"
+        },
+        "suporte_respiratorio": {
+          "type": "string",
+          "enum": [
+            "ar_ambiente",
+            "oxigenio_suplementar",
+            "ventilacao_mecanica"
+          ],
+          "description": "Tipo de suporte respirat\u00f3rio"
+        },
+        "litros_o2": {
+          "type": "number",
+          "description": "Litros de O2 por minuto se em uso de oxig\u00eanio"
+        },
+        "uso_dva": {
+          "type": "boolean",
+          "description": "Uso de drogas vasoativas"
+        },
+        "dva_tipo": {
+          "type": "string",
+          "description": "Tipo de DVA em uso (noradrenalina, dobutamina, etc)"
+        },
+        "uso_sedacao": {
+          "type": "boolean",
+          "description": "Uso de seda\u00e7\u00e3o"
+        },
+        "sedacao_tipo": {
+          "type": "string",
+          "description": "Tipo de seda\u00e7\u00e3o em uso"
+        }
+      }
+    },
     "ecg_files": {
       "type": "array",
       "items": {
