@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, ArrowRight, FileImage, Activity, User, Stethoscope, AlertTriangle } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowLeft, ArrowRight, FileImage, Activity, User, Stethoscope, AlertTriangle, Edit } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +39,29 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
     crm: dadosPaciente.medico_crm || ""
   });
 
+  const [editandoDadosVitais, setEditandoDadosVitais] = useState(false);
+  const [dadosVitaisMedico, setDadosVitaisMedico] = useState(() => {
+    if (dadosPaciente.dados_vitais_medico) {
+      return dadosPaciente.dados_vitais_medico;
+    }
+    // Inicializar com os dados da enfermagem
+    return {
+      pa_braco_esquerdo: dadosPaciente.dados_vitais?.pa_braco_esquerdo || "",
+      pa_braco_direito: dadosPaciente.dados_vitais?.pa_braco_direito || "",
+      frequencia_cardiaca: dadosPaciente.dados_vitais?.frequencia_cardiaca || "",
+      frequencia_respiratoria: dadosPaciente.dados_vitais?.frequencia_respiratoria || "",
+      temperatura: dadosPaciente.dados_vitais?.temperatura || "",
+      spo2: dadosPaciente.dados_vitais?.spo2 || "",
+      glicemia_capilar: dadosPaciente.dados_vitais?.glicemia_capilar || "",
+      suporte_respiratorio: dadosPaciente.dados_vitais?.spo2_oxigenio === "o2_suplementar" ? "oxigenio_suplementar" : "ar_ambiente",
+      litros_o2: dadosPaciente.dados_vitais?.spo2_litros_o2 || "",
+      uso_dva: false,
+      dva_tipo: "",
+      uso_sedacao: false,
+      sedacao_tipo: ""
+    };
+  });
+
   useEffect(() => {
     if (!dadosPaciente.avaliacao_medica || !dadosPaciente.avaliacao_medica.data_hora_avaliacao) {
       setAvaliacao(prev => ({
@@ -54,6 +79,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
     }
     onProxima({ 
       avaliacao_medica: avaliacao,
+      dados_vitais_medico: dadosVitaisMedico,
       medico_nome: medico.nome,
       medico_crm: medico.crm,
       status: "Em Atendimento"
@@ -80,6 +106,271 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
           </AlertDescription>
         </Alert>
       )}
+
+      {/* ============================================ */}
+      {/* DADOS VITAIS - ATUALIZAÇÃO MÉDICA */}
+      {/* ============================================ */}
+      <Card className="shadow-lg border-l-4 border-l-purple-600">
+        <CardHeader className="bg-purple-50 border-b">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-purple-900 text-xl">
+              <Stethoscope className="w-6 h-6" />
+              📊 Dados Vitais Atuais
+            </CardTitle>
+            <Button
+              type="button"
+              onClick={() => setEditandoDadosVitais(!editandoDadosVitais)}
+              variant="outline"
+              size="sm"
+              className="text-purple-700"
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              {editandoDadosVitais ? "Cancelar Edição" : "Atualizar Dados Vitais"}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6">
+          {!editandoDadosVitais ? (
+            // VISUALIZAÇÃO DOS DADOS VITAIS
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="p-3 bg-white rounded border">
+                <p className="text-xs text-gray-600 mb-1">PA Esquerdo</p>
+                <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.pa_braco_esquerdo || "-"} mmHg</p>
+              </div>
+              <div className="p-3 bg-white rounded border">
+                <p className="text-xs text-gray-600 mb-1">PA Direito</p>
+                <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.pa_braco_direito || "-"} mmHg</p>
+              </div>
+              <div className="p-3 bg-white rounded border">
+                <p className="text-xs text-gray-600 mb-1">FC</p>
+                <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.frequencia_cardiaca || "-"} bpm</p>
+              </div>
+              <div className="p-3 bg-white rounded border">
+                <p className="text-xs text-gray-600 mb-1">FR</p>
+                <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.frequencia_respiratoria || "-"} irpm</p>
+              </div>
+              <div className="p-3 bg-white rounded border">
+                <p className="text-xs text-gray-600 mb-1">Temperatura</p>
+                <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.temperatura || "-"} °C</p>
+              </div>
+              <div className="p-3 bg-white rounded border">
+                <p className="text-xs text-gray-600 mb-1">SpO2</p>
+                <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.spo2 || "-"}%</p>
+              </div>
+              <div className="p-3 bg-white rounded border">
+                <p className="text-xs text-gray-600 mb-1">Glicemia</p>
+                <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.glicemia_capilar || "-"} mg/dL</p>
+              </div>
+              <div className="p-3 bg-blue-50 rounded border border-blue-200">
+                <p className="text-xs text-blue-800 mb-1 font-semibold">Suporte Respiratório</p>
+                <p className="text-sm font-bold text-blue-900">
+                  {dadosVitaisMedico.suporte_respiratorio === "ar_ambiente" && "Ar Ambiente"}
+                  {dadosVitaisMedico.suporte_respiratorio === "oxigenio_suplementar" && `O2 ${dadosVitaisMedico.litros_o2 || "?"}L/min`}
+                  {dadosVitaisMedico.suporte_respiratorio === "ventilacao_mecanica" && "Ventilação Mecânica"}
+                </p>
+              </div>
+              <div className="p-3 bg-orange-50 rounded border border-orange-200">
+                <p className="text-xs text-orange-800 mb-1 font-semibold">DVA</p>
+                <p className="text-sm font-bold text-orange-900">
+                  {dadosVitaisMedico.uso_dva ? dadosVitaisMedico.dva_tipo || "Em uso" : "Não"}
+                </p>
+              </div>
+              <div className="p-3 bg-purple-50 rounded border border-purple-200">
+                <p className="text-xs text-purple-800 mb-1 font-semibold">Sedação</p>
+                <p className="text-sm font-bold text-purple-900">
+                  {dadosVitaisMedico.uso_sedacao ? dadosVitaisMedico.sedacao_tipo || "Em uso" : "Não"}
+                </p>
+              </div>
+            </div>
+          ) : (
+            // FORMULÁRIO DE EDIÇÃO DOS DADOS VITAIS
+            <div className="space-y-6">
+              <Alert className="border-blue-500 bg-blue-50">
+                <AlertDescription className="text-blue-800">
+                  <strong>💡 Atualize os dados vitais</strong> conforme a avaliação médica atual. Os dados da enfermagem já estão preenchidos abaixo.
+                </AlertDescription>
+              </Alert>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="pa_esq_medico">PA Esquerdo (mmHg)</Label>
+                  <Input
+                    id="pa_esq_medico"
+                    value={dadosVitaisMedico.pa_braco_esquerdo}
+                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, pa_braco_esquerdo: e.target.value})}
+                    placeholder="Ex: 120/80"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="pa_dir_medico">PA Direito (mmHg)</Label>
+                  <Input
+                    id="pa_dir_medico"
+                    value={dadosVitaisMedico.pa_braco_direito}
+                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, pa_braco_direito: e.target.value})}
+                    placeholder="Ex: 120/80"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fc_medico">Frequência Cardíaca (bpm)</Label>
+                  <Input
+                    id="fc_medico"
+                    type="number"
+                    value={dadosVitaisMedico.frequencia_cardiaca}
+                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, frequencia_cardiaca: parseFloat(e.target.value) || ""})}
+                    placeholder="Ex: 75"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fr_medico">Frequência Respiratória (irpm)</Label>
+                  <Input
+                    id="fr_medico"
+                    type="number"
+                    value={dadosVitaisMedico.frequencia_respiratoria}
+                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, frequencia_respiratoria: parseFloat(e.target.value) || ""})}
+                    placeholder="Ex: 16"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="temp_medico">Temperatura (°C)</Label>
+                  <Input
+                    id="temp_medico"
+                    type="number"
+                    step="0.1"
+                    value={dadosVitaisMedico.temperatura}
+                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, temperatura: parseFloat(e.target.value) || ""})}
+                    placeholder="Ex: 36.5"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="spo2_medico">SpO2 (%)</Label>
+                  <Input
+                    id="spo2_medico"
+                    type="number"
+                    value={dadosVitaisMedico.spo2}
+                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, spo2: parseFloat(e.target.value) || ""})}
+                    placeholder="Ex: 98"
+                  />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="glicemia_medico">Glicemia Capilar (mg/dL)</Label>
+                  <Input
+                    id="glicemia_medico"
+                    type="number"
+                    value={dadosVitaisMedico.glicemia_capilar}
+                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, glicemia_capilar: parseFloat(e.target.value) || ""})}
+                    placeholder="Ex: 110"
+                  />
+                </div>
+              </div>
+
+              {/* Suporte Respiratório */}
+              <div className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
+                <Label className="text-base font-semibold text-blue-900 mb-3 block">Suporte Respiratório</Label>
+                <RadioGroup
+                  value={dadosVitaisMedico.suporte_respiratorio}
+                  onValueChange={(value) => setDadosVitaisMedico({...dadosVitaisMedico, suporte_respiratorio: value, litros_o2: value === "ar_ambiente" ? "" : dadosVitaisMedico.litros_o2})}
+                  className="space-y-3"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="ar_ambiente" id="ar_amb_med" />
+                    <Label htmlFor="ar_amb_med" className="cursor-pointer font-medium">
+                      Ar Ambiente
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="oxigenio_suplementar" id="o2_sup_med" />
+                    <Label htmlFor="o2_sup_med" className="cursor-pointer font-medium">
+                      Oxigênio Suplementar
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="ventilacao_mecanica" id="vm_med" />
+                    <Label htmlFor="vm_med" className="cursor-pointer font-medium">
+                      Ventilação Mecânica
+                    </Label>
+                  </div>
+                </RadioGroup>
+
+                {dadosVitaisMedico.suporte_respiratorio === "oxigenio_suplementar" && (
+                  <div className="mt-4 space-y-2">
+                    <Label htmlFor="litros_o2_med">Litros de O2 por minuto</Label>
+                    <Input
+                      id="litros_o2_med"
+                      type="number"
+                      step="0.5"
+                      value={dadosVitaisMedico.litros_o2}
+                      onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, litros_o2: parseFloat(e.target.value) || ""})}
+                      placeholder="Ex: 2 ou 5"
+                      className="bg-white"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* DVA */}
+              <div className="border-2 border-orange-200 rounded-lg p-4 bg-orange-50">
+                <div className="flex items-center space-x-2 mb-3">
+                  <Checkbox
+                    id="uso_dva"
+                    checked={dadosVitaisMedico.uso_dva}
+                    onCheckedChange={(checked) => setDadosVitaisMedico({...dadosVitaisMedico, uso_dva: checked, dva_tipo: checked ? dadosVitaisMedico.dva_tipo : ""})}
+                  />
+                  <Label htmlFor="uso_dva" className="cursor-pointer font-semibold text-orange-900 text-base">
+                    Uso de Drogas Vasoativas (DVA)
+                  </Label>
+                </div>
+                {dadosVitaisMedico.uso_dva && (
+                  <div className="space-y-2">
+                    <Label htmlFor="dva_tipo">Tipo de DVA</Label>
+                    <Input
+                      id="dva_tipo"
+                      value={dadosVitaisMedico.dva_tipo}
+                      onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, dva_tipo: e.target.value})}
+                      placeholder="Ex: Noradrenalina 0,1mcg/kg/min, Dobutamina..."
+                      className="bg-white"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Sedação */}
+              <div className="border-2 border-purple-200 rounded-lg p-4 bg-purple-50">
+                <div className="flex items-center space-x-2 mb-3">
+                  <Checkbox
+                    id="uso_sedacao"
+                    checked={dadosVitaisMedico.uso_sedacao}
+                    onCheckedChange={(checked) => setDadosVitaisMedico({...dadosVitaisMedico, uso_sedacao: checked, sedacao_tipo: checked ? dadosVitaisMedico.sedacao_tipo : ""})}
+                  />
+                  <Label htmlFor="uso_sedacao" className="cursor-pointer font-semibold text-purple-900 text-base">
+                    Uso de Sedação
+                  </Label>
+                </div>
+                {dadosVitaisMedico.uso_sedacao && (
+                  <div className="space-y-2">
+                    <Label htmlFor="sedacao_tipo">Tipo de Sedação</Label>
+                    <Input
+                      id="sedacao_tipo"
+                      value={dadosVitaisMedico.sedacao_tipo}
+                      onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, sedacao_tipo: e.target.value})}
+                      placeholder="Ex: Midazolam, Propofol, Fentanil..."
+                      className="bg-white"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <Button
+                type="button"
+                onClick={() => setEditandoDadosVitais(false)}
+                className="w-full bg-green-600 hover:bg-green-700"
+              >
+                <Activity className="w-4 h-4 mr-2" />
+                Confirmar Atualização dos Dados Vitais
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* ============================================ */}
       {/* RESUMO COMPLETO DA TRIAGEM DE ENFERMAGEM */}
@@ -186,75 +477,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                 </Badge>
               </div>
             </div>
-          </div>
-
-          {/* ========== ETAPA 3: DADOS VITAIS ========== */}
-          <div className="border-l-4 border-l-green-500 pl-4 bg-green-50 p-4 rounded">
-            <h3 className="font-bold text-green-900 mb-3 text-lg flex items-center gap-2">
-              <Stethoscope className="w-5 h-5" />
-              3️⃣ DADOS VITAIS E ECG
-            </h3>
-            <div className="grid md:grid-cols-3 gap-3 text-sm">
-              <div className="bg-white p-2 rounded">
-                <span className="text-gray-600 block text-xs">PA Esquerdo</span>
-                <p className="font-bold text-gray-900 text-base">{dadosPaciente.dados_vitais?.pa_braco_esquerdo || '-'} mmHg</p>
-              </div>
-              <div className="bg-white p-2 rounded">
-                <span className="text-gray-600 block text-xs">PA Direito</span>
-                <p className="font-bold text-gray-900 text-base">{dadosPaciente.dados_vitais?.pa_braco_direito || '-'} mmHg</p>
-              </div>
-              <div className="bg-white p-2 rounded">
-                <span className="text-gray-600 block text-xs">Frequência Cardíaca</span>
-                <p className="font-bold text-gray-900 text-base">{dadosPaciente.dados_vitais?.frequencia_cardiaca || '-'} bpm</p>
-              </div>
-              <div className="bg-white p-2 rounded">
-                <span className="text-gray-600 block text-xs">Frequência Respiratória</span>
-                <p className="font-bold text-gray-900 text-base">{dadosPaciente.dados_vitais?.frequencia_respiratoria || '-'} irpm</p>
-              </div>
-              <div className="bg-white p-2 rounded">
-                <span className="text-gray-600 block text-xs">Temperatura</span>
-                <p className="font-bold text-gray-900 text-base">{dadosPaciente.dados_vitais?.temperatura || '-'} °C</p>
-              </div>
-              <div className="bg-white p-2 rounded">
-                <span className="text-gray-600 block text-xs">SpO2</span>
-                <p className="font-bold text-gray-900 text-base">{dadosPaciente.dados_vitais?.spo2 || '-'}%</p>
-              </div>
-              <div className="bg-white p-2 rounded">
-                <span className="text-gray-600 block text-xs">Glicemia Capilar</span>
-                <p className="font-bold text-gray-900 text-base">{dadosPaciente.dados_vitais?.glicemia_capilar || '-'} mg/dL</p>
-              </div>
-              <div className="bg-white p-2 rounded">
-                <span className="text-gray-600 block text-xs">Diabetes</span>
-                <Badge className={dadosPaciente.dados_vitais?.diabetes ? "bg-orange-500" : "bg-gray-400"}>
-                  {dadosPaciente.dados_vitais?.diabetes ? 'SIM' : 'NÃO'}
-                </Badge>
-              </div>
-              <div className="bg-white p-2 rounded">
-                <span className="text-gray-600 block text-xs">DPOC</span>
-                <Badge className={dadosPaciente.dados_vitais?.dpoc ? "bg-orange-500" : "bg-gray-400"}>
-                  {dadosPaciente.dados_vitais?.dpoc ? 'SIM' : 'NÃO'}
-                </Badge>
-              </div>
-            </div>
-
-            {/* TEMPO TRIAGEM-ECG */}
-            {dadosPaciente.tempo_triagem_ecg_minutos !== undefined && (
-              <div className={`mt-4 p-3 rounded border-2 ${dadosPaciente.tempo_triagem_ecg_minutos <= 10 ? 'bg-green-100 border-green-400' : 'bg-orange-100 border-orange-400'}`}>
-                <p className="font-bold text-sm">
-                  <span>⏱️ Tempo Triagem → ECG:</span>{' '}
-                  <span className={`text-lg ${dadosPaciente.tempo_triagem_ecg_minutos <= 10 ? 'text-green-700' : 'text-orange-700'}`}>
-                    {dadosPaciente.tempo_triagem_ecg_minutos} minutos
-                  </span>
-                  {dadosPaciente.tempo_triagem_ecg_minutos <= 10 ? ' ✓ Dentro da meta' : ' ⚠️ Acima da meta de 10 minutos'}
-                </p>
-                {dadosPaciente.data_hora_inicio_triagem && dadosPaciente.data_hora_ecg && (
-                  <div className="text-xs text-gray-700 mt-2">
-                    <p>• Hora da Triagem: <strong>{format(new Date(dadosPaciente.data_hora_inicio_triagem), "HH:mm", { locale: ptBR })}</strong></p>
-                    <p>• Hora do ECG: <strong>{format(new Date(dadosPaciente.data_hora_ecg), "HH:mm", { locale: ptBR })}</strong></p>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
           {/* ========== ECG E ANÁLISE ========== */}
