@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -39,6 +39,10 @@ export default function NovaTriagem() {
   const [dadosPaciente, setDadosPaciente] = useState({});
   const [pacienteId, setPacienteId] = useState(null);
   const [carregando, setCarregando] = useState(true);
+  
+  // Flag para evitar que o useEffect recalcule a etapa durante navegação manual
+  const etapaInicialDefinida = useRef(false);
+  const navegacaoManual = useRef(false);
 
   const urlParams = new URLSearchParams(window.location.search);
   const idUrl = urlParams.get('id');
@@ -56,6 +60,9 @@ export default function NovaTriagem() {
 
   useEffect(() => {
     if (isLoading) return;
+    
+    // Só define a etapa inicial uma vez, quando o componente carrega
+    if (etapaInicialDefinida.current) return;
     
     if (pacienteExistente) {
       const paciente = pacienteExistente;
@@ -113,9 +120,12 @@ export default function NovaTriagem() {
           setEtapaAtual(1);
         }
       }
+      
+      etapaInicialDefinida.current = true;
     } else if (!idUrl) {
       // Novo paciente, começa na Etapa 1
       setEtapaAtual(1);
+      etapaInicialDefinida.current = true;
     }
     
     setCarregando(false);
@@ -132,6 +142,9 @@ export default function NovaTriagem() {
       }
     },
     onSuccess: (data) => {
+      // Marcar que estamos em navegação manual para evitar reset de etapa
+      navegacaoManual.current = true;
+      
       queryClient.invalidateQueries({ queryKey: ['pacientes'] });
       queryClient.invalidateQueries({ queryKey: ['paciente', pacienteId] });
       
@@ -147,6 +160,9 @@ export default function NovaTriagem() {
 
   const handleProximaEtapa = async (dadosEtapa) => {
     try {
+      // Marcar navegação manual
+      navegacaoManual.current = true;
+      
       const dadosAtualizados = { ...dadosPaciente, ...dadosEtapa };
       setDadosPaciente(dadosAtualizados);
       
@@ -174,6 +190,7 @@ export default function NovaTriagem() {
   };
 
   const handleEtapaAnterior = () => {
+    navegacaoManual.current = true;
     if (etapaAtual > (isRetriagem ? 2 : 1)) {
       setEtapaAtual(etapaAtual - 1);
     }
