@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -338,10 +337,6 @@ PADRÕES CRÍTICOS:
     const spo2 = parseFloat(dados.spo2);
     if (!spo2 || isNaN(spo2)) return null;
 
-    // The oxygen status should be considered for target ranges in a more complex scenario.
-    // For this update, the ranges remain based on DPOC status as per previous logic.
-    // If the requirement changes to alter target SpO2 based on O2 supplementation, this function needs modification.
-
     if (dados.dpoc) {
       if (spo2 >= 88 && spo2 <= 92) {
         return { 
@@ -478,7 +473,7 @@ PADRÕES CRÍTICOS:
         </div>
       </div>
 
-      {/* NOVO: Suporte de Oxigênio */}
+      {/* Suporte de Oxigênio */}
       <div className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
         <Label className="text-base font-semibold text-blue-900 mb-3 block">
           Suporte de Oxigênio
@@ -594,7 +589,6 @@ PADRÕES CRÍTICOS:
             <input
               type="file"
               accept="image/*,.pdf"
-              capture="environment"
               multiple
               onChange={handleFileUpload}
               className="hidden"
@@ -611,9 +605,12 @@ PADRÕES CRÍTICOS:
                 <Upload className="w-12 h-12 text-gray-400 mb-2" />
               )}
               <p className="text-sm font-medium text-gray-700">
-                {uploading ? "Carregando..." : "Clique para anexar ECG ou tirar foto"}
+                {uploading ? "Carregando..." : "Clique para anexar ECG"}
               </p>
-              <p className="text-xs text-gray-500 mt-1">PDF ou Imagem</p>
+              <p className="text-xs text-gray-500 mt-1">Escolha da galeria, tire uma foto ou selecione arquivo PDF</p>
+              <p className="text-xs text-blue-600 mt-2 font-semibold">
+                📱 No celular: Galeria, Câmera ou Arquivos
+              </p>
             </label>
           </div>
 
