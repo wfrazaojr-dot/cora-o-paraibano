@@ -62,15 +62,20 @@ export default function NovaTriagem() {
       setDadosPaciente(paciente);
       setPacienteId(paciente.id);
       
+      // Se for retriagem, sempre começa na Etapa 2 (Triagem Cardiológica)
       if (isRetriagem) {
         setEtapaAtual(2);
         setDadosPaciente({
           ...paciente,
           data_hora_inicio_triagem: format(new Date(), "yyyy-MM-dd'T'HH:mm")
         });
-      } else if (paciente.status === "Aguardando Médico") {
+      } 
+      // Se status é "Aguardando Médico", vai para Etapa 6 (Avaliação Médica)
+      else if (paciente.status === "Aguardando Médico") {
         setEtapaAtual(6);
-      } else if (paciente.status === "Em Atendimento") {
+      } 
+      // Se status é "Em Atendimento", determina a etapa médica correta
+      else if (paciente.status === "Em Atendimento") {
         if (paciente.avaliacao_medica) {
           if (paciente.prescricao_medicamentos && paciente.prescricao_medicamentos.length > 0) {
             if (paciente.exames_solicitados && paciente.exames_solicitados.length > 0) {
@@ -84,16 +89,32 @@ export default function NovaTriagem() {
         } else {
           setEtapaAtual(6);
         }
-      } else if (paciente.enfermeiro_nome && paciente.ecg_files) {
-        setEtapaAtual(5);
-      } else if (paciente.classificacao_risco) {
-        setEtapaAtual(4);
-      } else if (paciente.dados_vitais) {
-        setEtapaAtual(3);
-      } else if (paciente.triagem_cardiologica) {
-        setEtapaAtual(2);
+      } 
+      // Para outros status, determina a etapa baseado nos dados existentes
+      else {
+        // Determinar qual a última etapa completa
+        if (paciente.enfermeiro_nome && paciente.ecg_files && paciente.ecg_files.length > 0) {
+          // ECG já feito, próxima seria Etapa 6
+          setEtapaAtual(6);
+        } else if (paciente.classificacao_risco) {
+          // Classificação feita, próxima é Etapa 5 (ECG)
+          setEtapaAtual(5);
+        } else if (paciente.dados_vitais) {
+          // Dados vitais feitos, próxima é Etapa 4 (Classificação)
+          setEtapaAtual(4);
+        } else if (paciente.triagem_cardiologica) {
+          // Triagem cardiológica feita, próxima é Etapa 3 (Dados Vitais)
+          setEtapaAtual(3);
+        } else if (paciente.nome_completo) {
+          // Dados básicos feitos, próxima é Etapa 2 (Triagem Cardiológica)
+          setEtapaAtual(2);
+        } else {
+          // Começa do início
+          setEtapaAtual(1);
+        }
       }
     } else if (!idUrl) {
+      // Novo paciente, começa na Etapa 1
       setEtapaAtual(1);
     }
     
@@ -110,26 +131,45 @@ export default function NovaTriagem() {
         return resultado;
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['pacientes'] });
       queryClient.invalidateQueries({ queryKey: ['paciente', pacienteId] });
+      
+      // Atualizar dadosPaciente com os dados salvos
+      if (data) {
+        setDadosPaciente(prevDados => ({
+          ...prevDados,
+          ...data
+        }));
+      }
     },
   });
 
   const handleProximaEtapa = async (dadosEtapa) => {
-    const dadosAtualizados = { ...dadosPaciente, ...dadosEtapa };
-    setDadosPaciente(dadosAtualizados);
-    
-    await salvarMutation.mutateAsync(dadosAtualizados);
-    
-    if (etapaAtual === 5 && !isRetriagem) {
-      alert("✅ Triagem de Enfermagem Concluída!\n\nPaciente está AGUARDANDO MÉDICO.\n\nPara continuar o atendimento:\n1. Vá no Dashboard ou Histórico\n2. Clique em 'Ver Detalhes' no paciente\n3. O sistema abrirá automaticamente na Etapa 6 (Avaliação Médica)");
-      navigate(createPageUrl("Dashboard"));
-      return;
-    }
-    
-    if (etapaAtual < 9) {
-      setEtapaAtual(etapaAtual + 1);
+    try {
+      const dadosAtualizados = { ...dadosPaciente, ...dadosEtapa };
+      setDadosPaciente(dadosAtualizados);
+      
+      // Salvar no banco de dados
+      const resultado = await salvarMutation.mutateAsync(dadosAtualizados);
+      
+      // Se salvou com sucesso, avançar para próxima etapa
+      if (resultado) {
+        // Etapa 5 = última etapa de enfermagem
+        if (etapaAtual === 5 && !isRetriagem) {
+          alert("✅ Triagem de Enfermagem Concluída!\n\nPaciente está AGUARDANDO MÉDICO.\n\nPara continuar o atendimento:\n1. Vá no Dashboard ou Histórico\n2. Clique em 'Ver Detalhes' no paciente\n3. O sistema abrirá automaticamente na Etapa 6 (Avaliação Médica)");
+          navigate(createPageUrl("Dashboard"));
+          return;
+        }
+        
+        // Avançar para próxima etapa
+        if (etapaAtual < 9) {
+          setEtapaAtual(etapaAtual + 1);
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao salvar dados:", error);
+      alert("Erro ao salvar dados. Tente novamente.");
     }
   };
 
