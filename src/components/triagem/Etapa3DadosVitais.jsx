@@ -434,7 +434,10 @@ PADRÕES CRÍTICOS:
             type="number"
             placeholder="Ex: 75"
             value={dados.frequencia_cardiaca}
-            onChange={(e) => setDados({...dados, frequencia_cardiaca: parseFloat(e.target.value)})}
+            onChange={(e) => {
+              const val = e.target.value;
+              setDados({...dados, frequencia_cardiaca: val === "" ? "" : parseFloat(val) || ""});
+            }}
           />
         </div>
 
@@ -445,7 +448,10 @@ PADRÕES CRÍTICOS:
             type="number"
             placeholder="Ex: 16"
             value={dados.frequencia_respiratoria}
-            onChange={(e) => setDados({...dados, frequencia_respiratoria: parseFloat(e.target.value)})}
+            onChange={(e) => {
+              const val = e.target.value;
+              setDados({...dados, frequencia_respiratoria: val === "" ? "" : parseFloat(val) || ""});
+            }}
           />
         </div>
 
@@ -457,7 +463,10 @@ PADRÕES CRÍTICOS:
             step="0.1"
             placeholder="Ex: 36.5"
             value={dados.temperatura}
-            onChange={(e) => setDados({...dados, temperatura: parseFloat(e.target.value)})}
+            onChange={(e) => {
+              const val = e.target.value;
+              setDados({...dados, temperatura: val === "" ? "" : parseFloat(val) || ""});
+            }}
           />
         </div>
 
@@ -468,7 +477,10 @@ PADRÕES CRÍTICOS:
             type="number"
             placeholder="Ex: 98"
             value={dados.spo2}
-            onChange={(e) => setDados({...dados, spo2: parseFloat(e.target.value)})}
+            onChange={(e) => {
+              const val = e.target.value;
+              setDados({...dados, spo2: val === "" ? "" : parseFloat(val) || ""});
+            }}
           />
         </div>
       </div>
@@ -508,7 +520,10 @@ PADRÕES CRÍTICOS:
               max="15"
               placeholder="Ex: 2 ou 5"
               value={dados.spo2_litros_o2}
-              onChange={(e) => setDados({...dados, spo2_litros_o2: parseFloat(e.target.value)})}
+              onChange={(e) => {
+                const val = e.target.value;
+                setDados({...dados, spo2_litros_o2: val === "" ? "" : parseFloat(val) || ""});
+              }}
               className="bg-white"
             />
             <p className="text-xs text-blue-700">
@@ -571,7 +586,10 @@ PADRÕES CRÍTICOS:
           type="number"
           placeholder="Ex: 110"
           value={dados.glicemia_capilar}
-          onChange={(e) => setDados({...dados, glicemia_capilar: parseFloat(e.target.value)})}
+          onChange={(e) => {
+            const val = e.target.value;
+            setDados({...dados, glicemia_capilar: val === "" ? "" : parseFloat(val) || ""});
+          }}
         />
         {getGlicemiaStatus() && (
           <div className={`text-sm p-3 rounded border ${getGlicemiaStatus().bg}`}>
