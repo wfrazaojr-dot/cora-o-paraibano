@@ -4,6 +4,7 @@ import Historico from './pages/Historico';
 import Protocolos from './pages/Protocolos';
 import Manual from './pages/Manual';
 import Indicadores from './pages/Indicadores';
+import Administracao from './pages/Administracao';
 import Layout from './Layout.jsx';
 
 
@@ -14,6 +15,7 @@ export const PAGES = {
     "Protocolos": Protocolos,
     "Manual": Manual,
     "Indicadores": Indicadores,
+    "Administracao": Administracao,
 }
 
 export const pagesConfig = {
