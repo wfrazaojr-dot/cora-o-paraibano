@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -63,196 +64,312 @@ export default function Etapa3DadosVitais({ dadosPaciente, onProxima, onAnterior
               type: "number", 
               description: "Frequência cardíaca em batimentos por minuto (bpm)" 
             },
+            
+            // ANÁLISE POR PAREDE CARDÍACA
+            parede_inferior_dii_diii_avf: {
+              type: "object",
+              description: "Análise da parede INFERIOR (derivações DII, DIII, aVF). ATENÇÃO: Se 2 ou mais destas 3 derivações tiverem elevação ≥1mm = IAM INFERIOR",
+              properties: {
+                elevacao_st: { type: "boolean", description: "TRUE se DII, DIII ou aVF têm supra ≥1mm" },
+                derivacoes_elevadas: { type: "string", description: "Quais das 3 estão elevadas. Ex: DII e DIII" },
+                magnitude_mm: { type: "number", description: "Maior elevação em mm" }
+              }
+            },
+            
+            parede_anterior_v1_v2_v3_v4: {
+              type: "object",
+              description: "Análise da parede ANTERIOR (V1, V2, V3, V4)",
+              properties: {
+                elevacao_st: { type: "boolean", description: "TRUE se V1-V4 têm supra ≥1mm (≥2mm em V2-V3)" },
+                derivacoes_elevadas: { type: "string", description: "Quais estão elevadas" },
+                magnitude_mm: { type: "number", description: "Maior elevação em mm" }
+              }
+            },
+            
+            parede_lateral_di_avl_v5_v6: {
+              type: "object",
+              description: "Análise da parede LATERAL (DI, aVL, V5, V6)",
+              properties: {
+                elevacao_st: { type: "boolean", description: "TRUE se DI, aVL, V5 ou V6 têm supra ≥1mm" },
+                derivacoes_elevadas: { type: "string", description: "Quais estão elevadas" },
+                magnitude_mm: { type: "number", description: "Maior elevação em mm" }
+              }
+            },
+            
+            parede_septal_v1_v2: {
+              type: "object",
+              description: "Análise da parede SEPTAL (V1, V2)",
+              properties: {
+                elevacao_st: { type: "boolean", description: "TRUE se V1 ou V2 têm supra ≥2mm" },
+                derivacoes_elevadas: { type: "string", description: "Quais estão elevadas" },
+                magnitude_mm: { type: "number", description: "Maior elevação em mm" }
+              }
+            },
+            
+            // ALTERAÇÕES RECÍPROCAS (muito importantes!)
+            alteracoes_reciprocas: {
+              type: "object",
+              description: "Alterações recíprocas ajudam a confirmar IAM. Ex: Infra em aVL quando há supra em DII/DIII/aVF",
+              properties: {
+                infra_avl: { type: "boolean", description: "TRUE se aVL tem infradesnivelamento ≥1mm (recíproca de IAM inferior)" },
+                infra_di: { type: "boolean", description: "TRUE se DI tem infradesnivelamento ≥1mm (recíproca de IAM inferior)" },
+                infra_v1_v2_v3: { type: "boolean", description: "TRUE se V1-V3 têm infradesnivelamento (recíproca de IAM posterior)" }
+              }
+            },
+            
+            // CRITÉRIOS ESPECÍFICOS DE IAM
+            criterios_iam_identificados: {
+              type: "array",
+              items: { type: "string" },
+              description: "Liste TODOS os critérios de IAM encontrados. Ex: ['Supra ≥1mm em DII e DIII', 'Infra recíproco em aVL', 'Ondas Q em DIII']"
+            },
+            
             intervalo_pr: { 
               type: "number", 
-              description: "Intervalo PR medido em milissegundos. Normal: 120-200ms" 
+              description: "Intervalo PR em ms. Normal: 120-200ms" 
             },
             duracao_qrs: { 
               type: "number", 
-              description: "Duração do complexo QRS em milissegundos. Normal menor que 120ms" 
-            },
-            intervalo_qt: { 
-              type: "number", 
-              description: "Intervalo QT em milissegundos" 
+              description: "Duração do QRS em ms. Normal < 120ms" 
             },
             intervalo_qtc: {
               type: "number",
-              description: "Intervalo QT corrigido pela frequência cardíaca"
+              description: "Intervalo QT corrigido"
             },
             eixo_qrs: {
               type: "string",
-              description: "Eixo elétrico do QRS: Normal, Desvio à esquerda, Desvio à direita"
+              description: "Eixo elétrico: Normal (0 a +90°), Desvio esquerda, Desvio direita"
             },
-            segmento_st_elevado: { 
-              type: "boolean", 
-              description: "Marcar TRUE se o segmento ST estiver ACIMA da linha isoelétrica em pelo menos 1mm em 2 ou mais derivações contíguas. Seja conservador." 
-            },
-            derivacoes_st_elevado: { 
-              type: "string", 
-              description: "Liste as derivações com elevação real do segmento ST. Se não houver elevação, escrever Nenhuma" 
-            },
-            magnitude_elevacao_st_mm: {
-              type: "number",
-              description: "Magnitude da maior elevação do ST em milímetros. Se não houver, colocar 0"
-            },
-            segmento_st_deprimido: { 
-              type: "boolean", 
-              description: "Marcar TRUE se o segmento ST estiver ABAIXO da linha isoelétrica em pelo menos 1mm em 2 derivações" 
-            },
-            derivacoes_st_deprimido: { 
-              type: "string", 
-              description: "Liste todas as derivações com depressão do ST. Se nenhuma escrever Nenhuma" 
-            },
-            magnitude_depressao_st_mm: {
-              type: "number",
-              description: "Magnitude da maior depressão do ST em milímetros. Se não houver, colocar 0"
-            },
-            padrao_infra_difuso_com_supra_avr: {
-              type: "boolean",
-              description: "Marcar TRUE se houver infradesnivelamento em múltiplas derivações associado a supradesnivelamento em aVR. Padrão crítico de isquemia grave."
-            },
+            
             ondas_t_invertidas: { 
               type: "boolean", 
-              description: "Se há inversão das ondas T" 
+              description: "Se há inversão de ondas T" 
             },
             derivacoes_t_invertidas: {
               type: "string",
-              description: "Derivações com ondas T invertidas"
+              description: "Quais derivações têm T invertida"
             },
+            
             ondas_q_patologicas: { 
               type: "boolean", 
-              description: "Ondas Q patológicas com duração maior que 40ms ou amplitude maior que 25 porcento do QRS" 
+              description: "Ondas Q patológicas (duração >40ms ou >25% do QRS)" 
             },
             derivacoes_q_patologicas: {
               type: "string",
               description: "Derivações com ondas Q patológicas"
             },
-            bloqueio_ramo_direito: {
-              type: "boolean",
-              description: "Bloqueio de Ramo Direito presente"
-            },
+            
             bloqueio_ramo_esquerdo: {
               type: "boolean",
-              description: "Bloqueio de Ramo Esquerdo presente"
+              description: "BRE presente (QRS >120ms + padrão em V1-V6)"
             },
-            bloqueio_av: {
-              type: "string",
-              description: "Tipo de bloqueio AV: Nenhum, 1 grau, 2 grau, 3 grau"
-            },
-            hipertrofia_ventricular_esquerda: {
+            bloqueio_ramo_direito: {
               type: "boolean",
-              description: "Hipertrofia ventricular esquerda presente"
+              description: "BRD presente (QRS >120ms + padrão RSR' em V1)"
             },
-            padrao_identificado: {
+            
+            // DIAGNÓSTICO FINAL
+            diagnostico_principal: {
               type: "string",
-              description: "Padrões específicos: Wellens, Winter, Sgarbossa, Brugada, Repolarização Precoce, Pericardite, Isquemia Difusa, Nenhum padrão específico"
+              description: "Diagnóstico ECG principal. Exemplos: 'IAM de parede inferior', 'IAM anterosseptal', 'ECG normal', 'Alterações inespecíficas'"
             },
-            interpretacao_resumo: { 
-              type: "string", 
-              description: "Interpretação resumida do ECG em 2 ou 3 frases" 
-            },
-            alerta_iam: { 
-              type: "boolean", 
-              description: "Marcar TRUE se houver supra ST em 2 derivações contíguas ou infra ST difuso com supra aVR" 
-            },
+            
             localizacao_iam: {
               type: "string",
-              description: "Localização do IAM: Anterior, Inferior, Lateral, Septal, Posterior, VD, Difuso, Não aplicável"
+              description: "Se for IAM, qual parede: Inferior, Anterior, Anterosseptal, Lateral, Posterior, Inferolateral, Anterolateral, Extenso. Se não for IAM: Não aplicável"
             },
-            arteria_culpada: {
+            
+            arteria_culpada_provavel: {
               type: "string",
-              description: "Artéria acometida: DAE, CD, Cx, TCE, Multiarterial, Não aplicável"
+              description: "Artéria provavelmente acometida: CD (coronária direita - IAM inferior), DAE (descendente anterior esquerda - IAM anterior), Cx (circunflexa - IAM lateral), TCE (tronco), Não aplicável"
             },
-            gravidade_clinica: {
+            
+            alerta_iam: { 
+              type: "boolean", 
+              description: "TRUE se houver QUALQUER elevação de ST ≥1mm em 2+ derivações contíguas OU alterações recíprocas sugestivas de IAM" 
+            },
+            
+            gravidade: {
               type: "string",
-              description: "Gravidade: Crítico, Alto risco, Moderado, Baixo, Normal"
+              description: "Crítico (IAM confirmado ou muito provável), Alto risco (alterações sugestivas), Moderado (alterações inespecíficas), Baixo, Normal"
+            },
+            
+            interpretacao_resumo: { 
+              type: "string", 
+              description: "Resumo clínico em 2-3 frases, mencionando derivações específicas e alterações encontradas" 
             }
           }
         };
 
-        const resultado = await base44.integrations.Core.ExtractDataFromUploadedFile({
-          file_url: novosFiles[0],
-          json_schema: ecgSchema
+        const promptComplementar = `
+INSTRUÇÕES CRÍTICAS PARA ANÁLISE DE ECG:
+
+1. PAREDE INFERIOR (DII, DIII, aVF):
+   - Se 2 ou mais destas 3 derivações têm elevação ST ≥1mm → IAM DE PAREDE INFERIOR
+   - Procure por infradesnivelamento recíproco em aVL e/ou DI (confirma IAM inferior)
+   - Artéria culpada: Coronária Direita (CD) na maioria dos casos
+
+2. PAREDE ANTERIOR (V1, V2, V3, V4):
+   - Elevação ST ≥1mm em V3-V4 (ou ≥2mm em V2-V3) → IAM ANTERIOR
+   - Artéria culpada: Descendente Anterior Esquerda (DAE)
+
+3. PAREDE LATERAL (DI, aVL, V5, V6):
+   - Elevação ST ≥1mm → IAM LATERAL
+   - Artéria culpada: Circunflexa (Cx)
+
+4. ALTERAÇÕES RECÍPROCAS SÃO MUITO IMPORTANTES:
+   - Infra em aVL com supra em DII/DIII/aVF = CONFIRMA IAM INFERIOR
+   - Infra em DI com supra em DII/DIII/aVF = CONFIRMA IAM INFERIOR
+   - Não ignore essas alterações recíprocas!
+
+5. SEJA SENSÍVEL: Elevações de apenas 1mm já são significativas!
+
+6. ANALISE DERIVAÇÃO POR DERIVAÇÃO: DI, DII, DIII, aVR, aVL, aVF, V1, V2, V3, V4, V5, V6
+
+Retorne uma análise PRECISA e DETALHADA.
+`;
+
+        const resultado = await base44.integrations.Core.InvokeLLM({
+          prompt: `Você é um especialista em eletrocardiografia. Analise este ECG com MÁXIMA ATENÇÃO às elevações do segmento ST.
+
+${promptComplementar}
+
+Retorne EXATAMENTE no formato JSON especificado. Seja MUITO cuidadoso ao identificar elevações de ST.`,
+          file_urls: novosFiles[0],
+          response_json_schema: ecgSchema
         });
 
-        if (resultado.status === "success" && resultado.output) {
-          const d = resultado.output;
+        if (resultado) {
+          const d = resultado;
           
-          const relatorio = `ANÁLISE AUTOMATIZADA DE ECG
+          // Construir relatório mais detalhado
+          let relatorio = `ANÁLISE AUTOMATIZADA DE ECG
 
-1. RITMO E FREQUÊNCIA
-   - Ritmo: ${d.ritmo || "Não identificado"}
-   - Frequência Cardíaca: ${d.frequencia_cardiaca || "N/A"} bpm
+═══════════════════════════════════════════
+1. DADOS BÁSICOS
+═══════════════════════════════════════════
+Ritmo: ${d.ritmo || "Não identificado"}
+Frequência Cardíaca: ${d.frequencia_cardiaca || "N/A"} bpm
+Eixo QRS: ${d.eixo_qrs || "Não determinado"}
 
-2. INTERVALOS
-   - Intervalo PR: ${d.intervalo_pr || "N/A"} ms
-   - Duração QRS: ${d.duracao_qrs || "N/A"} ms
-   - Intervalo QT: ${d.intervalo_qt || "N/A"} ms
-   - QTc corrigido: ${d.intervalo_qtc || "N/A"} ms
+═══════════════════════════════════════════
+2. ANÁLISE DO SEGMENTO ST POR PAREDE
+═══════════════════════════════════════════
 
-3. EIXO CARDÍACO
-   - Eixo QRS: ${d.eixo_qrs || "Não determinado"}
+📍 PAREDE INFERIOR (DII, DIII, aVF):
+${d.parede_inferior_dii_diii_avf?.elevacao_st ? `
+   ⚠️ ELEVAÇÃO DO SEGMENTO ST IDENTIFICADA!
+   Derivações afetadas: ${d.parede_inferior_dii_diii_avf.derivacoes_elevadas || "DII, DIII, aVF"}
+   Magnitude: ${d.parede_inferior_dii_diii_avf.magnitude_mm || "N/A"} mm
+   🚨 SUSPEITA DE IAM DE PAREDE INFERIOR
+` : "   Sem elevação significativa"}
 
-4. ANÁLISE DO SEGMENTO ST
-   
-   SUPRADESNIVELAMENTO (elevação acima da linha):
-   ${d.segmento_st_elevado ? `
-   ELEVAÇÃO DO SEGMENTO ST IDENTIFICADA
-   - Derivações: ${d.derivacoes_st_elevado}
-   - Magnitude: ${d.magnitude_elevacao_st_mm || "N/A"} mm
-   - POSSÍVEL IAMCSST
-   ` : "   - Sem elevação significativa do segmento ST"}
-   
-   INFRADESNIVELAMENTO (depressão abaixo da linha):
-   ${d.segmento_st_deprimido ? `
-   DEPRESSÃO DO SEGMENTO ST IDENTIFICADA
-   - Derivações: ${d.derivacoes_st_deprimido}
-   - Magnitude: ${d.magnitude_depressao_st_mm || "N/A"} mm
-   ` : "   - Sem depressão significativa do ST"}
-   
-   ${d.padrao_infra_difuso_com_supra_avr ? `
-   PADRÃO CRÍTICO: Infradesnivelamento difuso + Supra em aVR
-   Sugere isquemia grave, possível oclusão de tronco ou doença multiarterial
-   ` : ""}
+📍 PAREDE ANTERIOR (V1-V4):
+${d.parede_anterior_v1_v2_v3_v4?.elevacao_st ? `
+   ⚠️ ELEVAÇÃO DO SEGMENTO ST IDENTIFICADA!
+   Derivações afetadas: ${d.parede_anterior_v1_v2_v3_v4.derivacoes_elevadas}
+   Magnitude: ${d.parede_anterior_v1_v2_v3_v4.magnitude_mm || "N/A"} mm
+   🚨 SUSPEITA DE IAM ANTERIOR
+` : "   Sem elevação significativa"}
 
-5. ONDAS T
-   ${d.ondas_t_invertidas ? `- Inversão de T em: ${d.derivacoes_t_invertidas}` : "- Sem inversões de T"}
+📍 PAREDE LATERAL (DI, aVL, V5, V6):
+${d.parede_lateral_di_avl_v5_v6?.elevacao_st ? `
+   ⚠️ ELEVAÇÃO DO SEGMENTO ST IDENTIFICADA!
+   Derivações afetadas: ${d.parede_lateral_di_avl_v5_v6.derivacoes_elevadas}
+   Magnitude: ${d.parede_lateral_di_avl_v5_v6.magnitude_mm || "N/A"} mm
+   🚨 SUSPEITA DE IAM LATERAL
+` : "   Sem elevação significativa"}
 
-6. ONDAS Q
-   ${d.ondas_q_patologicas ? `- Ondas Q patológicas em: ${d.derivacoes_q_patologicas}` : "- Sem ondas Q patológicas"}
+📍 PAREDE SEPTAL (V1, V2):
+${d.parede_septal_v1_v2?.elevacao_st ? `
+   ⚠️ ELEVAÇÃO DO SEGMENTO ST IDENTIFICADA!
+   Derivações afetadas: ${d.parede_septal_v1_v2.derivacoes_elevadas}
+   Magnitude: ${d.parede_septal_v1_v2.magnitude_mm || "N/A"} mm
+   🚨 SUSPEITA DE IAM SEPTAL
+` : "   Sem elevação significativa"}
 
-7. BLOQUEIOS
-   ${d.bloqueio_ramo_direito ? "- Bloqueio de Ramo Direito" : ""}
-   ${d.bloqueio_ramo_esquerdo ? "- Bloqueio de Ramo Esquerdo" : ""}
-   ${d.bloqueio_av && d.bloqueio_av !== "Nenhum" ? `- Bloqueio AV: ${d.bloqueio_av}` : ""}
+═══════════════════════════════════════════
+3. ALTERAÇÕES RECÍPROCAS
+═══════════════════════════════════════════
+${d.alteracoes_reciprocas?.infra_avl ? "⚠️ Infradesnivelamento em aVL (recíproca de IAM inferior)" : "aVL: Normal"}
+${d.alteracoes_reciprocas?.infra_di ? "⚠️ Infradesnivelamento em DI (recíproca de IAM inferior)" : "DI: Normal"}
+${d.alteracoes_reciprocas?.infra_v1_v2_v3 ? "⚠️ Infradesnivelamento em V1-V3 (sugestivo de IAM posterior)" : "V1-V3: Normal"}
 
-8. PADRÃO ESPECÍFICO
-   ${d.padrao_identificado || "Nenhum padrão específico"}
+═══════════════════════════════════════════
+4. CRITÉRIOS DE IAM IDENTIFICADOS
+═══════════════════════════════════════════
+${d.criterios_iam_identificados && d.criterios_iam_identificados.length > 0 ? 
+  d.criterios_iam_identificados.map((c, i) => `${i+1}. ${c}`).join('\n') : 
+  "Nenhum critério específico de IAM identificado"}
 
-INTERPRETAÇÃO
-${d.interpretacao_resumo || "ECG analisado"}
+═══════════════════════════════════════════
+5. ONDAS T E Q
+═══════════════════════════════════════════
+Ondas T: ${d.ondas_t_invertidas ? `Inversão em ${d.derivacoes_t_invertidas}` : "Normais"}
+Ondas Q: ${d.ondas_q_patologicas ? `Ondas Q patológicas em ${d.derivacoes_q_patologicas}` : "Sem ondas Q patológicas"}
 
-${d.alerta_iam ? `
-ALERTA DE EMERGÊNCIA
+═══════════════════════════════════════════
+6. BLOQUEIOS
+═══════════════════════════════════════════
+${d.bloqueio_ramo_esquerdo ? "⚠️ Bloqueio de Ramo Esquerdo presente" : ""}
+${d.bloqueio_ramo_direito ? "⚠️ Bloqueio de Ramo Direito presente" : ""}
+${!d.bloqueio_ramo_esquerdo && !d.bloqueio_ramo_direito ? "Sem bloqueios identificados" : ""}
 
-${d.padrao_infra_difuso_com_supra_avr ? "ISQUEMIA DIFUSA E GRAVE - Possível tronco ou multiarterial" : "SUSPEITA DE IAM"}
-${d.localizacao_iam && d.localizacao_iam !== "Não aplicável" ? `Localização: ${d.localizacao_iam}` : ""}
-${d.arteria_culpada && d.arteria_culpada !== "Não aplicável" ? `Artéria: ${d.arteria_culpada}` : ""}
-Gravidade: ${d.gravidade_clinica || "Alto risco"}
+═══════════════════════════════════════════
+7. INTERVALOS
+═══════════════════════════════════════════
+Intervalo PR: ${d.intervalo_pr || "N/A"} ms
+Duração QRS: ${d.duracao_qrs || "N/A"} ms
+QTc: ${d.intervalo_qtc || "N/A"} ms
 
-CONDUTA URGENTE:
-- Comunicar médico cardiologista imediatamente
-- Preparar para cateterismo
-- AAS + Antiagregante duplo
-- Anticoagulação
-- Monitorização contínua
+═══════════════════════════════════════════
+📋 DIAGNÓSTICO
+═══════════════════════════════════════════
+${d.diagnostico_principal || "Diagnóstico não especificado"}
+
+${d.localizacao_iam && d.localizacao_iam !== "Não aplicável" ? `
+Localização: ${d.localizacao_iam}
 ` : ""}
 
-Esta análise é auxiliar e não substitui interpretação médica.`;
+${d.arteria_culpada_provavel && d.arteria_culpada_provavel !== "Não aplicável" ? `
+Artéria provável: ${d.arteria_culpada_provavel}
+` : ""}
+
+Gravidade: ${d.gravidade || "Não especificada"}
+
+═══════════════════════════════════════════
+💬 INTERPRETAÇÃO CLÍNICA
+═══════════════════════════════════════════
+${d.interpretacao_resumo || "Análise realizada"}
+
+${d.alerta_iam ? `
+═══════════════════════════════════════════
+🚨 ALERTA DE EMERGÊNCIA - IAM DETECTADO
+═══════════════════════════════════════════
+
+CONDUTA URGENTE:
+• Comunicar IMEDIATAMENTE o médico cardiologista
+• Preparar para cateterismo de urgência
+• AAS 200-300mg VO (mastigado)
+• Clopidogrel 600mg VO ou Ticagrelor 180mg
+• Anticoagulação (Heparina ou Enoxaparina)
+• Monitorização cardíaca contínua
+• Acesso venoso calibroso
+• Oxigênio se SpO2 < 90%
+
+META: Reperfusão em até 90 minutos do primeiro contato médico
+` : ""}
+
+═══════════════════════════════════════════
+⚠️ NOTA IMPORTANTE
+═══════════════════════════════════════════
+Esta análise é AUXILIAR e NÃO substitui a interpretação
+por médico qualificado. O ECG deve ser revisado por um
+cardiologista ou médico emergencista.`;
 
           setAnaliseEcg(relatorio);
         } else {
-          throw new Error("Falha na extração");
+          throw new Error("Falha na análise");
         }
 
       } catch (error) {
@@ -263,18 +380,21 @@ Esta análise é auxiliar e não substitui interpretação médica.`;
 ${novosFiles.length} arquivo(s) carregado(s).
 Tempo desde triagem: ${tempoMinutos} minutos
 
-Análise automática não disponível.
+⚠️ Análise automática não disponível no momento.
 
 O médico deve interpretar manualmente:
-- Ritmo e frequência
-- Intervalos PR, QRS, QT
-- Segmento ST (supra/infra)
-- Ondas T e Q
-- Bloqueios
+✓ Ritmo e frequência
+✓ Intervalo PR, QRS, QT
+✓ Segmento ST (elevação/depressão)
+✓ Ondas T e Q patológicas
+✓ Bloqueios de ramo
 
-PADRÕES CRÍTICOS:
-- Supra ST em 2+ derivações = IAMCSST
-- Infra ST difuso + Supra aVR = Isquemia grave/tronco`);
+CRITÉRIOS DE IAM POR PAREDE:
+• INFERIOR: Supra ST ≥1mm em 2+ de DII, DIII, aVF
+  → Alteração recíproca: Infra em aVL ou DI
+• ANTERIOR: Supra ST ≥1mm em V3-V4 (≥2mm em V2-V3)
+• LATERAL: Supra ST ≥1mm em DI, aVL, V5, V6
+• SEPTAL: Supra ST ≥2mm em V1-V2`);
       }
 
     } catch (error) {
@@ -392,10 +512,9 @@ PADRÕES CRÍTICOS:
   const tempoTriagemEcg = dadosPaciente.tempo_triagem_ecg_minutos;
 
   const temAlertaIAM = analiseEcg && (
-    analiseEcg.includes("IAMCSST") || 
-    analiseEcg.includes("IAM COM SUPRA") ||
-    analiseEcg.includes("POSSÍVEL IAMCSST") ||
-    analiseEcg.includes("SUSPEITA DE IAM") ||
+    analiseEcg.includes("IAM") || 
+    analiseEcg.includes("IAMCSST") ||
+    analiseEcg.includes("SUSPEITA") ||
     analiseEcg.includes("ALERTA DE EMERGÊNCIA")
   );
 
@@ -659,7 +778,7 @@ PADRÕES CRÍTICOS:
             <Alert className="border-blue-500 bg-blue-50">
               <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
               <AlertDescription className="text-blue-800">
-                Processando análise do ECG... Aguarde...
+                🔍 Analisando ECG com IA especializada... Aguarde alguns segundos...
               </AlertDescription>
             </Alert>
           )}
@@ -668,19 +787,22 @@ PADRÕES CRÍTICOS:
             <Alert className="border-red-500 bg-red-50">
               <AlertCircle className="h-4 w-4 text-red-600" />
               <AlertDescription className="text-red-800 font-semibold">
-                ALERTA: Alteração detectada no ECG!
-                Revise a análise completa abaixo.
+                🚨 ALERTA: Possível IAM detectado!
+                Revise IMEDIATAMENTE a análise completa abaixo.
               </AlertDescription>
             </Alert>
           )}
 
           {analiseEcg && (
             <div className="border-l-4 border-l-blue-600 bg-blue-50 p-4 rounded">
-              <h4 className="font-semibold text-blue-900 mb-2">Análise de ECG:</h4>
-              <pre className="text-sm text-blue-800 whitespace-pre-wrap font-sans">{analiseEcg}</pre>
-              <p className="text-xs text-blue-600 mt-3 italic">
-                Esta análise é auxiliar. ECG deve ser interpretado por médico qualificado.
-              </p>
+              <h4 className="font-semibold text-blue-900 mb-2">📊 Análise de ECG por Inteligência Artificial:</h4>
+              <pre className="text-sm text-blue-800 whitespace-pre-wrap font-sans leading-relaxed">{analiseEcg}</pre>
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-300 rounded">
+                <p className="text-xs text-yellow-800 font-semibold">
+                  ⚠️ ATENÇÃO: Esta análise é AUXILIAR e NÃO substitui a interpretação por médico qualificado. 
+                  O ECG deve ser revisado por um cardiologista ou médico emergencista antes de qualquer decisão clínica.
+                </p>
+              </div>
             </div>
           )}
         </div>
