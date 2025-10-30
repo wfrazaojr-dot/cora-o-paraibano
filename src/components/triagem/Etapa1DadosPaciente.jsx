@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowRight, Clock, Building2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -23,9 +22,13 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Validação manual do campo unidade_saude
     if (!dados.unidade_saude || dados.unidade_saude.trim() === "") {
       alert("Por favor, preencha o nome da Unidade de Saúde");
+      return;
+    }
+    
+    if (!dados.sexo) {
+      alert("Por favor, selecione o sexo do paciente");
       return;
     }
     
@@ -108,18 +111,17 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
 
         <div className="space-y-2">
           <Label htmlFor="sexo">Sexo *</Label>
-          <Select 
-            value={dados.sexo} 
-            onValueChange={(value) => setDados(prev => ({...prev, sexo: value}))}
+          <select
+            id="sexo"
+            value={dados.sexo}
+            onChange={(e) => setDados(prev => ({...prev, sexo: e.target.value}))}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            required
           >
-            <SelectTrigger id="sexo">
-              <SelectValue placeholder="Selecione o sexo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Masculino">Masculino</SelectItem>
-              <SelectItem value="Feminino">Feminino</SelectItem>
-            </SelectContent>
-          </Select>
+            <option value="">Selecione o sexo</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Feminino">Feminino</option>
+          </select>
         </div>
 
         <div className="space-y-2">
