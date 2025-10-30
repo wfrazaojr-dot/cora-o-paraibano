@@ -1,12 +1,13 @@
-
 import React, { useState, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, ArrowRight, FileImage } from "lucide-react";
+import { ArrowLeft, ArrowRight, FileImage, Sparkles, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Input } from "@/components/ui/input"; // Import Input component
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const discriminadores = {
   vermelha: [
@@ -56,24 +57,168 @@ const temposAtendimento = {
 export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onAnterior }) {
   const [discriminadoresSelecionados, setDiscriminadoresSelecionados] = useState([]);
   const [classificacao, setClassificacao] = useState(dadosPaciente.classificacao_risco || null);
-  const [enfermeiro, setEnfermeiro] = useState({
-    nome: dadosPaciente.enfermeiro_nome || "",
-    coren: dadosPaciente.enfermeiro_coren || ""
-  });
+  const [analisandoIA, setAnalisandoIA] = useState(false);
+  const [sugestaoIA, setSugestaoIA] = useState(null);
 
+  // Análise automática ao entrar na etapa
   useEffect(() => {
-    // Initialize selected discriminators if IAM alert is present from previous steps
-    if (dadosPaciente.triagem_cardiologica?.alerta_iam && !discriminadoresSelecionados.includes("Alerta de provável IAM (triagem cardiológica)")) {
-      setDiscriminadoresSelecionados(prev => [...prev, "Alerta de provável IAM (triagem cardiológica)"]);
+    if (!sugestaoIA && !analisandoIA) {
+      analisarComIA();
     }
-  }, [dadosPaciente.triagem_cardiologica?.alerta_iam]);
+  }, []);
 
+  const analisarComIA = async () => {
+    setAnalisandoIA(true);
+    
+    try {
+      // Preparar dados para análise
+      const dadosAnalise = {
+        idade: dadosPaciente.idade,
+        sexo: dadosPaciente.sexo,
+        triagem_cardiologica: dadosPaciente.triagem_cardiologica,
+        dados_vitais: dadosPaciente.dados_vitais,
+        tempo_sintomas: dadosPaciente.data_hora_inicio_sintomas
+      };
+
+      const schema = {
+        type: "object",
+        properties: {
+          classificacao_sugerida: {
+            type: "string",
+            enum: ["Vermelha", "Laranja", "Amarela", "Verde", "Azul"],
+            description: "Classificação de risco sugerida pelo Sistema Manchester"
+          },
+          discriminadores_identificados: {
+            type: "array",
+            items: { type: "string" },
+            description: "Lista de discriminadores identificados automaticamente baseado nos dados"
+          },
+          justificativa: {
+            type: "string",
+            description: "Justificativa clara e detalhada para a classificação sugerida, citando dados específicos"
+          },
+          nivel_confianca: {
+            type: "string",
+            enum: ["Alta", "Média", "Baixa"],
+            description: "Nível de confiança na classificação sugerida"
+          },
+          alertas_criticos: {
+            type: "array",
+            items: { type: "string" },
+            description: "Alertas críticos que requerem atenção imediata"
+          },
+          proximos_passos: {
+            type: "array",
+            items: { type: "string" },
+            description: "Próximos passos recomendados para a equipe médica"
+          },
+          tempo_atendimento_recomendado: {
+            type: "string",
+            description: "Tempo máximo recomendado para iniciar atendimento"
+          }
+        }
+      };
+
+      const prompt = `
+Você é um sistema especialista em triagem de emergência usando o Protocolo Manchester e diretrizes da SBC 2025 para dor torácica.
+
+DADOS DO PACIENTE:
+- Idade: ${dadosAnalise.idade} anos
+- Sexo: ${dadosAnalise.sexo}
+
+TRIAGEM CARDIOLÓGICA:
+${dadosAnalise.triagem_cardiologica ? `
+- Dor/desconforto no peito: ${dadosAnalise.triagem_cardiologica.dor_desconforto_peito ? 'SIM' : 'NÃO'}
+- Duração > 10 min: ${dadosAnalise.triagem_cardiologica.duracao_maior_10min ? 'SIM' : 'NÃO'}
+- Irradiação: ${dadosAnalise.triagem_cardiologica.irradiacao ? 'SIM' : 'NÃO'}
+- Dor epigástrica: ${dadosAnalise.triagem_cardiologica.dor_epigastrica ? 'SIM' : 'NÃO'}
+- Dispneia/diaforese: ${dadosAnalise.triagem_cardiologica.dispneia_diaforese ? 'SIM' : 'NÃO'}
+- >50 anos/diabetes/DCV: ${dadosAnalise.triagem_cardiologica.idade_fatores_risco ? 'SIM' : 'NÃO'}
+- ALERTA IAM: ${dadosAnalise.triagem_cardiologica.alerta_iam ? 'SIM ⚠️' : 'NÃO'}
+` : 'Não disponível'}
+
+DADOS VITAIS:
+${dadosAnalise.dados_vitais ? `
+- PA Esquerdo: ${dadosAnalise.dados_vitais.pa_braco_esquerdo || 'N/A'}
+- PA Direito: ${dadosAnalise.dados_vitais.pa_braco_direito || 'N/A'}
+- FC: ${dadosAnalise.dados_vitais.frequencia_cardiaca || 'N/A'} bpm
+- FR: ${dadosAnalise.dados_vitais.frequencia_respiratoria || 'N/A'} irpm
+- Temperatura: ${dadosAnalise.dados_vitais.temperatura || 'N/A'} °C
+- SpO2: ${dadosAnalise.dados_vitais.spo2 || 'N/A'}% ${dadosAnalise.dados_vitais.spo2_oxigenio === 'o2_suplementar' ? `(O2 ${dadosAnalise.dados_vitais.spo2_litros_o2}L/min)` : '(ar ambiente)'}
+- Glicemia: ${dadosAnalise.dados_vitais.glicemia_capilar || 'N/A'} mg/dL
+- Diabetes: ${dadosAnalise.dados_vitais.diabetes ? 'SIM' : 'NÃO'}
+- DPOC: ${dadosAnalise.dados_vitais.dpoc ? 'SIM' : 'NÃO'}
+` : 'Não disponível'}
+
+PROTOCOLO MANCHESTER - CRITÉRIOS:
+
+VERMELHA (Ameaça à vida - Atendimento IMEDIATO):
+- PAS ≥ 180 mmHg ou PAD ≥ 120 mmHg
+- PAS < 100 mmHg (hipotensão grave)
+- SpO2 < 90%
+- Temperatura > 41°C
+- Dor severa
+- Nível de consciência alterado
+- Hemorragia ativa
+- Diaforese intensa
+
+LARANJA (Muito urgente - até 10 minutos):
+- Alerta de provável IAM (qualquer SIM na triagem cardiológica)
+- Dispneia aguda
+- SpO2 < 90%
+- Temperatura ≥ 41°C
+- Dor intensa
+
+AMARELA (Urgente - até 60 minutos):
+- SpO2 90-92% sem dispneia
+- Temperatura 38.5-40.9°C
+- Dor moderada
+- Paciente cardiopata
+- Vômitos persistentes
+
+VERDE (Pouco urgente - até 120 minutos):
+- Dor leve
+- Evento recente < 7 dias
+
+AZUL (Não urgente - até 240 minutos):
+- Sintomas há mais de 7 dias
+
+IMPORTANTE:
+1. Se QUALQUER critério de VERMELHA estiver presente → VERMELHA
+2. Se alerta de IAM → NO MÍNIMO LARANJA
+3. Analise TODOS os dados vitais cuidadosamente
+4. Seja conservador - na dúvida, classifique para cima
+5. Liste discriminadores específicos baseados nos DADOS REAIS
+6. Forneça justificativa clara citando valores específicos
+
+Analise e retorne a classificação de risco adequada com justificativa detalhada.
+`;
+
+      const resultado = await base44.integrations.Core.InvokeLLM({
+        prompt: prompt,
+        response_json_schema: schema
+      });
+
+      if (resultado) {
+        setSugestaoIA(resultado);
+        
+        // Pré-selecionar discriminadores sugeridos
+        if (resultado.discriminadores_identificados && resultado.discriminadores_identificados.length > 0) {
+          setDiscriminadoresSelecionados(resultado.discriminadores_identificados);
+        }
+      }
+
+    } catch (error) {
+      console.error("Erro na análise por IA:", error);
+    }
+    
+    setAnalisandoIA(false);
+  };
 
   useEffect(() => {
     if (discriminadoresSelecionados.length > 0) {
-      let cor = "Azul"; // Default to Azul if no higher-priority discriminators are selected
+      let cor = "Azul";
       
-      // Determine the highest classification based on selected discriminators
       if (discriminadoresSelecionados.some(d => discriminadores.vermelha.includes(d))) {
         cor = "Vermelha";
       } else if (discriminadoresSelecionados.some(d => discriminadores.laranja.includes(d))) {
@@ -84,7 +229,6 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
         cor = "Verde";
       }
 
-      // Override to Laranja if IAM alert is present, ensuring it's the minimum
       if (dadosPaciente.triagem_cardiologica?.alerta_iam && (cor === "Azul" || cor === "Verde" || cor === "Amarela")) {
         cor = "Laranja";
       }
@@ -95,12 +239,11 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
         discriminadores: discriminadoresSelecionados
       });
     } else {
-      setClassificacao(null); // No discriminators selected, no classification
+      setClassificacao(null);
     }
   }, [discriminadoresSelecionados, dadosPaciente.triagem_cardiologica?.alerta_iam]);
 
   const toggleDiscriminador = (discriminador) => {
-    // Prevent unchecking IAM alert if it's automatically set
     if (discriminador === "Alerta de provável IAM (triagem cardiológica)" && dadosPaciente.triagem_cardiologica?.alerta_iam) {
       return;
     }
@@ -114,16 +257,14 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!enfermeiro.nome || !enfermeiro.coren) {
-      alert("Por favor, preencha o nome e COREN do enfermeiro");
-      return;
-    }
-    onProxima({ 
+    
+    // Preparar dados para salvar
+    const dadosParaSalvar = { 
       classificacao_risco: classificacao,
-      enfermeiro_nome: enfermeiro.nome,
-      enfermeiro_coren: enfermeiro.coren,
-      status: "Aguardando Médico"
-    });
+      sugestao_ia_classificacao: sugestaoIA // Salvar sugestão da IA também
+    };
+    
+    onProxima(dadosParaSalvar);
   };
 
   const corClassificacao = {
@@ -134,13 +275,131 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
     "Azul": "bg-blue-600"
   };
 
+  const corBadge = {
+    "Vermelha": "bg-red-100 text-red-800 border-red-300",
+    "Laranja": "bg-orange-100 text-orange-800 border-orange-300",
+    "Amarela": "bg-yellow-100 text-yellow-800 border-yellow-300",
+    "Verde": "bg-green-100 text-green-800 border-green-300",
+    "Azul": "bg-blue-100 text-blue-800 border-blue-300"
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Classificação de Risco</h2>
-        <p className="text-gray-600">Sistema Manchester - Selecione os discriminadores identificados</p>
+        <p className="text-gray-600">Sistema Manchester com análise automatizada por IA</p>
       </div>
 
+      {/* SUGESTÃO AUTOMATIZADA DA IA */}
+      {analisandoIA && (
+        <Card className="border-l-4 border-l-purple-600 shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <Loader2 className="w-6 h-6 text-purple-600 animate-spin" />
+              <div>
+                <p className="font-semibold text-purple-900">🤖 Análise Automática em Andamento...</p>
+                <p className="text-sm text-purple-700">Analisando dados vitais, triagem cardiológica e histórico do paciente...</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {sugestaoIA && !analisandoIA && (
+        <Card className="border-l-4 border-l-purple-600 shadow-lg bg-gradient-to-r from-purple-50 to-blue-50">
+          <CardHeader className="pb-3 bg-purple-100 border-b border-purple-200">
+            <CardTitle className="flex items-center gap-2 text-purple-900">
+              <Sparkles className="w-6 h-6" />
+              🤖 Classificação Sugerida por IA
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6 space-y-4">
+            {/* Classificação Sugerida */}
+            <div className="flex items-center gap-4 p-4 bg-white rounded-lg border-2 border-purple-200">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-2">Classificação Recomendada:</p>
+                <Badge className={`${corBadge[sugestaoIA.classificacao_sugerida]} border-2 text-xl px-6 py-2 font-bold`}>
+                  {sugestaoIA.classificacao_sugerida}
+                </Badge>
+                <p className="text-xs text-gray-600 mt-2">
+                  {sugestaoIA.tempo_atendimento_recomendado}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-gray-600">Confiança:</p>
+                <Badge className={`${
+                  sugestaoIA.nivel_confianca === "Alta" ? "bg-green-100 text-green-800" :
+                  sugestaoIA.nivel_confianca === "Média" ? "bg-yellow-100 text-yellow-800" :
+                  "bg-orange-100 text-orange-800"
+                } border font-semibold`}>
+                  {sugestaoIA.nivel_confianca}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Justificativa */}
+            <div className="bg-white p-4 rounded-lg border border-purple-200">
+              <p className="text-sm font-semibold text-purple-900 mb-2">📋 Justificativa:</p>
+              <p className="text-sm text-gray-700 leading-relaxed">{sugestaoIA.justificativa}</p>
+            </div>
+
+            {/* Alertas Críticos */}
+            {sugestaoIA.alertas_criticos && sugestaoIA.alertas_criticos.length > 0 && (
+              <div className="bg-red-50 p-4 rounded-lg border-2 border-red-300">
+                <p className="text-sm font-bold text-red-900 mb-2 flex items-center gap-2">
+                  ⚠️ ALERTAS CRÍTICOS:
+                </p>
+                <ul className="space-y-1">
+                  {sugestaoIA.alertas_criticos.map((alerta, idx) => (
+                    <li key={idx} className="text-sm text-red-800 flex items-start gap-2">
+                      <span className="text-red-600 font-bold">•</span>
+                      <span>{alerta}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Próximos Passos */}
+            {sugestaoIA.proximos_passos && sugestaoIA.proximos_passos.length > 0 && (
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-300">
+                <p className="text-sm font-semibold text-blue-900 mb-2">🎯 Próximos Passos Recomendados:</p>
+                <ol className="space-y-2">
+                  {sugestaoIA.proximos_passos.map((passo, idx) => (
+                    <li key={idx} className="text-sm text-blue-800 flex items-start gap-2">
+                      <span className="font-bold text-blue-600">{idx + 1}.</span>
+                      <span>{passo}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+
+            {/* Discriminadores Identificados */}
+            {sugestaoIA.discriminadores_identificados && sugestaoIA.discriminadores_identificados.length > 0 && (
+              <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                <p className="text-sm font-semibold text-purple-900 mb-2">✓ Discriminadores Identificados Automaticamente:</p>
+                <div className="flex flex-wrap gap-2">
+                  {sugestaoIA.discriminadores_identificados.map((disc, idx) => (
+                    <Badge key={idx} variant="outline" className="bg-white border-purple-300 text-purple-800">
+                      {disc}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <Alert className="border-purple-500 bg-purple-50">
+              <AlertDescription className="text-purple-800 text-xs">
+                <strong>💡 Nota:</strong> Esta é uma sugestão automatizada. O enfermeiro pode ajustar a classificação conforme julgamento clínico, 
+                marcando ou desmarcando discriminadores abaixo.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ECG PREVIEW */}
       {dadosPaciente.ecg_files && dadosPaciente.ecg_files.length > 0 && (
         <div className="border-l-4 border-l-blue-600 bg-blue-50 p-4 rounded">
           <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
@@ -184,92 +443,103 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
         </Alert>
       )}
 
-      <div className="space-y-6">
-        <div className="border-l-4 border-l-red-600 bg-red-50 p-4 rounded">
-          <h3 className="font-bold text-red-900 mb-3">Discriminadores Vermelhos (Ameaçadores da Vida)</h3>
-          <div className="space-y-2">
-            {discriminadores.vermelha.map((disc, i) => (
-              <div key={i} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`v-${i}`}
-                  checked={discriminadoresSelecionados.includes(disc)}
-                  onCheckedChange={() => toggleDiscriminador(disc)}
-                />
-                <Label htmlFor={`v-${i}`} className="cursor-pointer">{disc}</Label>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* DISCRIMINADORES MANUAIS */}
+      <div className="border-t-2 border-gray-300 pt-6">
+        <h3 className="text-xl font-bold text-gray-900 mb-4">
+          Confirmar ou Ajustar Discriminadores
+        </h3>
+        <p className="text-sm text-gray-600 mb-6">
+          Os discriminadores foram pré-selecionados pela IA. Você pode ajustá-los conforme necessário.
+        </p>
 
-        <div className="border-l-4 border-l-orange-600 bg-orange-50 p-4 rounded">
-          <h3 className="font-bold text-orange-900 mb-3">Discriminadores Laranja</h3>
-          <div className="space-y-2">
-            {discriminadores.laranja.map((disc, i) => (
-              <div key={i} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`l-${i}`}
-                  checked={discriminadoresSelecionados.includes(disc)}
-                  onCheckedChange={() => toggleDiscriminador(disc)}
-                  disabled={disc === "Alerta de provável IAM (triagem cardiológica)" && dadosPaciente.triagem_cardiologica?.alerta_iam}
-                />
-                <Label htmlFor={`l-${i}`} className="cursor-pointer">{disc}</Label>
-              </div>
-            ))}
+        <div className="space-y-6">
+          <div className="border-l-4 border-l-red-600 bg-red-50 p-4 rounded">
+            <h3 className="font-bold text-red-900 mb-3">Discriminadores Vermelhos (Ameaçadores da Vida)</h3>
+            <div className="space-y-2">
+              {discriminadores.vermelha.map((disc, i) => (
+                <div key={i} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`v-${i}`}
+                    checked={discriminadoresSelecionados.includes(disc)}
+                    onCheckedChange={() => toggleDiscriminador(disc)}
+                  />
+                  <Label htmlFor={`v-${i}`} className="cursor-pointer">{disc}</Label>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className="border-l-4 border-l-yellow-500 bg-yellow-50 p-4 rounded">
-          <h3 className="font-bold text-yellow-900 mb-3">Discriminadores Amarelos</h3>
-          <div className="space-y-2">
-            {discriminadores.amarela.map((disc, i) => (
-              <div key={i} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`a-${i}`}
-                  checked={discriminadoresSelecionados.includes(disc)}
-                  onCheckedChange={() => toggleDiscriminador(disc)}
-                />
-                <Label htmlFor={`a-${i}`} className="cursor-pointer">{disc}</Label>
-              </div>
-            ))}
+          <div className="border-l-4 border-l-orange-600 bg-orange-50 p-4 rounded">
+            <h3 className="font-bold text-orange-900 mb-3">Discriminadores Laranja</h3>
+            <div className="space-y-2">
+              {discriminadores.laranja.map((disc, i) => (
+                <div key={i} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`l-${i}`}
+                    checked={discriminadoresSelecionados.includes(disc)}
+                    onCheckedChange={() => toggleDiscriminador(disc)}
+                    disabled={disc === "Alerta de provável IAM (triagem cardiológica)" && dadosPaciente.triagem_cardiologica?.alerta_iam}
+                  />
+                  <Label htmlFor={`l-${i}`} className="cursor-pointer">{disc}</Label>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className="border-l-4 border-l-green-600 bg-green-50 p-4 rounded">
-          <h3 className="font-bold text-green-900 mb-3">Discriminadores Verdes</h3>
-          <div className="space-y-2">
-            {discriminadores.verde.map((disc, i) => (
-              <div key={i} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`g-${i}`}
-                  checked={discriminadoresSelecionados.includes(disc)}
-                  onCheckedChange={() => toggleDiscriminador(disc)}
-                />
-                <Label htmlFor={`g-${i}`} className="cursor-pointer">{disc}</Label>
-              </div>
-            ))}
+          <div className="border-l-4 border-l-yellow-500 bg-yellow-50 p-4 rounded">
+            <h3 className="font-bold text-yellow-900 mb-3">Discriminadores Amarelos</h3>
+            <div className="space-y-2">
+              {discriminadores.amarela.map((disc, i) => (
+                <div key={i} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`a-${i}`}
+                    checked={discriminadoresSelecionados.includes(disc)}
+                    onCheckedChange={() => toggleDiscriminador(disc)}
+                  />
+                  <Label htmlFor={`a-${i}`} className="cursor-pointer">{disc}</Label>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className="border-l-4 border-l-blue-600 bg-blue-50 p-4 rounded">
-          <h3 className="font-bold text-blue-900 mb-3">Discriminadores Azuis</h3>
-          <div className="space-y-2">
-            {discriminadores.azul.map((disc, i) => (
-              <div key={i} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`b-${i}`}
-                  checked={discriminadoresSelecionados.includes(disc)}
-                  onCheckedChange={() => toggleDiscriminador(disc)}
-                />
-                <Label htmlFor={`b-${i}`} className="cursor-pointer">{disc}</Label>
-              </div>
-            ))}
+          <div className="border-l-4 border-l-green-600 bg-green-50 p-4 rounded">
+            <h3 className="font-bold text-green-900 mb-3">Discriminadores Verdes</h3>
+            <div className="space-y-2">
+              {discriminadores.verde.map((disc, i) => (
+                <div key={i} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`g-${i}`}
+                    checked={discriminadoresSelecionados.includes(disc)}
+                    onCheckedChange={() => toggleDiscriminador(disc)}
+                  />
+                  <Label htmlFor={`g-${i}`} className="cursor-pointer">{disc}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="border-l-4 border-l-blue-600 bg-blue-50 p-4 rounded">
+            <h3 className="font-bold text-blue-900 mb-3">Discriminadores Azuis</h3>
+            <div className="space-y-2">
+              {discriminadores.azul.map((disc, i) => (
+                <div key={i} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`b-${i}`}
+                    checked={discriminadoresSelecionados.includes(disc)}
+                    onCheckedChange={() => toggleDiscriminador(disc)}
+                  />
+                  <Label htmlFor={`b-${i}`} className="cursor-pointer">{disc}</Label>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
+      {/* CLASSIFICAÇÃO FINAL */}
       {classificacao && (
         <div className="border-2 border-gray-300 rounded-lg p-6 bg-white">
-          <h3 className="font-bold text-lg mb-4">Classificação Determinada:</h3>
+          <h3 className="font-bold text-lg mb-4">Classificação Final Determinada:</h3>
           <div className="flex items-center gap-4 mb-4">
             <Badge className={`${corClassificacao[classificacao.cor]} text-white text-lg px-6 py-2`}>
               {classificacao.cor}
@@ -280,32 +550,6 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
         </div>
       )}
 
-      <div className="border-t pt-6">
-        <h3 className="font-bold text-lg mb-4">Identificação do Enfermeiro Responsável</h3>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="enfermeiro_nome">Nome Completo do Enfermeiro *</Label>
-            <Input
-              id="enfermeiro_nome"
-              value={enfermeiro.nome}
-              onChange={(e) => setEnfermeiro({...enfermeiro, nome: e.target.value})}
-              placeholder="Digite o nome completo"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="enfermeiro_coren">Número COREN *</Label>
-            <Input
-              id="enfermeiro_coren"
-              value={enfermeiro.coren}
-              onChange={(e) => setEnfermeiro({...enfermeiro, coren: e.target.value})}
-              placeholder="Ex: 123456"
-              required
-            />
-          </div>
-        </div>
-      </div>
-
       <div className="flex justify-between pt-4">
         <Button type="button" variant="outline" onClick={onAnterior}>
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -314,7 +558,7 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
         <Button 
           type="submit" 
           className="bg-red-600 hover:bg-red-700" 
-          disabled={!classificacao || !enfermeiro.nome || !enfermeiro.coren}
+          disabled={!classificacao}
         >
           Próxima Etapa
           <ArrowRight className="w-4 h-4 ml-2" />
