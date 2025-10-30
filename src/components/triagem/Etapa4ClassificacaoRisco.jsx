@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, ArrowRight, FileImage, Sparkles, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const discriminadores = {
@@ -15,7 +15,7 @@ const discriminadores = {
     "Hemorragia ativa",
     "Temperatura > 41°C",
     "Dor severa",
-    "PAS ≥ 180 mmHg ou PAD ≥ 120 mmHg",
+    "PAS ≥ 180 mmHg ou PAD ≥ 110 mmHg (com dor torácica)",
     "PAS < 100 mmHg",
     "SpO2 < 90%",
     "Diaforese intensa"
@@ -54,6 +54,76 @@ const temposAtendimento = {
   "Azul": "Aguardar até 240 minutos"
 };
 
+// Função para extrair PA sistólica e diastólica
+const extrairPA = (paString) => {
+  if (!paString) return { sistolica: null, diastolica: null };
+  const partes = paString.split("/");
+  return {
+    sistolica: partes[0] ? parseFloat(partes[0].trim()) : null,
+    diastolica: partes[1] ? parseFloat(partes[1].trim()) : null
+  };
+};
+
+// Função para identificar discriminadores automaticamente baseado nos dados vitais
+const identificarDiscriminadoresAutomaticos = (dadosPaciente) => {
+  const discriminadoresAuto = [];
+  const vitais = dadosPaciente.dados_vitais || {};
+  const triagem = dadosPaciente.triagem_cardiologica || {};
+
+  // Verificar se há dor torácica
+  const temDorToracica = triagem.dor_desconforto_peito ||
+                         triagem.dor_epigastrica ||
+                         triagem.alerta_iam;
+
+  // Verificar PA (usar maior valor entre esquerdo e direito)
+  const paEsq = extrairPA(vitais.pa_braco_esquerdo);
+  const paDir = extrairPA(vitais.pa_braco_direito);
+
+  const pasSistolica = Math.max(
+    paEsq.sistolica || 0,
+    paDir.sistolica || 0
+  );
+
+  const pasDiastolica = Math.max(
+    paEsq.diastolica || 0,
+    paDir.diastolica || 0
+  );
+
+  // VERMELHA: PAS ≥ 180 ou PAD ≥ 110 (COM dor torácica)
+  if (temDorToracica && (pasSistolica >= 180 || pasDiastolica >= 110)) {
+    discriminadoresAuto.push("PAS ≥ 180 mmHg ou PAD ≥ 110 mmHg (com dor torácica)");
+  }
+
+  // VERMELHA: PAS < 100 (hipotensão grave)
+  if (pasSistolica > 0 && pasSistolica < 100) {
+    discriminadoresAuto.push("PAS < 100 mmHg");
+  }
+
+  // VERMELHA/LARANJA: SpO2 < 90%
+  if (vitais.spo2 && vitais.spo2 < 90) {
+    discriminadoresAuto.push("SpO2 < 90%");
+  }
+
+  // VERMELHA/LARANJA: Temperatura > 41°C ou ≥ 41°C
+  if (vitais.temperatura && vitais.temperatura > 41) {
+    discriminadoresAuto.push("Temperatura > 41°C");
+    // "Temperatura ≥ 41°C" is also part of Laranja, if it's already >41, it also fits >=41
+    discriminadoresAuto.push("Temperatura ≥ 41°C");
+  }
+
+  // AMARELA: SpO2 entre 90% e 92%
+  if (vitais.spo2 && vitais.spo2 >= 90 && vitais.spo2 <= 92) {
+    discriminadoresAuto.push("SpO2 entre 90% e 92% (sem dispneia)");
+  }
+
+  // AMARELA: Temperatura entre 38.5°C e 40.9°C
+  if (vitais.temperatura && vitais.temperatura >= 38.5 && vitais.temperatura <= 40.9) {
+    discriminadoresAuto.push("Temperatura entre 38.5°C e 40.9°C");
+  }
+
+  return discriminadoresAuto;
+};
+
 export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onAnterior }) {
   const [discriminadoresSelecionados, setDiscriminadoresSelecionados] = useState([]);
   const [classificacao, setClassificacao] = useState(dadosPaciente.classificacao_risco || null);
@@ -62,6 +132,18 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
 
   // Análise automática ao entrar na etapa
   useEffect(() => {
+    // Identificar discriminadores automáticos baseados nos dados vitais
+    const discAuto = identificarDiscriminadoresAutomaticos(dadosPaciente);
+
+    // Se já existe classificação salva, usar os discriminadores salvos
+    if (dadosPaciente.classificacao_risco?.discriminadores) {
+      setDiscriminadoresSelecionados(dadosPaciente.classificacao_risco.discriminadores);
+    } else if (discAuto.length > 0) {
+      // Caso contrário, usar os identificados automaticamente
+      setDiscriminadoresSelecionados(discAuto);
+    }
+
+    // Executar análise da IA
     if (!sugestaoIA && !analisandoIA) {
       analisarComIA();
     }
@@ -69,7 +151,7 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
 
   const analisarComIA = async () => {
     setAnalisandoIA(true);
-    
+
     try {
       // Preparar dados para análise
       const dadosAnalise = {
@@ -119,6 +201,9 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
         }
       };
 
+      const triagem = dadosAnalise.triagem_cardiologica || {};
+      const temDorToracica = triagem.dor_desconforto_peito || triagem.dor_epigastrica || triagem.alerta_iam;
+
       const prompt = `
 Você é um sistema especialista em triagem de emergência usando o Protocolo Manchester e diretrizes da SBC 2025 para dor torácica.
 
@@ -128,13 +213,13 @@ DADOS DO PACIENTE:
 
 TRIAGEM CARDIOLÓGICA:
 ${dadosAnalise.triagem_cardiologica ? `
-- Dor/desconforto no peito: ${dadosAnalise.triagem_cardiologica.dor_desconforto_peito ? 'SIM' : 'NÃO'}
-- Duração > 10 min: ${dadosAnalise.triagem_cardiologica.duracao_maior_10min ? 'SIM' : 'NÃO'}
-- Irradiação: ${dadosAnalise.triagem_cardiologica.irradiacao ? 'SIM' : 'NÃO'}
-- Dor epigástrica: ${dadosAnalise.triagem_cardiologica.dor_epigastrica ? 'SIM' : 'NÃO'}
-- Dispneia/diaforese: ${dadosAnalise.triagem_cardiologica.dispneia_diaforese ? 'SIM' : 'NÃO'}
-- >50 anos/diabetes/DCV: ${dadosAnalise.triagem_cardiologica.idade_fatores_risco ? 'SIM' : 'NÃO'}
-- ALERTA IAM: ${dadosAnalise.triagem_cardiologica.alerta_iam ? 'SIM ⚠️' : 'NÃO'}
+- Dor/desconforto no peito: ${triagem.dor_desconforto_peito ? 'SIM' : 'NÃO'}
+- Duração > 10 min: ${triagem.duracao_maior_10min ? 'SIM' : 'NÃO'}
+- Irradiação: ${triagem.irradiacao ? 'SIM' : 'NÃO'}
+- Dor epigástrica: ${triagem.dor_epigastrica ? 'SIM' : 'NÃO'}
+- Dispneia/diaforese: ${triagem.dispneia_diaforese ? 'SIM' : 'NÃO'}
+- >50 anos/diabetes/DCV: ${triagem.idade_fatores_risco ? 'SIM' : 'NÃO'}
+- ALERTA IAM: ${triagem.alerta_iam ? 'SIM ⚠️' : 'NÃO'}
 ` : 'Não disponível'}
 
 DADOS VITAIS:
@@ -153,7 +238,7 @@ ${dadosAnalise.dados_vitais ? `
 PROTOCOLO MANCHESTER - CRITÉRIOS:
 
 VERMELHA (Ameaça à vida - Atendimento IMEDIATO):
-- PAS ≥ 180 mmHg ou PAD ≥ 120 mmHg
+- PAS ≥ 180 mmHg ou PAD ≥ 110 mmHg (APENAS se houver dor torácica/cardíaca)
 - PAS < 100 mmHg (hipotensão grave)
 - SpO2 < 90%
 - Temperatura > 41°C
@@ -183,7 +268,9 @@ VERDE (Pouco urgente - até 120 minutos):
 AZUL (Não urgente - até 240 minutos):
 - Sintomas há mais de 7 dias
 
-IMPORTANTE:
+IMPORTANTE - REGRA ESPECIAL PARA PRESSÃO ARTERIAL:
+${temDorToracica ? '⚠️ PACIENTE COM DOR TORÁCICA DETECTADA - Aplicar critério: PAS ≥ 180 ou PAD ≥ 110 para VERMELHA' : 'Paciente SEM dor torácica - Hipertensão isolada não é critério para VERMELHA'}
+
 1. Se QUALQUER critério de VERMELHA estiver presente → VERMELHA
 2. Se alerta de IAM → NO MÍNIMO LARANJA
 3. Analise TODOS os dados vitais cuidadosamente
@@ -201,24 +288,26 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
 
       if (resultado) {
         setSugestaoIA(resultado);
-        
-        // Pré-selecionar discriminadores sugeridos
+
+        // Mesclar discriminadores da IA com os já identificados automaticamente
         if (resultado.discriminadores_identificados && resultado.discriminadores_identificados.length > 0) {
-          setDiscriminadoresSelecionados(resultado.discriminadores_identificados);
+          const discAuto = identificarDiscriminadoresAutomaticos(dadosPaciente);
+          const todosDisc = [...new Set([...discAuto, ...resultado.discriminadores_identificados])];
+          setDiscriminadoresSelecionados(todosDisc);
         }
       }
 
     } catch (error) {
       console.error("Erro na análise por IA:", error);
     }
-    
+
     setAnalisandoIA(false);
   };
 
   useEffect(() => {
     if (discriminadoresSelecionados.length > 0) {
       let cor = "Azul";
-      
+
       if (discriminadoresSelecionados.some(d => discriminadores.vermelha.includes(d))) {
         cor = "Vermelha";
       } else if (discriminadoresSelecionados.some(d => discriminadores.laranja.includes(d))) {
@@ -232,7 +321,7 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
       if (dadosPaciente.triagem_cardiologica?.alerta_iam && (cor === "Azul" || cor === "Verde" || cor === "Amarela")) {
         cor = "Laranja";
       }
-      
+
       setClassificacao({
         cor,
         tempo_atendimento_max: temposAtendimento[cor],
@@ -257,13 +346,13 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     // Preparar dados para salvar
-    const dadosParaSalvar = { 
+    const dadosParaSalvar = {
       classificacao_risco: classificacao,
-      sugestao_ia_classificacao: sugestaoIA // Salvar sugestão da IA também
+      sugestao_ia_classificacao: sugestaoIA
     };
-    
+
     onProxima(dadosParaSalvar);
   };
 
@@ -283,12 +372,55 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
     "Azul": "bg-blue-100 text-blue-800 border-blue-300"
   };
 
+  // Exibir resumo dos dados vitais cadastrados
+  const vitais = dadosPaciente.dados_vitais || {};
+  const paEsq = extrairPA(vitais.pa_braco_esquerdo);
+  const paDir = extrairPA(vitais.pa_braco_direito);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Classificação de Risco</h2>
         <p className="text-gray-600">Sistema Manchester com análise automatizada por IA</p>
       </div>
+
+      {/* RESUMO DOS DADOS VITAIS */}
+      <Card className="border-l-4 border-l-blue-600 shadow-md bg-blue-50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-blue-900">📊 Dados Vitais Cadastrados (Etapa 3)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+            <div className="bg-white p-3 rounded border">
+              <p className="text-gray-600 text-xs mb-1">PA Esquerdo</p>
+              <p className="font-bold text-gray-900">{vitais.pa_braco_esquerdo || '-'}</p>
+              {paEsq.sistolica && (
+                <p className="text-xs text-gray-600">({paEsq.sistolica}/{paEsq.diastolica})</p>
+              )}
+            </div>
+            <div className="bg-white p-3 rounded border">
+              <p className="text-gray-600 text-xs mb-1">PA Direito</p>
+              <p className="font-bold text-gray-900">{vitais.pa_braco_direito || '-'}</p>
+              {paDir.sistolica && (
+                <p className="text-xs text-gray-600">({paDir.sistolica}/{paDir.diastolica})</p>
+              )}
+            </div>
+            <div className="bg-white p-3 rounded border">
+              <p className="text-gray-600 text-xs mb-1">SpO2</p>
+              <p className="font-bold text-gray-900">{vitais.spo2 ? `${vitais.spo2}%` : '-'}</p>
+            </div>
+            <div className="bg-white p-3 rounded border">
+              <p className="text-gray-600 text-xs mb-1">Temperatura</p>
+              <p className="font-bold text-gray-900">{vitais.temperatura ? `${vitais.temperatura}°C` : '-'}</p>
+            </div>
+          </div>
+          <Alert className="mt-3 border-blue-400 bg-white">
+            <AlertDescription className="text-blue-800 text-xs">
+              ✓ Os discriminadores relacionados a estes valores foram <strong>automaticamente pré-marcados</strong> abaixo
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
 
       {/* SUGESTÃO AUTOMATIZADA DA IA */}
       {analisandoIA && (
@@ -391,7 +523,7 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
 
             <Alert className="border-purple-500 bg-purple-50">
               <AlertDescription className="text-purple-800 text-xs">
-                <strong>💡 Nota:</strong> Esta é uma sugestão automatizada. O enfermeiro pode ajustar a classificação conforme julgamento clínico, 
+                <strong>💡 Nota:</strong> Esta é uma sugestão automatizada. O enfermeiro pode ajustar a classificação conforme julgamento clínico,
                 marcando ou desmarcando discriminadores abaixo.
               </AlertDescription>
             </Alert>
@@ -409,9 +541,9 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {dadosPaciente.ecg_files.map((url, index) => (
               <div key={index} className="border rounded overflow-hidden bg-white">
-                <img 
-                  src={url} 
-                  alt={`ECG ${index + 1}`} 
+                <img
+                  src={url}
+                  alt={`ECG ${index + 1}`}
                   className="w-full h-48 object-contain"
                   onError={(e) => {
                     e.target.style.display = 'none';
@@ -449,7 +581,7 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
           Confirmar ou Ajustar Discriminadores
         </h3>
         <p className="text-sm text-gray-600 mb-6">
-          Os discriminadores foram pré-selecionados pela IA. Você pode ajustá-los conforme necessário.
+          ✓ Discriminadores baseados em dados vitais foram <strong>pré-marcados automaticamente</strong>. Você pode ajustá-los conforme necessário.
         </p>
 
         <div className="space-y-6">
@@ -555,9 +687,9 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
           <ArrowLeft className="w-4 h-4 mr-2" />
           Anterior
         </Button>
-        <Button 
-          type="submit" 
-          className="bg-red-600 hover:bg-red-700" 
+        <Button
+          type="submit"
+          className="bg-red-600 hover:bg-red-700"
           disabled={!classificacao}
         >
           Próxima Etapa
