@@ -274,7 +274,6 @@ ${temDorToracica ? '⚠️ PACIENTE COM DOR TORÁCICA DETECTADA - Aplicar crité
 2. Se alerta de IAM → NO MÍNIMO LARANJA
 3. Analise TODOS os dados vitais cuidadosamente
 4. Seja conservador - na dúvida, classifique para cima
-5. Liste discriminadores específicos baseados nos DADOS REAIS
 6. Forneça justificativa clara citando valores específicos
 
 Analise e retorne a classificação de risco adequada com justificativa detalhada.
