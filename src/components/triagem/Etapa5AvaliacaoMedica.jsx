@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -5,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, ArrowRight, FileImage, Activity, User, Stethoscope, AlertTriangle, Edit } from "lucide-react";
+import { ArrowLeft, ArrowRight, FileImage, Activity, User, Stethoscope, AlertTriangle, Edit, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
@@ -115,73 +116,90 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-purple-900 text-xl">
               <Stethoscope className="w-6 h-6" />
-              📊 Dados Vitais Atuais
+              📊 Atualização de Dados Vitais
             </CardTitle>
-            <Button
-              type="button"
-              onClick={() => setEditandoDadosVitais(!editandoDadosVitais)}
-              variant="outline"
-              size="sm"
-              className="text-purple-700"
-            >
-              <Edit className="w-4 h-4 mr-2" />
-              {editandoDadosVitais ? "Cancelar Edição" : "Atualizar Dados Vitais"}
-            </Button>
+            {!editandoDadosVitais ? (
+              <Button
+                type="button"
+                onClick={() => setEditandoDadosVitais(true)}
+                className="bg-purple-600 hover:bg-purple-700 gap-2"
+              >
+                <Edit className="w-4 h-4" />
+                Atualizar Dados Vitais
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                onClick={() => setEditandoDadosVitais(false)}
+                variant="outline"
+                className="text-purple-700 border-purple-300"
+              >
+                Cancelar Edição
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent className="p-6">
           {!editandoDadosVitais ? (
             // VISUALIZAÇÃO DOS DADOS VITAIS
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="p-3 bg-white rounded border">
-                <p className="text-xs text-gray-600 mb-1">PA Esquerdo</p>
-                <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.pa_braco_esquerdo || "-"} mmHg</p>
+            <>
+              <div className="grid md:grid-cols-3 gap-4 mb-4">
+                <div className="p-3 bg-white rounded border">
+                  <p className="text-xs text-gray-600 mb-1">PA Esquerdo</p>
+                  <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.pa_braco_esquerdo || "-"} mmHg</p>
+                </div>
+                <div className="p-3 bg-white rounded border">
+                  <p className="text-xs text-gray-600 mb-1">PA Direito</p>
+                  <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.pa_braco_direito || "-"} mmHg</p>
+                </div>
+                <div className="p-3 bg-white rounded border">
+                  <p className="text-xs text-gray-600 mb-1">FC</p>
+                  <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.frequencia_cardiaca || "-"} bpm</p>
+                </div>
+                <div className="p-3 bg-white rounded border">
+                  <p className="text-xs text-gray-600 mb-1">FR</p>
+                  <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.frequencia_respiratoria || "-"} irpm</p>
+                </div>
+                <div className="p-3 bg-white rounded border">
+                  <p className="text-xs text-gray-600 mb-1">Temperatura</p>
+                  <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.temperatura || "-"} °C</p>
+                </div>
+                <div className="p-3 bg-white rounded border">
+                  <p className="text-xs text-gray-600 mb-1">SpO2</p>
+                  <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.spo2 || "-"}%</p>
+                </div>
+                <div className="p-3 bg-white rounded border">
+                  <p className="text-xs text-gray-600 mb-1">Glicemia</p>
+                  <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.glicemia_capilar || "-"} mg/dL</p>
+                </div>
+                <div className="p-3 bg-blue-50 rounded border border-blue-200">
+                  <p className="text-xs text-blue-800 mb-1 font-semibold">Suporte Respiratório</p>
+                  <p className="text-sm font-bold text-blue-900">
+                    {dadosVitaisMedico.suporte_respiratorio === "ar_ambiente" && "Ar Ambiente"}
+                    {dadosVitaisMedico.suporte_respiratorio === "oxigenio_suplementar" && `O2 ${dadosVitaisMedico.litros_o2 || "?"}L/min`}
+                    {dadosVitaisMedico.suporte_respiratorio === "ventilacao_mecanica" && "Ventilação Mecânica"}
+                  </p>
+                </div>
+                <div className="p-3 bg-orange-50 rounded border border-orange-200">
+                  <p className="text-xs text-orange-800 mb-1 font-semibold">DVA</p>
+                  <p className="text-sm font-bold text-orange-900">
+                    {dadosVitaisMedico.uso_dva ? dadosVitaisMedico.dva_tipo || "Em uso" : "Não"}
+                  </p>
+                </div>
+                <div className="p-3 bg-purple-50 rounded border border-purple-200">
+                  <p className="text-xs text-purple-800 mb-1 font-semibold">Sedação</p>
+                  <p className="text-sm font-bold text-purple-900">
+                    {dadosVitaisMedico.uso_sedacao ? dadosVitaisMedico.sedacao_tipo || "Em uso" : "Não"}
+                  </p>
+                </div>
               </div>
-              <div className="p-3 bg-white rounded border">
-                <p className="text-xs text-gray-600 mb-1">PA Direito</p>
-                <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.pa_braco_direito || "-"} mmHg</p>
-              </div>
-              <div className="p-3 bg-white rounded border">
-                <p className="text-xs text-gray-600 mb-1">FC</p>
-                <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.frequencia_cardiaca || "-"} bpm</p>
-              </div>
-              <div className="p-3 bg-white rounded border">
-                <p className="text-xs text-gray-600 mb-1">FR</p>
-                <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.frequencia_respiratoria || "-"} irpm</p>
-              </div>
-              <div className="p-3 bg-white rounded border">
-                <p className="text-xs text-gray-600 mb-1">Temperatura</p>
-                <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.temperatura || "-"} °C</p>
-              </div>
-              <div className="p-3 bg-white rounded border">
-                <p className="text-xs text-gray-600 mb-1">SpO2</p>
-                <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.spo2 || "-"}%</p>
-              </div>
-              <div className="p-3 bg-white rounded border">
-                <p className="text-xs text-gray-600 mb-1">Glicemia</p>
-                <p className="text-lg font-bold text-gray-900">{dadosVitaisMedico.glicemia_capilar || "-"} mg/dL</p>
-              </div>
-              <div className="p-3 bg-blue-50 rounded border border-blue-200">
-                <p className="text-xs text-blue-800 mb-1 font-semibold">Suporte Respiratório</p>
-                <p className="text-sm font-bold text-blue-900">
-                  {dadosVitaisMedico.suporte_respiratorio === "ar_ambiente" && "Ar Ambiente"}
-                  {dadosVitaisMedico.suporte_respiratorio === "oxigenio_suplementar" && `O2 ${dadosVitaisMedico.litros_o2 || "?"}L/min`}
-                  {dadosVitaisMedico.suporte_respiratorio === "ventilacao_mecanica" && "Ventilação Mecânica"}
-                </p>
-              </div>
-              <div className="p-3 bg-orange-50 rounded border border-orange-200">
-                <p className="text-xs text-orange-800 mb-1 font-semibold">DVA</p>
-                <p className="text-sm font-bold text-orange-900">
-                  {dadosVitaisMedico.uso_dva ? dadosVitaisMedico.dva_tipo || "Em uso" : "Não"}
-                </p>
-              </div>
-              <div className="p-3 bg-purple-50 rounded border border-purple-200">
-                <p className="text-xs text-purple-800 mb-1 font-semibold">Sedação</p>
-                <p className="text-sm font-bold text-purple-900">
-                  {dadosVitaisMedico.uso_sedacao ? dadosVitaisMedico.sedacao_tipo || "Em uso" : "Não"}
-                </p>
-              </div>
-            </div>
+              <Alert className="border-purple-400 bg-purple-50">
+                <AlertDescription className="text-purple-800 text-sm flex items-center gap-2">
+                  <Edit className="w-4 h-4" />
+                  <span>Clique em <strong>"Atualizar Dados Vitais"</strong> acima para modificar PA, SpO2, oxigenoterapia, DVA e sedação</span>
+                </AlertDescription>
+              </Alert>
+            </>
           ) : (
             // FORMULÁRIO DE EDIÇÃO DOS DADOS VITAIS
             <div className="space-y-6">
@@ -265,7 +283,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
 
               {/* Suporte Respiratório */}
               <div className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
-                <Label className="text-base font-semibold text-blue-900 mb-3 block">Suporte Respiratório</Label>
+                <Label className="text-base font-semibold text-blue-900 mb-3 block">🫁 Suporte Respiratório</Label>
                 <RadioGroup
                   value={dadosVitaisMedico.suporte_respiratorio}
                   onValueChange={(value) => setDadosVitaisMedico({...dadosVitaisMedico, suporte_respiratorio: value, litros_o2: value === "ar_ambiente" ? "" : dadosVitaisMedico.litros_o2})}
@@ -316,7 +334,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                     onCheckedChange={(checked) => setDadosVitaisMedico({...dadosVitaisMedico, uso_dva: checked, dva_tipo: checked ? dadosVitaisMedico.dva_tipo : ""})}
                   />
                   <Label htmlFor="uso_dva" className="cursor-pointer font-semibold text-orange-900 text-base">
-                    Uso de Drogas Vasoativas (DVA)
+                    💉 Uso de Drogas Vasoativas (DVA)
                   </Label>
                 </div>
                 {dadosVitaisMedico.uso_dva && (
@@ -342,7 +360,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                     onCheckedChange={(checked) => setDadosVitaisMedico({...dadosVitaisMedico, uso_sedacao: checked, sedacao_tipo: checked ? dadosVitaisMedico.sedacao_tipo : ""})}
                   />
                   <Label htmlFor="uso_sedacao" className="cursor-pointer font-semibold text-purple-900 text-base">
-                    Uso de Sedação
+                    💊 Uso de Sedação
                   </Label>
                 </div>
                 {dadosVitaisMedico.uso_sedacao && (
@@ -362,9 +380,9 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
               <Button
                 type="button"
                 onClick={() => setEditandoDadosVitais(false)}
-                className="w-full bg-green-600 hover:bg-green-700"
+                className="w-full bg-green-600 hover:bg-green-700 gap-2"
               >
-                <Activity className="w-4 h-4 mr-2" />
+                <CheckCircle2 className="w-4 h-4" />
                 Confirmar Atualização dos Dados Vitais
               </Button>
             </div>
