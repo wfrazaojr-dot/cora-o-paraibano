@@ -25,7 +25,7 @@ const discriminadores = {
     "Dispneia aguda",
     "Pulsos irregulares",
     "Dor intensa",
-    "Temperatura ≥ 41°C" // SpO2 < 90% removed from here as per outline
+    "Temperatura ≥ 41°C"
   ],
   amarela: [
     "SpO2 entre 90% e 92% (sem dispneia)",
@@ -174,7 +174,7 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
             items: { type: "string" },
             description: "Lista de discriminadores identificados automaticamente baseado nos dados"
           },
-          justificativa: {
+          justificativa: { // Ensuring 'justificativa' is present as it's used in UI and expected by prompt
             type: "string",
             description: "Justificativa clara e detalhada para a classificação sugerida, citando dados específicos"
           },
@@ -252,6 +252,7 @@ LARANJA (Muito urgente - até 10 minutos):
 - Temperatura ≥ 41°C
 - Dor intensa
 - Pulsos irregulares
+- NÃO INCLUI SpO2 < 90% (isso é VERMELHA)
 
 AMARELA (Urgente - até 60 minutos):
 - SpO2 90-92% sem dispneia
@@ -270,11 +271,14 @@ AZUL (Não urgente - até 240 minutos):
 IMPORTANTE - REGRA ESPECIAL PARA PRESSÃO ARTERIAL:
 ${temDorToracica ? '⚠️ PACIENTE COM DOR TORÁCICA DETECTADA - Aplicar critério: PAS ≥ 180 ou PAD ≥ 110 para VERMELHA' : 'Paciente SEM dor torácica - Hipertensão isolada não é critério para VERMELHA'}
 
+ATENÇÃO: SpO2 < 90% é APENAS VERMELHA, NÃO é discriminador LARANJA.
+
 1. Se QUALQUER critério de VERMELHA estiver presente → VERMELHA
 2. Se alerta de IAM → NO MÍNIMO LARANJA
 3. Analise TODOS os dados vitais cuidadosamente
 4. Seja conservador - na dúvida, classifique para cima
-6. Forneça justificativa clara citando valores específicos
+5. Liste discriminadores específicos baseados nos DADOS REAIS
+6. Forneça justificativa clara e detalhada para a classificação sugerida, citando dados específicos
 
 Analise e retorne a classificação de risco adequada com justificativa detalhada.
 `;
