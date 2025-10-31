@@ -23,10 +23,9 @@ const discriminadores = {
   laranja: [
     "Alerta de provável IAM (triagem cardiológica)",
     "Dispneia aguda",
-    "SpO2 < 90%",
     "Pulsos irregulares",
     "Dor intensa",
-    "Temperatura ≥ 41°C"
+    "Temperatura ≥ 41°C" // SpO2 < 90% removed from here as per outline
   ],
   amarela: [
     "SpO2 entre 90% e 92% (sem dispneia)",
@@ -99,7 +98,7 @@ const identificarDiscriminadoresAutomaticos = (dadosPaciente) => {
     discriminadoresAuto.push("PAS < 100 mmHg");
   }
 
-  // VERMELHA/LARANJA: SpO2 < 90%
+  // VERMELHA: SpO2 < 90%
   if (vitais.spo2 && vitais.spo2 < 90) {
     discriminadoresAuto.push("SpO2 < 90%");
   }
@@ -229,7 +228,7 @@ ${dadosAnalise.dados_vitais ? `
 - FC: ${dadosAnalise.dados_vitais.frequencia_cardiaca || 'N/A'} bpm
 - FR: ${dadosAnalise.dados_vitais.frequencia_respiratoria || 'N/A'} irpm
 - Temperatura: ${dadosAnalise.dados_vitais.temperatura || 'N/A'} °C
-- SpO2: ${dadosAnalise.dados_vitais.spo2 || 'N/A'}% ${dadosAnalise.dados_vitais.spo2_oxigenio === 'o2_suplementar' ? `(O2 ${dadosAnalise.dados_vitais.spo2_litros_o2}L/min)` : '(ar ambiente)'}
+- SpO2: ${dadosAnalise.dados_vitais.spo2 || 'N/A'}%
 - Glicemia: ${dadosAnalise.dados_vitais.glicemia_capilar || 'N/A'} mg/dL
 - Diabetes: ${dadosAnalise.dados_vitais.diabetes ? 'SIM' : 'NÃO'}
 - DPOC: ${dadosAnalise.dados_vitais.dpoc ? 'SIM' : 'NÃO'}
@@ -250,9 +249,9 @@ VERMELHA (Ameaça à vida - Atendimento IMEDIATO):
 LARANJA (Muito urgente - até 10 minutos):
 - Alerta de provável IAM (qualquer SIM na triagem cardiológica)
 - Dispneia aguda
-- SpO2 < 90%
 - Temperatura ≥ 41°C
 - Dor intensa
+- Pulsos irregulares
 
 AMARELA (Urgente - até 60 minutos):
 - SpO2 90-92% sem dispneia
