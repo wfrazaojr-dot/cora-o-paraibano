@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -36,7 +35,6 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
   const gerarRelatorioPDF = async () => {
     setGerandoPDF(true);
     try {
-      // Gerar HTML do relatório
       const htmlRelatorio = `
 <!DOCTYPE html>
 <html>
@@ -115,8 +113,8 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
     <h2>ELETROCARDIOGRAMA (ECG)</h2>
     <div class="tempo-ecg">
       <h3 style="margin-top: 0;">⏱️ TEMPOS DO ECG</h3>
-      <div class="info-row"><span class="label">Hora da Triagem:</span> ${dadosPaciente.data_hora_inicio_triagem ? format(new Date(dadosPaciente.data_hora_inicio_triagem), "HH:mm", { locale: ptBR }) : "-"}</div>
-      <div class="info-row"><span class="label">Hora do ECG:</span> ${dadosPaciente.data_hora_ecg ? format(new Date(dadosPaciente.data_hora_ecg), "HH:mm", { locale: ptBR }) : "-"}</div>
+      <div class="info-row"><span class="label">Data/Hora da Triagem:</span> ${dadosPaciente.data_hora_inicio_triagem ? format(new Date(dadosPaciente.data_hora_inicio_triagem), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR }) : "-"}</div>
+      <div class="info-row"><span class="label">Data/Hora do ECG:</span> ${dadosPaciente.data_hora_ecg ? format(new Date(dadosPaciente.data_hora_ecg), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR }) : "-"}</div>
       <div class="info-row"><span class="label">Tempo Triagem → ECG:</span> <strong>${dadosPaciente.tempo_triagem_ecg_minutos || "-"} minutos</strong> ${dadosPaciente.tempo_triagem_ecg_minutos <= 10 ? "✓ Dentro da meta" : "⚠️ Acima da meta"}</div>
     </div>
     
@@ -216,7 +214,6 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
       link.click();
       document.body.removeChild(link);
 
-      // Tentar abrir para impressão, mas com verificação de erro
       try {
         const printWindow = window.open(url);
         if (printWindow) {
@@ -326,8 +323,8 @@ ${dadosPaciente.unidade_saude || ""}
           <AlertDescription className="text-blue-800">
             <div className="space-y-1">
               <p><strong>⏱️ Tempos do ECG:</strong></p>
-              <p>• Hora da Triagem: <strong>{format(new Date(dadosPaciente.data_hora_inicio_triagem), "HH:mm", { locale: ptBR })}</strong></p>
-              <p>• Hora do ECG: <strong>{format(new Date(dadosPaciente.data_hora_ecg), "HH:mm", { locale: ptBR })}</strong></p>
+              <p>• Data/Hora da Triagem: <strong>{format(new Date(dadosPaciente.data_hora_inicio_triagem), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</strong></p>
+              <p>• Data/Hora do ECG: <strong>{format(new Date(dadosPaciente.data_hora_ecg), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</strong></p>
               <p>• Tempo Triagem → ECG: <strong>{dadosPaciente.tempo_triagem_ecg_minutos} minutos</strong> {dadosPaciente.tempo_triagem_ecg_minutos <= 10 ? "✓ Dentro da meta" : "⚠️ Acima da meta"}</p>
             </div>
           </AlertDescription>
