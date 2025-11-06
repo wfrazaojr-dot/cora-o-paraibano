@@ -87,10 +87,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
     });
   };
 
-  const tempoTriagemAvaliacao = dadosPaciente.data_hora_inicio_triagem && avaliacao.data_hora_avaliacao
-    ? Math.round((new Date(avaliacao.data_hora_avaliacao) - new Date(dadosPaciente.data_hora_inicio_triagem)) / 60000)
-    : null;
-
   // CALCULAR TEMPO DE DOR (do início dos sintomas até agora)
   const tempoDor = dadosPaciente.data_hora_inicio_sintomas
     ? differenceInMinutes(new Date(), new Date(dadosPaciente.data_hora_inicio_sintomas))
@@ -102,16 +98,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Avaliação Médica</h2>
         <p className="text-gray-600">Registro da avaliação clínica e diagnósticos</p>
       </div>
-
-      {/* ALERTA DE TEMPO */}
-      {tempoTriagemAvaliacao !== null && (
-        <Alert className={tempoTriagemAvaliacao <= 30 ? "border-green-500 bg-green-50" : "border-orange-500 bg-orange-50"}>
-          <AlertDescription className={tempoTriagemAvaliacao <= 30 ? "text-green-800" : "text-orange-800"}>
-            <strong>⏱️ Tempo Triagem → Avaliação Médica: {tempoTriagemAvaliacao} minutos</strong>
-            {tempoTriagemAvaliacao <= 30 ? " ✓ Dentro da meta" : " ⚠️ Acima da meta de 30 minutos"}
-          </AlertDescription>
-        </Alert>
-      )}
 
       {/* ALERTA DE TEMPO DE DOR */}
       {tempoDor !== null && (
@@ -131,7 +117,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
 
       {/* ============================================ */}
       {/* DADOS VITAIS - ATUALIZAÇÃO MÉDICA */}
-      {============================================ */}
+      {/* ============================================ */}
       <Card className="shadow-lg border-l-4 border-l-purple-600">
         <CardHeader className="bg-purple-50 border-b">
           <div className="flex items-center justify-between">
@@ -217,7 +203,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
               <Alert className="border-purple-400 bg-purple-50">
                 <AlertDescription className="text-purple-800 text-sm flex items-center gap-2">
                   <Edit className="w-4 h-4" />
-                  <span>Clique em <strong>"Atualizar Dados Vitais"</strong> acima para modificar PA, SpO2, oxigenoterapia, DVA e sedação</span>
+                  <span>Clique em <strong>"Atualizar Dados Vitais"</strong> acima para modificar</span>
                 </AlertDescription>
               </Alert>
             </>
@@ -404,7 +390,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                 className="w-full bg-green-600 hover:bg-green-700 gap-2"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                Confirmar Atualização dos Dados Vitais
+                Confirmar Atualização
               </Button>
             </div>
           )}
@@ -443,44 +429,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
               <div>
                 <span className="text-gray-700 font-semibold">Prontuário:</span>
                 <p className="font-medium text-gray-900">{dadosPaciente.prontuario || '-'}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* ========== ETAPA 2: TRIAGEM CARDIOLÓGICA ========== */}
-          <div className="border-l-4 border-l-red-500 pl-4 bg-red-50 p-4 rounded">
-            <h3 className="font-bold text-red-900 mb-3 text-lg flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5" />
-              2️⃣ TRIAGEM CARDIOLÓGICA
-            </h3>
-            {dadosPaciente.triagem_cardiologica?.alerta_iam && (
-              <div className="mb-3 p-3 bg-red-200 border-2 border-red-400 rounded">
-                <p className="text-red-900 font-bold text-base">⚠️ ALERTA DE PROVÁVEL IAM DETECTADO</p>
-              </div>
-            )}
-          </div>
-
-          {/* ========== ECG E ANÁLISE ========== */}
-          {dadosPaciente.ecg_files && dadosPaciente.ecg_files.length > 0 && (
-            <div className="border-l-4 border-l-purple-500 pl-4 bg-purple-50 p-4 rounded">
-              <h4 className="font-bold text-purple-900 mb-3 text-lg flex items-center gap-2">
-                <FileImage className="w-5 h-5" />
-                📊 ECGs Anexados
-              </h4>
-            </div>
-          )}
-
-          {/* ========== ETAPA 4: CLASSIFICAÇÃO DE RISCO ========== */}
-          <div className="border-l-4 border-l-orange-500 pl-4 bg-orange-50 p-4 rounded">
-            <h3 className="font-bold text-orange-900 mb-3 text-lg">4️⃣ CLASSIFICAÇÃO DE RISCO</h3>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 bg-white p-3 rounded">
-                <span className="text-gray-700 font-semibold">Classificação:</span>
-                {dadosPaciente.classificacao_risco?.cor && (
-                  <Badge className={`${corClassificacao[dadosPaciente.classificacao_risco.cor]} border-2 font-bold text-lg px-4 py-2`}>
-                    {dadosPaciente.classificacao_risco.cor}
-                  </Badge>
-                )}
               </div>
             </div>
           </div>
