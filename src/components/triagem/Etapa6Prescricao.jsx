@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, ArrowRight, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Plus, Trash2, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const medicamentosComuns = [
@@ -14,9 +14,10 @@ const medicamentosComuns = [
   { medicamento: "Atorvastatina", dose: "40-80 mg", via: "VO" },
   { medicamento: "Rosuvastatina", dose: "20-40 mg", via: "VO" },
   { medicamento: "Metoprolol", dose: "25-50 mg", via: "VO" },
-  { medicamento: "Captopril", dose: "6,25-12,5 mg", via: "VO" },
+  { medicamento: "Captopril", dose: "25-50 mg", via: "VO" },
   { medicamento: "Enalapril", dose: "2,5-5 mg", via: "VO" },
   { medicamento: "Morfina", dose: "2-4 mg", via: "EV" },
+  { medicamento: "Fentanil", dose: "25-50 mcg", via: "EV" },
   { medicamento: "Nitroglicerina", dose: "50 mg/250 ml (diluir)", via: "EV" },
   { medicamento: "Nitrato (Dinitrato de Isossorbida)", dose: "5 mg", via: "SL" },
   { medicamento: "Nitrato (Mononitrato de Isossorbida)", dose: "5 mg", via: "SL" },
@@ -69,6 +70,18 @@ export default function Etapa6Prescricao({ dadosPaciente, onProxima, onAnterior 
       <Alert className="border-blue-500 bg-blue-50">
         <AlertDescription className="text-blue-800">
           <strong>Protocolo SCA (adultos/idosos):</strong> DAPT (AAS + P2Y12), Betabloqueadores, IECA/BRA, Estatinas de alta potência
+        </AlertDescription>
+      </Alert>
+
+      <Alert className="border-red-500 bg-red-50">
+        <AlertTriangle className="h-5 w-5 text-red-600" />
+        <AlertDescription className="text-red-800">
+          <strong>⚠️ ALERTA - NITRATOS:</strong> Evite nos casos de:
+          <ul className="list-disc pl-5 mt-2 space-y-1">
+            <li>PAS {'<'} 90 mmHg</li>
+            <li>Suspeita de IAM de Ventrículo Direito (VD)</li>
+            <li>Uso de Inibidor da Fosfodiesterase nas últimas 24-48h (Sildenafil, Tadalafil, Vardenafil)</li>
+          </ul>
         </AlertDescription>
       </Alert>
 

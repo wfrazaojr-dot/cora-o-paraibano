@@ -227,23 +227,48 @@ export default function Protocolos() {
             <CardHeader className="bg-gray-50">
               <CardTitle className="flex items-center gap-2">
                 <FileText className="w-5 h-5" />
-                Referências e Créditos
+                Referências Bibliográficas e Créditos
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="space-y-2 text-sm text-gray-700">
-                <p>
-                  <strong>Protocolo Principal:</strong> Diretriz Brasileira de Atendimento à Dor Torácica 
-                  na Unidade de Emergência – 2025 (de Barros e Silva et al.)
-                </p>
-                <p>
-                  <strong>Sistema de Classificação:</strong> Adaptação do Sistema Manchester de Classificação de Risco
-                </p>
-                <p className="mt-4 pt-4 border-t">
-                  <strong>Desenvolvido por:</strong> Walber Alves Frazão Júnior<br />
-                  Enfermeiro Emergencista - COREN 110.238<br />
-                  Pós-graduado em Cardiologia, Neurologia e Auditoria em Serviços de Saúde
-                </p>
+              <div className="space-y-4 text-sm text-gray-700">
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-2">Protocolos Principais:</h4>
+                  
+                  <div className="space-y-3 pl-4">
+                    <div>
+                      <p className="font-semibold">1. Manual de Classificação de Risco</p>
+                      <p className="text-gray-600">DISTRITO FEDERAL. Secretaria de Saúde. <strong>Manual de Classificação de Risco.</strong> Brasília: Governo do Distrito Federal, 2023. Disponível em: <a href="https://www.saude.df.gov.br" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">https://www.saude.df.gov.br</a>. Acesso em: jan. 2025.</p>
+                    </div>
+
+                    <div>
+                      <p className="font-semibold">2. Sistema Manchester de Classificação de Risco</p>
+                      <p className="text-gray-600">MACKWAY-JONES, Kevin; MARSDEN, Janet; WINDLE, Jill. <strong>Sistema Manchester de Classificação de Risco.</strong> 2. ed. Belo Horizonte: Grupo Brasileiro de Classificação de Risco, 2017.</p>
+                    </div>
+
+                    <div>
+                      <p className="font-semibold">3. Diretriz Brasileira - SBC 2025</p>
+                      <p className="text-gray-600">DE BARROS E SILVA, P. G. M. et al. <strong>Diretriz Brasileira de Atendimento à Dor Torácica na Unidade de Emergência – 2025.</strong> Arquivos Brasileiros de Cardiologia, v. 123, n. 1, 2025. Disponível em: <a href="https://www.scielo.br/j/abc" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">https://www.scielo.br/j/abc</a>. Acesso em: jan. 2025.</p>
+                    </div>
+
+                    <div>
+                      <p className="font-semibold">4. Diretriz ACC/AHA/ACEP/NAEMSP/SCAI 2025</p>
+                      <p className="text-gray-600">AMERICAN COLLEGE OF CARDIOLOGY et al. <strong>2025 ACC/AHA/ACEP/NAEMSP/SCAI Guideline for the Management of Patients With Acute Coronary Syndromes:</strong> A Report of the American College of Cardiology/American Heart Association Joint Committee on Clinical Practice Guidelines. Circulation, 2025. Disponível em: <a href="https://www.ahajournals.org/journal/circ" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">https://www.ahajournals.org/journal/circ</a>. Acesso em: jan. 2025.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 pt-6 border-t border-gray-300">
+                  <h4 className="font-bold text-gray-900 mb-2">Desenvolvido por:</h4>
+                  <p><strong>Walber Alves Frazão Júnior</strong></p>
+                  <p>Enfermeiro Emergencista - COREN 110.238</p>
+                  <p className="text-gray-600">Pós-graduado em Cardiologia, Neurologia e Auditoria em Serviços de Saúde</p>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-gray-300 text-xs text-gray-600">
+                  <p>© 2025 - Todos os direitos reservados</p>
+                  <p>Uso, cópia ou venda não autorizados são proibidos por lei</p>
+                </div>
               </div>
             </CardContent>
           </Card>

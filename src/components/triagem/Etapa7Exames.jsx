@@ -6,9 +6,12 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, ArrowRight, Plus, Trash2 } from "lucide-react";
 
 const examesComuns = [
-  "Troponina ultrassensível (0h)",
-  "Troponina ultrassensível (1h)",
-  "Troponina ultrassensível (3h)",
+  "Troponina Ultrassensível (0h)",
+  "Troponina Ultrassensível (1h)",
+  "Troponina Ultrassensível (2h)",
+  "Troponina Convencional (0h)",
+  "Troponina Convencional (3h)",
+  "Troponina Convencional (6h)",
   "Hemograma completo",
   "Creatinina e ureia",
   "Eletrólitos (Na, K, Mg)",
