@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -35,6 +36,14 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
   const gerarRelatorioPDF = async () => {
     setGerandoPDF(true);
     try {
+      // Calcular tempo de dor
+      const tempoDorMinutos = dadosPaciente.data_hora_inicio_sintomas
+        ? differenceInMinutes(new Date(), new Date(dadosPaciente.data_hora_inicio_sintomas))
+        : null;
+      
+      const tempoDorHoras = tempoDorMinutos ? Math.floor(tempoDorMinutos / 60) : 0;
+      const tempoDorMinutosRestantes = tempoDorMinutos ? tempoDorMinutos % 60 : 0;
+
       const htmlRelatorio = `
 <!DOCTYPE html>
 <html>
@@ -50,6 +59,7 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
     .info-row { display: flex; margin-bottom: 8px; }
     .label { font-weight: bold; min-width: 200px; }
     .alert { background: #FEE2E2; border-left: 4px solid #DC2626; padding: 10px; margin: 15px 0; }
+    .alert-critical { background: #FEE2E2; border: 3px solid #DC2626; padding: 15px; margin: 15px 0; font-size: 16px; }
     .ecg-container { margin: 20px 0; }
     .ecg-img { max-width: 100%; height: auto; border: 1px solid #ccc; margin: 10px 0; }
     .analise { background: #EFF6FF; border-left: 4px solid #3B82F6; padding: 15px; margin: 15px 0; white-space: pre-wrap; }
@@ -60,6 +70,7 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
     .footer { margin-top: 50px; padding-top: 20px; border-top: 2px solid #DC2626; font-size: 12px; color: #666; }
     .profissionais { background: #F0FDF4; border: 2px solid #16A34A; padding: 15px; margin: 20px 0; }
     .tempo-ecg { background: #FEF3C7; border: 2px solid #F59E0B; padding: 15px; margin: 15px 0; }
+    .tempo-dor { background: #FEE2E2; border: 3px solid #DC2626; padding: 15px; margin: 20px 0; font-weight: bold; }
     .unidade-header { background: #DBEAFE; border: 2px solid #3B82F6; padding: 15px; margin-bottom: 20px; text-align: center; }
   </style>
 </head>
@@ -73,6 +84,29 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
 
   <h1>RELATÓRIO DE ATENDIMENTO - DOR TORÁCICA</h1>
   
+  ${tempoDorMinutos !== null ? `
+  <div class="tempo-dor">
+    <h3 style="margin: 0 0 10px 0; color: #DC2626; font-size: 18px;">⏱️ TEMPO DE DOR (JANELA TERAPÊUTICA)</h3>
+    <div style="font-size: 24px; color: #DC2626; margin: 10px 0;">
+      ${tempoDorHoras}h ${tempoDorMinutosRestantes}min
+    </div>
+    <div style="margin-top: 10px; font-size: 14px;">
+      <strong>Início dos sintomas:</strong> ${format(new Date(dadosPaciente.data_hora_inicio_sintomas), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+      <br>
+      <strong>Momento do relatório:</strong> ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+    </div>
+    ${tempoDorMinutos > 180 ? `
+    <div style="margin-top: 10px; padding: 10px; background: #FEE2E2; border: 2px solid #DC2626; border-radius: 5px;">
+      <strong style="color: #DC2626;">⚠️ ATENÇÃO:</strong> Tempo superior a 3 horas - Janela terapêutica ideal para reperfusão pode estar comprometida
+    </div>
+    ` : `
+    <div style="margin-top: 10px; padding: 10px; background: #D1FAE5; border: 2px solid #16A34A; border-radius: 5px;">
+      <strong style="color: #16A34A;">✓ FAVORÁVEL:</strong> Dentro da janela terapêutica ideal para intervenção
+    </div>
+    `}
+  </div>
+  ` : ''}
+  
   <div class="section">
     <h2>DADOS DO PACIENTE</h2>
     ${dadosPaciente.unidade_saude ? `<div class="info-row"><span class="label">Unidade de Atendimento:</span> <strong>${dadosPaciente.unidade_saude}</strong></div>` : ''}
@@ -82,6 +116,9 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
     <div class="info-row"><span class="label">Prontuário:</span> ${dadosPaciente.prontuario}</div>
     <div class="info-row"><span class="label">Data/Hora Chegada:</span> ${format(new Date(dadosPaciente.data_hora_chegada), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</div>
     <div class="info-row"><span class="label">Início dos Sintomas:</span> ${format(new Date(dadosPaciente.data_hora_inicio_sintomas), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</div>
+    ${tempoDorMinutos !== null ? `
+    <div class="info-row"><span class="label">Tempo de Dor:</span> <strong style="color: ${tempoDorMinutos > 180 ? '#DC2626' : '#16A34A'};">${tempoDorHoras}h ${tempoDorMinutosRestantes}min</strong></div>
+    ` : ''}
   </div>
 
   <div class="section">
@@ -301,6 +338,12 @@ ${dadosPaciente.unidade_saude || ""}
       )
     : null;
 
+  const tempoDorMinutosDisplay = dadosPaciente.data_hora_inicio_sintomas
+    ? differenceInMinutes(new Date(), new Date(dadosPaciente.data_hora_inicio_sintomas))
+    : null;
+  const tempoDorHorasDisplay = tempoDorMinutosDisplay ? Math.floor(tempoDorMinutosDisplay / 60) : 0;
+  const tempoDorMinutosRestantesDisplay = tempoDorMinutosDisplay ? tempoDorMinutosDisplay % 60 : 0;
+
   return (
     <div className="space-y-6">
       <div>
@@ -327,6 +370,33 @@ ${dadosPaciente.unidade_saude || ""}
               <p>• Data/Hora do ECG: <strong>{format(new Date(dadosPaciente.data_hora_ecg), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</strong></p>
               <p>• Tempo Triagem → ECG: <strong>{dadosPaciente.tempo_triagem_ecg_minutos} minutos</strong> {dadosPaciente.tempo_triagem_ecg_minutos <= 10 ? "✓ Dentro da meta" : "⚠️ Acima da meta"}</p>
             </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* ADICIONAR DESTAQUE DO TEMPO DE DOR */}
+      {dadosPaciente.data_hora_inicio_sintomas && (
+        <Alert className="border-red-500 bg-red-50 shadow-lg">
+          <AlertCircle className="h-5 w-5 text-red-600" />
+          <AlertDescription className="text-red-800">
+            <strong className="text-lg block mb-2">⏱️ TEMPO DE DOR (JANELA TERAPÊUTICA)</strong>
+            <p className="text-2xl font-bold mb-2">
+              {tempoDorHorasDisplay}h{' '}
+              {tempoDorMinutosRestantesDisplay}min
+            </p>
+            <div className="text-sm space-y-1">
+              <p><strong>Início dos sintomas:</strong> {format(new Date(dadosPaciente.data_hora_inicio_sintomas), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+              <p><strong>Momento atual:</strong> {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+            </div>
+            {tempoDorMinutosDisplay > 180 ? (
+              <p className="mt-2 text-sm font-bold">
+                ⚠️ Tempo superior a 3 horas - Janela terapêutica ideal para reperfusão pode estar comprometida
+              </p>
+            ) : (
+              <p className="mt-2 text-sm font-bold text-green-800">
+                ✓ Dentro da janela terapêutica ideal para intervenção
+              </p>
+            )}
           </AlertDescription>
         </Alert>
       )}
