@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Trash2, Database, Users, Activity, AlertTriangle, UserCog, Eye, Stethoscope, ClipboardList, TrendingUp, TrendingDown, Clock, Building2, Award, BarChart3 } from "lucide-react";
+import { Shield, Trash2, Database, Users, Activity, AlertTriangle, UserCog, Eye, Stethoscope, ClipboardList, TrendingUp, TrendingDown, Clock, Building2, Award, BarChart3, FileText, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -53,7 +54,8 @@ export default function Administracao() {
   const [usuarioEditando, setUsuarioEditando] = useState(null);
   const [filtroRole, setFiltroRole] = useState("todos");
   const [unidadeFiltro, setUnidadeFiltro] = useState("todas");
-  const [abaAtiva, setAbaAtiva] = useState("usuarios"); // "usuarios" ou "indicadores"
+  const [usuarioFiltro, setUsuarioFiltro] = useState("todos"); // New state for professional filter
+  const [abaAtiva, setAbaAtiva] = useState("usuarios"); // "usuarios", "indicadores", "profissionais", "sistema"
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -97,6 +99,91 @@ export default function Administracao() {
     });
     return Array.from(unidades).sort();
   }, [todosPacientes]);
+
+  // Extrair usuários únicos (created_by) que têm pacientes
+  const usuariosComPacientes = useMemo(() => {
+    const usuarios = new Set();
+    todosPacientes.forEach(p => {
+      if (p.created_by) {
+        usuarios.add(p.created_by);
+      }
+    });
+    return Array.from(usuarios).sort();
+  }, [todosPacientes]);
+
+  // Calcular indicadores por usuário
+  const indicadoresPorUsuario = useMemo(() => {
+    const resultado = {};
+
+    usuariosComPacientes.forEach(email => {
+      const pacientesUsuario = todosPacientes.filter(p => p.created_by === email);
+      
+      // Tempo Triagem → ECG
+      const temposECG = pacientesUsuario
+        .filter(p => p.tempo_triagem_ecg_minutos !== undefined && p.tempo_triagem_ecg_minutos !== null)
+        .map(p => p.tempo_triagem_ecg_minutos);
+      
+      const tempoMedioECG = temposECG.length > 0 
+        ? Math.round(temposECG.reduce((a, b) => a + b, 0) / temposECG.length)
+        : 0;
+      
+      const dentroMetaECG = temposECG.filter(t => t <= 10).length;
+      const taxaConformidadeECG = temposECG.length > 0 
+        ? Math.round((dentroMetaECG / temposECG.length) * 100)
+        : 0;
+
+      // Distribuição de risco
+      const distribuicaoRisco = {
+        Vermelha: pacientesUsuario.filter(p => p.classificacao_risco?.cor === "Vermelha").length,
+        Laranja: pacientesUsuario.filter(p => p.classificacao_risco?.cor === "Laranja").length,
+        Amarela: pacientesUsuario.filter(p => p.classificacao_risco?.cor === "Amarela").length,
+        Verde: pacientesUsuario.filter(p => p.classificacao_risco?.cor === "Verde").length,
+        Azul: pacientesUsuario.filter(p => p.classificacao_risco?.cor === "Azul").length,
+      };
+
+      // Tempo total de atendimento
+      const temposTotais = pacientesUsuario
+        .filter(p => p.tempo_total_minutos)
+        .map(p => p.tempo_total_minutos);
+      
+      const tempoMedioTotal = temposTotais.length > 0
+        ? Math.round(temposTotais.reduce((a, b) => a + b, 0) / temposTotais.length)
+        : 0;
+
+      // Buscar dados do usuário
+      const dadosUsuario = todosUsuarios.find(u => u.email === email);
+
+      resultado[email] = {
+        email,
+        nome: dadosUsuario?.full_name || email,
+        totalPacientes: pacientesUsuario.length,
+        tempoMedioECG,
+        taxaConformidadeECG,
+        dentroMetaECG,
+        foraMetaECG: temposECG.length - dentroMetaECG,
+        distribuicaoRisco,
+        tempoMedioTotal,
+        pacientesHoje: pacientesUsuario.filter(p => {
+          const hoje = new Date();
+          const dataPaciente = new Date(p.created_date);
+          return dataPaciente.toDateString() === hoje.toDateString();
+        }).length
+      };
+    });
+
+    return resultado;
+  }, [todosPacientes, usuariosComPacientes, todosUsuarios]);
+
+  // Ranking de usuários por conformidade
+  const rankingUsuarios = useMemo(() => {
+    return Object.entries(indicadoresPorUsuario)
+      .map(([email, dados]) => ({
+        email,
+        ...dados
+      }))
+      .sort((a, b) => b.taxaConformidadeECG - a.taxaConformidadeECG);
+  }, [indicadoresPorUsuario]);
+
 
   // Calcular indicadores por unidade
   const indicadoresPorUnidade = useMemo(() => {
@@ -264,6 +351,72 @@ export default function Administracao() {
     return usuario.custom_role || 'viewer';
   };
 
+  const handleExportarRelatorioUsuario = (emailUsuario) => {
+    const dados = indicadoresPorUsuario[emailUsuario];
+    if (!dados) return;
+
+    const pacientesUsuario = todosPacientes.filter(p => p.created_by === emailUsuario);
+    
+    let relatorio = `RELATÓRIO DE DESEMPENHO - PROFISSIONAL\n`;
+    relatorio += `=====================================\n\n`;
+    relatorio += `Profissional: ${dados.nome}\n`;
+    relatorio += `E-mail: ${dados.email}\n`;
+    relatorio += `Data do Relatório: ${new Date().toLocaleString('pt-BR')}\n\n`;
+    
+    relatorio += `ESTATÍSTICAS GERAIS\n`;
+    relatorio += `-------------------\n`;
+    relatorio += `Total de Pacientes: ${dados.totalPacientes}\n`;
+    relatorio += `Pacientes Hoje: ${dados.pacientesHoje}\n`;
+    relatorio += `Tempo Médio Triagem→ECG: ${dados.tempoMedioECG} min\n`;
+    relatorio += `Taxa de Conformidade ECG: ${dados.taxaConformidadeECG}%\n`;
+    relatorio += `Dentro da Meta (≤10min): ${dados.dentroMetaECG}\n`;
+    relatorio += `Fora da Meta: ${dados.foraMetaECG}\n\n`;
+    
+    relatorio += `DISTRIBUIÇÃO POR CLASSIFICAÇÃO DE RISCO\n`;
+    relatorio += `---------------------------------------\n`;
+    Object.entries(dados.distribuicaoRisco).forEach(([cor, qtd]) => {
+      if (qtd > 0) {
+        relatorio += `${cor}: ${qtd} pacientes\n`;
+      }
+    });
+    
+    relatorio += `\n\nLISTA DE PACIENTES\n`;
+    relatorio += `==================\n\n`;
+    if (pacientesUsuario.length === 0) {
+      relatorio += "Nenhum paciente registrado por este profissional.\n";
+    } else {
+      pacientesUsuario.forEach((p, idx) => {
+        relatorio += `${idx + 1}. Nome: ${p.nome_completo || 'N/A'}\n`;
+        relatorio += `   Prontuário: ${p.prontuario || 'N/A'}\n`;
+        relatorio += `   Unidade: ${p.unidade_saude || 'N/A'}\n`;
+        relatorio += `   Data de Criação: ${p.created_date ? new Date(p.created_date).toLocaleString('pt-BR') : 'N/A'}\n`;
+        relatorio += `   Classificação de Risco: ${p.classificacao_risco?.cor || 'N/A'}\n`;
+        if (p.tempo_triagem_ecg_minutos) {
+          relatorio += `   Tempo Triagem→ECG: ${p.tempo_triagem_ecg_minutos} min\n`;
+        } else {
+          relatorio += `   Tempo Triagem→ECG: N/A\n`;
+        }
+        if (p.tempo_total_minutos) {
+          relatorio += `   Tempo Total Atendimento: ${p.tempo_total_minutos} min\n`;
+        } else {
+          relatorio += `   Tempo Total Atendimento: N/A\n`;
+        }
+        relatorio += `\n`;
+      });
+    }
+
+
+    const blob = new Blob([relatorio], { type: 'text/plain;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `relatorio_desempenho_${dados.nome.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '')}_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
   const usuariosFiltrados = todosUsuarios.filter(u => {
     if (filtroRole === "todos") return true;
     return getRoleEffetiva(u) === filtroRole;
@@ -385,6 +538,17 @@ export default function Administracao() {
             Indicadores por Unidade
           </button>
           <button
+            onClick={() => setAbaAtiva("profissionais")}
+            className={`px-6 py-3 font-semibold transition-colors ${
+              abaAtiva === "profissionais"
+                ? "text-red-600 border-b-2 border-red-600"
+                : "text-gray-600 hover:text-gray-900"
+            }`}
+          >
+            <FileText className="w-4 h-4 inline mr-2" />
+            Relatórios por Profissional
+          </button>
+          <button
             onClick={() => setAbaAtiva("sistema")}
             className={`px-6 py-3 font-semibold transition-colors ${
               abaAtiva === "sistema"
@@ -396,6 +560,264 @@ export default function Administracao() {
             Sistema
           </button>
         </div>
+
+        {/* ABA: RELATÓRIOS POR PROFISSIONAL */}
+        {abaAtiva === "profissionais" && (
+          <div className="space-y-6">
+            
+            {/* Filtro por Usuário */}
+            <Card className="shadow-md">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <Users className="w-5 h-5 text-blue-600" />
+                  <Label htmlFor="usuario-filtro" className="font-semibold">Filtrar por Profissional:</Label>
+                  <Select value={usuarioFiltro} onValueChange={setUsuarioFiltro}>
+                    <SelectTrigger className="w-96">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">📊 Todos os Profissionais (Ranking)</SelectItem>
+                      {usuariosComPacientes.map(email => {
+                        const dadosUsuario = todosUsuarios.find(u => u.email === email);
+                        return (
+                          <SelectItem key={email} value={email}>
+                            👤 {dadosUsuario?.full_name || email}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Ranking de Profissionais */}
+            {usuarioFiltro === "todos" && (
+              <>
+                <Card className="shadow-lg border-l-4 border-l-indigo-600">
+                  <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
+                    <CardTitle className="flex items-center gap-2">
+                      <Award className="w-6 h-6 text-indigo-600" />
+                      🏆 Ranking de Desempenho dos Profissionais - Meta Triagem→ECG (≤10 min)
+                    </CardTitle>
+                    <CardDescription>
+                      Classificação por taxa de conformidade com a meta
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-3">
+                      {rankingUsuarios.map((dados, index) => (
+                        <div key={dados.email} className="flex items-center gap-4 p-4 bg-white border rounded-lg hover:shadow-md transition-shadow">
+                          <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl ${
+                            index === 0 ? 'bg-yellow-400 text-yellow-900' :
+                            index === 1 ? 'bg-gray-300 text-gray-800' :
+                            index === 2 ? 'bg-orange-300 text-orange-900' :
+                            'bg-gray-100 text-gray-600'
+                          }`}>
+                            {index + 1}°
+                          </div>
+                          
+                          <div className="flex-1">
+                            <h4 className="font-bold text-gray-900">{dados.nome}</h4>
+                            <p className="text-xs text-gray-600">{dados.email}</p>
+                            <div className="flex items-center gap-4 mt-2 text-sm">
+                              <span className="text-gray-600">
+                                {dados.totalPacientes} pacientes
+                              </span>
+                              <span className="text-gray-600">
+                                Tempo médio: {dados.tempoMedioECG} min
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="text-right flex items-center gap-4"> {/* Added flex and gap-4 here */}
+                            <div className="flex flex-col items-end"> {/* Group text and icons */}
+                              <div className="flex items-center gap-2">
+                                <div className={`text-2xl font-bold ${
+                                  dados.taxaConformidadeECG >= 90 ? 'text-green-600' :
+                                  dados.taxaConformidadeECG >= 70 ? 'text-yellow-600' :
+                                  'text-red-600'
+                                }`}>
+                                  {dados.taxaConformidadeECG}%
+                                </div>
+                                {dados.taxaConformidadeECG >= 90 ? (
+                                  <TrendingUp className="w-6 h-6 text-green-600" />
+                                ) : dados.taxaConformidadeECG < 70 ? (
+                                  <TrendingDown className="w-6 h-6 text-red-600" />
+                                ) : (
+                                  <Clock className="w-6 h-6 text-yellow-600" />
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-600 mt-1">
+                                {dados.dentroMetaECG}/{dados.dentroMetaECG + dados.foraMetaECG} dentro da meta
+                              </p>
+                            </div>
+
+                            <Button
+                              onClick={() => handleExportarRelatorioUsuario(dados.email)}
+                              size="sm"
+                              variant="outline"
+                              className="text-blue-600 hover:bg-blue-50"
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              Exportar
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+
+                      {rankingUsuarios.length === 0 && (
+                        <div className="text-center py-8 text-gray-500">
+                          <Users className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                          <p>Nenhum profissional com dados disponíveis</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Gráfico Comparativo */}
+                <Card className="shadow-lg">
+                  <CardHeader>
+                    <CardTitle>Comparação de Desempenho Entre Profissionais</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {rankingUsuarios.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={400}>
+                        <BarChart data={rankingUsuarios.slice(0, 10)}> {/* Show top 10 for readability */}
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis 
+                            dataKey="nome" 
+                            angle={-45} 
+                            textAnchor="end" 
+                            height={120}
+                            fontSize={12}
+                          />
+                          <YAxis label={{ value: 'Taxa de Conformidade (%)', angle: -90, position: 'insideLeft' }} />
+                          <Tooltip />
+                          <Legend />
+                          <Bar dataKey="taxaConformidadeECG" fill="#6366F1" name="Conformidade ECG (%)" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="h-[400px] flex items-center justify-center text-gray-500">
+                        Nenhum dado disponível para comparação
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </>
+            )}
+
+            {/* Detalhes de Profissional Específico */}
+            {usuarioFiltro !== "todos" && indicadoresPorUsuario[usuarioFiltro] && (
+              <>
+                <Card className="shadow-lg border-l-4 border-l-indigo-600">
+                  <CardHeader className="bg-indigo-50 border-b">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="flex items-center gap-2">
+                          <Users className="w-6 h-6 text-indigo-600" />
+                          {indicadoresPorUsuario[usuarioFiltro].nome}
+                        </CardTitle>
+                        <CardDescription className="mt-1">
+                          {usuarioFiltro}
+                        </CardDescription>
+                      </div>
+                      <Button
+                        onClick={() => handleExportarRelatorioUsuario(usuarioFiltro)}
+                        className="bg-indigo-600 hover:bg-indigo-700 gap-2"
+                      >
+                        <Download className="w-4 h-4" />
+                        Exportar Relatório Completo
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="grid md:grid-cols-3 gap-6 mb-6">
+                      <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <p className="text-sm text-gray-600 mb-1">Total de Pacientes</p>
+                        <p className="text-3xl font-bold text-blue-700">
+                          {indicadoresPorUsuario[usuarioFiltro].totalPacientes}
+                        </p>
+                      </div>
+                      <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                        <p className="text-sm text-gray-600 mb-1">Pacientes Hoje</p>
+                        <p className="text-3xl font-bold text-green-700">
+                          {indicadoresPorUsuario[usuarioFiltro].pacientesHoje}
+                        </p>
+                      </div>
+                      <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
+                        <p className="text-sm text-gray-600 mb-1">Tempo Médio Total</p>
+                        <p className="text-3xl font-bold text-purple-700">
+                          {indicadoresPorUsuario[usuarioFiltro].tempoMedioTotal} min
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Meta ECG */}
+                    <div className="mb-6 p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border-2 border-green-300">
+                      <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                        <Clock className="w-5 h-5 text-green-600" />
+                        Meta Triagem → ECG (≤10 min)
+                      </h3>
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-600 mb-1">Tempo Médio</p>
+                          <p className={`text-2xl font-bold ${
+                            indicadoresPorUsuario[usuarioFiltro].tempoMedioECG <= 10 
+                              ? 'text-green-600' 
+                              : 'text-red-600'
+                          }`}>
+                            {indicadoresPorUsuario[usuarioFiltro].tempoMedioECG} min
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600 mb-1">Taxa de Conformidade</p>
+                          <p className={`text-2xl font-bold ${
+                            indicadoresPorUsuario[usuarioFiltro].taxaConformidadeECG >= 90 
+                              ? 'text-green-600' 
+                              : indicadoresPorUsuario[usuarioFiltro].taxaConformidadeECG >= 70
+                              ? 'text-yellow-600'
+                              : 'text-red-600'
+                          }`}>
+                            {indicadoresPorUsuario[usuarioFiltro].taxaConformidadeECG}%
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600 mb-1">Dentro/Fora da Meta</p>
+                          <p className="text-xl font-bold text-gray-900">
+                            <span className="text-green-600">{indicadoresPorUsuario[usuarioFiltro].dentroMetaECG}</span>
+                            {" / "}
+                            <span className="text-red-600">{indicadoresPorUsuario[usuarioFiltro].foraMetaECG}</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Distribuição de Risco */}
+                    <div className="p-6 bg-gray-50 rounded-lg border">
+                      <h3 className="font-bold text-lg mb-4">Distribuição por Classificação de Risco</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        {Object.entries(indicadoresPorUsuario[usuarioFiltro].distribuicaoRisco).map(([cor, qtd]) => (
+                          <div key={cor} className="text-center p-3 bg-white rounded border">
+                            <div 
+                              className="w-8 h-8 rounded-full mx-auto mb-2"
+                              style={{ backgroundColor: COLORS_RISK[cor] }}
+                            />
+                            <p className="text-xs text-gray-600 mb-1">{cor}</p>
+                            <p className="text-xl font-bold text-gray-900">{qtd}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+
+          </div>
+        )}
 
         {/* CONTEÚDO DA ABA: INDICADORES POR UNIDADE */}
         {abaAtiva === "indicadores" && (
