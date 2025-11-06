@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, ArrowRight, Upload, Loader2, AlertCircle, AlertTriangle, Info } from "lucide-react";
+import { ArrowLeft, ArrowRight, Upload, Loader2, AlertCircle, AlertTriangle, Info, Zap } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,8 @@ import { differenceInMinutes } from "date-fns";
 export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnterior }) {
   const [ecgFiles, setEcgFiles] = useState(dadosPaciente.ecg_files || []);
   const [uploading, setUploading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [alertaTriagem, setAlertaTriagem] = useState(dadosPaciente.alerta_triagem_ecg || null);
   const [interpretacaoMedico, setInterpretacaoMedico] = useState(dadosPaciente.interpretacao_ecg_medico || "");
   const [enfermeiro, setEnfermeiro] = useState({
     nome: dadosPaciente.enfermeiro_nome || "",
@@ -34,12 +36,110 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
       const novosFiles = [...ecgFiles, ...urls].slice(0, 3);
       setEcgFiles(novosFiles);
 
+      // Executar análise de triagem automática
+      if (novosFiles.length > 0) {
+        await analisarECGTriagem(novosFiles[0]);
+      }
+
     } catch (error) {
       console.error("Erro ao fazer upload:", error);
       alert("Erro ao anexar ECG. Tente novamente.");
     }
     
     setUploading(false);
+  };
+
+  const analisarECGTriagem = async (ecgUrl) => {
+    setAnalyzing(true);
+    try {
+      const schema = {
+        type: "object",
+        properties: {
+          qualidade_imagem: {
+            type: "string",
+            enum: ["Boa", "Regular", "Ruim"],
+            description: "Qualidade da imagem do ECG para análise"
+          },
+          elevacao_st_detectada: {
+            type: "boolean",
+            description: "Você consegue VER elevação do segmento ST em ALGUMA derivação?"
+          },
+          derivacoes_com_elevacao: {
+            type: "array",
+            items: { type: "string" },
+            description: "Liste APENAS as derivações onde você VÊ elevação de ST. Exemplos: V2, V3, V4 ou II, III, aVF"
+          },
+          territorio_provavel: {
+            type: "string",
+            enum: [
+              "Sem elevação de ST detectada",
+              "Anterior (V1-V4)",
+              "Inferior (II, III, aVF)",
+              "Lateral (I, aVL, V5-V6)",
+              "Múltiplos territórios",
+              "Não é possível determinar"
+            ],
+            description: "Território provável baseado nas derivações com elevação. ANTERIOR=V1-V4, INFERIOR=II/III/aVF, LATERAL=I/aVL/V5-V6"
+          },
+          nivel_alerta: {
+            type: "string",
+            enum: [
+              "🔴 CRÍTICO - Elevação de ST detectada - STEMI provável",
+              "🟡 ATENÇÃO - Alterações inespecíficas - avaliar com cuidado",
+              "🟢 Normal - Sem elevação significativa de ST detectada",
+              "⚪ Inconclusivo - Qualidade insuficiente"
+            ],
+            description: "Nível de alerta para o médico"
+          },
+          mensagem_para_medico: {
+            type: "string",
+            description: "Mensagem curta e direta para o médico sobre o que você viu. Seja específico sobre derivações."
+          }
+        },
+        required: ["elevacao_st_detectada", "nivel_alerta"]
+      };
+
+      const prompt = `Você é um sistema de TRIAGEM de ECG. Sua função é APENAS alertar o médico sobre possível elevação de ST.
+
+TAREFA SIMPLES: Olhe o ECG e responda:
+
+1️⃣ Você vê elevação do segmento ST em alguma derivação? (SIM ou NÃO)
+
+2️⃣ Se SIM, em quais derivações? (seja específico: V1, V2, V3, etc)
+
+3️⃣ Baseado nessas derivações, qual território?
+   - V1, V2, V3, V4 → ANTERIOR
+   - II, III, aVF → INFERIOR  
+   - I, aVL, V5, V6 → LATERAL
+
+LEMBRE-SE:
+- Elevação de ST = segmento ST acima da linha de base
+- Seja conservador: se não tiver certeza, diga "Não é possível determinar"
+- Sua análise é apenas um ALERTA, não um diagnóstico
+- O médico SEMPRE fará a interpretação final
+
+Analise o ECG e retorne um alerta simples e direto.`;
+
+      const resultado = await base44.integrations.Core.InvokeLLM({
+        prompt: prompt,
+        file_urls: ecgUrl,
+        response_json_schema: schema
+      });
+
+      if (resultado) {
+        setAlertaTriagem(resultado);
+      }
+
+    } catch (error) {
+      console.error("Erro na análise de triagem:", error);
+      setAlertaTriagem({
+        qualidade_imagem: "Ruim",
+        elevacao_st_detectada: false,
+        nivel_alerta: "⚪ Inconclusivo - Erro na análise automática",
+        mensagem_para_medico: "Sistema de triagem não conseguiu processar. Médico deve interpretar manualmente."
+      });
+    }
+    setAnalyzing(false);
   };
 
   const handleSubmit = (e) => {
@@ -66,6 +166,7 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
       ecg_files: ecgFiles,
       data_hora_ecg: dataHoraEcg, 
       tempo_triagem_ecg_minutos: tempoMinutos,
+      alerta_triagem_ecg: alertaTriagem,
       interpretacao_ecg_medico: interpretacaoMedico,
       enfermeiro_nome: enfermeiro.nome,
       enfermeiro_coren: enfermeiro.coren,
@@ -79,15 +180,14 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Eletrocardiograma (ECG)</h2>
-        <p className="text-gray-600">Anexe o ECG e o médico deve interpretar</p>
+        <p className="text-gray-600">Anexe o ECG e aguarde análise de triagem automática</p>
       </div>
 
-      <Alert className="border-red-500 bg-red-50 shadow-lg">
-        <AlertTriangle className="h-5 w-5 text-red-600" />
-        <AlertDescription className="text-red-800">
-          <strong className="text-lg">⚠️ INTERPRETAÇÃO MÉDICA OBRIGATÓRIA</strong>
-          <p className="mt-2">O ECG DEVE ser interpretado por médico qualificado. Não há análise automática disponível.</p>
-          <p className="mt-2 font-bold">Sistemas especializados certificados (Philips DXL, GE Marquette, Cardiologs AI) devem ser usados quando disponíveis.</p>
+      <Alert className="border-blue-500 bg-blue-50">
+        <Zap className="h-5 w-5 text-blue-600" />
+        <AlertDescription className="text-blue-800">
+          <strong>Sistema de Triagem Automática:</strong> Ao anexar o ECG, o sistema fará uma análise rápida para detectar elevação de ST e alertar o médico. 
+          <strong className="block mt-1">A interpretação final é sempre médica.</strong>
         </AlertDescription>
       </Alert>
 
@@ -116,6 +216,15 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
               <p className="text-xs text-gray-500 mt-1">Imagem ou PDF do ECG de 12 derivações</p>
             </label>
           </div>
+
+          {analyzing && (
+            <Alert className="border-purple-500 bg-purple-50">
+              <Loader2 className="h-5 w-5 text-purple-600 animate-spin" />
+              <AlertDescription className="text-purple-800">
+                🔍 Analisando ECG para detectar elevação de ST... Aguarde alguns segundos...
+              </AlertDescription>
+            </Alert>
+          )}
 
           {ecgFiles.length > 0 && (
             <div className="space-y-2">
@@ -161,6 +270,84 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
           )}
         </div>
       </div>
+
+      {alertaTriagem && !analyzing && (
+        <Card className={`border-2 shadow-lg ${
+          alertaTriagem.nivel_alerta?.includes('CRÍTICO') ? 'border-red-500 bg-red-50' :
+          alertaTriagem.nivel_alerta?.includes('ATENÇÃO') ? 'border-yellow-500 bg-yellow-50' :
+          alertaTriagem.nivel_alerta?.includes('Normal') ? 'border-green-500 bg-green-50' :
+          'border-gray-500 bg-gray-50'
+        }`}>
+          <CardHeader className={`${
+            alertaTriagem.nivel_alerta?.includes('CRÍTICO') ? 'bg-red-100 border-b-2 border-red-300' :
+            alertaTriagem.nivel_alerta?.includes('ATENÇÃO') ? 'bg-yellow-100 border-b-2 border-yellow-300' :
+            alertaTriagem.nivel_alerta?.includes('Normal') ? 'bg-green-100 border-b-2 border-green-300' :
+            'bg-gray-100 border-b-2 border-gray-300'
+          }`}>
+            <CardTitle className={`text-lg flex items-center gap-2 ${
+              alertaTriagem.nivel_alerta?.includes('CRÍTICO') ? 'text-red-900' :
+              alertaTriagem.nivel_alerta?.includes('ATENÇÃO') ? 'text-yellow-900' :
+              alertaTriagem.nivel_alerta?.includes('Normal') ? 'text-green-900' :
+              'text-gray-900'
+            }`}>
+              <Zap className="w-5 h-5" />
+              🤖 Alerta de Triagem Automática
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6 space-y-4">
+            <div className={`p-4 rounded-lg border-2 ${
+              alertaTriagem.nivel_alerta?.includes('CRÍTICO') ? 'bg-red-100 border-red-400' :
+              alertaTriagem.nivel_alerta?.includes('ATENÇÃO') ? 'bg-yellow-100 border-yellow-400' :
+              alertaTriagem.nivel_alerta?.includes('Normal') ? 'bg-green-100 border-green-400' :
+              'bg-gray-100 border-gray-400'
+            }`}>
+              <p className="font-bold text-lg mb-2">
+                {alertaTriagem.nivel_alerta}
+              </p>
+              {alertaTriagem.mensagem_para_medico && (
+                <p className="text-sm mt-2">{alertaTriagem.mensagem_para_medico}</p>
+              )}
+            </div>
+
+            {alertaTriagem.elevacao_st_detectada && (
+              <div className="bg-white p-4 rounded-lg border-2 border-red-300">
+                <p className="font-bold text-red-900 mb-2">⚠️ ELEVAÇÃO DE ST DETECTADA</p>
+                {alertaTriagem.derivacoes_com_elevacao && alertaTriagem.derivacoes_com_elevacao.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-sm font-semibold mb-1">Derivações com elevação:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {alertaTriagem.derivacoes_com_elevacao.map((der, i) => (
+                        <Badge key={i} className="bg-red-600 text-white text-sm px-3 py-1">
+                          {der}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {alertaTriagem.territorio_provavel && (
+                  <div className="mt-3 p-3 bg-red-50 rounded">
+                    <p className="text-sm"><strong>Território provável:</strong> {alertaTriagem.territorio_provavel}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!alertaTriagem.elevacao_st_detectada && alertaTriagem.territorio_provavel && (
+              <div className="bg-white p-4 rounded-lg border">
+                <p className="text-sm text-gray-700">{alertaTriagem.territorio_provavel}</p>
+              </div>
+            )}
+
+            <Alert className="border-orange-500 bg-orange-50">
+              <AlertTriangle className="h-4 w-4 text-orange-600" />
+              <AlertDescription className="text-orange-800 text-sm">
+                <strong>⚠️ IMPORTANTE:</strong> Este é apenas um alerta de triagem automática. 
+                <strong className="block mt-1">O médico DEVE interpretar o ECG pessoalmente antes de qualquer conduta.</strong>
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      )}
 
       {ecgFiles.length > 0 && (
         <Card className="border-2 border-blue-500 shadow-lg">
@@ -260,7 +447,7 @@ CONDUTA: Reperfusão imediata (ICP primária vs fibrinolítico)"
             <li>ECG.ai (análise por IA médica)</li>
           </ul>
           <p className="mt-2 text-xs">
-            Estes sistemas devem ser usados quando disponíveis na instituição, mas a interpretação final é sempre médica.
+            Estes sistemas devem ser usados quando disponíveis na instituição.
           </p>
         </AlertDescription>
       </Alert>
