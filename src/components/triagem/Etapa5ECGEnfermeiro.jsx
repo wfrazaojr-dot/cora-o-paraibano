@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -297,10 +298,6 @@ A interpretação e decisão clínica final são SEMPRE do médico responsável.
       alert("Por favor, preencha o nome e COREN do enfermeiro");
       return;
     }
-    if (!interpretacaoMedico.trim()) {
-      alert("Por favor, preencha a interpretação do ECG. O médico DEVE interpretar o ECG antes de prosseguir.");
-      return;
-    }
     
     const dataHoraEcg = dadosPaciente.data_hora_ecg || new Date().toISOString();
     const tempoMinutos = dadosPaciente.tempo_triagem_ecg_minutos || (dadosPaciente.data_hora_inicio_triagem 
@@ -312,7 +309,7 @@ A interpretação e decisão clínica final são SEMPRE do médico responsável.
       data_hora_ecg: dataHoraEcg, 
       tempo_triagem_ecg_minutos: tempoMinutos,
       alerta_triagem_ecg: alertaTriagem,
-      interpretacao_ecg_medico: interpretacaoMedico,
+      interpretacao_ecg_medico: interpretacaoMedico || "", // Opcional - pode ser preenchido pelo médico depois
       enfermeiro_nome: enfermeiro.nome,
       enfermeiro_coren: enfermeiro.coren,
       status: "Aguardando Médico"
@@ -620,28 +617,25 @@ A interpretação e decisão clínica final são SEMPRE do médico responsável.
         <Card className="border-2 border-blue-500 shadow-lg">
           <CardHeader className="bg-blue-50 border-b">
             <CardTitle className="text-blue-900 text-lg">
-              📋 INTERPRETAÇÃO DO ECG PELO MÉDICO * (OBRIGATÓRIO)
+              📋 INTERPRETAÇÃO DO ECG PELO MÉDICO (OPCIONAL)
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-4">
             <Alert className="border-blue-500 bg-blue-50">
               <Info className="h-5 w-5 text-blue-600" />
               <AlertDescription className="text-blue-800">
-                <strong>O médico deve interpretar o ECG e registrar:</strong>
+                <strong>✓ Este campo é OPCIONAL nesta etapa:</strong>
                 <ul className="list-disc pl-5 mt-2 space-y-1">
-                  <li>Ritmo e frequência cardíaca</li>
-                  <li>Alterações do segmento ST (elevação/depressão)</li>
-                  <li>Territórios afetados (anterior/inferior/lateral)</li>
-                  <li>Ondas T, ondas Q patológicas</li>
-                  <li>Outras alterações relevantes</li>
-                  <li>Conclusão: STEMI / NSTEMI / ECG normal / etc</li>
+                  <li>Se o médico já interpretou o ECG, você pode registrar aqui</li>
+                  <li>Caso contrário, deixe em branco - o médico interpretará na Etapa 6</li>
+                  <li>A análise automática por IA já foi realizada e está registrada acima</li>
                 </ul>
               </AlertDescription>
             </Alert>
 
             <div className="space-y-2">
               <Label htmlFor="interpretacao" className="text-base font-semibold">
-                Interpretação Completa do ECG *
+                Interpretação Completa do ECG (Opcional)
               </Label>
               <Textarea
                 id="interpretacao"
@@ -658,21 +652,22 @@ ECG de 12 derivações:
 
 CONCLUSÃO: STEMI DE PAREDE INFERIOR
 ARTÉRIA CULPADA: Coronária Direita (provável)
-CONDUTA: Reperfusão imediata (ICP primária vs fibrinolítico)"
+CONDUTA: Reperfusão imediata (ICP primária vs fibrinolítico)
+
+(Se deixado em branco, o médico interpretará na Etapa 6)"
                 rows={12}
                 className="font-mono text-sm resize-y"
-                required
               />
               <p className="text-xs text-gray-600">
-                * Campo obrigatório. A interpretação deve ser detalhada e assinada pelo médico.
+                ℹ️ Campo opcional. Se não preenchido agora, o médico fará a interpretação na próxima etapa.
               </p>
             </div>
 
-            <Alert className="border-red-500 bg-red-50">
-              <AlertTriangle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-800 text-sm">
-                <strong>Lembrete:</strong> Em caso de STEMI, o tempo porta-balão deve ser ≤90 minutos. 
-                Acione hemodinâmica ou considere fibrinolítico imediatamente.
+            <Alert className="border-yellow-500 bg-yellow-50">
+              <AlertTriangle className="h-4 w-4 text-yellow-600" />
+              <AlertDescription className="text-yellow-800 text-sm">
+                <strong>💡 Nota Importante:</strong> A análise automática por IA já foi realizada e serve como <strong>suporte inicial</strong>.
+                A interpretação médica final (obrigatória) será feita na Etapa 6 - Avaliação Médica.
               </AlertDescription>
             </Alert>
           </CardContent>
@@ -711,9 +706,9 @@ CONDUTA: Reperfusão imediata (ICP primária vs fibrinolítico)"
         <Button 
           type="submit" 
           className="bg-red-600 hover:bg-red-700"
-          disabled={ecgFiles.length === 0 || !enfermeiro.nome || !enfermeiro.coren || !interpretacaoMedico.trim()}
+          disabled={ecgFiles.length === 0 || !enfermeiro.nome || !enfermeiro.coren}
         >
-          Concluir Triagem
+          Concluir Triagem de Enfermagem
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
       </div>
