@@ -48,13 +48,13 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
     return {
       pa_braco_esquerdo: dadosPaciente.dados_vitais?.pa_braco_esquerdo || "",
       pa_braco_direito: dadosPaciente.dados_vitais?.pa_braco_direito || "",
-      frequencia_cardiaca: dadosPaciente.dados_vitais?.frequencia_cardiaca || "",
-      frequencia_respiratoria: dadosPaciente.dados_vitais?.frequencia_respiratoria || "",
-      temperatura: dadosPaciente.dados_vitais?.temperatura || "",
-      spo2: dadosPaciente.dados_vitais?.spo2 || "",
-      glicemia_capilar: dadosPaciente.dados_vitais?.glicemia_capilar || "",
+      frequencia_cardiaca: dadosPaciente.dados_vitais?.frequencia_cardiaca || null,
+      frequencia_respiratoria: dadosPaciente.dados_vitais?.frequencia_respiratoria || null,
+      temperatura: dadosPaciente.dados_vitais?.temperatura || null,
+      spo2: dadosPaciente.dados_vitais?.spo2 || null,
+      glicemia_capilar: dadosPaciente.dados_vitais?.glicemia_capilar || null,
       suporte_respiratorio: dadosPaciente.dados_vitais?.spo2_oxigenio === "o2_suplementar" ? "oxigenio_suplementar" : "ar_ambiente",
-      litros_o2: dadosPaciente.dados_vitais?.spo2_litros_o2 || "",
+      litros_o2: dadosPaciente.dados_vitais?.spo2_litros_o2 || null,
       uso_dva: false,
       dva_tipo: "",
       uso_sedacao: false,
@@ -77,7 +77,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
     console.log("=== DEBUG ETAPA 6 - SUBMIT ===");
     console.log("Médico:", medico);
     console.log("Avaliação:", avaliacao);
-    console.log("Dados Vitais Médico:", dadosVitaisMedico);
+    console.log("Dados Vitais Médico (antes):", dadosVitaisMedico);
     
     if (!medico.nome || !medico.crm) {
       alert("Por favor, preencha o nome e CRM do médico");
@@ -89,15 +89,26 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
       return;
     }
     
+    // Limpar dados vitais - converter strings vazias em null
+    const dadosVitaisLimpos = {
+      ...dadosVitaisMedico,
+      frequencia_cardiaca: dadosVitaisMedico.frequencia_cardiaca || null,
+      frequencia_respiratoria: dadosVitaisMedico.frequencia_respiratoria || null,
+      temperatura: dadosVitaisMedico.temperatura || null,
+      spo2: dadosVitaisMedico.spo2 || null,
+      glicemia_capilar: dadosVitaisMedico.glicemia_capilar || null,
+      litros_o2: dadosVitaisMedico.litros_o2 || null,
+    };
+    
     const dadosParaSalvar = { 
       avaliacao_medica: avaliacao,
-      dados_vitais_medico: dadosVitaisMedico,
+      dados_vitais_medico: dadosVitaisLimpos,
       medico_nome: medico.nome,
       medico_crm: medico.crm,
       status: "Em Atendimento"
     };
     
-    console.log("Dados para salvar:", dadosParaSalvar);
+    console.log("Dados para salvar (após limpeza):", dadosParaSalvar);
     
     try {
       onProxima(dadosParaSalvar);
@@ -254,8 +265,8 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                   <Input
                     id="fc_medico"
                     type="number"
-                    value={dadosVitaisMedico.frequencia_cardiaca}
-                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, frequencia_cardiaca: parseFloat(e.target.value) || ""})}
+                    value={dadosVitaisMedico.frequencia_cardiaca || ""}
+                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, frequencia_cardiaca: e.target.value ? parseFloat(e.target.value) : null})}
                     placeholder="Ex: 75"
                   />
                 </div>
@@ -264,8 +275,8 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                   <Input
                     id="fr_medico"
                     type="number"
-                    value={dadosVitaisMedico.frequencia_respiratoria}
-                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, frequencia_respiratoria: parseFloat(e.target.value) || ""})}
+                    value={dadosVitaisMedico.frequencia_respiratoria || ""}
+                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, frequencia_respiratoria: e.target.value ? parseFloat(e.target.value) : null})}
                     placeholder="Ex: 16"
                   />
                 </div>
@@ -275,8 +286,8 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                     id="temp_medico"
                     type="number"
                     step="0.1"
-                    value={dadosVitaisMedico.temperatura}
-                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, temperatura: parseFloat(e.target.value) || ""})}
+                    value={dadosVitaisMedico.temperatura || ""}
+                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, temperatura: e.target.value ? parseFloat(e.target.value) : null})}
                     placeholder="Ex: 36.5"
                   />
                 </div>
@@ -285,8 +296,8 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                   <Input
                     id="spo2_medico"
                     type="number"
-                    value={dadosVitaisMedico.spo2}
-                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, spo2: parseFloat(e.target.value) || ""})}
+                    value={dadosVitaisMedico.spo2 || ""}
+                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, spo2: e.target.value ? parseFloat(e.target.value) : null})}
                     placeholder="Ex: 98"
                   />
                 </div>
@@ -295,8 +306,8 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                   <Input
                     id="glicemia_medico"
                     type="number"
-                    value={dadosVitaisMedico.glicemia_capilar}
-                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, glicemia_capilar: parseFloat(e.target.value) || ""})}
+                    value={dadosVitaisMedico.glicemia_capilar || ""}
+                    onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, glicemia_capilar: e.target.value ? parseFloat(e.target.value) : null})}
                     placeholder="Ex: 110"
                   />
                 </div>
@@ -306,7 +317,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                 <Label className="text-base font-semibold text-blue-900 mb-3 block">🫁 Suporte Respiratório</Label>
                 <RadioGroup
                   value={dadosVitaisMedico.suporte_respiratorio}
-                  onValueChange={(value) => setDadosVitaisMedico({...dadosVitaisMedico, suporte_respiratorio: value, litros_o2: value === "ar_ambiente" ? "" : dadosVitaisMedico.litros_o2})}
+                  onValueChange={(value) => setDadosVitaisMedico({...dadosVitaisMedico, suporte_respiratorio: value, litros_o2: value === "ar_ambiente" ? null : dadosVitaisMedico.litros_o2})}
                   className="space-y-3"
                 >
                   <div className="flex items-center space-x-2">
@@ -336,8 +347,8 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                       id="litros_o2_med"
                       type="number"
                       step="0.5"
-                      value={dadosVitaisMedico.litros_o2}
-                      onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, litros_o2: parseFloat(e.target.value) || ""})}
+                      value={dadosVitaisMedico.litros_o2 || ""}
+                      onChange={(e) => setDadosVitaisMedico({...dadosVitaisMedico, litros_o2: e.target.value ? parseFloat(e.target.value) : null})}
                       placeholder="Ex: 2 ou 5"
                       className="bg-white"
                     />
