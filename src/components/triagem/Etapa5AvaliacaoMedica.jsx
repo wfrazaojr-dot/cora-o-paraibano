@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, ArrowRight, FileImage, Activity, User, Stethoscope, AlertTriangle, Edit, CheckCircle2 } from "lucide-react";
-import { format } from "date-fns";
+import { format, differenceInMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -91,6 +91,11 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
     ? Math.round((new Date(avaliacao.data_hora_avaliacao) - new Date(dadosPaciente.data_hora_inicio_triagem)) / 60000)
     : null;
 
+  // CALCULAR TEMPO DE DOR (do início dos sintomas até agora)
+  const tempoDor = dadosPaciente.data_hora_inicio_sintomas
+    ? differenceInMinutes(new Date(), new Date(dadosPaciente.data_hora_inicio_sintomas))
+    : null;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
@@ -108,9 +113,25 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
         </Alert>
       )}
 
+      {/* ALERTA DE TEMPO DE DOR */}
+      {tempoDor !== null && (
+        <Alert className="border-red-500 bg-red-50 shadow-lg">
+          <AlertTriangle className="h-5 w-5 text-red-600" />
+          <AlertDescription className="text-red-800">
+            <strong className="text-lg">⚠️ ALERTA! Tempo de Dor: {Math.floor(tempoDor / 60)}h {tempoDor % 60}min</strong>
+            <p className="mt-1 text-sm">
+              Tempo desde o início dos sintomas ({format(new Date(dadosPaciente.data_hora_inicio_sintomas), "dd/MM HH:mm", { locale: ptBR })}) até agora
+            </p>
+            <p className="mt-2 text-sm font-bold">
+              {tempoDor > 180 ? "⚠️ >3 horas - Janela terapêutica reduzida" : "✓ Janela terapêutica ainda favorável"}
+            </p>
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* ============================================ */}
       {/* DADOS VITAIS - ATUALIZAÇÃO MÉDICA */}
-      {/* ============================================ */}
+      {============================================ */}
       <Card className="shadow-lg border-l-4 border-l-purple-600">
         <CardHeader className="bg-purple-50 border-b">
           <div className="flex items-center justify-between">
@@ -205,7 +226,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
             <div className="space-y-6">
               <Alert className="border-blue-500 bg-blue-50">
                 <AlertDescription className="text-blue-800">
-                  <strong>💡 Atualize os dados vitais</strong> conforme a avaliação médica atual. Os dados da enfermagem já estão preenchidos abaixo.
+                  <strong>💡 Atualize os dados vitais</strong> conforme a avaliação médica atual.
                 </AlertDescription>
               </Alert>
 
@@ -397,7 +418,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
         <CardHeader className="bg-blue-50 border-b">
           <CardTitle className="flex items-center gap-2 text-blue-900 text-xl">
             <User className="w-6 h-6" />
-            📋 Resumo da Triagem de Enfermagem (Etapas 1-4)
+            📋 Resumo da Triagem de Enfermagem
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 space-y-8">
@@ -423,26 +444,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                 <span className="text-gray-700 font-semibold">Prontuário:</span>
                 <p className="font-medium text-gray-900">{dadosPaciente.prontuario || '-'}</p>
               </div>
-              <div>
-                <span className="text-gray-700 font-semibold">Idade:</span>
-                <p className="font-medium text-gray-900">{dadosPaciente.idade || '-'} anos</p>
-              </div>
-              <div>
-                <span className="text-gray-700 font-semibold">Sexo:</span>
-                <p className="font-medium text-gray-900">{dadosPaciente.sexo || '-'}</p>
-              </div>
-              <div>
-                <span className="text-gray-700 font-semibold">Chegada:</span>
-                <p className="font-medium text-gray-900">
-                  {dadosPaciente.data_hora_chegada ? format(new Date(dadosPaciente.data_hora_chegada), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR }) : '-'}
-                </p>
-              </div>
-              <div>
-                <span className="text-gray-700 font-semibold">Início dos Sintomas:</span>
-                <p className="font-medium text-gray-900">
-                  {dadosPaciente.data_hora_inicio_sintomas ? format(new Date(dadosPaciente.data_hora_inicio_sintomas), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR }) : '-'}
-                </p>
-              </div>
             </div>
           </div>
 
@@ -450,51 +451,13 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
           <div className="border-l-4 border-l-red-500 pl-4 bg-red-50 p-4 rounded">
             <h3 className="font-bold text-red-900 mb-3 text-lg flex items-center gap-2">
               <AlertTriangle className="w-5 h-5" />
-              2️⃣ TRIAGEM CARDIOLÓGICA (SBC 2025)
+              2️⃣ TRIAGEM CARDIOLÓGICA
             </h3>
             {dadosPaciente.triagem_cardiologica?.alerta_iam && (
               <div className="mb-3 p-3 bg-red-200 border-2 border-red-400 rounded">
                 <p className="text-red-900 font-bold text-base">⚠️ ALERTA DE PROVÁVEL IAM DETECTADO</p>
               </div>
             )}
-            <div className="grid md:grid-cols-2 gap-3 text-sm">
-              <div className="flex justify-between items-center p-2 bg-white rounded">
-                <span className="text-gray-700">Dor/desconforto no peito:</span>
-                <Badge className={`${dadosPaciente.triagem_cardiologica?.dor_desconforto_peito ? 'bg-red-600' : 'bg-green-600'} text-white`}>
-                  {dadosPaciente.triagem_cardiologica?.dor_desconforto_peito ? 'SIM' : 'NÃO'}
-                </Badge>
-              </div>
-              <div className="flex justify-between items-center p-2 bg-white rounded">
-                <span className="text-gray-700">Duração {'>'} 10 min:</span>
-                <Badge className={`${dadosPaciente.triagem_cardiologica?.duracao_maior_10min ? 'bg-red-600' : 'bg-green-600'} text-white`}>
-                  {dadosPaciente.triagem_cardiologica?.duracao_maior_10min ? 'SIM' : 'NÃO'}
-                </Badge>
-              </div>
-              <div className="flex justify-between items-center p-2 bg-white rounded">
-                <span className="text-gray-700">Irradiação (braços/mandíbula):</span>
-                <Badge className={`${dadosPaciente.triagem_cardiologica?.irradiacao ? 'bg-red-600' : 'bg-green-600'} text-white`}>
-                  {dadosPaciente.triagem_cardiologica?.irradiacao ? 'SIM' : 'NÃO'}
-                </Badge>
-              </div>
-              <div className="flex justify-between items-center p-2 bg-white rounded">
-                <span className="text-gray-700">Dor epigástrica:</span>
-                <Badge className={`${dadosPaciente.triagem_cardiologica?.dor_epigastrica ? 'bg-red-600' : 'bg-green-600'} text-white`}>
-                  {dadosPaciente.triagem_cardiologica?.dor_epigastrica ? 'SIM' : 'NÃO'}
-                </Badge>
-              </div>
-              <div className="flex justify-between items-center p-2 bg-white rounded">
-                <span className="text-gray-700">Dispneia/diaforese:</span>
-                <Badge className={`${dadosPaciente.triagem_cardiologica?.dispneia_diaforese ? 'bg-red-600' : 'bg-green-600'} text-white`}>
-                  {dadosPaciente.triagem_cardiologica?.dispneia_diaforese ? 'SIM' : 'NÃO'}
-                </Badge>
-              </div>
-              <div className="flex justify-between items-center p-2 bg-white rounded">
-                <span className="text-gray-700">{'>'}50 anos/diabetes/DCV:</span>
-                <Badge className={`${dadosPaciente.triagem_cardiologica?.idade_fatores_risco ? 'bg-red-600' : 'bg-green-600'} text-white`}>
-                  {dadosPaciente.triagem_cardiologica?.idade_fatores_risco ? 'SIM' : 'NÃO'}
-                </Badge>
-              </div>
-            </div>
           </div>
 
           {/* ========== ECG E ANÁLISE ========== */}
@@ -502,53 +465,14 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
             <div className="border-l-4 border-l-purple-500 pl-4 bg-purple-50 p-4 rounded">
               <h4 className="font-bold text-purple-900 mb-3 text-lg flex items-center gap-2">
                 <FileImage className="w-5 h-5" />
-                📊 ECGs Anexados ({dadosPaciente.ecg_files.length})
+                📊 ECGs Anexados
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                {dadosPaciente.ecg_files.map((url, index) => (
-                  <div key={index} className="border-2 border-purple-200 rounded overflow-hidden bg-white shadow">
-                    <img 
-                      src={url} 
-                      alt={`ECG ${index + 1}`} 
-                      className="w-full h-48 object-contain cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={() => window.open(url, '_blank')}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        const parent = e.target.closest('.border-2');
-                        if (parent) {
-                          const fallbackDiv = parent.querySelector('.fallback-link');
-                          if (fallbackDiv) fallbackDiv.style.display = 'flex';
-                        }
-                      }}
-                    />
-                    <div className="fallback-link w-full h-48 items-center justify-center bg-gray-100 hidden">
-                      <a href={url} target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline text-sm font-medium">
-                        📄 Ver ECG {index + 1}
-                      </a>
-                    </div>
-                    <div className="p-2 bg-purple-100 text-center">
-                      <Badge className="bg-purple-600 text-white">ECG {index + 1}</Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {dadosPaciente.analise_ecg_ia && (
-                <div className="p-4 bg-white rounded border-2 border-purple-200 shadow-sm">
-                  <p className="text-sm font-bold text-purple-900 mb-2 flex items-center gap-2">
-                    <Activity className="w-4 h-4" />
-                    🤖 Análise do ECG por Inteligência Artificial:
-                  </p>
-                  <pre className="text-xs text-purple-800 whitespace-pre-wrap font-sans leading-relaxed max-h-96 overflow-y-auto">
-                    {dadosPaciente.analise_ecg_ia}
-                  </pre>
-                </div>
-              )}
             </div>
           )}
 
           {/* ========== ETAPA 4: CLASSIFICAÇÃO DE RISCO ========== */}
           <div className="border-l-4 border-l-orange-500 pl-4 bg-orange-50 p-4 rounded">
-            <h3 className="font-bold text-orange-900 mb-3 text-lg">4️⃣ CLASSIFICAÇÃO DE RISCO (Manchester)</h3>
+            <h3 className="font-bold text-orange-900 mb-3 text-lg">4️⃣ CLASSIFICAÇÃO DE RISCO</h3>
             <div className="space-y-3">
               <div className="flex items-center gap-3 bg-white p-3 rounded">
                 <span className="text-gray-700 font-semibold">Classificação:</span>
@@ -557,41 +481,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                     {dadosPaciente.classificacao_risco.cor}
                   </Badge>
                 )}
-              </div>
-              <div className="bg-white p-3 rounded">
-                <span className="text-gray-700 font-semibold block mb-1">Tempo máximo de atendimento:</span>
-                <p className="font-bold text-gray-900 text-base">{dadosPaciente.classificacao_risco?.tempo_atendimento_max || '-'}</p>
-              </div>
-              {dadosPaciente.classificacao_risco?.discriminadores && (
-                <div className="bg-white p-3 rounded">
-                  <span className="text-gray-700 font-semibold block mb-2">Discriminadores identificados:</span>
-                  <div className="space-y-1">
-                    {dadosPaciente.classificacao_risco.discriminadores.map((disc, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        <span className="text-orange-600">•</span>
-                        <span className="text-sm text-gray-800">{disc}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* ========== ENFERMEIRO RESPONSÁVEL ========== */}
-          <div className="border-l-4 border-l-teal-500 pl-4 bg-teal-50 p-4 rounded">
-            <h4 className="font-bold text-teal-900 mb-3 text-base flex items-center gap-2">
-              <User className="w-5 h-5" />
-              👨‍⚕️ Enfermeiro(a) Responsável pela Triagem
-            </h4>
-            <div className="grid md:grid-cols-2 gap-3 text-sm">
-              <div className="bg-white p-3 rounded">
-                <span className="text-teal-700 font-semibold block mb-1">Nome:</span>
-                <p className="font-bold text-teal-900 text-base">{dadosPaciente.enfermeiro_nome || '-'}</p>
-              </div>
-              <div className="bg-white p-3 rounded">
-                <span className="text-teal-700 font-semibold block mb-1">COREN:</span>
-                <p className="font-bold text-teal-900 text-base">{dadosPaciente.enfermeiro_coren || '-'}</p>
               </div>
             </div>
           </div>
@@ -630,21 +519,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
           </div>
         </div>
 
-        <div className="space-y-2 mb-4 bg-yellow-50 p-4 rounded border border-yellow-200">
-          <Label htmlFor="data_avaliacao" className="text-base font-semibold">Data e Hora da Avaliação</Label>
-          <Input
-            id="data_avaliacao"
-            type="datetime-local"
-            value={avaliacao.data_hora_avaliacao}
-            readOnly
-            disabled
-            className="bg-gray-100 cursor-not-allowed text-base font-bold"
-          />
-          <p className="text-xs text-green-700 font-semibold flex items-center gap-1">
-            ✓ Data/hora registrada automaticamente ao acessar esta etapa (não pode ser alterada)
-          </p>
-        </div>
-
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="antecedentes">Antecedentes Clínicos</Label>
@@ -675,7 +549,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
             <Label htmlFor="hipoteses">Hipóteses Diagnósticas *</Label>
             <Textarea
               id="hipoteses"
-              placeholder="Diagnósticos diferenciais considerados (IAM, angina, dissecção de aorta, pericardite, TEP, etc.)"
+              placeholder="Diagnósticos diferenciais considerados..."
               value={avaliacao.hipoteses_diagnosticas}
               onChange={(e) => setAvaliacao({...avaliacao, hipoteses_diagnosticas: e.target.value})}
               rows={4}
@@ -688,7 +562,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
             <Label htmlFor="observacoes">Observações Adicionais</Label>
             <Textarea
               id="observacoes"
-              placeholder="Outras informações relevantes, achados no exame físico, complicações..."
+              placeholder="Outras informações relevantes..."
               value={avaliacao.observacoes}
               onChange={(e) => setAvaliacao({...avaliacao, observacoes: e.target.value})}
               rows={3}
