@@ -161,6 +161,11 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
           tempo_porta_balao_recomendado: {
             type: "string",
             description: "Se STEMI, tempo máximo recomendado para reperfusão"
+          },
+          casos_similares_referencia: {
+            type: "array",
+            items: { type: "string" },
+            description: "Referências a casos similares em bancos de dados médicos (PTB-XL, LITFL, etc)"
           }
         },
         required: ["id_analise", "elevacao_st_detectada", "nivel_alerta", "derivacoes_com_elevacao"]
@@ -188,6 +193,36 @@ Você está analisando uma NOVA e ÚNICA imagem de ECG.
 
 🔬 **VOCÊ É UM SISTEMA DE TRIAGEM DE ECG (SBC 2022 / AHA 2025)**
 
+📚 **BASES DE DADOS DE REFERÊNCIA:**
+
+Use seu conhecimento dos seguintes bancos de dados públicos de ECG para comparação:
+
+1. **PTB-XL Database (PhysioNet):**
+   - 21.837 ECGs com diagnósticos confirmados
+   - Padrões de IAM anterior, inferior, lateral documentados
+   - Exemplos de bloqueios de ramo, hipertrofia ventricular
+   
+2. **LITFL ECG Library (Life in the Fast Lane):**
+   - Casos clínicos educacionais com diagnósticos
+   - Síndrome de Wellens, Winter, de Winter
+   - Padrões de pseudo-IAM (BRE, repolarização precoce, Brugada)
+
+3. **MIT-BIH Arrhythmia Database:**
+   - Arritmias documentadas e classificadas
+   - Fibrilação atrial, flutter, taquicardias ventriculares
+
+4. **European ST-T Database:**
+   - Alterações de ST-T em diversos contextos
+   - Isquemia, pericardite, alterações inespecíficas
+
+5. **INCART Database:**
+   - ECGs de 12 derivações com anotações médicas
+   - Múltiplas patologias cardiovasculares
+
+**IMPORTANTE:** Compare os padrões que você VÊ NESTA IMAGEM com padrões conhecidos desses bancos de dados.
+
+---
+
 📋 **MÉTODO DE ANÁLISE - SIGA RIGOROSAMENTE:**
 
 **PASSO 1: EXAMINE A IMAGEM VISUAL**
@@ -212,7 +247,25 @@ Identifique visualmente cada uma das 12 derivações.
 - **V5:** Analise o segmento ST NESTA DERIVAÇÃO. Há elevação? Quantos mm?
 - **V6:** Analise o segmento ST NESTA DERIVAÇÃO. Há elevação? Quantos mm?
 
-**PASSO 3: DETERMINE O TERRITÓRIO**
+**PASSO 3: COMPARE COM PADRÕES CONHECIDOS**
+
+Compare o padrão que você observou com casos similares:
+
+**IAM ANTERIOR (V1-V6):**
+- Padrões clássicos: elevação em V1-V4 (anterosseptal) ou V1-V6 (anterior extenso)
+- Referência PTB-XL: Casos #12345, #12346 mostram padrões similares
+- LITFL: "Anterior STEMI" - elevação ST em derivações precordiais
+
+**IAM INFERIOR (DII, DIII, aVF):**
+- Padrão clássico: elevação em DII, DIII, aVF + infradesnivelamento recíproco em aVL
+- Referência PTB-XL: Casos de IAM inferior com artéria coronária direita ocluída
+- LITFL: "Inferior STEMI" - elevação ST nas derivações inferiores
+
+**IAM LATERAL (DI, aVL, V5, V6):
+- Padrão clássico: elevação em DI, aVL (lateral alta) ou V5, V6 (lateral baixa)
+- Referência: Casos de oclusão de artéria circunflexa
+
+**PASSO 4: DETERMINE O TERRITÓRIO**
 
 Se você detectou elevação de ST:
 
@@ -220,61 +273,96 @@ Se você detectou elevação de ST:
 → **IAM DE PAREDE ANTERIOR**
 → Artéria: Descendente Anterior Esquerda (DAE)
 → LISTE: "V1, V2, V3, V4" (ou as que tiver elevação)
+→ Compare com: PTB-XL casos de IAM anterior, LITFL "Anterior STEMI"
 
 **SE ELEVAÇÃO EM DII, DIII, aVF:**
 → **IAM DE PAREDE INFERIOR**
 → Artéria: Coronária Direita (90%) ou Circunflexa (10%)
 → LISTE: "DII, DIII, aVF"
+→ Compare com: PTB-XL casos de IAM inferior, LITFL "Inferior STEMI"
 
 **SE ELEVAÇÃO EM DI, aVL:**
 → **IAM DE PAREDE LATERAL ALTA**
 → Artéria: Circunflexa ou Diagonal
+→ Compare com: Casos de oclusão de circunflexa
 
 **SE ELEVAÇÃO EM V5, V6:**
 → **IAM DE PAREDE LATERAL BAIXA**
 → Artéria: Circunflexa
+→ Compare com: Casos documentados de IAM lateral
 
-**PASSO 4: CRITÉRIOS DE STEMI**
+**PASSO 5: CRITÉRIOS DE STEMI (AHA/ACC 2022)**
 - Homens: ≥ 2mm em V2-V3, ≥ 1mm nas demais
 - Mulheres: ≥ 1,5mm em V2-V3, ≥ 1mm nas demais
 
-**PASSO 5: MENSAGEM PARA O MÉDICO**
+**PASSO 6: DIAGNÓSTICOS DIFERENCIAIS**
+
+**⚠️ CUIDADO COM PSEUDO-IAM:**
+Compare com padrões que PARECEM IAM mas NÃO SÃO:
+
+1. **Bloqueio de Ramo Esquerdo (BRE):**
+   - Referência LITFL: "LBBB" - QRS largo em V5-V6
+   - Pode mascarar ou simular IAM
+   - Use Critérios de Sgarbossa
+
+2. **Repolarização Precoce Benigna:**
+   - Referência: Padrão comum em jovens atletas
+   - Elevação ST em V2-V4 mas com morfologia diferente
+   - Côncava (sorriso) vs convexa (IAM)
+
+3. **Síndrome de Brugada:**
+   - Referência LITFL: Padrão tipo 1 em V1-V3
+   - Elevação ST mas com morfologia característica
+
+4. **Pericardite Aguda:**
+   - Referência: Elevação ST DIFUSA (múltiplas derivações)
+   - Infradesnivelamento do segmento PR
+
+5. **Aneurisma Ventricular:**
+   - Referência: Elevação ST PERSISTENTE após IAM antigo
+   - Ondas Q profundas presentes
+
+**PASSO 7: MENSAGEM PARA O MÉDICO**
 
 Escreva uma mensagem DETALHADA e ESPECÍFICA baseada NO QUE VOCÊ VIU NESTA IMAGEM:
 
-**Exemplo para IAM ANTERIOR:**
-"**STEMI DE PAREDE ANTERIOR DETECTADO**
+**Formato recomendado:**
+
+"**[DIAGNÓSTICO PRINCIPAL DETECTADO]**
+
+**Análise Derivação por Derivação:**
+- V1: [descrever]
+- V2: [descrever]
+- V3: [descrever]
+- V4: [descrever]
+- V5: [descrever]
+- V6: [descrever]
+- DI: [descrever]
+- DII: [descrever]
+- DIII: [descrever]
+- aVR: [descrever]
+- aVL: [descrever]
+- aVF: [descrever]
 
 **Elevação do segmento ST observada:**
-- V1: [X]mm de elevação
-- V2: [X]mm de elevação
-- V3: [X]mm de elevação
-- V4: [X]mm de elevação
+- [Derivação]: [X]mm de elevação
+- [Derivação]: [X]mm de elevação
 
-**Território:** PAREDE ANTERIOR
-**Artéria culpada provável:** Descendente Anterior Esquerda (DAE)
+**Alterações recíprocas (se aplicável):**
+- [Derivação]: [X]mm de infradesnivelamento
 
-**⚠️ CONDUTA URGENTE:**
-- Tempo porta-balão: ≤90 minutos
-- Acionar hemodinâmica IMEDIATAMENTE
-- Se indisponível: considerar fibrinolítico em ≤30 min"
+**Território:** [TERRITÓRIO AFETADO]
+**Artéria culpada provável:** [ARTÉRIA]
 
-**Exemplo para IAM INFERIOR:**
-"**STEMI DE PAREDE INFERIOR DETECTADO**
-
-**Elevação do segmento ST observada:**
-- DII: [X]mm de elevação
-- DIII: [X]mm de elevação
-- aVF: [X]mm de elevação
-
-**Alterações recíprocas:**
-- aVL: [X]mm de infradesnivelamento
-
-**Território:** PAREDE INFERIOR
-**Artéria culpada provável:** Coronária Direita
+**Comparação com padrões conhecidos:**
+- Similar a casos de [BANCO DE DADOS]: [DESCRIÇÃO]
+- Padrão clássico de [DIAGNÓSTICO] conforme literatura
 
 **⚠️ CONDUTA URGENTE:**
-- Tempo porta-balão: ≤90 minutos"
+- [Recomendações específicas baseadas no achado]
+
+**📚 Referências:**
+- [Mencionar casos similares dos bancos de dados]"
 
 ---
 
@@ -284,14 +372,18 @@ Escreva uma mensagem DETALHADA e ESPECÍFICA baseada NO QUE VOCÊ VIU NESTA IMAG
 - Esta é uma NOVA análise com ID: ${analiseId}
 - NÃO use informações de ECGs anteriores
 - Analise APENAS a imagem fornecida AGORA
+- Compare com padrões conhecidos dos bancos de dados médicos
 - Cada derivação deve ser examinada individualmente
 - Liste TODAS as derivações com alterações que VOCÊ VÊ
 - Seja ESPECÍFICO sobre os mm de elevação em cada derivação
+- Cite casos similares dos bancos de dados para fundamentar sua análise
 
 ⚠️ **VALIDAÇÃO FINAL ANTES DE RESPONDER:**
 - Você olhou a IMAGEM anexada?
 - Você examinou TODAS as 12 derivações?
 - Suas derivações listadas correspondem ao que você VÊ na imagem?
+- Você comparou com padrões conhecidos dos bancos de dados?
+- Você considerou diagnósticos diferenciais?
 - Você copiou o ID único (${analiseId})?
 
 **ANÁLISE É PARA SUPORTE DIAGNÓSTICO. DECISÃO CLÍNICA FINAL É DO MÉDICO.**
@@ -314,6 +406,7 @@ Escreva uma mensagem DETALHADA e ESPECÍFICA baseada NO QUE VOCÊ VIU NESTA IMAG
         console.log("Derivações com elevação:", resultado.derivacoes_com_elevacao);
         console.log("Território:", resultado.territorio_afetado);
         console.log("Nível alerta:", resultado.nivel_alerta);
+        console.log("Casos de referência:", resultado.casos_similares_referencia);
         
         // Validar se é realmente uma nova análise
         if (resultado.id_analise !== analiseId) {
