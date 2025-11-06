@@ -28,30 +28,37 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
 
     setUploading(true);
     try {
-      const uploadPromises = files.map(file => 
+      const uploadPromises = files.map(file =>
         base44.integrations.Core.UploadFile({ file })
       );
       const results = await Promise.all(uploadPromises);
       const urls = results.map(r => r.file_url);
-      
+
       const novosFiles = [...ecgFiles, ...urls].slice(0, 3);
       setEcgFiles(novosFiles);
 
-      // Executar análise de triagem automática
-      if (novosFiles.length > 0 && !alertaTriagem) {
-        await analisarECGTriagem(novosFiles[0]);
-      }
+      // IMPORTANTE: Limpar análise anterior e forçar nova análise do ECG recém-carregado
+      console.log("Novo ECG carregado, iniciando análise...");
+      setAlertaTriagem(null); // Limpar resultado anterior
+
+      // Executar análise de triagem automática do NOVO ECG
+      await analisarECGTriagem(urls[0]); // Analisa o primeiro arquivo recém carregado
 
     } catch (error) {
       console.error("Erro ao fazer upload:", error);
       alert("Erro ao anexar ECG. Tente novamente.");
     }
-    
+
     setUploading(false);
   };
 
   const analisarECGTriagem = async (ecgUrl) => {
     setAnalyzing(true);
+
+    console.log("=== INICIANDO ANÁLISE DE ECG ===");
+    console.log("URL do ECG:", ecgUrl);
+    console.log("Timestamp:", new Date().toISOString());
+
     try {
       const schema = {
         type: "object",
@@ -84,7 +91,7 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
             enum: [
               "Sem alterações significativas de ST",
               "PAREDE ANTERIOR (V1-V4)",
-              "PAREDE ANTEROSSEPTAL (V1-V3)", 
+              "PAREDE ANTEROSSEPTAL (V1-V3)",
               "PAREDE ANTERIOR EXTENSA (V1-V6 + DI + aVL)",
               "PAREDE INFERIOR (DII, DIII, aVF)",
               "PAREDE LATERAL ALTA (DI, aVL)",
@@ -148,6 +155,13 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
 
 🎯 **OBJETIVO:** Análise de SUPORTE DIAGNÓSTICO para TRIAGEM de ECG - NÃO substitui interpretação médica.
 
+⚠️ **EXTREMAMENTE IMPORTANTE:**
+- Você está analisando uma NOVA imagem de ECG AGORA
+- NÃO use informações de análises anteriores
+- Analise APENAS a imagem fornecida NESTA chamada
+- Cada ECG é ÚNICO e deve ter análise INDEPENDENTE
+- Timestamp da análise: ${new Date().toISOString()}
+
 📋 **INSTRUÇÕES CRÍTICAS DE ANÁLISE:**
 
 **1. EXAMINE DERIVAÇÃO POR DERIVAÇÃO - NÃO PULE NENHUMA:**
@@ -175,21 +189,24 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
 
 **3. MAPEAMENTO DE TERRITÓRIOS CORONARIANOS:**
 
+**IAM ANTERIOR:**
+- **Anterosseptal:** V1, V2, V3 → Descendente Anterior proximal
+- **Anterior:** V1, V2, V3, V4 → Descendente Anterior
+- **Anterior extenso:** V1-V6 + DI + aVL → Descendente Anterior proximal (grande área)
+- **Artéria:** Descendente Anterior Esquerda (DAE)
+
 **IAM INFERIOR:**
 - **Elevação em:** DII, DIII, aVF
 - **Infradesnivelamento recíproco:** aVL (comum), DI (pode ocorrer)
 - **Artéria:** Coronária Direita (90%) ou Circunflexa (10%)
-- **⚠️ ATENÇÃO:** IAM inferior é FREQUENTEMENTE subdiagnosticado! Sempre verifique DII, DIII, aVF
+
+**IAM LATERAL:**
+- **Lateral alta:** DI, aVL → Circunflexa ou Diagonal
+- **Lateral baixa:** V5, V6 → Circunflexa
 
 **IAM INFEROLATERAL:**
 - **Elevação em:** DII, DIII, aVF + V5, V6
 - **Artéria:** Coronária Direita dominante ou Circunflexa
-
-**IAM ANTERIOR:**
-- **Anterosseptal:** V1, V2, V3 → Descendente Anterior proximal
-- **Anterior extenso:** V1-V6 + DI + aVL → Descendente Anterior proximal (grande área)
-- **Lateral alta:** DI, aVL → Circunflexa ou Diagonal
-- **Lateral baixa:** V5, V6 → Circunflexa
 
 **IAM POSTERIOR:**
 - Infradesnivelamento em V1-V3 + elevação em V7-V9 (se disponível)
@@ -208,20 +225,18 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
 - **BRD:** Não impede diagnóstico de IAM
 
 **7. MENSAGEM PARA O MÉDICO:**
-Seja EXTREMAMENTE DETALHADO. Exemplo:
+Seja EXTREMAMENTE DETALHADO e ESPECÍFICO para ESTE ECG. Exemplo:
 
-"**STEMI DE PAREDE INFERIOR DETECTADO**
+"**STEMI DE PAREDE ANTERIOR DETECTADO**
 
 **Elevação do segmento ST:**
-- DII: 3mm de elevação
-- DIII: 4mm de elevação  
-- aVF: 3mm de elevação
+- V2: 4mm de elevação
+- V3: 5mm de elevação
+- V4: 4mm de elevação
+- V5: 2mm de elevação
 
-**Alterações recíprocas:**
-- aVL: 2mm de infradesnivelamento (confirma IAM inferior)
-
-**Território:** PAREDE INFERIOR (DII, DIII, aVF)
-**Artéria culpada provável:** Coronária Direita (CD)
+**Território:** PAREDE ANTERIOR (V2-V5)
+**Artéria culpada provável:** Descendente Anterior Esquerda (DAE)
 
 **⚠️ CONDUTA URGENTE:**
 - Tempo porta-balão: ≤90 minutos
@@ -229,7 +244,7 @@ Seja EXTREMAMENTE DETALHADO. Exemplo:
 - Se indisponível: considerar fibrinolítico em ≤30 min
 
 **Outras observações:**
-- Ritmo sinusal, FC ~78 bpm
+- Ritmo sinusal, FC ~85 bpm
 - Sem bloqueios de ramo
 - Sem ondas Q patológicas (IAM agudo recente)"
 
@@ -249,14 +264,16 @@ Seja EXTREMAMENTE DETALHADO. Exemplo:
 
 **AGORA ANALISE O ECG ANEXADO:**
 
+⚠️ **LEMBRE-SE:** Este é um ECG NOVO, diferente de qualquer análise anterior.
 Examine CUIDADOSAMENTE cada uma das 12 derivações.
-NÃO SUBESTIME IAM inferior (DII, DIII, aVF).
+NÃO assuma padrões de ECGs anteriores.
 Liste TODAS as derivações com alterações.
 Seja DETALHADO e ESPECÍFICO na mensagem para o médico.
 
 ⚠️ **LEMBRETE:** Esta é uma análise de TRIAGEM para SUPORTE DIAGNÓSTICO.
 A interpretação e decisão clínica final são SEMPRE do médico responsável.`;
 
+      console.log("Enviando para análise da IA...");
       const resultado = await base44.integrations.Core.InvokeLLM({
         prompt: prompt,
         file_urls: ecgUrl,
@@ -264,7 +281,11 @@ A interpretação e decisão clínica final são SEMPRE do médico responsável.
       });
 
       if (resultado) {
-        console.log("Resultado da análise de ECG:", resultado);
+        console.log("=== RESULTADO DA ANÁLISE ===");
+        console.log("Elevação ST:", resultado.elevacao_st_detectada);
+        console.log("Derivações:", resultado.derivacoes_com_elevacao);
+        console.log("Território:", resultado.territorio_afetado);
+        console.log("Nível alerta:", resultado.nivel_alerta);
         setAlertaTriagem(resultado);
       }
 
@@ -284,12 +305,12 @@ A interpretação e decisão clínica final são SEMPRE do médico responsável.
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     console.log("Iniciando submit da Etapa 5");
     console.log("ECG Files:", ecgFiles.length);
     console.log("Enfermeiro:", enfermeiro);
     console.log("Interpretação:", interpretacaoMedico.length);
-    
+
     if (ecgFiles.length === 0) {
       alert("Por favor, anexe pelo menos um arquivo de ECG");
       return;
@@ -298,15 +319,15 @@ A interpretação e decisão clínica final são SEMPRE do médico responsável.
       alert("Por favor, preencha o nome e COREN do enfermeiro");
       return;
     }
-    
+
     const dataHoraEcg = dadosPaciente.data_hora_ecg || new Date().toISOString();
-    const tempoMinutos = dadosPaciente.tempo_triagem_ecg_minutos || (dadosPaciente.data_hora_inicio_triagem 
+    const tempoMinutos = dadosPaciente.tempo_triagem_ecg_minutos || (dadosPaciente.data_hora_inicio_triagem
       ? differenceInMinutes(new Date(dataHoraEcg), new Date(dadosPaciente.data_hora_inicio_triagem))
       : 0);
-    
-    const dadosParaSalvar = { 
+
+    const dadosParaSalvar = {
       ecg_files: ecgFiles,
-      data_hora_ecg: dataHoraEcg, 
+      data_hora_ecg: dataHoraEcg,
       tempo_triagem_ecg_minutos: tempoMinutos,
       alerta_triagem_ecg: alertaTriagem,
       interpretacao_ecg_medico: interpretacaoMedico || "", // Opcional - pode ser preenchido pelo médico depois
@@ -314,9 +335,9 @@ A interpretação e decisão clínica final são SEMPRE do médico responsável.
       enfermeiro_coren: enfermeiro.coren,
       status: "Aguardando Médico"
     };
-    
+
     console.log("Dados para salvar:", dadosParaSalvar);
-    
+
     try {
       onProxima(dadosParaSalvar);
       console.log("onProxima chamado com sucesso");
@@ -362,15 +383,15 @@ A interpretação e decisão clínica final são SEMPRE do médico responsável.
             <p className="text-sm text-gray-700">
               Para análise ainda mais precisa, você pode usar sistemas especializados certificados:
             </p>
-            
+
             <div className="grid grid-cols-2 gap-2">
-              <a 
-                href="https://app.cardiologs.com" 
-                target="_blank" 
+              <a
+                href="https://app.cardiologs.com"
+                target="_blank"
                 rel="noopener noreferrer"
               >
-                <Button 
-                  type="button" 
+                <Button
+                  type="button"
                   variant="outline"
                   size="sm"
                   className="w-full text-xs"
@@ -379,9 +400,9 @@ A interpretação e decisão clínica final são SEMPRE do médico responsável.
                   Cardiologs AI
                 </Button>
               </a>
-              
-              <Button 
-                type="button" 
+
+              <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 className="w-full text-xs"
@@ -439,9 +460,9 @@ A interpretação e decisão clínica final são SEMPRE do médico responsável.
               <div className="grid md:grid-cols-3 gap-3">
                 {ecgFiles.map((url, index) => (
                   <div key={index} className="border-2 border-green-200 rounded overflow-hidden bg-green-50">
-                    <img 
-                      src={url} 
-                      alt={`ECG ${index + 1}`} 
+                    <img
+                      src={url}
+                      alt={`ECG ${index + 1}`}
                       className="w-full h-48 object-contain cursor-pointer hover:opacity-80 transition-opacity bg-white"
                       onClick={() => window.open(url, '_blank')}
                       onError={(e) => {
@@ -703,8 +724,8 @@ CONDUTA: Reperfusão imediata (ICP primária vs fibrinolítico)
           <ArrowLeft className="w-4 h-4 mr-2" />
           Anterior
         </Button>
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="bg-red-600 hover:bg-red-700"
           disabled={ecgFiles.length === 0 || !enfermeiro.nome || !enfermeiro.coren}
         >
