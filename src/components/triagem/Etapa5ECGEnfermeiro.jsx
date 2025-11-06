@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -67,19 +68,22 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
           derivacoes_com_elevacao: {
             type: "array",
             items: { type: "string" },
-            description: "Liste APENAS as derivações onde você VÊ elevação de ST. Exemplos: V2, V3, V4 ou II, III, aVF"
+            description: "Liste TODAS as derivações onde você VÊ elevação de ST. Seja específico: V1, V2, V3, V4, V5, V6, I, II, III, aVR, aVL, aVF"
           },
           territorio_provavel: {
             type: "string",
             enum: [
               "Sem elevação de ST detectada",
               "Anterior (V1-V4)",
+              "Anterosseptal (V1-V3)",
+              "Anterior extenso (V1-V6, I, aVL)",
               "Inferior (II, III, aVF)",
               "Lateral (I, aVL, V5-V6)",
+              "Inferolateral",
               "Múltiplos territórios",
               "Não é possível determinar"
             ],
-            description: "Território provável baseado nas derivações com elevação. ANTERIOR=V1-V4, INFERIOR=II/III/aVF, LATERAL=I/aVL/V5-V6"
+            description: "Território coronário baseado nas derivações"
           },
           nivel_alerta: {
             type: "string",
@@ -93,32 +97,61 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
           },
           mensagem_para_medico: {
             type: "string",
-            description: "Mensagem curta e direta para o médico sobre o que você viu. Seja específico sobre derivações."
+            description: "Mensagem detalhada sobre TODAS as derivações com elevação de ST. Liste cada uma."
           }
         },
-        required: ["elevacao_st_detectada", "nivel_alerta"]
+        required: ["elevacao_st_detectada", "nivel_alerta", "derivacoes_com_elevacao"]
       };
 
-      const prompt = `Você é um sistema de TRIAGEM de ECG. Sua função é APENAS alertar o médico sobre possível elevação de ST.
+      const prompt = `Você é um sistema especializado de TRIAGEM de ECG para detectar elevação de ST.
 
-TAREFA SIMPLES: Olhe o ECG e responda:
+🎯 TAREFA CRÍTICA: Analise CUIDADOSAMENTE o segmento ST em TODAS as 12 derivações.
 
-1️⃣ Você vê elevação do segmento ST em alguma derivação? (SIM ou NÃO)
+📋 INSTRUÇÕES PASSO A PASSO:
 
-2️⃣ Se SIM, em quais derivações? (seja específico: V1, V2, V3, etc)
+1️⃣ **EXAMINE CADA DERIVAÇÃO INDIVIDUALMENTE:**
 
-3️⃣ Baseado nessas derivações, qual território?
-   - V1, V2, V3, V4 → ANTERIOR
-   - II, III, aVF → INFERIOR  
-   - I, aVL, V5, V6 → LATERAL
+**DERIVAÇÕES PRECORDIAIS (V1-V6):**
+- V1: O segmento ST está elevado acima da linha de base? SIM/NÃO
+- V2: O segmento ST está elevado acima da linha de base? SIM/NÃO
+- V3: O segmento ST está elevado acima da linha de base? SIM/NÃO
+- V4: O segmento ST está elevado acima da linha de base? SIM/NÃO
+- V5: O segmento ST está elevado acima da linha de base? SIM/NÃO
+- V6: O segmento ST está elevado acima da linha de base? SIM/NÃO
 
-LEMBRE-SE:
-- Elevação de ST = segmento ST acima da linha de base
-- Seja conservador: se não tiver certeza, diga "Não é possível determinar"
-- Sua análise é apenas um ALERTA, não um diagnóstico
-- O médico SEMPRE fará a interpretação final
+**DERIVAÇÕES DE MEMBROS:**
+- I: Elevação de ST? SIM/NÃO
+- II: Elevação de ST? SIM/NÃO
+- III: Elevação de ST? SIM/NÃO
+- aVR: Elevação de ST? SIM/NÃO
+- aVL: Elevação de ST? SIM/NÃO
+- aVF: Elevação de ST? SIM/NÃO
 
-Analise o ECG e retorne um alerta simples e direto.`;
+2️⃣ **CRITÉRIOS DE ELEVAÇÃO DE ST:**
+- Homens: ≥ 2mm em V2-V3, ≥ 1mm nas outras derivações
+- Mulheres: ≥ 1,5mm em V2-V3, ≥ 1mm nas outras derivações
+- Elevação = segmento ST ACIMA da linha isoelétrica (linha de base)
+
+3️⃣ **MAPEAMENTO DE TERRITÓRIO:**
+- Se V1, V2, V3 → "Anterosseptal (V1-V3)"
+- Se V1, V2, V3, V4 → "Anterior (V1-V4)"
+- Se V2, V3, V4, V5 → "Anterior (V2-V5)"
+- Se V1, V2, V3, V4, V5, V6 + I + aVL → "Anterior extenso (V1-V6, I, aVL)"
+- Se V4, V5, V6 + I + aVL → "Lateral (I, aVL, V5-V6)"
+- Se II, III, aVF → "Inferior (II, III, aVF)"
+- Se II, III, aVF + V5, V6 → "Inferolateral"
+
+4️⃣ **MENSAGEM PARA O MÉDICO:**
+Liste TODAS as derivações onde você viu elevação, por exemplo:
+"Elevação de ST detectada em: V2 (3mm), V3 (4mm), V4 (3mm), V5 (2mm). Território: Parede anterior."
+
+⚠️ **IMPORTANTE:**
+- NÃO ignore V4, V5, V6 - são críticas para IAM anterior extenso
+- Se houver elevação em V2-V3 mas não em V4-V5, mencione isso
+- Seja COMPLETO - liste TODAS as derivações com elevação
+- Se não tiver certeza, diga "Não é possível determinar" ao invés de adivinhar
+
+Analise o ECG anexado agora e responda de forma precisa e completa.`;
 
       const resultado = await base44.integrations.Core.InvokeLLM({
         prompt: prompt,
@@ -127,6 +160,7 @@ Analise o ECG e retorne um alerta simples e direto.`;
       });
 
       if (resultado) {
+        console.log("Resultado da análise:", resultado);
         setAlertaTriagem(resultado);
       }
 
@@ -136,7 +170,8 @@ Analise o ECG e retorne um alerta simples e direto.`;
         qualidade_imagem: "Ruim",
         elevacao_st_detectada: false,
         nivel_alerta: "⚪ Inconclusivo - Erro na análise automática",
-        mensagem_para_medico: "Sistema de triagem não conseguiu processar. Médico deve interpretar manualmente."
+        mensagem_para_medico: "Sistema de triagem não conseguiu processar. Médico deve interpretar manualmente.",
+        derivacoes_com_elevacao: []
       });
     }
     setAnalyzing(false);
@@ -144,6 +179,12 @@ Analise o ECG e retorne um alerta simples e direto.`;
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    console.log("Iniciando submit da Etapa 5");
+    console.log("ECG Files:", ecgFiles.length);
+    console.log("Enfermeiro:", enfermeiro);
+    console.log("Interpretação:", interpretacaoMedico.length);
+    
     if (ecgFiles.length === 0) {
       alert("Por favor, anexe pelo menos um arquivo de ECG");
       return;
@@ -162,7 +203,7 @@ Analise o ECG e retorne um alerta simples e direto.`;
       ? differenceInMinutes(new Date(dataHoraEcg), new Date(dadosPaciente.data_hora_inicio_triagem))
       : 0);
     
-    onProxima({ 
+    const dadosParaSalvar = { 
       ecg_files: ecgFiles,
       data_hora_ecg: dataHoraEcg, 
       tempo_triagem_ecg_minutos: tempoMinutos,
@@ -171,7 +212,17 @@ Analise o ECG e retorne um alerta simples e direto.`;
       enfermeiro_nome: enfermeiro.nome,
       enfermeiro_coren: enfermeiro.coren,
       status: "Aguardando Médico"
-    });
+    };
+    
+    console.log("Dados para salvar:", dadosParaSalvar);
+    
+    try {
+      onProxima(dadosParaSalvar);
+      console.log("onProxima chamado com sucesso");
+    } catch (error) {
+      console.error("Erro ao chamar onProxima:", error);
+      alert("Erro ao avançar para próxima etapa. Verifique o console para mais detalhes.");
+    }
   };
 
   const tempoTriagemEcg = dadosPaciente.tempo_triagem_ecg_minutos;
@@ -186,7 +237,7 @@ Analise o ECG e retorne um alerta simples e direto.`;
       <Alert className="border-blue-500 bg-blue-50">
         <Zap className="h-5 w-5 text-blue-600" />
         <AlertDescription className="text-blue-800">
-          <strong>Sistema de Triagem Automática:</strong> Ao anexar o ECG, o sistema fará uma análise rápida para detectar elevação de ST e alertar o médico. 
+          <strong>Sistema de Triagem Automática:</strong> Ao anexar o ECG, o sistema fará uma análise rápida para detectar elevação de ST em TODAS as 12 derivações e alertar o médico. 
           <strong className="block mt-1">A interpretação final é sempre médica.</strong>
         </AlertDescription>
       </Alert>
@@ -221,7 +272,7 @@ Analise o ECG e retorne um alerta simples e direto.`;
             <Alert className="border-purple-500 bg-purple-50">
               <Loader2 className="h-5 w-5 text-purple-600 animate-spin" />
               <AlertDescription className="text-purple-800">
-                🔍 Analisando ECG para detectar elevação de ST... Aguarde alguns segundos...
+                🔍 Analisando ECG detalhadamente - examinando TODAS as 12 derivações para detectar elevação de ST... Aguarde alguns segundos...
               </AlertDescription>
             </Alert>
           )}
