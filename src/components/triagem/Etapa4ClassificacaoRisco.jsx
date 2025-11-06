@@ -11,37 +11,40 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const discriminadores = {
   vermelha: [
-    "Nível de consciência alterado",
-    "Hemorragia ativa",
-    "Temperatura > 41°C",
-    "Dor severa",
-    "PAS ≥ 180 mmHg ou PAD ≥ 110 mmHg (com dor torácica)",
-    "PAS < 100 mmHg",
-    "SpO2 < 90%",
-    "Diaforese intensa"
+    "Alteração do Nível de Consciência",
+    "Obstrução das Vias Aéreas",
+    "SpO2 ≤ 89% em ar ambiente",
+    "PAS ≤ 80 mmHg",
+    "FC ≥ 140 bpm",
+    "FC ≤ 40 bpm",
+    "Diaforese (palidez, sudorese fria)"
   ],
   laranja: [
-    "Alerta de provável IAM (triagem cardiológica)",
-    "Dispneia aguda",
-    "Pulsos irregulares",
-    "Dor intensa",
-    "Temperatura ≥ 41°C"
+    "Alerta de Provável IAM (triagem cardiológica)",
+    "Dispneia com SpO2 ≥ 90% e ≤ 94% em ar ambiente",
+    "PAS ≥ 160 e/ou PAD ≥ 110 mmHg",
+    "PA ≥ 140/90 mmHg com cefaleia, epigastralgia ou alterações visuais",
+    "Dor torácica intensa (7 a 10 pontos)",
+    "Início agudo de dor após trauma",
+    "Portador de doença falciforme"
   ],
   amarela: [
-    "SpO2 entre 90% e 92% (sem dispneia)",
-    "Vômitos persistentes",
-    "Paciente cardiopata",
-    "Dor pleurítica (ao respirar)",
-    "Dor moderada",
-    "Temperatura entre 38.5°C e 40.9°C"
+    "Dispneia moderada (mas consegue falar frases mais longas)",
+    "PAS de 140-159 e/ou PAD de 90-109 mmHg, assintomática",
+    "Dor torácica moderada (4 a 6 pontos)",
+    "Edema unilateral de MMII ou dor na panturrilha",
+    "Febre com Tax: 38º C a 39,9º C",
+    "Dor de garganta com placas"
   ],
   verde: [
-    "Vômito não persistente",
-    "Dor leve",
-    "Evento recente (< 7 dias)"
+    "Obstrução nasal com secreção amarelada",
+    "Dor de garganta sem outras alterações",
+    "Tosse produtiva, persistente",
+    "Febre Tax: 37,9º C",
+    "PAS ≤ 139 mmHg e PAD ≤ 89 mmHg"
   ],
   azul: [
-    "Sintomas há mais de 7 dias"
+    "Sintomas a mais de 7 dias"
   ]
 };
 
@@ -69,12 +72,6 @@ const identificarDiscriminadoresAutomaticos = (dadosPaciente) => {
   const vitais = dadosPaciente.dados_vitais || {};
   const triagem = dadosPaciente.triagem_cardiologica || {};
 
-  // Verificar se há dor torácica
-  const temDorToracica = triagem.dor_desconforto_peito ||
-                         triagem.dor_epigastrica ||
-                         triagem.alerta_iam;
-
-  // Verificar PA (usar maior valor entre esquerdo e direito)
   const paEsq = extrairPA(vitais.pa_braco_esquerdo);
   const paDir = extrairPA(vitais.pa_braco_direito);
 
@@ -88,36 +85,61 @@ const identificarDiscriminadoresAutomaticos = (dadosPaciente) => {
     paDir.diastolica || 0
   );
 
-  // VERMELHA: PAS ≥ 180 ou PAD ≥ 110 (COM dor torácica)
-  if (temDorToracica && (pasSistolica >= 180 || pasDiastolica >= 110)) {
-    discriminadoresAuto.push("PAS ≥ 180 mmHg ou PAD ≥ 110 mmHg (com dor torácica)");
+  // VERMELHA: SpO2 ≤ 89%
+  if (vitais.spo2 !== null && vitais.spo2 <= 89) {
+    discriminadoresAuto.push("SpO2 ≤ 89% em ar ambiente");
   }
 
-  // VERMELHA: PAS < 100 (hipotensão grave)
-  if (pasSistolica > 0 && pasSistolica < 100) {
-    discriminadoresAuto.push("PAS < 100 mmHg");
+  // VERMELHA: PAS ≤ 80 mmHg
+  if (pasSistolica > 0 && pasSistolica <= 80) {
+    discriminadoresAuto.push("PAS ≤ 80 mmHg");
   }
 
-  // VERMELHA: SpO2 < 90%
-  if (vitais.spo2 && vitais.spo2 < 90) {
-    discriminadoresAuto.push("SpO2 < 90%");
+  // VERMELHA: FC ≥ 140 bpm
+  if (vitais.frequencia_cardiaca !== null && vitais.frequencia_cardiaca >= 140) {
+    discriminadoresAuto.push("FC ≥ 140 bpm");
   }
 
-  // VERMELHA/LARANJA: Temperatura > 41°C ou ≥ 41°C
-  if (vitais.temperatura && vitais.temperatura > 41) {
-    discriminadoresAuto.push("Temperatura > 41°C");
-    // "Temperatura ≥ 41°C" is also part of Laranja, if it's already >41, it also fits >=41
-    discriminadoresAuto.push("Temperatura ≥ 41°C");
+  // VERMELHA: FC ≤ 40 bpm
+  if (vitais.frequencia_cardiaca !== null && vitais.frequencia_cardiaca <= 40) {
+    discriminadoresAuto.push("FC ≤ 40 bpm");
   }
 
-  // AMARELA: SpO2 entre 90% e 92%
-  if (vitais.spo2 && vitais.spo2 >= 90 && vitais.spo2 <= 92) {
-    discriminadoresAuto.push("SpO2 entre 90% e 92% (sem dispneia)");
+  // LARANJA: Alerta de Provável IAM
+  if (triagem.alerta_iam) {
+    discriminadoresAuto.push("Alerta de Provável IAM (triagem cardiológica)");
   }
 
-  // AMARELA: Temperatura entre 38.5°C e 40.9°C
-  if (vitais.temperatura && vitais.temperatura >= 38.5 && vitais.temperatura <= 40.9) {
-    discriminadoresAuto.push("Temperatura entre 38.5°C e 40.9°C");
+  // LARANJA: Dispneia com SpO2 ≥ 90% e ≤ 94%
+  // Assuming "Dispneia" is implied if SpO2 is in this range and not already in red, or is explicitly flagged elsewhere.
+  // For auto-detection based purely on vitals, we'll check SpO2 range.
+  if (vitais.spo2 !== null && vitais.spo2 >= 90 && vitais.spo2 <= 94) {
+    discriminadoresAuto.push("Dispneia com SpO2 ≥ 90% e ≤ 94% em ar ambiente");
+  }
+
+  // LARANJA: PAS ≥ 160 e/ou PAD ≥ 110
+  if (pasSistolica >= 160 || pasDiastolica >= 110) {
+    discriminadoresAuto.push("PAS ≥ 160 e/ou PAD ≥ 110 mmHg");
+  }
+
+  // AMARELA: PAS de 140-159 e/ou PAD de 90-109
+  if ((pasSistolica >= 140 && pasSistolica <= 159) || (pasDiastolica >= 90 && pasDiastolica <= 109)) {
+    discriminadoresAuto.push("PAS de 140-159 e/ou PAD de 90-109 mmHg, assintomática");
+  }
+
+  // AMARELA: Febre com Tax: 38º C a 39,9º C
+  if (vitais.temperatura !== null && vitais.temperatura >= 38 && vitais.temperatura <= 39.9) {
+    discriminadoresAuto.push("Febre com Tax: 38º C a 39,9º C");
+  }
+
+  // VERDE: Febre Tax: 37,9º C
+  if (vitais.temperatura !== null && vitais.temperatura >= 37 && vitais.temperatura <= 37.9) {
+    discriminadoresAuto.push("Febre Tax: 37,9º C");
+  }
+
+  // VERDE: PA normal (PAS ≤ 139 mmHg e PAD ≤ 89 mmHg)
+  if (pasSistolica > 0 && pasSistolica <= 139 && pasDiastolica > 0 && pasDiastolica <= 89) {
+    discriminadoresAuto.push("PAS ≤ 139 mmHg e PAD ≤ 89 mmHg");
   }
 
   return discriminadoresAuto;
@@ -201,7 +223,6 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
       };
 
       const triagem = dadosAnalise.triagem_cardiologica || {};
-      const temDorToracica = triagem.dor_desconforto_peito || triagem.dor_epigastrica || triagem.alerta_iam;
 
       const prompt = `
 Você é um sistema especialista em triagem de emergência usando o Protocolo Manchester e diretrizes da SBC 2025 para dor torácica.
@@ -234,53 +255,55 @@ ${dadosAnalise.dados_vitais ? `
 - DPOC: ${dadosAnalise.dados_vitais.dpoc ? 'SIM' : 'NÃO'}
 ` : 'Não disponível'}
 
-PROTOCOLO MANCHESTER - CRITÉRIOS:
+PROTOCOLO MANCHESTER - CRITÉRIOS DETALHADOS:
 
 VERMELHA (Ameaça à vida - Atendimento IMEDIATO):
-- PAS ≥ 180 mmHg ou PAD ≥ 110 mmHg (APENAS se houver dor torácica/cardíaca)
-- PAS < 100 mmHg (hipotensão grave)
-- SpO2 < 90%
-- Temperatura > 41°C
-- Dor severa
-- Nível de consciência alterado
-- Hemorragia ativa
-- Diaforese intensa
+- Alteração do Nível de Consciência
+- Obstrução das Vias Aéreas
+- SpO2 ≤ 89% em ar ambiente
+- PAS ≤ 80 mmHg
+- FC ≥ 140 bpm
+- FC ≤ 40 bpm
+- Diaforese (palidez, sudorese fria)
 
 LARANJA (Muito urgente - até 10 minutos):
-- Alerta de provável IAM (qualquer SIM na triagem cardiológica)
-- Dispneia aguda
-- Temperatura ≥ 41°C
-- Dor intensa
-- Pulsos irregulares
-- NÃO INCLUI SpO2 < 90% (isso é VERMELHA)
+- Alerta de Provável IAM (qualquer SIM na triagem cardiológica)
+- Dispneia com SpO2 ≥ 90% e ≤ 94% em ar ambiente
+- PAS ≥ 160 e/ou PAD ≥ 110 mmHg
+- PA ≥ 140/90 mmHg com cefaleia, epigastralgia ou alterações visuais
+- Dor torácica intensa (7 a 10 pontos)
+- Início agudo de dor após trauma
+- Portador de doença falciforme
 
 AMARELA (Urgente - até 60 minutos):
-- SpO2 90-92% sem dispneia
-- Temperatura 38.5-40.9°C
-- Dor moderada
-- Paciente cardiopata
-- Vômitos persistentes
+- Dispneia moderada (mas consegue falar frases mais longas)
+- PAS de 140-159 e/ou PAD de 90-109 mmHg, assintomática
+- Dor torácica moderada (4 a 6 pontos)
+- Edema unilateral de MMII ou dor na panturrilha
+- Febre com Tax: 38º C a 39,9º C
+- Dor de garganta com placas
 
 VERDE (Pouco urgente - até 120 minutos):
-- Dor leve
-- Evento recente < 7 dias
+- Obstrução nasal com secreção amarelada
+- Dor de garganta sem outras alterações
+- Tosse produtiva, persistente
+- Febre Tax: 37,9º C
+- PAS ≤ 139 mmHg e PAD ≤ 89 mmHg
 
 AZUL (Não urgente - até 240 minutos):
-- Sintomas há mais de 7 dias
+- Sintomas a mais de 7 dias
 
-IMPORTANTE - REGRA ESPECIAL PARA PRESSÃO ARTERIAL:
-${temDorToracica ? '⚠️ PACIENTE COM DOR TORÁCICA DETECTADA - Aplicar critério: PAS ≥ 180 ou PAD ≥ 110 para VERMELHA' : 'Paciente SEM dor torácica - Hipertensão isolada não é critério para VERMELHA'}
+REGRAS DE CLASSIFICAÇÃO:
+1. Se QUALQUER critério de VERMELHA estiver presente, a classificação final é VERMELHA.
+2. Se "Alerta de Provável IAM" estiver presente, a classificação final é NO MÍNIMO LARANJA.
+3. A classificação é determinada pelo discriminador de maior gravidade encontrado.
+4. Analise TODOS os dados vitais cuidadosamente.
+5. Seja conservador - na dúvida, classifique para cima.
+6. Liste discriminadores específicos baseados nos DADOS REAIS do paciente.
+7. Forneça justificativa clara e detalhada para a classificação sugerida, citando dados específicos.
+8. Calcule o tempo de atendimento recomendado com base na classificação final.
 
-ATENÇÃO: SpO2 < 90% é APENAS VERMELHA, NÃO é discriminador LARANJA.
-
-1. Se QUALQUER critério de VERMELHA estiver presente → VERMELHA
-2. Se alerta de IAM → NO MÍNIMO LARANJA
-3. Analise TODOS os dados vitais cuidadosamente
-4. Seja conservador - na dúvida, classifique para cima
-5. Liste discriminadores específicos baseados nos DADOS REAIS
-6. Forneça justificativa clara e detalhada para a classificação sugerida, citando dados específicos
-
-Analise e retorne a classificação de risco adequada com justificativa detalhada.
+Analise e retorne a classificação de risco adequada com justificativa detalhada e outros campos solicitados.
 `;
 
       const resultado = await base44.integrations.Core.InvokeLLM({
@@ -308,8 +331,9 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
 
   useEffect(() => {
     if (discriminadoresSelecionados.length > 0) {
-      let cor = "Azul";
+      let cor = "Azul"; // Default lowest classification
 
+      // Check for Red discriminators first
       if (discriminadoresSelecionados.some(d => discriminadores.vermelha.includes(d))) {
         cor = "Vermelha";
       } else if (discriminadoresSelecionados.some(d => discriminadores.laranja.includes(d))) {
@@ -320,6 +344,7 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
         cor = "Verde";
       }
 
+      // Special rule: if "Alerta de Provável IAM" is present, min classification is Laranja
       if (dadosPaciente.triagem_cardiologica?.alerta_iam && (cor === "Azul" || cor === "Verde" || cor === "Amarela")) {
         cor = "Laranja";
       }
@@ -335,7 +360,8 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
   }, [discriminadoresSelecionados, dadosPaciente.triagem_cardiologica?.alerta_iam]);
 
   const toggleDiscriminador = (discriminador) => {
-    if (discriminador === "Alerta de provável IAM (triagem cardiológica)" && dadosPaciente.triagem_cardiologica?.alerta_iam) {
+    if (discriminador === "Alerta de Provável IAM (triagem cardiológica)" && dadosPaciente.triagem_cardiologica?.alerta_iam) {
+      // If IAM alert is true, this discriminator should always be selected and disabled for manual change
       return;
     }
 
@@ -414,6 +440,18 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
             <div className="bg-white p-3 rounded border">
               <p className="text-gray-600 text-xs mb-1">Temperatura</p>
               <p className="font-bold text-gray-900">{vitais.temperatura ? `${vitais.temperatura}°C` : '-'}</p>
+            </div>
+            <div className="bg-white p-3 rounded border">
+              <p className="text-gray-600 text-xs mb-1">FC</p>
+              <p className="font-bold text-gray-900">{vitais.frequencia_cardiaca ? `${vitais.frequencia_cardiaca} bpm` : '-'}</p>
+            </div>
+            <div className="bg-white p-3 rounded border">
+              <p className="text-gray-600 text-xs mb-1">FR</p>
+              <p className="font-bold text-gray-900">{vitais.frequencia_respiratoria ? `${vitais.frequencia_respiratoria} irpm` : '-'}</p>
+            </div>
+            <div className="bg-white p-3 rounded border">
+              <p className="text-gray-600 text-xs mb-1">Glicemia</p>
+              <p className="font-bold text-gray-900">{vitais.glicemia_capilar ? `${vitais.glicemia_capilar} mg/dL` : '-'}</p>
             </div>
           </div>
           <Alert className="mt-3 border-blue-400 bg-white">
@@ -549,12 +587,13 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
                   className="w-full h-48 object-contain"
                   onError={(e) => {
                     e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
+                    e.target.nextSibling.style.display = 'flex'; // Show fallback div
                   }}
                 />
-                <div style={{display: 'none'}} className="w-full h-48 items-center justify-center bg-gray-100">
+                {/* Fallback for broken image, display a link instead */}
+                <div style={{ display: 'none' }} className="w-full h-48 flex items-center justify-center bg-gray-100 p-2 text-center">
                   <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm">
-                    Ver ECG {index + 1}
+                    Ver Imagem do ECG {index + 1}
                   </a>
                 </div>
               </div>
@@ -612,7 +651,7 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
                     id={`l-${i}`}
                     checked={discriminadoresSelecionados.includes(disc)}
                     onCheckedChange={() => toggleDiscriminador(disc)}
-                    disabled={disc === "Alerta de provável IAM (triagem cardiológica)" && dadosPaciente.triagem_cardiologica?.alerta_iam}
+                    disabled={disc === "Alerta de Provável IAM (triagem cardiológica)" && dadosPaciente.triagem_cardiologica?.alerta_iam}
                   />
                   <Label htmlFor={`l-${i}`} className="cursor-pointer">{disc}</Label>
                 </div>
