@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,17 +73,39 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    console.log("=== DEBUG ETAPA 6 - SUBMIT ===");
+    console.log("Médico:", medico);
+    console.log("Avaliação:", avaliacao);
+    console.log("Dados Vitais Médico:", dadosVitaisMedico);
+    
     if (!medico.nome || !medico.crm) {
       alert("Por favor, preencha o nome e CRM do médico");
       return;
     }
-    onProxima({ 
+    
+    if (!avaliacao.quadro_atual || !avaliacao.hipoteses_diagnosticas) {
+      alert("Por favor, preencha o Quadro Clínico Atual e as Hipóteses Diagnósticas");
+      return;
+    }
+    
+    const dadosParaSalvar = { 
       avaliacao_medica: avaliacao,
       dados_vitais_medico: dadosVitaisMedico,
       medico_nome: medico.nome,
       medico_crm: medico.crm,
       status: "Em Atendimento"
-    });
+    };
+    
+    console.log("Dados para salvar:", dadosParaSalvar);
+    
+    try {
+      onProxima(dadosParaSalvar);
+      console.log("onProxima chamado com sucesso");
+    } catch (error) {
+      console.error("Erro ao chamar onProxima:", error);
+      alert("Erro ao avançar. Detalhes no console.");
+    }
   };
 
   const tempoDor = dadosPaciente.data_hora_inicio_sintomas
@@ -385,14 +408,17 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
         </CardContent>
       </Card>
 
+      {/* RESUMO COMPLETO DA TRIAGEM DE ENFERMAGEM */}
       <Card className="shadow-lg border-l-4 border-l-blue-600">
         <CardHeader className="bg-blue-50 border-b">
           <CardTitle className="flex items-center gap-2 text-blue-900 text-xl">
             <User className="w-6 h-6" />
-            📋 Resumo da Triagem de Enfermagem
+            📋 Resumo Completo da Triagem de Enfermagem
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-6 space-y-8">
+        <CardContent className="p-6 space-y-6">
+          
+          {/* 1. DADOS DO PACIENTE */}
           <div className="border-l-4 border-l-indigo-500 pl-4 bg-indigo-50 p-4 rounded">
             <h3 className="font-bold text-indigo-900 mb-3 text-lg flex items-center gap-2">
               <User className="w-5 h-5" />
@@ -400,9 +426,8 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
             </h3>
             <div className="grid md:grid-cols-2 gap-3 text-sm">
               {dadosPaciente.unidade_saude && (
-                <div className="md:col-span-2 bg-blue-100 p-2 rounded">
-                  <span className="text-blue-900 font-bold">🏥 Unidade:</span>
-                  <p className="font-bold text-blue-900 text-base">{dadosPaciente.unidade_saude}</p>
+                <div className="md:col-span-2 bg-blue-100 p-3 rounded">
+                  <span className="text-blue-900 font-bold text-base">🏥 Unidade: {dadosPaciente.unidade_saude}</span>
                 </div>
               )}
               <div>
@@ -413,8 +438,229 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                 <span className="text-gray-700 font-semibold">Prontuário:</span>
                 <p className="font-medium text-gray-900">{dadosPaciente.prontuario || '-'}</p>
               </div>
+              <div>
+                <span className="text-gray-700 font-semibold">Idade/Sexo:</span>
+                <p className="font-medium text-gray-900">{dadosPaciente.idade} anos / {dadosPaciente.sexo}</p>
+              </div>
+              <div>
+                <span className="text-gray-700 font-semibold">Chegada:</span>
+                <p className="font-medium text-gray-900">
+                  {dadosPaciente.data_hora_chegada && format(new Date(dadosPaciente.data_hora_chegada), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                </p>
+              </div>
             </div>
           </div>
+
+          {/* 2. TRIAGEM CARDIOLÓGICA */}
+          {dadosPaciente.triagem_cardiologica && (
+            <div className="border-l-4 border-l-orange-500 pl-4 bg-orange-50 p-4 rounded">
+              <h3 className="font-bold text-orange-900 mb-3 text-lg">
+                2️⃣ TRIAGEM CARDIOLÓGICA (SBC 2025)
+              </h3>
+              {dadosPaciente.triagem_cardiologica.alerta_iam && (
+                <Alert className="border-red-500 bg-red-100 mb-3">
+                  <AlertTriangle className="h-5 w-5 text-red-700" />
+                  <AlertDescription className="text-red-800 font-bold">
+                    ⚠️ ALERTA DE PROVÁVEL IAM DETECTADO
+                  </AlertDescription>
+                </Alert>
+              )}
+              <div className="grid md:grid-cols-2 gap-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className={`w-3 h-3 rounded-full ${dadosPaciente.triagem_cardiologica.dor_desconforto_peito ? 'bg-red-600' : 'bg-green-600'}`}></span>
+                  <span>Dor/desconforto no peito: <strong>{dadosPaciente.triagem_cardiologica.dor_desconforto_peito ? 'SIM' : 'NÃO'}</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`w-3 h-3 rounded-full ${dadosPaciente.triagem_cardiologica.duracao_maior_10min ? 'bg-red-600' : 'bg-green-600'}`}></span>
+                  <span>Duração {'>'} 10 min: <strong>{dadosPaciente.triagem_cardiologica.duracao_maior_10min ? 'SIM' : 'NÃO'}</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`w-3 h-3 rounded-full ${dadosPaciente.triagem_cardiologica.irradiacao ? 'bg-red-600' : 'bg-green-600'}`}></span>
+                  <span>Irradiação: <strong>{dadosPaciente.triagem_cardiologica.irradiacao ? 'SIM' : 'NÃO'}</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`w-3 h-3 rounded-full ${dadosPaciente.triagem_cardiologica.dor_epigastrica ? 'bg-red-600' : 'bg-green-600'}`}></span>
+                  <span>Dor epigástrica: <strong>{dadosPaciente.triagem_cardiologica.dor_epigastrica ? 'SIM' : 'NÃO'}</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`w-3 h-3 rounded-full ${dadosPaciente.triagem_cardiologica.dispneia_diaforese ? 'bg-red-600' : 'bg-green-600'}`}></span>
+                  <span>Dispneia/Diaforese: <strong>{dadosPaciente.triagem_cardiologica.dispneia_diaforese ? 'SIM' : 'NÃO'}</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`w-3 h-3 rounded-full ${dadosPaciente.triagem_cardiologica.idade_fatores_risco ? 'bg-red-600' : 'bg-green-600'}`}></span>
+                  <span>{'>'} 50 anos/DM/DCV: <strong>{dadosPaciente.triagem_cardiologica.idade_fatores_risco ? 'SIM' : 'NÃO'}</strong></span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 3. DADOS VITAIS DA TRIAGEM */}
+          {dadosPaciente.dados_vitais && (
+            <div className="border-l-4 border-l-green-500 pl-4 bg-green-50 p-4 rounded">
+              <h3 className="font-bold text-green-900 mb-3 text-lg">
+                3️⃣ DADOS VITAIS (TRIAGEM)
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="bg-white p-2 rounded border text-center">
+                  <p className="text-xs text-gray-600">PA Esq</p>
+                  <p className="font-bold text-sm">{dadosPaciente.dados_vitais.pa_braco_esquerdo || '-'}</p>
+                </div>
+                <div className="bg-white p-2 rounded border text-center">
+                  <p className="text-xs text-gray-600">PA Dir</p>
+                  <p className="font-bold text-sm">{dadosPaciente.dados_vitais.pa_braco_direito || '-'}</p>
+                </div>
+                <div className="bg-white p-2 rounded border text-center">
+                  <p className="text-xs text-gray-600">FC</p>
+                  <p className="font-bold text-sm">{dadosPaciente.dados_vitais.frequencia_cardiaca || '-'} bpm</p>
+                </div>
+                <div className="bg-white p-2 rounded border text-center">
+                  <p className="text-xs text-gray-600">FR</p>
+                  <p className="font-bold text-sm">{dadosPaciente.dados_vitais.frequencia_respiratoria || '-'} irpm</p>
+                </div>
+                <div className="bg-white p-2 rounded border text-center">
+                  <p className="text-xs text-gray-600">Temp</p>
+                  <p className="font-bold text-sm">{dadosPaciente.dados_vitais.temperatura || '-'} °C</p>
+                </div>
+                <div className="bg-white p-2 rounded border text-center">
+                  <p className="text-xs text-gray-600">SpO2</p>
+                  <p className="font-bold text-sm">{dadosPaciente.dados_vitais.spo2 || '-'}%</p>
+                </div>
+                <div className="bg-white p-2 rounded border text-center">
+                  <p className="text-xs text-gray-600">Glicemia</p>
+                  <p className="font-bold text-sm">{dadosPaciente.dados_vitais.glicemia_capilar || '-'} mg/dL</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 4. CLASSIFICAÇÃO DE RISCO */}
+          {dadosPaciente.classificacao_risco && (
+            <div className={`border-l-4 pl-4 p-4 rounded ${
+              dadosPaciente.classificacao_risco.cor === 'Vermelha' ? 'border-l-red-600 bg-red-50' :
+              dadosPaciente.classificacao_risco.cor === 'Laranja' ? 'border-l-orange-600 bg-orange-50' :
+              dadosPaciente.classificacao_risco.cor === 'Amarela' ? 'border-l-yellow-500 bg-yellow-50' :
+              dadosPaciente.classificacao_risco.cor === 'Verde' ? 'border-l-green-600 bg-green-50' :
+              'border-l-blue-600 bg-blue-50'
+            }`}>
+              <h3 className="font-bold mb-3 text-lg">
+                4️⃣ CLASSIFICAÇÃO DE RISCO (MANCHESTER)
+              </h3>
+              <div className="flex items-center gap-4 mb-3">
+                <Badge className={`${corClassificacao[dadosPaciente.classificacao_risco.cor]} border-2 text-lg px-4 py-2 font-bold`}>
+                  {dadosPaciente.classificacao_risco.cor}
+                </Badge>
+                <span className="font-medium">{dadosPaciente.classificacao_risco.tempo_atendimento_max}</span>
+              </div>
+              {dadosPaciente.classificacao_risco.discriminadores && dadosPaciente.classificacao_risco.discriminadores.length > 0 && (
+                <div>
+                  <p className="text-sm font-semibold mb-2">Discriminadores:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {dadosPaciente.classificacao_risco.discriminadores.map((disc, i) => (
+                      <Badge key={i} variant="outline" className="text-xs">
+                        {disc}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 5. ECG E ANÁLISE */}
+          {dadosPaciente.ecg_files && dadosPaciente.ecg_files.length > 0 && (
+            <div className="border-l-4 border-l-purple-500 pl-4 bg-purple-50 p-4 rounded">
+              <h3 className="font-bold text-purple-900 mb-3 text-lg flex items-center gap-2">
+                <FileImage className="w-5 h-5" />
+                5️⃣ ECG E ANÁLISE AUTOMÁTICA
+              </h3>
+              
+              {dadosPaciente.tempo_triagem_ecg_minutos !== undefined && (
+                <div className={`mb-3 p-3 rounded border-2 ${
+                  dadosPaciente.tempo_triagem_ecg_minutos <= 10 
+                    ? 'bg-green-100 border-green-400' 
+                    : 'bg-orange-100 border-orange-400'
+                }`}>
+                  <p className="font-bold">
+                    ⏱️ Tempo Triagem → ECG: {dadosPaciente.tempo_triagem_ecg_minutos} min
+                    {dadosPaciente.tempo_triagem_ecg_minutos <= 10 ? ' ✓ Dentro da meta' : ' ⚠️ Acima da meta'}
+                  </p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                {dadosPaciente.ecg_files.map((url, index) => (
+                  <div key={index} className="border rounded overflow-hidden bg-white">
+                    <img
+                      src={url}
+                      alt={`ECG ${index + 1}`}
+                      className="w-full h-32 object-contain cursor-pointer hover:opacity-80"
+                      onClick={() => window.open(url, '_blank')}
+                    />
+                    <div className="p-2 bg-purple-600 text-white text-center text-xs font-semibold">
+                      ECG {index + 1}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {dadosPaciente.alerta_triagem_ecg && (
+                <div className={`p-3 rounded border-2 ${
+                  dadosPaciente.alerta_triagem_ecg.nivel_alerta?.includes('CRÍTICO') ? 'bg-red-100 border-red-400' :
+                  dadosPaciente.alerta_triagem_ecg.nivel_alerta?.includes('URGENTE') ? 'bg-orange-100 border-orange-400' :
+                  dadosPaciente.alerta_triagem_ecg.nivel_alerta?.includes('Normal') ? 'bg-green-100 border-green-400' :
+                  'bg-gray-100 border-gray-400'
+                }`}>
+                  <p className="font-bold mb-2 text-sm">🤖 Análise Automática de Triagem:</p>
+                  <p className="font-bold mb-1">{dadosPaciente.alerta_triagem_ecg.nivel_alerta}</p>
+                  {dadosPaciente.alerta_triagem_ecg.elevacao_st_detectada && (
+                    <div className="mt-2 p-2 bg-white rounded">
+                      <p className="text-xs font-semibold mb-1">⚠️ Elevação de ST detectada em:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {dadosPaciente.alerta_triagem_ecg.derivacoes_com_elevacao?.map((der, i) => (
+                          <Badge key={i} className="bg-red-600 text-white text-xs">
+                            {der}
+                          </Badge>
+                        ))}
+                      </div>
+                      {dadosPaciente.alerta_triagem_ecg.territorio_afetado && (
+                        <p className="text-xs mt-2"><strong>Território:</strong> {dadosPaciente.alerta_triagem_ecg.territorio_afetado}</p>
+                      )}
+                    </div>
+                  )}
+                  {dadosPaciente.alerta_triagem_ecg.mensagem_para_medico && (
+                    <details className="mt-2">
+                      <summary className="cursor-pointer text-xs font-semibold text-blue-700 hover:text-blue-900">
+                        Ver análise completa...
+                      </summary>
+                      <div className="mt-2 p-2 bg-white rounded text-xs whitespace-pre-wrap">
+                        {dadosPaciente.alerta_triagem_ecg.mensagem_para_medico}
+                      </div>
+                    </details>
+                  )}
+                </div>
+              )}
+
+              {dadosPaciente.interpretacao_ecg_medico && (
+                <div className="mt-3 p-3 bg-white rounded border-2 border-blue-400">
+                  <p className="text-xs font-semibold text-blue-900 mb-1">📋 Interpretação Médica do ECG:</p>
+                  <p className="text-xs whitespace-pre-wrap">{dadosPaciente.interpretacao_ecg_medico}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 6. ENFERMEIRO RESPONSÁVEL */}
+          {dadosPaciente.enfermeiro_nome && (
+            <div className="border-l-4 border-l-teal-500 pl-4 bg-teal-50 p-4 rounded">
+              <h3 className="font-bold text-teal-900 mb-2 text-lg">
+                6️⃣ ENFERMEIRO RESPONSÁVEL
+              </h3>
+              <p className="text-sm">
+                <strong>{dadosPaciente.enfermeiro_nome}</strong> • COREN: {dadosPaciente.enfermeiro_coren}
+              </p>
+            </div>
+          )}
+
         </CardContent>
       </Card>
 
