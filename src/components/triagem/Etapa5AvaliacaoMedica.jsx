@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,7 +44,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
     if (dadosPaciente.dados_vitais_medico) {
       return dadosPaciente.dados_vitais_medico;
     }
-    // Inicializar com os dados da enfermagem
     return {
       pa_braco_esquerdo: dadosPaciente.dados_vitais?.pa_braco_esquerdo || "",
       pa_braco_direito: dadosPaciente.dados_vitais?.pa_braco_direito || "",
@@ -87,7 +85,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
     });
   };
 
-  // CALCULAR TEMPO DE DOR (do início dos sintomas até agora)
   const tempoDor = dadosPaciente.data_hora_inicio_sintomas
     ? differenceInMinutes(new Date(), new Date(dadosPaciente.data_hora_inicio_sintomas))
     : null;
@@ -99,14 +96,13 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
         <p className="text-gray-600">Registro da avaliação clínica e diagnósticos</p>
       </div>
 
-      {/* ALERTA DE TEMPO DE DOR */}
       {tempoDor !== null && (
         <Alert className="border-red-500 bg-red-50 shadow-lg">
           <AlertTriangle className="h-5 w-5 text-red-600" />
           <AlertDescription className="text-red-800">
             <strong className="text-lg">⚠️ ALERTA! Tempo de Dor: {Math.floor(tempoDor / 60)}h {tempoDor % 60}min</strong>
             <p className="mt-1 text-sm">
-              Tempo desde o início dos sintomas ({format(new Date(dadosPaciente.data_hora_inicio_sintomas), "dd/MM HH:mm", { locale: ptBR })}) até agora
+              Desde início dos sintomas ({format(new Date(dadosPaciente.data_hora_inicio_sintomas), "dd/MM HH:mm", { locale: ptBR })}) até agora
             </p>
             <p className="mt-2 text-sm font-bold">
               {tempoDor > 180 ? "⚠️ >3 horas - Janela terapêutica reduzida" : "✓ Janela terapêutica ainda favorável"}
@@ -115,9 +111,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
         </Alert>
       )}
 
-      {/* ============================================ */}
-      {/* DADOS VITAIS - ATUALIZAÇÃO MÉDICA */}
-      {/* ============================================ */}
       <Card className="shadow-lg border-l-4 border-l-purple-600">
         <CardHeader className="bg-purple-50 border-b">
           <div className="flex items-center justify-between">
@@ -148,7 +141,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
         </CardHeader>
         <CardContent className="p-6">
           {!editandoDadosVitais ? (
-            // VISUALIZAÇÃO DOS DADOS VITAIS
             <>
               <div className="grid md:grid-cols-3 gap-4 mb-4">
                 <div className="p-3 bg-white rounded border">
@@ -208,7 +200,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
               </Alert>
             </>
           ) : (
-            // FORMULÁRIO DE EDIÇÃO DOS DADOS VITAIS
             <div className="space-y-6">
               <Alert className="border-blue-500 bg-blue-50">
                 <AlertDescription className="text-blue-800">
@@ -288,7 +279,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                 </div>
               </div>
 
-              {/* Suporte Respiratório */}
               <div className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
                 <Label className="text-base font-semibold text-blue-900 mb-3 block">🫁 Suporte Respiratório</Label>
                 <RadioGroup
@@ -332,7 +322,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                 )}
               </div>
 
-              {/* DVA */}
               <div className="border-2 border-orange-200 rounded-lg p-4 bg-orange-50">
                 <div className="flex items-center space-x-2 mb-3">
                   <Checkbox
@@ -358,7 +347,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                 )}
               </div>
 
-              {/* Sedação */}
               <div className="border-2 border-purple-200 rounded-lg p-4 bg-purple-50">
                 <div className="flex items-center space-x-2 mb-3">
                   <Checkbox
@@ -397,9 +385,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
         </CardContent>
       </Card>
 
-      {/* ============================================ */}
-      {/* RESUMO COMPLETO DA TRIAGEM DE ENFERMAGEM */}
-      {/* ============================================ */}
       <Card className="shadow-lg border-l-4 border-l-blue-600">
         <CardHeader className="bg-blue-50 border-b">
           <CardTitle className="flex items-center gap-2 text-blue-900 text-xl">
@@ -408,8 +393,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 space-y-8">
-          
-          {/* ========== ETAPA 1: DADOS DO PACIENTE ========== */}
           <div className="border-l-4 border-l-indigo-500 pl-4 bg-indigo-50 p-4 rounded">
             <h3 className="font-bold text-indigo-900 mb-3 text-lg flex items-center gap-2">
               <User className="w-5 h-5" />
@@ -435,9 +418,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
         </CardContent>
       </Card>
 
-      {/* ============================================ */}
-      {/* FORMULÁRIO DE AVALIAÇÃO MÉDICA */}
-      {/* ============================================ */}
       <div className="border-t-2 border-blue-600 pt-6 mt-8">
         <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
           <Stethoscope className="w-6 h-6 text-blue-600" />
