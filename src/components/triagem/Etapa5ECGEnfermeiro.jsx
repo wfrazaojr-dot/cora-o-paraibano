@@ -121,7 +121,7 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
           V6_analise: { type: "string", description: "V6: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida/apiculada]" },
           DI_analise: { type: "string", description: "DI: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida]" },
           DII_analise: { type: "string", description: "DII: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida]" },
-          DIII_analise: { type: "string", description: "DIII: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida]" },
+          DIII_analise: { type: "string", description: "DIII: ST [normal / elevado X mm / infradesnivelado X mm], T [normal/invertida]" },
           aVR_analise: { type: "string", description: "aVR: ST [elevado X mm / normal / infradesnivelado X mm]" },
           aVL_analise: { type: "string", description: "aVL: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida]" },
           aVF_analise: { type: "string", description: "aVF: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida]" },
@@ -337,13 +337,13 @@ FORMATO OBRIGATÓRIO:
 
 AGORA ANALISE A IMAGEM E RESPONDA COM TODOS OS CAMPOS OBRIGATÓRIOS.`;
 
-      console.log("📡 Enviando para análise com prompt aprimorado...");
+      console.log("📡 Enviando para análise (SEM busca web - apenas visão de imagem)...");
       
       const resultado = await base44.integrations.Core.InvokeLLM({
         prompt: prompt,
         file_urls: ecgUrl,
-        response_json_schema: schema,
-        add_context_from_internet: true
+        response_json_schema: schema
+        // ✅ REMOVIDO: add_context_from_internet (não é necessário para análise de imagem de ECG)
       });
 
       if (resultado) {
