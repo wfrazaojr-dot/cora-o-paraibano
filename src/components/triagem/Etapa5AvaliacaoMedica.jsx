@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, ArrowRight, FileImage, Activity, User, Stethoscope, AlertTriangle, Edit, CheckCircle2, Sparkles, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, FileImage, Activity, User, Stethoscope, AlertTriangle, Edit, CheckCircle2 } from "lucide-react";
 import { format, differenceInMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
@@ -41,7 +41,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
   });
 
   const [editandoDadosVitais, setEditandoDadosVitais] = useState(false);
-  const [gerandoSugestaoECG, setGerandoSugestaoECG] = useState(false);
+  // Removed: const [gerandoSugestaoECG, setGerandoSugestaoECG] = useState(false);
   const [interpretacaoECG, setInterpretacaoECG] = useState(dadosPaciente.interpretacao_ecg_medico || "");
   
   const [dadosVitaisMedico, setDadosVitaisMedico] = useState(() => {
@@ -74,73 +74,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
     }
   }, [dadosPaciente.avaliacao_medica]);
 
-  const gerarSugestaoInterpretacaoECG = async () => {
-    const alertaTriagem = dadosPaciente.alerta_triagem_ecg;
-    
-    if (!alertaTriagem || !alertaTriagem.analise_por_derivacao) {
-      alert("Não há análise de ECG disponível para gerar sugestão");
-      return;
-    }
-
-    setGerandoSugestaoECG(true);
-
-    try {
-      const analise = alertaTriagem.analise_por_derivacao;
-      
-      const prompt = `Baseado nesta análise técnica de ECG, gere um laudo médico estruturado:
-
-**DADOS TÉCNICOS:**
-- Ritmo: ${alertaTriagem.ritmo || 'Não especificado'}
-- FC: ${alertaTriagem.frequencia_cardiaca_ecg || '?'} bpm
-
-**ANÁLISE POR DERIVAÇÃO:**
-${Object.entries(analise).map(([deriv, dados]) => `${deriv}: ${dados}`).join('\n')}
-
-${alertaTriagem.outras_alteracoes ? `\n**OUTRAS ALTERAÇÕES:**\n${alertaTriagem.outras_alteracoes}` : ''}
-
-GERE UM LAUDO NO FORMATO:
-
-**ELETROCARDIOGRAMA DE 12 DERIVAÇÕES**
-
-**RITMO:** [descrever]
-**FREQUÊNCIA CARDÍACA:** [X] bpm
-
-**ANÁLISE DO SEGMENTO ST:**
-[Para cada derivação, descrever se normal, elevado ou infradesnivelado e quantos mm]
-
-**ANÁLISE DA ONDA T:**
-[Para cada derivação, descrever morfologia]
-
-**OUTRAS ALTERAÇÕES:**
-[Se houver]
-
-**CONCLUSÃO TÉCNICA:**
-[Resumo técnico das alterações encontradas, SEM diagnóstico clínico]
-
----
-IMPORTANTE: Faça apenas descrição técnica. NÃO mencione diagnósticos como IAM, STEMI, etc.`;
-
-      const resultado = await base44.integrations.Core.InvokeLLM({
-        prompt: prompt
-      });
-
-      if (resultado) {
-        const textoCompleto = `${resultado}
-
----
-💡 **Nota:** Laudo técnico gerado automaticamente. O médico deve revisar e complementar com interpretação clínica.`;
-
-        setInterpretacaoECG(textoCompleto);
-        alert("✓ Laudo técnico gerado!\n\nRevise e ajuste conforme necessário.");
-      }
-
-    } catch (error) {
-      console.error("Erro ao gerar laudo:", error);
-      alert("Erro ao gerar laudo técnico. Tente novamente.");
-    }
-
-    setGerandoSugestaoECG(false);
-  };
+  // Removed: const gerarSugestaoInterpretacaoECG = async () => { ... };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -724,56 +658,31 @@ IMPORTANTE: Faça apenas descrição técnica. NÃO mencione diagnósticos como 
                 </div>
               )}
 
-              {/* ASSISTENTE DE INTERPRETAÇÃO DE ECG */}
-              {dadosPaciente.alerta_triagem_ecg && dadosPaciente.alerta_triagem_ecg.analise_por_derivacao && (
-                <div className="mt-4 space-y-3">
-                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border-2 border-purple-300">
-                    <div className="flex items-center gap-3">
-                      <Sparkles className="w-6 h-6 text-purple-600" />
-                      <div>
-                        <p className="font-semibold text-purple-900">🤖 Assistente de Documentação de ECG</p>
-                        <p className="text-sm text-purple-700">Gere automaticamente uma interpretação médica estruturada</p>
-                      </div>
-                    </div>
-                    <Button
-                      type="button"
-                      onClick={gerarSugestaoInterpretacaoECG}
-                      disabled={gerandoSugestaoECG}
-                      className="bg-purple-600 hover:bg-purple-700 gap-2"
-                    >
-                      {gerandoSugestaoECG ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Gerando...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-4 h-4" />
-                          Gerar Interpretação
-                        </>
-                      )}
-                    </Button>
-                  </div>
+              {/* CAMPO DE INTERPRETAÇÃO MÉDICA - SEM BOTÃO DE ASSISTENTE */}
+              <div className="mt-4 space-y-3">
+                <div className="space-y-2">
+                  <Label htmlFor="interpretacao_ecg_medico" className="text-base font-semibold text-purple-900">
+                    📝 Interpretação Médica do ECG
+                  </Label>
+                  <Textarea
+                    id="interpretacao_ecg_medico"
+                    value={interpretacaoECG}
+                    onChange={(e) => setInterpretacaoECG(e.target.value)}
+                    placeholder="Digite sua interpretação médica do ECG...
 
-                  {/* Campo de interpretação */}
-                  <div className="space-y-2">
-                    <Label htmlFor="interpretacao_ecg_medico" className="text-base font-semibold text-purple-900">
-                      📝 Interpretação Médica do ECG
-                    </Label>
-                    <Textarea
-                      id="interpretacao_ecg_medico"
-                      value={interpretacaoECG}
-                      onChange={(e) => setInterpretacaoECG(e.target.value)}
-                      placeholder="Clique em 'Gerar Interpretação' para criar automaticamente um laudo estruturado, ou digite manualmente..."
-                      rows={15}
-                      className="font-mono text-sm resize-y"
-                    />
-                    <p className="text-xs text-purple-700">
-                      💡 Use o assistente para gerar um laudo profissional ou edite manualmente conforme necessário
-                    </p>
-                  </div>
+Exemplo:
+ECG de 12 derivações - Ritmo sinusal, FC 75 bpm
+Segmento ST: elevado 3mm em DII, DIII e aVF
+Infradesnivelamento recíproco em aVL
+Conclusão técnica: Alterações sugestivas de..."
+                    rows={15}
+                    className="font-mono text-sm resize-y"
+                  />
+                  <p className="text-xs text-purple-700">
+                    💡 Registre sua interpretação médica do ECG baseada na análise técnica acima
+                  </p>
                 </div>
-              )}
+              </div>
 
               {dadosPaciente.interpretacao_ecg_medico && !interpretacaoECG && (
                 <div className="mt-3 p-3 bg-white rounded border-2 border-blue-400">
