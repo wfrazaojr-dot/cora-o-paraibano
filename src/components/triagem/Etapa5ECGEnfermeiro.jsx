@@ -63,7 +63,7 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
     const analiseId = `ECG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const timestampAnalise = new Date().toISOString();
     
-    console.log("=== INICIANDO ANÁLISE SIMPLIFICADA DE ECG ===");
+    console.log("=== ANÁLISE DE ECG APRIMORADA ===");
     console.log("ID:", analiseId);
     console.log("Timestamp:", timestampAnalise);
     console.log("URL:", ecgUrl);
@@ -73,34 +73,21 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
         type: "object",
         properties: {
           id_analise: { type: "string" },
-          derivacoes_analisadas: {
-            type: "object",
-            description: "Análise individual de CADA derivação - OBRIGATÓRIO",
-            properties: {
-              DI: { type: "string" },
-              DII: { type: "string" },
-              DIII: { type: "string" },
-              aVR: { type: "string" },
-              aVL: { type: "string" },
-              aVF: { type: "string" },
-              V1: { type: "string" },
-              V2: { type: "string" },
-              V3: { type: "string" },
-              V4: { type: "string" },
-              V5: { type: "string" },
-              V6: { type: "string" }
-            },
-            required: ["DI", "DII", "DIII", "aVR", "aVL", "aVF", "V1", "V2", "V3", "V4", "V5", "V6"]
-          },
+          V1_analise: { type: "string", description: "V1: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida/apiculada]" },
+          V2_analise: { type: "string", description: "V2: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida/apiculada]" },
+          V3_analise: { type: "string", description: "V3: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida/apiculada]" },
+          V4_analise: { type: "string", description: "V4: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida/apiculada]" },
+          V5_analise: { type: "string", description: "V5: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida/apiculada]" },
+          V6_analise: { type: "string", description: "V6: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida/apiculada]" },
+          DI_analise: { type: "string", description: "DI: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida]" },
+          DII_analise: { type: "string", description: "DII: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida]" },
+          DIII_analise: { type: "string", description: "DIII: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida]" },
+          aVR_analise: { type: "string", description: "aVR: ST [elevado X mm / normal / infradesnivelado X mm]" },
+          aVL_analise: { type: "string", description: "aVL: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida]" },
+          aVF_analise: { type: "string", description: "aVF: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida]" },
           tem_elevacao_st: { type: "boolean" },
-          derivacoes_elevadas: {
-            type: "array",
-            items: { type: "string" }
-          },
-          elevacao_milimetros: {
-            type: "object",
-            additionalProperties: { type: "number" }
-          },
+          derivacoes_elevadas: { type: "array", items: { type: "string" } },
+          elevacao_milimetros: { type: "object", additionalProperties: { type: "number" } },
           territorio: {
             type: "string",
             enum: [
@@ -123,110 +110,194 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
             ]
           },
           mensagem_medico: { type: "string" },
-          confianca: {
-            type: "string",
-            enum: ["Muito Alta", "Alta", "Moderada", "Baixa"]
-          }
+          confianca: { type: "string", enum: ["Muito Alta", "Alta", "Moderada", "Baixa"] }
         },
-        required: ["id_analise", "derivacoes_analisadas", "tem_elevacao_st", "diagnostico", "mensagem_medico"]
+        required: ["id_analise", "V1_analise", "V2_analise", "V3_analise", "V4_analise", "V5_analise", "V6_analise", "DI_analise", "DII_analise", "DIII_analise", "aVR_analise", "aVL_analise", "aVF_analise", "tem_elevacao_st", "diagnostico", "mensagem_medico"]
       };
 
-      const prompt = `Você é um sistema de análise de ECG. Analise a imagem anexada AGORA.
+      const prompt = `SISTEMA DE ANÁLISE DE ECG - PROTOCOLO RIGOROSO
 
-🆔 ID DESTA ANÁLISE: ${analiseId}
-⏰ TIMESTAMP: ${timestampAnalise}
+ID: ${analiseId}
+TIMESTAMP: ${timestampAnalise}
 
-⚠️ IMPORTANTE:
-- Esta é uma NOVA análise - NÃO use dados anteriores
-- OLHE a imagem anexada AGORA
-- Analise TODAS as 12 derivações
-- Seja ESPECÍFICO sobre o que você VÊ
+═══════════════════════════════════════════════════════
+⚠️ INSTRUÇÕES CRÍTICAS - LEIA COM ATENÇÃO
+═══════════════════════════════════════════════════════
 
-📋 PASSO 1: ANALISE CADA DERIVAÇÃO
+1. Você VAI receber UMA IMAGEM de ECG AGORA
+2. OLHE a imagem ANEXADA - NÃO invente dados
+3. Esta é uma NOVA análise - DIFERENTE de qualquer anterior
+4. NÃO use memórias de análises passadas
 
-Para CADA uma das 12 derivações, descreva O QUE VOCÊ VÊ:
+═══════════════════════════════════════════════════════
+📋 MÉTODO DE ANÁLISE - SIGA PASSO A PASSO
+═══════════════════════════════════════════════════════
 
-Formato: "[Derivação]: ST [normal/elevado Xmm/infradesnivelado Xmm], T [normal/invertida/apiculada]"
+PASSO 1: LOCALIZE AS DERIVAÇÕES NA IMAGEM
 
-Exemplo REAL:
-- V2: "ST elevado 4mm, T apiculada"
-- DII: "ST normal, T normal"
-- aVL: "ST infradesnivelado 2mm"
+**LADO ESQUERDO da imagem:**
+- I (primeira linha)
+- II (segunda linha)
+- III (terceira linha)
+- aVR (quarta linha)
+- aVL (quinta linha)
+- aVF (sexta linha)
 
-ANALISE AGORA:
-- DI: ?
-- DII: ?
-- DIII: ?
-- aVR: ?
-- aVL: ?
-- aVF: ?
-- V1: ?
-- V2: ?
-- V3: ?
-- V4: ?
-- V5: ?
-- V6: ?
+**LADO DIREITO da imagem:**
+- V1 (primeira linha)
+- V2 (segunda linha)
+- V3 (terceira linha)
+- V4 (quarta linha - pode estar cortada)
+- V5 (quinta linha)
+- V6 (sexta linha)
 
-📍 PASSO 2: IDENTIFIQUE O PADRÃO
+PASSO 2: ANALISE CADA DERIVAÇÃO INDIVIDUALMENTE
 
-**Se houver elevação de ST em V1, V2, V3, V4:**
-→ PAREDE ANTERIOR
-→ Artéria: Descendente Anterior Esquerda (DAE)
+Para CADA derivação, você DEVE:
+
+A) Identificar a linha isoelétrica (linha de base horizontal)
+B) Observar o segmento ST (após o complexo QRS)
+C) Medir a elevação/infradesnivelamento em mm
+D) Observar a morfologia da onda T
+
+**MEDIÇÃO:**
+- Cada quadradinho pequeno = 1mm
+- Conte quantos quadradinhos o ST está acima/abaixo da linha
+
+═══════════════════════════════════════════════════════
+🔍 ANALISE AGORA - DERIVAÇÃO POR DERIVAÇÃO
+═══════════════════════════════════════════════════════
+
+**V1 (primeiro traçado do lado direito):**
+- Olhe o segmento ST após o QRS
+- Está elevado? Quantos mm acima da linha?
+- Onda T: normal, invertida ou apiculada?
+- RESPONDA: "V1: ST [normal / elevado X mm / infradesnivelado X mm], T [normal/invertida/apiculada]"
+
+**V2 (segundo traçado do lado direito):**
+- Olhe o segmento ST após o QRS
+- Está elevado? Quantos mm acima da linha?
+- Onda T: normal, invertida ou apiculada?
+- RESPONDA: "V2: ST [normal / elevado X mm / infradesnivelado X mm], T [normal/invertida/apiculada]"
+
+**V3 (terceiro traçado do lado direito):**
+- Olhe o segmento ST após o QRS
+- Está elevado? Quantos mm acima da linha?
+- Onda T: normal, invertida ou apiculada?
+- RESPONDA: "V3: ST [normal / elevado X mm / infradesnivelado X mm], T [normal/invertida/apiculada]"
+
+**V4 (quarto traçado do lado direito):**
+- Olhe o segmento ST após o QRS
+- Está elevado? Quantos mm acima da linha?
+- Onda T: normal, invertida ou apiculada?
+- RESPONDA: "V4: ST [normal / elevado X mm / infradesnivelado X mm], T [normal/invertida/apiculada]"
+
+**V5 (quinto traçado do lado direito):**
+- Olhe o segmento ST após o QRS
+- Está elevado? Quantos mm acima da linha?
+- Onda T: normal, invertida ou apiculada?
+- RESPONDA: "V5: ST [normal / elevado X mm / infradesnivelado X mm], T [normal/invertida/apiculada]"
+
+**V6 (sexto traçado do lado direito):**
+- Olhe o segmento ST após o QRS
+- Está elevado? Quantos mm acima da linha?
+- Onda T: normal, invertida ou apiculada?
+- RESPONDA: "V6: ST [normal / elevado X mm / infradesnivelado X mm], T [normal/invertida/apiculada]"
+
+**DI (primeiro traçado do lado esquerdo):**
+- RESPONDA: "DI: ST [normal / elevado X mm / infradesnivelado X mm], T [normal/invertida]"
+
+**DII (segundo traçado do lado esquerdo):**
+- RESPONDA: "DII: ST [normal / elevado X mm / infradesnivelado X mm], T [normal/invertida]"
+
+**DIII (terceiro traçado do lado esquerdo):**
+- RESPONDA: "DIII: ST [normal / elevado X mm / infradesnivelado X mm], T [normal/invertida]"
+
+**aVR (quarto traçado do lado esquerdo):**
+- RESPONDA: "aVR: ST [normal / elevado X mm / infradesnivelado X mm]"
+
+**aVL (quinto traçado do lado esquerdo):**
+- RESPONDA: "aVL: ST [normal / elevado X mm / infradesnivelado X mm], T [normal/invertida]"
+
+**aVF (sexto traçado do lado esquerdo):**
+- RESPONDA: "aVF: ST [normal / elevado X mm / infradesnivelado X mm], T [normal/invertida]"
+
+═══════════════════════════════════════════════════════
+🎯 PASSO 3: IDENTIFIQUE O PADRÃO
+═══════════════════════════════════════════════════════
+
+**Se houver elevação de ST em V1, V2, V3, V4, V5, V6:**
+→ DIAGNÓSTICO: STEMI DE PAREDE ANTERIOR
+→ TERRITÓRIO: PAREDE ANTERIOR (V1-V4) ou ANTERIOR EXTENSA (V1-V6)
+→ ARTÉRIA: Descendente Anterior Esquerda (DAE)
 
 **Se houver elevação de ST em DII, DIII, aVF:**
-→ PAREDE INFERIOR
-→ Artéria: Coronária Direita (CD)
+→ DIAGNÓSTICO: STEMI DE PAREDE INFERIOR
+→ TERRITÓRIO: PAREDE INFERIOR
+→ ARTÉRIA: Coronária Direita (CD)
 
 **Se houver elevação de ST em DI, aVL, V5, V6:**
-→ PAREDE LATERAL
-→ Artéria: Circunflexa (Cx)
+→ DIAGNÓSTICO: STEMI DE PAREDE LATERAL
+→ TERRITÓRIO: PAREDE LATERAL
+→ ARTÉRIA: Circunflexa (Cx)
 
-🎯 PASSO 3: MENSAGEM PARA O MÉDICO
+═══════════════════════════════════════════════════════
+📝 PASSO 4: MENSAGEM PARA O MÉDICO
+═══════════════════════════════════════════════════════
 
-Seja DIRETO e CLARO:
+FORMATO OBRIGATÓRIO:
 
-**Exemplo para IAM ANTERIOR:**
-"STEMI DE PAREDE ANTERIOR DETECTADO
+"**[DIAGNÓSTICO]**
 
-Elevação de ST:
-- V1: 2mm
-- V2: 4mm
-- V3: 5mm
-- V4: 4mm
+**ANÁLISE DERIVAÇÃO POR DERIVAÇÃO:**
 
-Território: PAREDE ANTERIOR
-Artéria: DAE (Descendente Anterior Esquerda)
+**Derivações Precordiais:**
+- V1: [descrição específica]
+- V2: [descrição específica]
+- V3: [descrição específica]
+- V4: [descrição específica]
+- V5: [descrição específica]
+- V6: [descrição específica]
 
-CONDUTA URGENTE:
-- Reperfusão IMEDIATA
-- Tempo porta-balão: ≤90min
-- Acionar hemodinâmica AGORA"
+**Derivações de Membros:**
+- DI: [descrição específica]
+- DII: [descrição específica]
+- DIII: [descrição específica]
+- aVR: [descrição específica]
+- aVL: [descrição específica]
+- aVF: [descrição específica]
 
-**Exemplo para ECG Normal:**
-"ECG NORMAL
+**ACHADOS PRINCIPAIS:**
+- Elevação de ST: [liste TODAS as derivações] com [X]mm cada
+- Território: [especificar]
+- Artéria culpada: [especificar]
 
-Todas as derivações analisadas:
-- Sem elevação de ST
-- Ondas T normais
-- Ritmo sinusal
+**DIAGNÓSTICO:**
+[STEMI / NSTEMI / Normal]
 
-Sem evidências de STEMI."
+**⚠️ CONDUTA:**
+[Reperfusão imediata / Investigação / etc]"
 
-✅ CRITÉRIOS DE STEMI:
-- Elevação ST ≥2mm em V2-V3 (homens)
-- Elevação ST ≥1mm nas demais derivações
+═══════════════════════════════════════════════════════
+✅ CRITÉRIOS DE STEMI (AHA/ACC 2022)
+═══════════════════════════════════════════════════════
+
+- V2-V3: ≥2mm (homens) ou ≥1,5mm (mulheres)
+- Demais derivações: ≥1mm
 - Em ≥2 derivações contíguas do mesmo território
 
-🔍 VALIDAÇÃO FINAL:
-1. Você OLHOU a imagem anexada?
-2. Você analisou TODAS as 12 derivações?
-3. Você MEDIU a elevação em mm?
-4. Você copiou o ID: ${analiseId}?
+═══════════════════════════════════════════════════════
+🔍 CHECKLIST FINAL
+═══════════════════════════════════════════════════════
 
-ANALISE A IMAGEM AGORA E RESPONDA.`;
+✓ Você OLHOU a imagem anexada?
+✓ Você analisou TODAS as 12 derivações?
+✓ Você MEDIU a elevação em mm?
+✓ Você copiou o ID: ${analiseId}?
 
-      console.log("📡 Enviando para análise...");
-      console.log("Tamanho do prompt:", prompt.length, "caracteres");
+AGORA ANALISE A IMAGEM E RESPONDA COM TODOS OS CAMPOS OBRIGATÓRIOS.`;
+
+      console.log("📡 Enviando para análise com prompt aprimorado...");
       
       const resultado = await base44.integrations.Core.InvokeLLM({
         prompt: prompt,
@@ -238,27 +309,46 @@ ANALISE A IMAGEM AGORA E RESPONDA.`;
       if (resultado) {
         console.log("=== RESULTADO ===");
         console.log("ID retornado:", resultado.id_analise);
-        console.log("ID esperado:", analiseId);
-        console.log("Derivações analisadas:", Object.keys(resultado.derivacoes_analisadas || {}).length);
+        console.log("V1:", resultado.V1_analise);
+        console.log("V2:", resultado.V2_analise);
+        console.log("V3:", resultado.V3_analise);
+        console.log("V4:", resultado.V4_analise);
+        console.log("V5:", resultado.V5_analise);
+        console.log("V6:", resultado.V6_analise);
+        console.log("DI:", resultado.DI_analise);
+        console.log("DII:", resultado.DII_analise);
+        console.log("DIII:", resultado.DIII_analise);
+        console.log("aVR:", resultado.aVR_analise);
+        console.log("aVL:", resultado.aVL_analise);
+        console.log("aVF:", resultado.aVF_analise);
         console.log("Tem elevação ST:", resultado.tem_elevacao_st);
         console.log("Derivações elevadas:", resultado.derivacoes_elevadas);
         console.log("Território:", resultado.territorio);
-        console.log("Diagnostico:", resultado.diagnostico);
-        console.log("Confiança:", resultado.confianca);
-        
-        // Validar se análise tem conteúdo real
-        if (!resultado.derivacoes_analisadas || Object.keys(resultado.derivacoes_analisadas).length < 12) {
-          console.error("⚠️ ERRO: Análise incompleta - menos de 12 derivações");
-        }
+        console.log("Diagnóstico:", resultado.diagnostico);
         
         if (resultado.id_analise !== analiseId) {
           console.warn("⚠️ AVISO: ID não corresponde!");
         }
         
-        // Mapear resultado para formato esperado pelo UI
+        // Construir objeto de análise por derivação
+        const analise_por_derivacao = {
+          DI: resultado.DI_analise,
+          DII: resultado.DII_analise,
+          DIII: resultado.DIII_analise,
+          aVR: resultado.aVR_analise,
+          aVL: resultado.aVL_analise,
+          aVF: resultado.aVF_analise,
+          V1: resultado.V1_analise,
+          V2: resultado.V2_analise,
+          V3: resultado.V3_analise,
+          V4: resultado.V4_analise,
+          V5: resultado.V5_analise,
+          V6: resultado.V6_analise
+        };
+        
         setAlertaTriagem({
           id_analise: resultado.id_analise,
-          analise_por_derivacao: resultado.derivacoes_analisadas,
+          analise_por_derivacao: analise_por_derivacao,
           elevacao_st_detectada: resultado.tem_elevacao_st,
           derivacoes_com_elevacao: resultado.derivacoes_elevadas || [],
           medicao_elevacao_mm: resultado.elevacao_milimetros || {},
