@@ -85,123 +85,58 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
     setGerandoSugestaoECG(true);
 
     try {
-      const schema = {
-        type: "object",
-        properties: {
-          interpretacao_estruturada: {
-            type: "string",
-            description: "Laudo de ECG completo e estruturado, formatado profissionalmente"
-          },
-          diagnostico_principal: {
-            type: "string",
-            description: "Diagnóstico principal em formato conciso"
-          },
-          conduta_sugerida: {
-            type: "string",
-            description: "Conduta clínica recomendada baseada nos achados"
-          }
-        },
-        required: ["interpretacao_estruturada", "diagnostico_principal", "conduta_sugerida"]
-      };
-
       const analise = alertaTriagem.analise_por_derivacao;
-      const prompt = `Você é um cardiologista especialista em eletrocardiografia.
+      
+      const prompt = `Baseado nesta análise técnica de ECG, gere um laudo médico estruturado:
 
-TAREFA: Gerar um laudo médico profissional de ECG baseado na análise técnica fornecida.
+**DADOS TÉCNICOS:**
+- Ritmo: ${alertaTriagem.ritmo || 'Não especificado'}
+- FC: ${alertaTriagem.frequencia_cardiaca_ecg || '?'} bpm
 
-ANÁLISE TÉCNICA DISPONÍVEL:
-- ID da Análise: ${alertaTriagem.id_analise}
-- Derivações analisadas: ${Object.keys(analise).length}
+**ANÁLISE POR DERIVAÇÃO:**
+${Object.entries(analise).map(([deriv, dados]) => `${deriv}: ${dados}`).join('\n')}
 
-ACHADOS POR DERIVAÇÃO:
-${Object.entries(analise).map(([deriv, achado]) => `- ${deriv}: ${achado}`).join('\n')}
+${alertaTriagem.outras_alteracoes ? `\n**OUTRAS ALTERAÇÕES:**\n${alertaTriagem.outras_alteracoes}` : ''}
 
-RESUMO DA ANÁLISE AUTOMÁTICA:
-- Elevação de ST detectada: ${alertaTriagem.elevacao_st_detectada ? 'SIM' : 'NÃO'}
-${alertaTriagem.elevacao_st_detectada ? `- Derivações com elevação: ${alertaTriagem.derivacoes_com_elevacao?.join(', ')}` : ''}
-${alertaTriagem.territorio_afetado ? `- Território afetado: ${alertaTriagem.territorio_afetado}` : ''}
-${alertaTriagem.arteria_culpada_provavel ? `- Artéria culpada provável: ${alertaTriagem.arteria_culpada_provavel}` : ''}
-- Nível de alerta: ${alertaTriagem.nivel_alerta}
-- Confiança: ${alertaTriagem.confianca_diagnostico}
-
-DADOS DO PACIENTE:
-- Idade: ${dadosPaciente.idade} anos
-- Sexo: ${dadosPaciente.sexo}
-${dadosVitaisMedico.frequencia_cardiaca ? `- FC atual: ${dadosVitaisMedico.frequencia_cardiaca} bpm` : ''}
-
-INSTRUÇÕES PARA O LAUDO:
-
-Gere um laudo no seguinte formato EXATO:
+GERE UM LAUDO NO FORMATO:
 
 **ELETROCARDIOGRAMA DE 12 DERIVAÇÕES**
 
-**RITMO E FREQUÊNCIA:**
-[Descrever ritmo (sinusal/não sinusal) e FC estimada]
+**RITMO:** [descrever]
+**FREQUÊNCIA CARDÍACA:** [X] bpm
 
-**ANÁLISE DO SEGMENTO ST E ONDA T:**
+**ANÁLISE DO SEGMENTO ST:**
+[Para cada derivação, descrever se normal, elevado ou infradesnivelado e quantos mm]
 
-*Derivações Precordiais:*
-- V1: [descrição detalhada]
-- V2: [descrição detalhada]
-- V3: [descrição detalhada]
-- V4: [descrição detalhada]
-- V5: [descrição detalhada]
-- V6: [descrição detalhada]
+**ANÁLISE DA ONDA T:**
+[Para cada derivação, descrever morfologia]
 
-*Derivações de Membros:*
-- DI: [descrição detalhada]
-- DII: [descrição detalhada]
-- DIII: [descrição detalhada]
-- aVR: [descrição detalhada]
-- aVL: [descrição detalhada]
-- aVF: [descrição detalhada]
+**OUTRAS ALTERAÇÕES:**
+[Se houver]
 
-**ACHADOS PRINCIPAIS:**
-[Listar achados significativos]
-
-**CONCLUSÃO:**
-[Diagnóstico eletrocardiográfico]
-
-${alertaTriagem.elevacao_st_detectada ? '**⚠️ CONDUTA URGENTE:**\n[Recomendação de conduta imediata]' : ''}
-
-**OBSERVAÇÕES:**
-[Limitações, recomendações de correlação clínica]
+**CONCLUSÃO TÉCNICA:**
+[Resumo técnico das alterações encontradas, SEM diagnóstico clínico]
 
 ---
-
-IMPORTANTE:
-- Use terminologia médica técnica e precisa
-- Seja objetivo e claro
-- Inclua TODAS as 12 derivações
-- Se houver elevação de ST, enfatize território e artéria
-- Mencione critérios diagnósticos específicos quando aplicável (ex: critérios de Sgarbossa, De Winter, Wellens)
-- Sempre termine recomendando correlação clínica
-
-Gere o laudo completo agora.`;
+IMPORTANTE: Faça apenas descrição técnica. NÃO mencione diagnósticos como IAM, STEMI, etc.`;
 
       const resultado = await base44.integrations.Core.InvokeLLM({
-        prompt: prompt,
-        response_json_schema: schema
+        prompt: prompt
       });
 
-      if (resultado && resultado.interpretacao_estruturada) {
-        const textoCompleto = `${resultado.interpretacao_estruturada}
+      if (resultado) {
+        const textoCompleto = `${resultado}
 
 ---
-💡 **Nota:** Este laudo foi gerado automaticamente como sugestão baseada na análise de IA.
-O médico deve revisar, validar e ajustar conforme necessário antes de finalizar.
-
-**Diagnóstico Sugerido:** ${resultado.diagnostico_principal}
-**Conduta Sugerida:** ${resultado.conduta_sugerida}`;
+💡 **Nota:** Laudo técnico gerado automaticamente. O médico deve revisar e complementar com interpretação clínica.`;
 
         setInterpretacaoECG(textoCompleto);
-        
-        alert("✓ Sugestão de interpretação de ECG gerada com sucesso!\n\nRevise e ajuste o texto conforme necessário.");
+        alert("✓ Laudo técnico gerado!\n\nRevise e ajuste conforme necessário.");
       }
 
     } catch (error) {
-      console.error("Erro ao gerar sugestão:", error);
-      alert("Erro ao gerar sugestão de interpretação. Tente novamente.");
+      console.error("Erro ao gerar laudo:", error);
+      alert("Erro ao gerar laudo técnico. Tente novamente.");
     }
 
     setGerandoSugestaoECG(false);
