@@ -29,9 +29,9 @@ function HistoricoECG({ historico }) {
             <div className="flex justify-between items-center mb-2">
               <span className="font-semibold text-sm">Análise Recente</span>
               <Badge className={`text-xs ${
-                analise.nivel_alerta?.includes('STEMI') || analise.nivel_alerta?.includes('CRÍTICO') ? 'bg-red-500' :
-                analise.nivel_alerta?.includes('Alterações isquêmicas') || analise.nivel_alerta?.includes('URGENTE') ? 'bg-orange-500' :
-                analise.nivel_alerta?.includes('Normal') ? 'bg-green-500' :
+                analise.nivel_alerta?.includes('Elevação de ST') ? 'bg-red-500' :
+                analise.nivel_alerta?.includes('Infradesnivelamento de ST') ? 'bg-orange-500' :
+                analise.nivel_alerta?.includes('sem alterações significativas') ? 'bg-green-500' :
                 'bg-gray-500'
               } text-white`}>{analise.nivel_alerta || 'N/A'}</Badge>
             </div>
@@ -102,11 +102,10 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
     setAnalyzing(true);
     
     const analiseId = `ECG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const timestampAnalise = new Date().toISOString();
+    // const timestampAnalise = new Date().toISOString(); // No longer used directly here
     
-    console.log("=== ANÁLISE DE ECG ===");
+    console.log("=== ANÁLISE TÉCNICA DE ECG ===");
     console.log("ID:", analiseId);
-    console.log("Timestamp:", timestampAnalise);
     console.log("URL:", ecgUrl);
     
     try {
@@ -114,128 +113,192 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
         type: "object",
         properties: {
           id_analise: { type: "string" },
-          V1_analise: { type: "string", description: "V1: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida/apiculada]" },
-          V2_analise: { type: "string", description: "V2: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida/apiculada]" },
-          V3_analise: { type: "string", description: "V3: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida/apiculada]" },
-          V4_analise: { type: "string", description: "V4: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida/apiculada]" },
-          V5_analise: { type: "string", description: "V5: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida/apiculada]" },
-          V6_analise: { type: "string", description: "V6: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida/apiculada]" },
-          DI_analise: { type: "string", description: "DI: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida]" },
-          DII_analise: { type: "string", description: "DII: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida]" },
-          DIII_analise: { type: "string", description: "DIII: ST [normal / elevado X mm / infradesnivelado X mm], T [normal/invertida]" },
-          aVR_analise: { type: "string", description: "aVR: ST [elevado X mm / normal / infradesnivelado X mm]" },
-          aVL_analise: { type: "string", description: "aVL: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida]" },
-          aVF_analise: { type: "string", description: "aVF: ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida]" },
-          tem_elevacao_st: { type: "boolean" },
-          derivacoes_elevadas: { type: "array", items: { type: "string" } },
-          elevacao_milimetros: { type: "object", additionalProperties: { type: "number" } },
-          territorio: {
-            type: "string",
-            enum: [
-              "Normal - Sem elevação de ST",
-              "PAREDE ANTERIOR (V1-V4)",
-              "PAREDE ANTERIOR EXTENSA (V1-V6)",
-              "PAREDE INFERIOR (DII, DIII, aVF)",
-              "PAREDE LATERAL (DI, aVL, V5, V6)",
-              "Múltiplos territórios"
-            ]
-          },
-          arteria_culpada: { type: "string" },
-          diagnostico: {
-            type: "string",
-            enum: [
-              "🔴 STEMI - REPERFUSÃO IMEDIATA",
-              "🟠 Alterações isquêmicas - Avaliar NSTEMI",
-              "🟢 ECG Normal",
-              "⚪ Inconclusivo"
-            ]
-          },
-          mensagem_medico: { type: "string" },
-          confianca: { type: "string", enum: ["Muito Alta", "Alta", "Moderada", "Baixa"] }
+          ritmo: { type: "string", description: "Ex: Sinusal, Fibrilação atrial, etc" },
+          fc_bpm: { type: "number", description: "Frequência cardíaca em bpm" },
+          V1_ST: { type: "string", description: "Ex: normal, elevado 2mm, infradesnivelado 1mm" },
+          V2_ST: { type: "string" },
+          V3_ST: { type: "string" },
+          V4_ST: { type: "string" },
+          V5_ST: { type: "string" },
+          V6_ST: { type: "string" },
+          DI_ST: { type: "string" },
+          DII_ST: { type: "string" },
+          DIII_ST: { type: "string" },
+          aVR_ST: { type: "string" },
+          aVL_ST: { type: "string" },
+          aVF_ST: { type: "string" },
+          V1_T: { type: "string", description: "Ex: normal, invertida, apiculada, achatada" },
+          V2_T: { type: "string" },
+          V3_T: { type: "string" },
+          V4_T: { type: "string" },
+          V5_T: { type: "string" },
+          V6_T: { type: "string" },
+          DI_T: { type: "string" },
+          DII_T: { type: "string" },
+          DIII_T: { type: "string" },
+          aVL_T: { type: "string" },
+          aVF_T: { type: "string" },
+          outras_alteracoes: { type: "string", description: "Outras alterações observadas (bloqueios, etc). Se não houver, escreva 'Nenhuma'." },
+          laudo_tecnico: { type: "string", description: "Laudo técnico completo conforme especificado no prompt" }
         },
-        required: ["id_analise", "V1_analise", "V2_analise", "V3_analise", "V4_analise", "V5_analise", "V6_analise", "DI_analise", "DII_analise", "DIII_analise", "aVR_analise", "aVL_analise", "aVF_analise", "tem_elevacao_st", "diagnostico", "mensagem_medico"]
+        required: ["id_analise", "ritmo", "fc_bpm", "V1_ST", "V2_ST", "V3_ST", "V4_ST", "V5_ST", "V6_ST", "DI_ST", "DII_ST", "DIII_ST", "aVR_ST", "aVL_ST", "aVF_ST", "V1_T", "V2_T", "V3_T", "V4_T", "V5_T", "V6_T", "DI_T", "DII_T", "DIII_T", "aVL_T", "aVF_T", "outras_alteracoes", "laudo_tecnico"]
       };
 
-      const prompt = `ANÁLISE DE ECG - ID: ${analiseId}
+      const prompt = `Você é um sistema automático de análise de ECG (como Philips, GE, etc).
 
-Você receberá UMA IMAGEM de ECG de 12 derivações.
+IMPORTANTE: Você deve fazer APENAS análise técnica eletrocardiográfica. NÃO faça diagnósticos clínicos (ex: IAM, STEMI, NSTEMI).
 
-TAREFA: Analise o ECG e preencha TODOS os campos obrigatórios do schema.
+ID da análise: ${analiseId}
 
-Para CADA derivação (V1, V2, V3, V4, V5, V6, DI, DII, DIII, aVR, aVL, aVF):
-- Observe o segmento ST
-- Descreva como: "ST [elevado X mm / normal / infradesnivelado X mm], T [normal/invertida/apiculada]"
+TAREFA: Analise a IMAGEM de ECG anexada e meça:
 
-Critérios de STEMI (AHA/ACC 2022):
-- V2-V3: ≥2mm (homens) ou ≥1,5mm (mulheres)
-- Demais derivações: ≥1mm
-- Em ≥2 derivações contíguas do mesmo território
+1. Ritmo e Frequência Cardíaca (FC)
+2. Segmento ST em cada derivação
+3. Onda T em cada derivação
+4. Quaisquer outras alterações eletrocardiográficas notáveis.
 
-IMPORTANTE: Copie o ID fornecido: ${analiseId}
+FORMATO DE RESPOSTA:
 
-Agora analise a imagem anexada.`;
+Para segmento ST, use:
+- "normal" (se isoelétrico, sem elevação ou infradesnivelamento significativo)
+- "elevado Xmm" (se acima da linha isoelétrica, com valor em mm)
+- "infradesnivelado Xmm" (se abaixo da linha isoelétrica, com valor em mm)
 
-      console.log("📡 Enviando para análise...");
+Para onda T, use:
+- "normal"
+- "invertida"
+- "apiculada"
+- "achatada"
+- "não avaliável" (se não for possível determinar)
+
+NO LAUDO TÉCNICO, escreva como um aparelho de ECG faria, seguindo este formato EXATO (use placeholders para os valores reais):
+
+**ANÁLISE ELETROCARDIOGRÁFICA**
+
+Ritmo: [descrever ritmo, ex: Sinusal]
+Frequência cardíaca: [X] bpm
+
+**SEGMENTO ST:**
+- V1: [normal / elevado Xmm / infradesnivelado Xmm]
+- V2: [normal / elevado Xmm / infradesnivelado Xmm]
+- V3: [normal / elevado Xmm / infradesnivelado Xmm]
+- V4: [normal / elevado Xmm / infradesnivelado Xmm]
+- V5: [normal / elevado Xmm / infradesnivelado Xmm]
+- V6: [normal / elevado Xmm / infradesnivelado Xmm]
+- DI: [normal / elevado Xmm / infradesnivelado Xmm]
+- DII: [normal / elevado Xmm / infradesnivelado Xmm]
+- DIII: [normal / elevado Xmm / infradesnivelado Xmm]
+- aVR: [normal / elevado Xmm / infradesnivelado Xmm]
+- aVL: [normal / elevado Xmm / infradesnivelado Xmm]
+- aVF: [normal / elevado Xmm / infradesnivelado Xmm]
+
+**ONDA T:**
+- V1: [normal / invertida / apiculada / achatada / não avaliável]
+- V2: [normal / invertida / apiculada / achatada / não avaliável]
+- V3: [normal / invertida / apiculada / achatada / não avaliável]
+- V4: [normal / invertida / apiculada / achatada / não avaliável]
+- V5: [normal / invertida / apiculada / achatada / não avaliável]
+- V6: [normal / invertida / apiculada / achatada / não avaliável]
+- DI: [normal / invertida / apiculada / achatada / não avaliável]
+- DII: [normal / invertida / apiculada / achatada / não avaliável]
+- DIII: [normal / invertida / apiculada / achatada / não avaliável]
+- aVL: [normal / invertida / apiculada / achatada / não avaliável]
+- aVF: [normal / invertida / apiculada / achatada / não avaliável]
+
+**OUTRAS ALTERAÇÕES:**
+[Descrever outras alterações, como bloqueios de ramo, sobrecargas, extrassístoles, etc. Se não houver, escreva 'Nenhuma'.]
+
+---
+IMPORTANTE: NÃO mencione diagnósticos como "IAM", "STEMI", "NSTEMI", "Isquemia", etc. Apenas descreva OBJETIVAMENTE o que você VÊ no traçado.
+Seja conciso, técnico e objetivo. Use a terminologia exata solicitada.
+
+Agora analise a imagem.`;
+
+      console.log("📡 Enviando ECG para análise técnica...");
       
       const resultado = await base44.integrations.Core.InvokeLLM({
         prompt: prompt,
         file_urls: ecgUrl,
         response_json_schema: schema
-        // ✅ REMOVIDO: add_context_from_internet (não é necessário para análise de imagem de ECG)
       });
 
       if (resultado) {
-        console.log("=== RESULTADO ===");
-        console.log("ID retornado:", resultado.id_analise);
-        console.log("V1:", resultado.V1_analise);
-        console.log("V2:", resultado.V2_analise);
-        console.log("V3:", resultado.V3_analise);
-        console.log("V4:", resultado.V4_analise);
-        console.log("V5:", resultado.V5_analise);
-        console.log("V6:", resultado.V6_analise);
-        console.log("DI:", resultado.DI_analise);
-        console.log("DII:", resultado.DII_analise);
-        console.log("DIII:", resultado.DIII_analise);
-        console.log("aVR:", resultado.aVR_analise);
-        console.log("aVL:", resultado.aVL_analise);
-        console.log("aVF:", resultado.aVF_analise);
-        console.log("Tem elevação ST:", resultado.tem_elevacao_st);
-        console.log("Derivações elevadas:", resultado.derivacoes_elevadas);
-        console.log("Território:", resultado.territorio);
-        console.log("Diagnóstico:", resultado.diagnostico);
+        console.log("✅ Análise técnica concluída");
+        console.log("Ritmo:", resultado.ritmo);
+        console.log("FC:", resultado.fc_bpm);
         
-        if (resultado.id_analise !== analiseId) {
-          console.warn("⚠️ AVISO: ID não corresponde!");
+        // Identify leads with ST alterations
+        const derivacoesAlteradas = [];
+        const medicoes = {}; // Stores elevation/depression values
+        
+        ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'DI', 'DII', 'DIII', 'aVR', 'aVL', 'aVF'].forEach(deriv => {
+          const st = resultado[`${deriv}_ST`];
+          if (st && !st.includes('normal')) {
+            derivacoesAlteradas.push(deriv);
+            
+            const match = st.match(/(\d+(\.\d+)?)\s*mm/);
+            if (match) {
+              medicoes[deriv] = parseFloat(match[1]);
+            }
+          }
+        });
+        
+        const st_elevated = derivacoesAlteradas.filter(d => resultado[`${d}_ST`]?.includes('elevado'));
+        const st_depressed = derivacoesAlteradas.filter(d => resultado[`${d}_ST`]?.includes('infradesnivelado'));
+
+        let nivelAlerta = "🟢 ECG sem alterações significativas de ST";
+        
+        if (st_elevated.length > 0) {
+          // Check for significant elevation (2+ contiguous leads) for "critical" alert, using simplified contiguous logic
+          const hasSignificantElevation = 
+            (st_elevated.includes('V1') && st_elevated.includes('V2')) ||
+            (st_elevated.includes('V2') && st_elevated.includes('V3')) ||
+            (st_elevated.includes('V3') && st_elevated.includes('V4')) ||
+            (st_elevated.includes('V4') && st_elevated.includes('V5')) ||
+            (st_elevated.includes('V5') && st_elevated.includes('V6')) ||
+            (st_elevated.includes('DI') && st_elevated.includes('aVL')) ||
+            (st_elevated.includes('DII') && st_elevated.includes('DIII')) ||
+            (st_elevated.includes('DII') && st_elevated.includes('aVF')) ||
+            (st_elevated.includes('DIII') && st_elevated.includes('aVF'));
+
+          if (hasSignificantElevation) {
+             nivelAlerta = "🔴 Elevação de ST (≥2 derivações contíguas)";
+          } else {
+             nivelAlerta = "🟡 Elevação de ST isolada";
+          }
+        } else if (st_depressed.length > 0) {
+          nivelAlerta = "🟠 Infradesnivelamento de ST";
         }
-        
-        // Construir objeto de análise por derivação
-        const analise_por_derivacao = {
-          DI: resultado.DI_analise,
-          DII: resultado.DII_analise,
-          DIII: resultado.DIII_analise,
-          aVR: resultado.aVR_analise,
-          aVL: resultado.aVL_analise,
-          aVF: resultado.aVF_analise,
-          V1: resultado.V1_analise,
-          V2: resultado.V2_analise,
-          V3: resultado.V3_analise,
-          V4: resultado.V4_analise,
-          V5: resultado.V5_analise,
-          V6: resultado.V6_analise
-        };
         
         const analiseCompleta = {
           id_analise: resultado.id_analise,
-          analise_por_derivacao: analise_por_derivacao,
-          elevacao_st_detectada: resultado.tem_elevacao_st,
-          derivacoes_com_elevacao: resultado.derivacoes_elevadas || [],
-          medicao_elevacao_mm: resultado.elevacao_milimetros || {},
-          territorio_afetado: resultado.territorio,
-          arteria_culpada_provavel: resultado.arteria_culpada,
-          nivel_alerta: resultado.diagnostico,
-          mensagem_para_medico: resultado.mensagem_medico,
-          confianca_diagnostico: resultado.confianca,
-          qualidade_imagem: "Boa"
+          qualidade_imagem: "Boa",
+          ritmo: resultado.ritmo,
+          frequencia_cardiaca_ecg: resultado.fc_bpm,
+          
+          st_elevated: st_elevated,
+          st_depressed: st_depressed,
+          medicao_elevacao_mm: medicoes, // Stores elevation/depression values from string parsing
+          
+          nivel_alerta: nivelAlerta,
+          mensagem_para_medico: resultado.laudo_tecnico,
+          confianca_diagnostico: "Alta",
+          
+          analise_por_derivacao: {
+            DI: `ST: ${resultado.DI_ST}, T: ${resultado.DI_T || 'não avaliável'}`,
+            DII: `ST: ${resultado.DII_ST}, T: ${resultado.DII_T || 'não avaliável'}`,
+            DIII: `ST: ${resultado.DIII_ST}, T: ${resultado.DIII_T || 'não avaliável'}`,
+            aVR: `ST: ${resultado.aVR_ST}`, // No T wave analysis for aVR in prompt
+            aVL: `ST: ${resultado.aVL_ST}, T: ${resultado.aVL_T || 'não avaliável'}`,
+            aVF: `ST: ${resultado.aVF_ST}, T: ${resultado.aVF_T || 'não avaliável'}`,
+            V1: `ST: ${resultado.V1_ST}, T: ${resultado.V1_T || 'não avaliável'}`,
+            V2: `ST: ${resultado.V2_ST}, T: ${resultado.V2_T || 'não avaliável'}`,
+            V3: `ST: ${resultado.V3_ST}, T: ${resultado.V3_T || 'não avaliável'}`,
+            V4: `ST: ${resultado.V4_ST}, T: ${resultado.V4_T || 'não avaliável'}`,
+            V5: `ST: ${resultado.V5_ST}, T: ${resultado.V5_T || 'não avaliável'}`,
+            V6: `ST: ${resultado.V6_ST}, T: ${resultado.V6_T || 'não avaliável'}`
+          },
+          outras_alteracoes: resultado.outras_alteracoes
         };
         
         setAlertaTriagem(analiseCompleta);
@@ -248,19 +311,21 @@ Agora analise a imagem anexada.`;
       setAlertaTriagem({
         id_analise: analiseId,
         qualidade_imagem: "Ruim",
-        elevacao_st_detectada: false,
-        nivel_alerta: "⚪ Inconclusivo - Erro na análise automática",
-        mensagem_para_medico: `ERRO NO SISTEMA DE ANÁLISE AUTOMÁTICA
+        st_elevated: [],
+        st_depressed: [],
+        nivel_alerta: "⚪ Erro na análise automática",
+        mensagem_para_medico: `ERRO NO SISTEMA DE ANÁLISE
 
 O sistema não conseguiu processar o ECG.
 
-⚠️ MÉDICO DEVE INTERPRETÁR MANUALMENTE
+⚠️ MÉDICO DEVE INTERPRETAR MANUALMENTE
 
-Erro técnico: ${error.message}`,
-        derivacoes_com_elevacao: [],
-        territorio_afetado: "Padrão não conclusivo",
+Erro: ${error.message}`,
         analise_por_derivacao: {},
-        confianca_diagnostico: "Baixa"
+        confianca_diagnostico: "Baixa",
+        ritmo: "Não avaliável",
+        frequencia_cardiaca_ecg: null,
+        outras_alteracoes: "Erro na análise automática."
       });
     }
     setAnalyzing(false);
@@ -275,119 +340,67 @@ Erro técnico: ${error.message}`,
     setGerandoSugestao(true);
 
     try {
-      const schema = {
-        type: "object",
-        properties: {
-          interpretacao_estruturada: {
-            type: "string",
-            description: "Laudo de ECG completo e estruturado, formatado profissionalmente"
-          },
-          diagnostico_principal: {
-            type: "string",
-            description: "Diagnóstico principal em formato conciso"
-          },
-          conduta_sugerida: {
-            type: "string",
-            description: "Conduta clínica recomendada baseada nos achados"
-          }
-        },
-        required: ["interpretacao_estruturada", "diagnostico_principal", "conduta_sugerida"]
-      };
-
       const analise = alertaTriagem.analise_por_derivacao;
-      const prompt = `Você é um cardiologista especialista em eletrocardiografia.
+      
+      const prompt = `Você é um médico cardiologista especializado em eletrocardiografia.
+Sua tarefa é gerar um laudo médico estruturado com base na análise TÉCNICA do ECG fornecida abaixo.
 
-TAREFA: Gerar um laudo médico profissional de ECG baseado na análise técnica fornecida.
+**INFORMAÇÕES DISPONÍVEIS:**
+- ID da Análise Técnica: ${alertaTriagem.id_analise}
+- Ritmo: ${alertaTriagem.ritmo || 'Não especificado'}
+- Frequência Cardíaca: ${alertaTriagem.frequencia_cardiaca_ecg || '?'} bpm
 
-ANÁLISE TÉCNICA DISPONÍVEL:
-- ID da Análise: ${alertaTriagem.id_analise}
-- Derivações analisadas: ${Object.keys(analise).length}
+**ANÁLISE POR DERIVAÇÃO:**
+${Object.entries(analise).map(([deriv, dados]) => `${deriv}: ${dados}`).join('\n')}
 
-ACHADOS POR DERIVAÇÃO:
-${Object.entries(analise).map(([deriv, achado]) => `- ${deriv}: ${achado}`).join('\n')}
+${alertaTriagem.outras_alteracoes && alertaTriagem.outras_alteracoes !== 'Nenhuma' ? `\n**OUTRAS ALTERAÇÕES:**\n${alertaTriagem.outras_alteracoes}` : ''}
 
-RESUMO DA ANÁLISE AUTOMÁTICA:
-- Elevação de ST detectada: ${alertaTriagem.elevacao_st_detectada ? 'SIM' : 'NÃO'}
-${alertaTriagem.elevacao_st_detectada ? `- Derivações com elevação: ${alertaTriagem.derivacoes_com_elevacao?.join(', ')}` : ''}
-${alertaTriagem.territorio_afetado ? `- Território afetado: ${alertaTriagem.territorio_afetado}` : ''}
-${alertaTriagem.arteria_culpada_provavel ? `- Artéria culpada provável: ${alertaTriagem.arteria_culpada_provavel}` : ''}
-- Nível de alerta: ${alertaTriagem.nivel_alerta}
-- Confiança: ${alertaTriagem.confianca_diagnostico}
-
-DADOS DO PACIENTE:
-- Idade: ${dadosPaciente.idade} anos
-- Sexo: ${dadosPaciente.sexo}
-${dadosPaciente.dados_vitais?.frequencia_cardiaca ? `- FC: ${dadosPaciente.dados_vitais.frequencia_cardiaca} bpm` : ''}
-
-INSTRUÇÕES PARA O LAUDO:
-
+**INSTRUÇÕES PARA O LAUDO:**
 Gere um laudo no seguinte formato EXATO:
 
 **ELETROCARDIOGRAMA DE 12 DERIVAÇÕES**
 
-**RITMO E FREQUÊNCIA:**
-[Descrever ritmo (sinusal/não sinusal) e FC estimada]
+**RITMO:** [Descrever o ritmo, ex: Sinusal]
+**FREQUÊNCIA CARDÍACA:** [Número] bpm
 
-**ANÁLISE DO SEGMENTO ST E ONDA T:**
+**ANÁLISE DO SEGMENTO ST:**
+[Para cada derivação (V1-V6, DI, DII, DIII, aVR, aVL, aVF), descrever o segmento ST: normal, elevado Xmm ou infradesnivelado Xmm]
 
-*Derivações Precordiais:*
-- V1: [descrição detalhada]
-- V2: [descrição detalhada]
-- V3: [descrição detalhada]
-- V4: [descrição detalhada]
-- V5: [descrição detalhada]
-- V6: [descrição detalhada]
+**ANÁLISE DA ONDA T:**
+[Para cada derivação (V1-V6, DI, DII, DIII, aVL, aVF), descrever a morfologia da onda T: normal, invertida, apiculada, achatada ou não avaliável. Exclua aVR se não aplicável.]
 
-*Derivações de Membros:*
-- DI: [descrição detalhada]
-- DII: [descrição detalhada]
-- DIII: [descrição detalhada]
-- aVR: [descrição detalhada]
-- aVL: [descrição detalhada]
-- aVF: [descrição detalhada]
+**OUTRAS ALTERAÇÕES:**
+[Listar outras alterações detectadas, como bloqueios de ramo, sobrecargas, extrassístoles, etc. Se não houver, escreva 'Nenhuma'.]
 
-**ACHADOS PRINCIPAIS:**
-[Listar achados significativos]
-
-**CONCLUSÃO:**
-[Diagnóstico eletrocardiográfico]
-
-${alertaTriagem.elevacao_st_detectada ? '**⚠️ CONDUTA URGENTE:**\n[Recomendação de conduta imediata]' : ''}
+**CONCLUSÃO TÉCNICA:**
+[Resumo objetivo e técnico das principais alterações eletrocardiográficas encontradas. NÃO inclua diagnósticos clínicos como 'IAM', 'STEMI', 'NSTEMI', 'Isquemia', etc. Apenas descreva os achados técnicos.]
 
 **OBSERVAÇÕES:**
-[Limitações, recomendações de correlação clínica]
+[Mencionar que este é um laudo técnico baseado nos achados. A interpretação clínica e a correlação com o quadro do paciente são de responsabilidade do médico assistente.]
 
 ---
-
 IMPORTANTE:
-- Use terminologia médica técnica e precisa
-- Seja objetivo e claro
-- Inclua TODAS as 12 derivações
-- Se houver elevação de ST, enfatize território e artéria
-- Mencione critérios diagnósticos específicos quando aplicável (ex: critérios de Sgarbossa, De Winter, Wellens)
-- Sempre termine recomendando correlação clínica
-
-Gere o laudo completo agora.`;
+- Mantenha o formato exato acima.
+- Use terminologia médica precisa.
+- Seja objetivo.
+- NÃO faça diagnóstico clínico.
+- Preencha todas as seções, mesmo que seja para indicar 'normal' ou 'Nenhuma'.`;
 
       const resultado = await base44.integrations.Core.InvokeLLM({
         prompt: prompt,
-        response_json_schema: schema
+        response_type: "text" // Requesting plain text output
       });
 
-      if (resultado && resultado.interpretacao_estruturada) {
-        // Adicionar nota de que foi gerado por IA
-        const textoCompleto = `${resultado.interpretacao_estruturada}
+      if (resultado) {
+        const textoCompleto = `${resultado}
 
 ---
-💡 **Nota:** Este laudo foi gerado automaticamente como sugestão baseada na análise de IA.
+💡 **Nota:** Este laudo técnico foi gerado automaticamente como sugestão baseada na análise de IA.
 O médico deve revisar, validar e ajustar conforme necessário antes de finalizar.
-
-**Diagnóstico Sugerido:** ${resultado.diagnostico_principal}
-**Conduta Sugerida:** ${resultado.conduta_sugerida}`;
+A interpretação CLÍNICA e a tomada de decisão são de responsabilidade do médico.`;
 
         setInterpretacaoMedico(textoCompleto);
-        
-        alert("✓ Sugestão de interpretação gerada com sucesso!\n\nRevise e ajuste o texto conforme necessário antes de finalizar.");
+        alert("✓ Laudo técnico gerado com sucesso!\n\nRevise e ajuste o texto conforme necessário.");
       }
 
     } catch (error) {
@@ -432,8 +445,8 @@ O médico deve revisar, validar e ajustar conforme necessário antes de finaliza
         timestamp: dataHoraEcg,
         ecg_url: ecgFiles[0], // Primeiro ECG anexado
         analise_completa: alertaTriagem,
-        diagnostico_resumido: alertaTriagem.nivel_alerta?.split(' - ')[0] || alertaTriagem.nivel_alerta || 'Análise de ECG',
-        territorio: alertaTriagem.territorio_afetado,
+        diagnostico_resumido: alertaTriagem.nivel_alerta || 'Análise de ECG', // Use nivel_alerta for summarized diagnosis
+        territorio: alertaTriagem.territorio_afetado || null, // Will be null as first AI does not infer territory
         nivel_alerta: alertaTriagem.nivel_alerta,
         registrado_por: user.email || 'Sistema'
       });
@@ -566,10 +579,10 @@ O médico deve revisar, validar e ajustar conforme necessário antes de finaliza
               <Loader2 className="h-5 w-5 text-purple-600 animate-spin" />
               <AlertDescription className="text-purple-800">
                 <div className="space-y-2">
-                  <p className="font-bold">🔍 Análise Simplificada em Andamento...</p>
+                  <p className="font-bold">🔍 Análise Técnica de ECG em Andamento...</p>
                   <p className="text-sm">• Analisando TODAS as 12 derivações do ECG</p>
-                  <p className="text-sm">• Detectando elevação de segmento ST</p>
-                  <p className="text-sm">• Identificando território coronariano</p>
+                  <p className="text-sm">• Medindo segmentos ST e ondas T</p>
+                  <p className="text-sm">• Gerando laudo técnico detalhado</p>
                   <p className="text-sm font-bold mt-2">⏳ Aguarde 30-60 segundos...</p>
                 </div>
               </AlertDescription>
@@ -624,36 +637,32 @@ O médico deve revisar, validar e ajustar conforme necessário antes de finaliza
       {/* RESULTADO DA ANÁLISE AUTOMÁTICA */}
       {alertaTriagem && !analyzing && (
         <Card className={`border-2 shadow-lg ${
-          alertaTriagem.nivel_alerta?.includes('CRÍTICO') || alertaTriagem.nivel_alerta?.includes('STEMI') ? 'border-red-500 bg-red-50' :
-          alertaTriagem.nivel_alerta?.includes('URGENTE') || alertaTriagem.nivel_alerta?.includes('Alterações isquêmicas') ? 'border-orange-500 bg-orange-50' :
-          alertaTriagem.nivel_alerta?.includes('ATENÇÃO') ? 'border-yellow-500 bg-yellow-50' :
-          alertaTriagem.nivel_alerta?.includes('Normal') ? 'border-green-500 bg-green-50' :
+          alertaTriagem.nivel_alerta?.includes('Elevação de ST') ? 'border-red-500 bg-red-50' :
+          alertaTriagem.nivel_alerta?.includes('Infradesnivelamento de ST') ? 'border-orange-500 bg-orange-50' :
+          alertaTriagem.nivel_alerta?.includes('sem alterações significativas') ? 'border-green-500 bg-green-50' :
           'border-gray-500 bg-gray-50'
         }`}>
           <CardHeader className={`${
-            alertaTriagem.nivel_alerta?.includes('CRÍTICO') || alertaTriagem.nivel_alerta?.includes('STEMI') ? 'bg-red-100 border-b-2 border-red-300' :
-            alertaTriagem.nivel_alerta?.includes('URGENTE') || alertaTriagem.nivel_alerta?.includes('Alterações isquêmicas') ? 'bg-orange-100 border-b-2 border-orange-300' :
-            alertaTriagem.nivel_alerta?.includes('ATENÇÃO') ? 'bg-yellow-100 border-b-2 border-yellow-300' :
-            alertaTriagem.nivel_alerta?.includes('Normal') ? 'bg-green-100 border-b-2 border-green-300' :
+            alertaTriagem.nivel_alerta?.includes('Elevação de ST') ? 'bg-red-100 border-b-2 border-red-300' :
+            alertaTriagem.nivel_alerta?.includes('Infradesnivelamento de ST') ? 'bg-orange-100 border-b-2 border-orange-300' :
+            alertaTriagem.nivel_alerta?.includes('sem alterações significativas') ? 'bg-green-100 border-b-2 border-green-300' :
             'bg-gray-100 border-b-2 border-gray-300'
           }`}>
             <CardTitle className={`text-lg flex items-center gap-2 ${
-              alertaTriagem.nivel_alerta?.includes('CRÍTICO') || alertaTriagem.nivel_alerta?.includes('STEMI') ? 'text-red-900' :
-              alertaTriagem.nivel_alerta?.includes('URGENTE') || alertaTriagem.nivel_alerta?.includes('Alterações isquêmicas') ? 'text-orange-900' :
-              alertaTriagem.nivel_alerta?.includes('ATENÇÃO') ? 'text-yellow-900' :
-              alertaTriagem.nivel_alerta?.includes('Normal') ? 'text-green-900' :
+              alertaTriagem.nivel_alerta?.includes('Elevação de ST') ? 'text-red-900' :
+              alertaTriagem.nivel_alerta?.includes('Infradesnivelamento de ST') ? 'text-orange-900' :
+              alertaTriagem.nivel_alerta?.includes('sem alterações significativas') ? 'text-green-900' :
               'text-gray-900'
             }`}>
               <Zap className="w-5 h-5" />
-              🤖 Análise Automática de Triagem (SBC/AHA 2022)
+              🤖 Análise Técnica de ECG por IA
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-4">
             <div className={`p-4 rounded-lg border-2 ${
-              alertaTriagem.nivel_alerta?.includes('CRÍTICO') || alertaTriagem.nivel_alerta?.includes('STEMI') ? 'bg-red-100 border-red-400' :
-              alertaTriagem.nivel_alerta?.includes('URGENTE') || alertaTriagem.nivel_alerta?.includes('Alterações isquêmicas') ? 'bg-orange-100 border-orange-400' :
-              alertaTriagem.nivel_alerta?.includes('ATENÇÃO') ? 'bg-yellow-100 border-yellow-400' :
-              alertaTriagem.nivel_alerta?.includes('Normal') ? 'bg-green-100 border-green-400' :
+              alertaTriagem.nivel_alerta?.includes('Elevação de ST') ? 'bg-red-100 border-red-400' :
+              alertaTriagem.nivel_alerta?.includes('Infradesnivelamento de ST') ? 'bg-orange-100 border-orange-400' :
+              alertaTriagem.nivel_alerta?.includes('sem alterações significativas') ? 'bg-green-100 border-green-400' :
               'bg-gray-100 border-gray-400'
             }`}>
               <p className="font-bold text-lg mb-2">
@@ -669,21 +678,21 @@ O médico deve revisar, validar e ajustar conforme necessário antes de finaliza
 
             {alertaTriagem.mensagem_para_medico && (
               <div className="bg-white p-4 rounded-lg border-2 border-blue-300">
-                <h3 className="font-bold text-blue-900 mb-2">📋 Análise Detalhada:</h3>
+                <h3 className="font-bold text-blue-900 mb-2">📋 Laudo Técnico Bruto (por derivação):</h3>
                 <div className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
                   {alertaTriagem.mensagem_para_medico}
                 </div>
               </div>
             )}
 
-            {alertaTriagem.elevacao_st_detectada && (
+            {alertaTriagem.st_elevated?.length > 0 && (
               <div className="bg-white p-4 rounded-lg border-2 border-red-300">
                 <p className="font-bold text-red-900 mb-2">⚠️ ELEVAÇÃO DE ST DETECTADA</p>
-                {alertaTriagem.derivacoes_com_elevacao && alertaTriagem.derivacoes_com_elevacao.length > 0 && (
+                {alertaTriagem.st_elevated && alertaTriagem.st_elevated.length > 0 && (
                   <div className="mt-2">
                     <p className="text-sm font-semibold mb-1">Derivações com elevação:</p>
                     <div className="flex flex-wrap gap-2">
-                      {alertaTriagem.derivacoes_com_elevacao.map((der, i) => (
+                      {alertaTriagem.st_elevated.map((der, i) => (
                         <Badge key={i} className="bg-red-600 text-white text-sm px-3 py-1">
                           {der} {alertaTriagem.medicao_elevacao_mm && alertaTriagem.medicao_elevacao_mm[der] ? `(${alertaTriagem.medicao_elevacao_mm[der]}mm)` : ''}
                         </Badge>
@@ -691,37 +700,22 @@ O médico deve revisar, validar e ajustar conforme necessário antes de finaliza
                     </div>
                   </div>
                 )}
-                {alertaTriagem.territorio_afetado && (
-                  <div className="mt-3 p-3 bg-red-50 rounded">
-                    <p className="text-sm"><strong>Território afetado:</strong> {alertaTriagem.territorio_afetado}</p>
-                  </div>
-                )}
-                {alertaTriagem.arteria_culpada_provavel && (
-                  <div className="mt-2 p-3 bg-red-50 rounded">
-                    <p className="text-sm"><strong>Artéria culpada provável:</strong> {alertaTriagem.arteria_culpada_provavel}</p>
-                  </div>
-                )}
-                {alertaTriagem.tempo_porta_balao_recomendado && (
-                  <div className="mt-2 p-3 bg-red-100 rounded border border-red-400">
-                    <p className="text-sm font-bold text-red-900">🚨 {alertaTriagem.tempo_porta_balao_recomendado}</p>
-                  </div>
-                )}
               </div>
             )}
 
-            {alertaTriagem.infradesniv_st_detectado && alertaTriagem.derivacoes_com_infradesniv && alertaTriagem.derivacoes_com_infradesniv.length > 0 && (
+            {alertaTriagem.st_depressed?.length > 0 && (
               <div className="bg-white p-4 rounded-lg border-2 border-orange-300">
                 <p className="font-bold text-orange-900 mb-2">⚠️ INFRADESNIVELAMENTO DE ST DETECTADO</p>
                 <p className="text-sm font-semibold mb-1">Derivações:</p>
                 <div className="flex flex-wrap gap-2">
-                  {alertaTriagem.derivacoes_com_infradesniv.map((der, i) => (
+                  {alertaTriagem.st_depressed.map((der, i) => (
                     <Badge key={i} className="bg-orange-600 text-white text-sm px-3 py-1">
-                      {der}
+                      {der} {alertaTriagem.medicao_elevacao_mm && alertaTriagem.medicao_elevacao_mm[der] ? `(${alertaTriagem.medicao_elevacao_mm[der]}mm)` : ''}
                     </Badge>
                   ))}
                 </div>
                 <p className="text-xs text-orange-800 mt-2">
-                  Pode indicar: NSTEMI, isquemia subendocárdica ou alterações recíprocas
+                  Pode indicar isquemia, alterações recíprocas, etc.
                 </p>
               </div>
             )}
@@ -736,32 +730,10 @@ O médico deve revisar, validar e ajustar conforme necessário antes de finaliza
               </div>
             )}
 
-            {alertaTriagem.bloqueios_detectados && alertaTriagem.bloqueios_detectados.length > 0 && (
+            {alertaTriagem.outras_alteracoes && alertaTriagem.outras_alteracoes !== 'Nenhuma' && (
               <div className="bg-yellow-50 p-3 rounded border border-yellow-300">
-                <p className="text-sm font-semibold text-yellow-900 mb-1">Bloqueios detectados:</p>
-                <ul className="list-disc pl-5 text-sm text-yellow-800">
-                  {alertaTriagem.bloqueios_detectados.map((bloq, i) => (
-                    <li key={i}>{bloq}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {alertaTriagem.validacao_literatura && (
-              <div className="bg-blue-50 p-3 rounded border border-blue-300">
-                <p className="text-sm font-semibold text-blue-900 mb-1">Validação com Literatura Médica:</p>
-                <p className="text-xs text-blue-800 whitespace-pre-wrap">{alertaTriagem.validacao_literatura}</p>
-              </div>
-            )}
-
-            {alertaTriagem.casos_web_similares && alertaTriagem.casos_web_similares.length > 0 && (
-              <div className="bg-blue-50 p-3 rounded border border-blue-300">
-                <p className="text-sm font-semibold text-blue-900 mb-1">Casos Similares Encontrados na Web:</p>
-                <ul className="list-disc pl-5 text-xs text-blue-800">
-                  {alertaTriagem.casos_web_similares.map((caso, i) => (
-                    <li key={i}>{caso}</li>
-                  ))}
-                </ul>
+                <p className="text-sm font-semibold text-yellow-900 mb-1">Outras alterações detectadas:</p>
+                <p className="text-sm text-yellow-800 whitespace-pre-wrap">{alertaTriagem.outras_alteracoes}</p>
               </div>
             )}
 
@@ -770,7 +742,7 @@ O médico deve revisar, validar e ajustar conforme necessário antes de finaliza
               <AlertDescription className="text-purple-800 text-sm">
                 <strong>📚 Baseado em:</strong> Diretriz Brasileira de Análise Eletrocardiográfica 2022 + AHA/ACC Guidelines 2025
                 <br />
-                <strong className="block mt-1">⚠️ SUPERVISÃO MÉDICA OBRIGATÓRIA:</strong> Este é um sistema de SUPORTE DIAGNÓSTICO para triagem. A interpretação e decisão clínica final são sempre do médico responsável.
+                <strong className="block mt-1">⚠️ SUPERVISÃO MÉDICA OBRIGATÓRIA:</strong> Este é um sistema de SUPORTE TÉCNICO para triagem. A interpretação CLÍNICA e a decisão final são sempre do médico responsável.
               </AlertDescription>
             </Alert>
           </CardContent>
@@ -781,7 +753,7 @@ O médico deve revisar, validar e ajustar conforme necessário antes de finaliza
         <Card className="border-2 border-blue-500 shadow-lg">
           <CardHeader className="bg-blue-50 border-b">
             <CardTitle className="text-blue-900 text-lg">
-              📋 INTERPRETAÇÃO DO ECG PELO MÉDICO (OPCIONAL)
+              📋 LAUDO TÉCNICO ELETROCARDIOGRÁFICO (OPCIONAL)
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-4">
@@ -790,9 +762,9 @@ O médico deve revisar, validar e ajustar conforme necessário antes de finaliza
               <AlertDescription className="text-blue-800">
                 <strong>✓ Este campo é OPCIONAL nesta etapa:</strong>
                 <ul className="list-disc pl-5 mt-2 space-y-1">
-                  <li>Se o médico já interpretou o ECG, você pode registrar aqui</li>
-                  <li>Caso contrário, deixe em branco - o médico interpretará na Etapa 6</li>
-                  <li>A análise automática por IA já foi realizada e está registrada acima</li>
+                  <li>Se desejar registrar um laudo técnico estruturado, pode usar o assistente de IA</li>
+                  <li>Caso contrário, deixe em branco - o médico poderá preencher na Etapa 6</li>
+                  <li>A análise técnica automática por IA já foi realizada e está registrada acima</li>
                 </ul>
               </AlertDescription>
             </Alert>
@@ -803,8 +775,8 @@ O médico deve revisar, validar e ajustar conforme necessário antes de finaliza
                   <div className="flex items-center gap-3">
                     <Sparkles className="w-6 h-6 text-purple-600" />
                     <div>
-                      <p className="font-semibold text-purple-900">🤖 Assistente de Documentação de ECG</p>
-                      <p className="text-sm text-purple-700">Gere automaticamente uma sugestão de interpretação médica estruturada</p>
+                      <p className="font-semibold text-purple-900">🤖 Assistente de Laudo Técnico de ECG</p>
+                      <p className="text-sm text-purple-700">Gere automaticamente um laudo técnico estruturado a partir da análise da IA</p>
                     </div>
                   </div>
                   <Button
@@ -821,7 +793,7 @@ O médico deve revisar, validar e ajustar conforme necessário antes de finaliza
                     ) : (
                       <>
                         <Sparkles className="w-4 h-4" />
-                        Gerar Sugestão de Interpretação
+                        Gerar Laudo Técnico
                       </>
                     )}
                   </Button>
@@ -831,11 +803,10 @@ O médico deve revisar, validar e ajustar conforme necessário antes de finaliza
                   <AlertDescription className="text-purple-800 text-sm">
                     <strong>💡 Como funciona o Assistente:</strong>
                     <ul className="list-disc pl-5 mt-2 space-y-1">
-                      <li>Analisa os achados de ECG já identificados pela IA</li>
-                      <li>Gera um laudo estruturado com terminologia médica adequada</li>
+                      <li>Usa os achados técnicos de ECG já identificados pela IA (ritmo, FC, ST, T, etc.)</li>
+                      <li>Gera um laudo estruturado com terminologia médica adequada e neutra</li>
                       <li>Inclui análise de todas as 12 derivações</li>
-                      <li>Sugere diagnóstico e conduta baseado nos achados</li>
-                      <li><strong>IMPORTANTE:</strong> É uma sugestão - o médico deve revisar e validar</li>
+                      <li><strong>IMPORTANTE:</strong> É uma descrição TÉCNICA. NÃO inclui diagnóstico clínico. O médico deve revisar e validar.</li>
                     </ul>
                   </AlertDescription>
                 </Alert>
@@ -844,7 +815,7 @@ O médico deve revisar, validar e ajustar conforme necessário antes de finaliza
 
             <div className="space-y-2">
               <Label htmlFor="interpretacao" className="text-base font-semibold">
-                Interpretação Completa do ECG (Opcional)
+                Laudo Técnico do ECG (Opcional)
               </Label>
               <Textarea
                 id="interpretacao"
@@ -852,17 +823,28 @@ O médico deve revisar, validar e ajustar conforme necessário antes de finaliza
                 onChange={(e) => setInterpretacaoMedico(e.target.value)}
                 placeholder="Exemplo:
 
-ECG de 12 derivações:
+**ELETROCARDIOGRAMA DE 12 DERIVAÇÕES**
 
-- Ritmo sinusal, FC: 78 bpm
-- Elevação do segmento ST: DII (3mm), DIII (4mm), aVF (3mm)
-- Infradesnivelamento recíproco: aVL (2mm)
-- Território: PAREDE INFERIOR
-- Ondas Q patológicas: ausentes
+**RITMO:** Sinusal
+**FREQUÊNCIA CARDÍACA:** 78 bpm
 
-CONCLUSÃO: STEMI DE PAREDE INFERIOR
-ARTÉRIA CULPADA: Coronária Direita (provável)
-CONDUTA: Reperfusão imediata (ICP primária vs fibrinolítico)
+**ANÁLISE DO SEGMENTO ST:**
+- DII: elevado 3mm
+- DIII: elevado 4mm
+- aVF: elevado 3mm
+- aVL: infradesnivelado 2mm
+- Demais derivações: normal
+
+**ANÁLISE DA ONDA T:**
+- DII, DIII, aVF: normal
+- aVL: invertida
+- Demais derivações: normal
+
+**OUTRAS ALTERAÇÕES:** Nenhuma
+
+**CONCLUSÃO TÉCNICA:** Elevação de segmento ST em parede inferior, com infradesnivelamento recíproco em aVL.
+
+**OBSERVAÇÕES:** Laudo técnico baseado nos achados. Interpretação clínica a cargo do médico assistente.
 
 (Se deixado em branco, o médico interpretará na Etapa 6)"
                 rows={12}
@@ -876,8 +858,8 @@ CONDUTA: Reperfusão imediata (ICP primária vs fibrinolítico)
             <Alert className="border-yellow-500 bg-yellow-50">
               <AlertTriangle className="h-4 w-4 text-yellow-600" />
               <AlertDescription className="text-yellow-800 text-sm">
-                <strong>💡 Nota Importante:</strong> A análise automática por IA já foi realizada e serve como <strong>suporte inicial</strong>.
-                A interpretação médica final (obrigatória) será feita na Etapa 6 - Avaliação Médica.
+                <strong>💡 Nota Importante:</strong> A análise automática por IA já foi realizada e serve como <strong>suporte técnico inicial</strong>.
+                A interpretação CLÍNICA e decisão médica final (obrigatória) será feita na Etapa 6 - Avaliação Médica.
               </AlertDescription>
             </Alert>
           </CardContent>
