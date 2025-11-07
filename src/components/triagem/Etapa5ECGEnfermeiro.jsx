@@ -29,9 +29,9 @@ function HistoricoECG({ historico }) {
             <div className="flex justify-between items-center mb-2">
               <span className="font-semibold text-sm">Análise Recente</span>
               <Badge className={`text-xs ${
-                analise.nivel_alerta?.includes('Elevação de ST') ? 'bg-red-500' :
-                analise.nivel_alerta?.includes('Infradesnivelamento de ST') ? 'bg-orange-500' :
-                analise.nivel_alerta?.includes('sem alterações significativas') ? 'bg-green-500' :
+                analise.nivel_alerta?.includes('ELEVAÇÃO DE ST DETECTADA') ? 'bg-red-500' :
+                analise.nivel_alerta?.includes('INFRADESNIVELAMENTO DE ST DETECTADO') ? 'bg-orange-500' :
+                analise.nivel_alerta?.includes('SEM ALTERAÇÕES SIGNIFICATIVAS DE ST') ? 'bg-green-500' :
                 'bg-gray-500'
               } text-white`}>{analise.nivel_alerta || 'N/A'}</Badge>
             </div>
@@ -102,7 +102,7 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
     setAnalyzing(true);
     
     const analiseId = `ECG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    // const timestampAnalise = new Date().toISOString(); // No longer used directly here
+    const timestampAnalise = new Date().toISOString();
     
     console.log("=== ANÁLISE TÉCNICA DE ECG ===");
     console.log("ID:", analiseId);
@@ -138,38 +138,36 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
           DIII_T: { type: "string" },
           aVL_T: { type: "string" },
           aVF_T: { type: "string" },
-          outras_alteracoes: { type: "string", description: "Outras alterações observadas (bloqueios, etc). Se não houver, escreva 'Nenhuma'." },
-          laudo_tecnico: { type: "string", description: "Laudo técnico completo conforme especificado no prompt" }
+          outras_alteracoes: { type: "string", description: "Outras alterações observadas (bloqueios, etc)" },
+          laudo_tecnico: { type: "string", description: "Laudo técnico completo" }
         },
-        required: ["id_analise", "ritmo", "fc_bpm", "V1_ST", "V2_ST", "V3_ST", "V4_ST", "V5_ST", "V6_ST", "DI_ST", "DII_ST", "DIII_ST", "aVR_ST", "aVL_ST", "aVF_ST", "V1_T", "V2_T", "V3_T", "V4_T", "V5_T", "V6_T", "DI_T", "DII_T", "DIII_T", "aVL_T", "aVF_T", "outras_alteracoes", "laudo_tecnico"]
+        required: ["id_analise", "ritmo", "fc_bpm", "V1_ST", "V2_ST", "V3_ST", "V4_ST", "V5_ST", "V6_ST", "DI_ST", "DII_ST", "DIII_ST", "aVR_ST", "aVL_ST", "aVF_ST", "laudo_tecnico"]
       };
 
       const prompt = `Você é um sistema automático de análise de ECG (como Philips, GE, etc).
 
-IMPORTANTE: Você deve fazer APENAS análise técnica eletrocardiográfica. NÃO faça diagnósticos clínicos (ex: IAM, STEMI, NSTEMI).
+IMPORTANTE: Você deve fazer APENAS análise técnica eletrocardiográfica. NÃO faça diagnósticos clínicos.
 
 ID da análise: ${analiseId}
 
 TAREFA: Analise a IMAGEM de ECG anexada e meça:
 
-1. Ritmo e Frequência Cardíaca (FC)
-2. Segmento ST em cada derivação
+1. Ritmo e FC
+2. Segmento ST em cada derivação (em mm)
 3. Onda T em cada derivação
-4. Quaisquer outras alterações eletrocardiográficas notáveis.
 
 FORMATO DE RESPOSTA:
 
 Para segmento ST, use:
-- "normal" (se isoelétrico, sem elevação ou infradesnivelamento significativo)
-- "elevado Xmm" (se acima da linha isoelétrica, com valor em mm)
-- "infradesnivelado Xmm" (se abaixo da linha isoelétrica, com valor em mm)
+- "normal" (se isoelétrico)
+- "elevado Xmm" (se acima da linha)
+- "infradesnivelado Xmm" (se abaixo)
 
 Para onda T, use:
 - "normal"
 - "invertida"
 - "apiculada"
 - "achatada"
-- "não avaliável" (se não for possível determinar)
 
 NO LAUDO TÉCNICO, escreva como um aparelho de ECG faria, seguindo este formato EXATO (use placeholders para os valores reais):
 
@@ -193,24 +191,14 @@ Frequência cardíaca: [X] bpm
 - aVF: [normal / elevado Xmm / infradesnivelado Xmm]
 
 **ONDA T:**
-- V1: [normal / invertida / apiculada / achatada / não avaliável]
-- V2: [normal / invertida / apiculada / achatada / não avaliável]
-- V3: [normal / invertida / apiculada / achatada / não avaliável]
-- V4: [normal / invertida / apiculada / achatada / não avaliável]
-- V5: [normal / invertida / apiculada / achatada / não avaliável]
-- V6: [normal / invertida / apiculada / achatada / não avaliável]
-- DI: [normal / invertida / apiculada / achatada / não avaliável]
-- DII: [normal / invertida / apiculada / achatada / não avaliável]
-- DIII: [normal / invertida / apiculada / achatada / não avaliável]
-- aVL: [normal / invertida / apiculada / achatada / não avaliável]
-- aVF: [normal / invertida / apiculada / achatada / não avaliável]
+- V1-V6: [descrever cada uma]
+- DI, DII, DIII, aVL, aVF: [descrever cada uma]
 
 **OUTRAS ALTERAÇÕES:**
-[Descrever outras alterações, como bloqueios de ramo, sobrecargas, extrassístoles, etc. Se não houver, escreva 'Nenhuma'.]
+[Bloqueios, hipertrofias, etc - se houver]
 
 ---
-IMPORTANTE: NÃO mencione diagnósticos como "IAM", "STEMI", "NSTEMI", "Isquemia", etc. Apenas descreva OBJETIVAMENTE o que você VÊ no traçado.
-Seja conciso, técnico e objetivo. Use a terminologia exata solicitada.
+IMPORTANTE: NÃO mencione diagnósticos como "IAM", "STEMI", etc. Apenas descreva o que você VÊ no traçado.
 
 Agora analise a imagem.`;
 
@@ -227,47 +215,48 @@ Agora analise a imagem.`;
         console.log("Ritmo:", resultado.ritmo);
         console.log("FC:", resultado.fc_bpm);
         
-        // Identify leads with ST alterations
-        const derivacoesAlteradas = [];
-        const medicoes = {}; // Stores elevation/depression values
+        // Identificar derivações com alterações de ST
+        const derivacoesComElevacao = [];
+        const derivacoesComInfra = [];
+        const medicoes = {}; // Stores elevation/depression values and type
         
         ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'DI', 'DII', 'DIII', 'aVR', 'aVL', 'aVF'].forEach(deriv => {
           const st = resultado[`${deriv}_ST`];
-          if (st && !st.includes('normal')) {
-            derivacoesAlteradas.push(deriv);
+          if (st) {
+            // Verificar elevação
+            if (st.toLowerCase().includes('elevado') || st.toLowerCase().includes('elevação')) {
+              derivacoesComElevacao.push(deriv);
+              
+              // Tentar extrair valor numérico
+              const match = st.match(/(\d+(\.\d+)?)\s*mm/);
+              if (match) {
+                medicoes[deriv] = { tipo: 'elevado', valor: parseFloat(match[1]) };
+              }
+            }
             
-            const match = st.match(/(\d+(\.\d+)?)\s*mm/);
-            if (match) {
-              medicoes[deriv] = parseFloat(match[1]);
+            // Verificar infradesnivelamento
+            if (st.toLowerCase().includes('infra') || st.toLowerCase().includes('deprim')) {
+              derivacoesComInfra.push(deriv);
+              
+              const match = st.match(/(\d+(\.\d+)?)\s*mm/);
+              if (match) {
+                medicoes[deriv] = { tipo: 'infradesnivelado', valor: parseFloat(match[1]) };
+              }
             }
           }
         });
         
-        const st_elevated = derivacoesAlteradas.filter(d => resultado[`${d}_ST`]?.includes('elevado'));
-        const st_depressed = derivacoesAlteradas.filter(d => resultado[`${d}_ST`]?.includes('infradesnivelado'));
-
-        let nivelAlerta = "🟢 ECG sem alterações significativas de ST";
+        // Determinar nível de alerta baseado APENAS em critérios técnicos
+        let nivelAlerta = "🟢 ECG SEM ALTERAÇÕES SIGNIFICATIVAS DE ST";
         
-        if (st_elevated.length > 0) {
-          // Check for significant elevation (2+ contiguous leads) for "critical" alert, using simplified contiguous logic
-          const hasSignificantElevation = 
-            (st_elevated.includes('V1') && st_elevated.includes('V2')) ||
-            (st_elevated.includes('V2') && st_elevated.includes('V3')) ||
-            (st_elevated.includes('V3') && st_elevated.includes('V4')) ||
-            (st_elevated.includes('V4') && st_elevated.includes('V5')) ||
-            (st_elevated.includes('V5') && st_elevated.includes('V6')) ||
-            (st_elevated.includes('DI') && st_elevated.includes('aVL')) ||
-            (st_elevated.includes('DII') && st_elevated.includes('DIII')) ||
-            (st_elevated.includes('DII') && st_elevated.includes('aVF')) ||
-            (st_elevated.includes('DIII') && st_elevated.includes('aVF'));
-
-          if (hasSignificantElevation) {
-             nivelAlerta = "🔴 Elevação de ST (≥2 derivações contíguas)";
-          } else {
-             nivelAlerta = "🟡 Elevação de ST isolada";
-          }
-        } else if (st_depressed.length > 0) {
-          nivelAlerta = "🟠 Infradesnivelamento de ST";
+        if (derivacoesComElevacao.length >= 2) {
+          nivelAlerta = "🔴 ELEVAÇÃO DE ST DETECTADA EM 2+ DERIVAÇÕES";
+        } else if (derivacoesComElevacao.length === 1) {
+          nivelAlerta = "🟡 ELEVAÇÃO DE ST DETECTADA EM 1 DERIVAÇÃO";
+        } else if (derivacoesComInfra.length >= 2) { // Assuming 2+ infra is more significant than 1
+          nivelAlerta = "🟠 INFRADESNIVELAMENTO DE ST DETECTADO";
+        } else if (derivacoesComInfra.length === 1) {
+          nivelAlerta = "🟡 INFRADESNIVELAMENTO DE ST EM 1 DERIVAÇÃO";
         }
         
         const analiseCompleta = {
@@ -276,30 +265,35 @@ Agora analise a imagem.`;
           ritmo: resultado.ritmo,
           frequencia_cardiaca_ecg: resultado.fc_bpm,
           
-          st_elevated: st_elevated,
-          st_depressed: st_depressed,
-          medicao_elevacao_mm: medicoes, // Stores elevation/depression values from string parsing
+          elevacao_st_detectada: derivacoesComElevacao.length > 0,
+          derivacoes_com_elevacao: derivacoesComElevacao,
+          derivacoes_com_infra: derivacoesComInfra,
+          medicao_st: medicoes, // Stores elevation/depression values from string parsing
           
           nivel_alerta: nivelAlerta,
           mensagem_para_medico: resultado.laudo_tecnico,
           confianca_diagnostico: "Alta",
           
           analise_por_derivacao: {
-            DI: `ST: ${resultado.DI_ST}, T: ${resultado.DI_T || 'não avaliável'}`,
-            DII: `ST: ${resultado.DII_ST}, T: ${resultado.DII_T || 'não avaliável'}`,
-            DIII: `ST: ${resultado.DIII_ST}, T: ${resultado.DIII_T || 'não avaliável'}`,
+            DI: `ST: ${resultado.DI_ST}, T: ${resultado.DI_T || 'N/A'}`,
+            DII: `ST: ${resultado.DII_ST}, T: ${resultado.DII_T || 'N/A'}`,
+            DIII: `ST: ${resultado.DIII_ST}, T: ${resultado.DIII_T || 'N/A'}`,
             aVR: `ST: ${resultado.aVR_ST}`, // No T wave analysis for aVR in prompt
-            aVL: `ST: ${resultado.aVL_ST}, T: ${resultado.aVL_T || 'não avaliável'}`,
-            aVF: `ST: ${resultado.aVF_ST}, T: ${resultado.aVF_T || 'não avaliável'}`,
-            V1: `ST: ${resultado.V1_ST}, T: ${resultado.V1_T || 'não avaliável'}`,
-            V2: `ST: ${resultado.V2_ST}, T: ${resultado.V2_T || 'não avaliável'}`,
-            V3: `ST: ${resultado.V3_ST}, T: ${resultado.V3_T || 'não avaliável'}`,
-            V4: `ST: ${resultado.V4_ST}, T: ${resultado.V4_T || 'não avaliável'}`,
-            V5: `ST: ${resultado.V5_ST}, T: ${resultado.V5_T || 'não avaliável'}`,
-            V6: `ST: ${resultado.V6_ST}, T: ${resultado.V6_T || 'não avaliável'}`
+            aVL: `ST: ${resultado.aVL_ST}, T: ${resultado.aVL_T || 'N/A'}`,
+            aVF: `ST: ${resultado.aVF_ST}, T: ${resultado.aVF_T || 'N/A'}`,
+            V1: `ST: ${resultado.V1_ST}, T: ${resultado.V1_T || 'N/A'}`,
+            V2: `ST: ${resultado.V2_ST}, T: ${resultado.V2_T || 'N/A'}`,
+            V3: `ST: ${resultado.V3_ST}, T: ${resultado.V3_T || 'N/A'}`,
+            V4: `ST: ${resultado.V4_ST}, T: ${resultado.V4_T || 'N/A'}`,
+            V5: `ST: ${resultado.V5_ST}, T: ${resultado.V5_T || 'N/A'}`,
+            V6: `ST: ${resultado.V6_ST}, T: ${resultado.V6_T || 'N/A'}`
           },
           outras_alteracoes: resultado.outras_alteracoes
         };
+        
+        console.log("📊 Derivações com elevação:", derivacoesComElevacao);
+        console.log("📊 Derivações com infra:", derivacoesComInfra);
+        console.log("📊 Nível de alerta:", nivelAlerta);
         
         setAlertaTriagem(analiseCompleta);
       } else {
@@ -311,8 +305,7 @@ Agora analise a imagem.`;
       setAlertaTriagem({
         id_analise: analiseId,
         qualidade_imagem: "Ruim",
-        st_elevated: [],
-        st_depressed: [],
+        elevacao_st_detectada: false,
         nivel_alerta: "⚪ Erro na análise automática",
         mensagem_para_medico: `ERRO NO SISTEMA DE ANÁLISE
 
@@ -321,6 +314,9 @@ O sistema não conseguiu processar o ECG.
 ⚠️ MÉDICO DEVE INTERPRETAR MANUALMENTE
 
 Erro: ${error.message}`,
+        derivacoes_com_elevacao: [],
+        derivacoes_com_infra: [],
+        medicao_st: {},
         analise_por_derivacao: {},
         confianca_diagnostico: "Baixa",
         ritmo: "Não avaliável",
@@ -446,7 +442,7 @@ A interpretação CLÍNICA e a tomada de decisão são de responsabilidade do m�
         ecg_url: ecgFiles[0], // Primeiro ECG anexado
         analise_completa: alertaTriagem,
         diagnostico_resumido: alertaTriagem.nivel_alerta || 'Análise de ECG', // Use nivel_alerta for summarized diagnosis
-        territorio: alertaTriagem.territorio_afetado || null, // Will be null as first AI does not infer territory
+        // territorio: alertaTriagem.territorio_afetado || null, // Removed as AI does not infer territory directly
         nivel_alerta: alertaTriagem.nivel_alerta,
         registrado_por: user.email || 'Sistema'
       });
@@ -637,21 +633,21 @@ A interpretação CLÍNICA e a tomada de decisão são de responsabilidade do m�
       {/* RESULTADO DA ANÁLISE AUTOMÁTICA */}
       {alertaTriagem && !analyzing && (
         <Card className={`border-2 shadow-lg ${
-          alertaTriagem.nivel_alerta?.includes('Elevação de ST') ? 'border-red-500 bg-red-50' :
-          alertaTriagem.nivel_alerta?.includes('Infradesnivelamento de ST') ? 'border-orange-500 bg-orange-50' :
-          alertaTriagem.nivel_alerta?.includes('sem alterações significativas') ? 'border-green-500 bg-green-50' :
+          alertaTriagem.nivel_alerta?.includes('ELEVAÇÃO DE ST DETECTADA') ? 'border-red-500 bg-red-50' :
+          alertaTriagem.nivel_alerta?.includes('INFRADESNIVELAMENTO DE ST DETECTADO') ? 'border-orange-500 bg-orange-50' :
+          alertaTriagem.nivel_alerta?.includes('SEM ALTERAÇÕES SIGNIFICATIVAS DE ST') ? 'border-green-500 bg-green-50' :
           'border-gray-500 bg-gray-50'
         }`}>
           <CardHeader className={`${
-            alertaTriagem.nivel_alerta?.includes('Elevação de ST') ? 'bg-red-100 border-b-2 border-red-300' :
-            alertaTriagem.nivel_alerta?.includes('Infradesnivelamento de ST') ? 'bg-orange-100 border-b-2 border-orange-300' :
-            alertaTriagem.nivel_alerta?.includes('sem alterações significativas') ? 'bg-green-100 border-b-2 border-green-300' :
+            alertaTriagem.nivel_alerta?.includes('ELEVAÇÃO DE ST DETECTADA') ? 'bg-red-100 border-b-2 border-red-300' :
+            alertaTriagem.nivel_alerta?.includes('INFRADESNIVELAMENTO DE ST DETECTADO') ? 'bg-orange-100 border-b-2 border-orange-300' :
+            alertaTriagem.nivel_alerta?.includes('SEM ALTERAÇÕES SIGNIFICATIVAS DE ST') ? 'bg-green-100 border-b-2 border-green-300' :
             'bg-gray-100 border-b-2 border-gray-300'
           }`}>
             <CardTitle className={`text-lg flex items-center gap-2 ${
-              alertaTriagem.nivel_alerta?.includes('Elevação de ST') ? 'text-red-900' :
-              alertaTriagem.nivel_alerta?.includes('Infradesnivelamento de ST') ? 'text-orange-900' :
-              alertaTriagem.nivel_alerta?.includes('sem alterações significativas') ? 'text-green-900' :
+              alertaTriagem.nivel_alerta?.includes('ELEVAÇÃO DE ST DETECTADA') ? 'text-red-900' :
+              alertaTriagem.nivel_alerta?.includes('INFRADESNIVELAMENTO DE ST DETECTADO') ? 'text-orange-900' :
+              alertaTriagem.nivel_alerta?.includes('SEM ALTERAÇÕES SIGNIFICATIVAS DE ST') ? 'text-green-900' :
               'text-gray-900'
             }`}>
               <Zap className="w-5 h-5" />
@@ -660,9 +656,9 @@ A interpretação CLÍNICA e a tomada de decisão são de responsabilidade do m�
           </CardHeader>
           <CardContent className="p-6 space-y-4">
             <div className={`p-4 rounded-lg border-2 ${
-              alertaTriagem.nivel_alerta?.includes('Elevação de ST') ? 'bg-red-100 border-red-400' :
-              alertaTriagem.nivel_alerta?.includes('Infradesnivelamento de ST') ? 'bg-orange-100 border-orange-400' :
-              alertaTriagem.nivel_alerta?.includes('sem alterações significativas') ? 'bg-green-100 border-green-400' :
+              alertaTriagem.nivel_alerta?.includes('ELEVAÇÃO DE ST DETECTADA') ? 'bg-red-100 border-red-400' :
+              alertaTriagem.nivel_alerta?.includes('INFRADESNIVELAMENTO DE ST DETECTADO') ? 'bg-orange-100 border-orange-400' :
+              alertaTriagem.nivel_alerta?.includes('SEM ALTERAÇÕES SIGNIFICATIVAS DE ST') ? 'bg-green-100 border-green-400' :
               'bg-gray-100 border-gray-400'
             }`}>
               <p className="font-bold text-lg mb-2">
@@ -685,16 +681,16 @@ A interpretação CLÍNICA e a tomada de decisão são de responsabilidade do m�
               </div>
             )}
 
-            {alertaTriagem.st_elevated?.length > 0 && (
+            {alertaTriagem.derivacoes_com_elevacao?.length > 0 && (
               <div className="bg-white p-4 rounded-lg border-2 border-red-300">
                 <p className="font-bold text-red-900 mb-2">⚠️ ELEVAÇÃO DE ST DETECTADA</p>
-                {alertaTriagem.st_elevated && alertaTriagem.st_elevated.length > 0 && (
+                {alertaTriagem.derivacoes_com_elevacao && alertaTriagem.derivacoes_com_elevacao.length > 0 && (
                   <div className="mt-2">
                     <p className="text-sm font-semibold mb-1">Derivações com elevação:</p>
                     <div className="flex flex-wrap gap-2">
-                      {alertaTriagem.st_elevated.map((der, i) => (
+                      {alertaTriagem.derivacoes_com_elevacao.map((der, i) => (
                         <Badge key={i} className="bg-red-600 text-white text-sm px-3 py-1">
-                          {der} {alertaTriagem.medicao_elevacao_mm && alertaTriagem.medicao_elevacao_mm[der] ? `(${alertaTriagem.medicao_elevacao_mm[der]}mm)` : ''}
+                          {der} {alertaTriagem.medicao_st && alertaTriagem.medicao_st[der]?.valor ? `(${alertaTriagem.medicao_st[der].valor}mm)` : ''}
                         </Badge>
                       ))}
                     </div>
@@ -703,14 +699,14 @@ A interpretação CLÍNICA e a tomada de decisão são de responsabilidade do m�
               </div>
             )}
 
-            {alertaTriagem.st_depressed?.length > 0 && (
+            {alertaTriagem.derivacoes_com_infra?.length > 0 && (
               <div className="bg-white p-4 rounded-lg border-2 border-orange-300">
                 <p className="font-bold text-orange-900 mb-2">⚠️ INFRADESNIVELAMENTO DE ST DETECTADO</p>
                 <p className="text-sm font-semibold mb-1">Derivações:</p>
                 <div className="flex flex-wrap gap-2">
-                  {alertaTriagem.st_depressed.map((der, i) => (
+                  {alertaTriagem.derivacoes_com_infra.map((der, i) => (
                     <Badge key={i} className="bg-orange-600 text-white text-sm px-3 py-1">
-                      {der} {alertaTriagem.medicao_elevacao_mm && alertaTriagem.medicao_elevacao_mm[der] ? `(${alertaTriagem.medicao_elevacao_mm[der]}mm)` : ''}
+                      {der} {alertaTriagem.medicao_st && alertaTriagem.medicao_st[der]?.valor ? `(${alertaTriagem.medicao_st[der].valor}mm)` : ''}
                     </Badge>
                   ))}
                 </div>
