@@ -57,6 +57,7 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
   const [analyzing, setAnalyzing] = useState(false);
   const [alertaTriagem, setAlertaTriagem] = useState(dadosPaciente.alerta_triagem_ecg || null);
   const [interpretacaoMedico, setInterpretacaoMedico] = useState(dadosPaciente.interpretacao_ecg_medico || "");
+  const [gerandoSugestao, setGerandoSugestao] = useState(false);
   const [enfermeiro, setEnfermeiro] = useState({
     nome: dadosPaciente.enfermeiro_nome || "",
     coren: dadosPaciente.enfermeiro_coren || ""
@@ -263,6 +264,138 @@ Erro técnico: ${error.message}`,
       });
     }
     setAnalyzing(false);
+  };
+
+  const gerarSugestaoInterpretacao = async () => {
+    if (!alertaTriagem || !alertaTriagem.analise_por_derivacao) {
+      alert("Primeiro é necessário fazer upload e análise automática do ECG");
+      return;
+    }
+
+    setGerandoSugestao(true);
+
+    try {
+      const schema = {
+        type: "object",
+        properties: {
+          interpretacao_estruturada: {
+            type: "string",
+            description: "Laudo de ECG completo e estruturado, formatado profissionalmente"
+          },
+          diagnostico_principal: {
+            type: "string",
+            description: "Diagnóstico principal em formato conciso"
+          },
+          conduta_sugerida: {
+            type: "string",
+            description: "Conduta clínica recomendada baseada nos achados"
+          }
+        },
+        required: ["interpretacao_estruturada", "diagnostico_principal", "conduta_sugerida"]
+      };
+
+      const analise = alertaTriagem.analise_por_derivacao;
+      const prompt = `Você é um cardiologista especialista em eletrocardiografia.
+
+TAREFA: Gerar um laudo médico profissional de ECG baseado na análise técnica fornecida.
+
+ANÁLISE TÉCNICA DISPONÍVEL:
+- ID da Análise: ${alertaTriagem.id_analise}
+- Derivações analisadas: ${Object.keys(analise).length}
+
+ACHADOS POR DERIVAÇÃO:
+${Object.entries(analise).map(([deriv, achado]) => `- ${deriv}: ${achado}`).join('\n')}
+
+RESUMO DA ANÁLISE AUTOMÁTICA:
+- Elevação de ST detectada: ${alertaTriagem.elevacao_st_detectada ? 'SIM' : 'NÃO'}
+${alertaTriagem.elevacao_st_detectada ? `- Derivações com elevação: ${alertaTriagem.derivacoes_com_elevacao?.join(', ')}` : ''}
+${alertaTriagem.territorio_afetado ? `- Território afetado: ${alertaTriagem.territorio_afetado}` : ''}
+${alertaTriagem.arteria_culpada_provavel ? `- Artéria culpada provável: ${alertaTriagem.arteria_culpada_provavel}` : ''}
+- Nível de alerta: ${alertaTriagem.nivel_alerta}
+- Confiança: ${alertaTriagem.confianca_diagnostico}
+
+DADOS DO PACIENTE:
+- Idade: ${dadosPaciente.idade} anos
+- Sexo: ${dadosPaciente.sexo}
+${dadosPaciente.dados_vitais?.frequencia_cardiaca ? `- FC: ${dadosPaciente.dados_vitais.frequencia_cardiaca} bpm` : ''}
+
+INSTRUÇÕES PARA O LAUDO:
+
+Gere um laudo no seguinte formato EXATO:
+
+**ELETROCARDIOGRAMA DE 12 DERIVAÇÕES**
+
+**RITMO E FREQUÊNCIA:**
+[Descrever ritmo (sinusal/não sinusal) e FC estimada]
+
+**ANÁLISE DO SEGMENTO ST E ONDA T:**
+
+*Derivações Precordiais:*
+- V1: [descrição detalhada]
+- V2: [descrição detalhada]
+- V3: [descrição detalhada]
+- V4: [descrição detalhada]
+- V5: [descrição detalhada]
+- V6: [descrição detalhada]
+
+*Derivações de Membros:*
+- DI: [descrição detalhada]
+- DII: [descrição detalhada]
+- DIII: [descrição detalhada]
+- aVR: [descrição detalhada]
+- aVL: [descrição detalhada]
+- aVF: [descrição detalhada]
+
+**ACHADOS PRINCIPAIS:**
+[Listar achados significativos]
+
+**CONCLUSÃO:**
+[Diagnóstico eletrocardiográfico]
+
+${alertaTriagem.elevacao_st_detectada ? '**⚠️ CONDUTA URGENTE:**\n[Recomendação de conduta imediata]' : ''}
+
+**OBSERVAÇÕES:**
+[Limitações, recomendações de correlação clínica]
+
+---
+
+IMPORTANTE:
+- Use terminologia médica técnica e precisa
+- Seja objetivo e claro
+- Inclua TODAS as 12 derivações
+- Se houver elevação de ST, enfatize território e artéria
+- Mencione critérios diagnósticos específicos quando aplicável (ex: critérios de Sgarbossa, De Winter, Wellens)
+- Sempre termine recomendando correlação clínica
+
+Gere o laudo completo agora.`;
+
+      const resultado = await base44.integrations.Core.InvokeLLM({
+        prompt: prompt,
+        response_json_schema: schema
+      });
+
+      if (resultado && resultado.interpretacao_estruturada) {
+        // Adicionar nota de que foi gerado por IA
+        const textoCompleto = `${resultado.interpretacao_estruturada}
+
+---
+💡 **Nota:** Este laudo foi gerado automaticamente como sugestão baseada na análise de IA.
+O médico deve revisar, validar e ajustar conforme necessário antes de finalizar.
+
+**Diagnóstico Sugerido:** ${resultado.diagnostico_principal}
+**Conduta Sugerida:** ${resultado.conduta_sugerida}`;
+
+        setInterpretacaoMedico(textoCompleto);
+        
+        alert("✓ Sugestão de interpretação gerada com sucesso!\n\nRevise e ajuste o texto conforme necessário antes de finalizar.");
+      }
+
+    } catch (error) {
+      console.error("Erro ao gerar sugestão:", error);
+      alert("Erro ao gerar sugestão de interpretação. Tente novamente.");
+    }
+
+    setGerandoSugestao(false);
   };
 
   const handleSubmit = (e) => {
@@ -663,6 +796,51 @@ Erro técnico: ${error.message}`,
                 </ul>
               </AlertDescription>
             </Alert>
+
+            {alertaTriagem && alertaTriagem.analise_por_derivacao && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border-2 border-purple-300">
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="w-6 h-6 text-purple-600" />
+                    <div>
+                      <p className="font-semibold text-purple-900">🤖 Assistente de Documentação de ECG</p>
+                      <p className="text-sm text-purple-700">Gere automaticamente uma sugestão de interpretação médica estruturada</p>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={gerarSugestaoInterpretacao}
+                    disabled={gerandoSugestao}
+                    className="bg-purple-600 hover:bg-purple-700 gap-2"
+                  >
+                    {gerandoSugestao ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Gerando...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        Gerar Sugestão de Interpretação
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                <Alert className="border-purple-500 bg-purple-50">
+                  <AlertDescription className="text-purple-800 text-sm">
+                    <strong>💡 Como funciona o Assistente:</strong>
+                    <ul className="list-disc pl-5 mt-2 space-y-1">
+                      <li>Analisa os achados de ECG já identificados pela IA</li>
+                      <li>Gera um laudo estruturado com terminologia médica adequada</li>
+                      <li>Inclui análise de todas as 12 derivações</li>
+                      <li>Sugere diagnóstico e conduta baseado nos achados</li>
+                      <li><strong>IMPORTANTE:</strong> É uma sugestão - o médico deve revisar e validar</li>
+                    </ul>
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="interpretacao" className="text-base font-semibold">
