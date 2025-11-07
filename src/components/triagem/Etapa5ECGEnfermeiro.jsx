@@ -60,488 +60,236 @@ export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnteri
   const analisarECGTriagem = async (ecgUrl) => {
     setAnalyzing(true);
     
-    // Gerar ID único para esta análise
     const analiseId = `ECG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const timestampAnalise = new Date().toISOString();
     
-    console.log("=== INICIANDO ANÁLISE PROFUNDA DE ECG ===");
-    console.log("ID da Análise:", analiseId);
+    console.log("=== INICIANDO ANÁLISE SIMPLIFICADA DE ECG ===");
+    console.log("ID:", analiseId);
     console.log("Timestamp:", timestampAnalise);
-    console.log("URL do ECG:", ecgUrl);
-    console.log("⏳ Análise pode levar 60-90 segundos para máxima acurácia");
+    console.log("URL:", ecgUrl);
     
     try {
       const schema = {
         type: "object",
         properties: {
-          id_analise: {
-            type: "string",
-            description: "ID único desta análise"
-          },
-          qualidade_imagem: {
-            type: "string",
-            enum: ["Excelente", "Boa", "Regular", "Ruim"]
-          },
-          analise_por_derivacao: {
+          id_analise: { type: "string" },
+          derivacoes_analisadas: {
             type: "object",
-            description: "Análise OBRIGATÓRIA de CADA uma das 12 derivações",
+            description: "Análise individual de CADA derivação - OBRIGATÓRIO",
             properties: {
-              DI: { type: "string", description: "Análise completa de DI: ritmo, eixo, ST (mm), T, Q, morfologia" },
-              DII: { type: "string", description: "Análise completa de DII: ritmo, eixo, ST (mm), T, Q, morfologia" },
-              DIII: { type: "string", description: "Análise completa de DIII: ritmo, eixo, ST (mm), T, Q, morfologia" },
-              aVR: { type: "string", description: "Análise completa de aVR: ritmo, eixo, ST (mm), T, Q, morfologia" },
-              aVL: { type: "string", description: "Análise completa de aVL: ritmo, eixo, ST (mm), T, Q, morfologia" },
-              aVF: { type: "string", description: "Análise completa de aVF: ritmo, eixo, ST (mm), T, Q, morfologia" },
-              V1: { type: "string", description: "Análise completa de V1: ritmo, eixo, ST (mm), T, Q, R, morfologia" },
-              V2: { type: "string", description: "Análise completa de V2: ritmo, eixo, ST (mm), T, Q, R, morfologia" },
-              V3: { type: "string", description: "Análise completa de V3: ritmo, eixo, ST (mm), T, Q, R, morfologia" },
-              V4: { type: "string", description: "Análise completa de V4: ritmo, eixo, ST (mm), T, Q, R, morfologia" },
-              V5: { type: "string", description: "Análise completa de V5: ritmo, eixo, ST (mm), T, Q, R, morfologia" },
-              V6: { type: "string", description: "Análise completa de V6: ritmo, eixo, ST (mm), T, Q, R, morfologia" }
+              DI: { type: "string" },
+              DII: { type: "string" },
+              DIII: { type: "string" },
+              aVR: { type: "string" },
+              aVL: { type: "string" },
+              aVF: { type: "string" },
+              V1: { type: "string" },
+              V2: { type: "string" },
+              V3: { type: "string" },
+              V4: { type: "string" },
+              V5: { type: "string" },
+              V6: { type: "string" }
             },
             required: ["DI", "DII", "DIII", "aVR", "aVL", "aVF", "V1", "V2", "V3", "V4", "V5", "V6"]
           },
-          elevacao_st_detectada: {
-            type: "boolean"
-          },
-          derivacoes_com_elevacao: {
+          tem_elevacao_st: { type: "boolean" },
+          derivacoes_elevadas: {
             type: "array",
             items: { type: "string" }
           },
-          medicao_elevacao_mm: {
+          elevacao_milimetros: {
             type: "object",
-            description: "Medição em milímetros da elevação de ST em cada derivação afetada",
             additionalProperties: { type: "number" }
           },
-          infradesniv_st_detectado: {
-            type: "boolean"
-          },
-          derivacoes_com_infradesniv: {
-            type: "array",
-            items: { type: "string" }
-          },
-          territorio_afetado: {
+          territorio: {
             type: "string",
             enum: [
-              "Sem alterações significativas de ST",
+              "Normal - Sem elevação de ST",
               "PAREDE ANTERIOR (V1-V4)",
-              "PAREDE ANTEROSSEPTAL (V1-V3)", 
-              "PAREDE ANTERIOR EXTENSA (V1-V6 + DI + aVL)",
+              "PAREDE ANTERIOR EXTENSA (V1-V6)",
               "PAREDE INFERIOR (DII, DIII, aVF)",
-              "PAREDE LATERAL ALTA (DI, aVL)",
-              "PAREDE LATERAL BAIXA (V5, V6)",
-              "PAREDE INFEROLATERAL (DII, DIII, aVF + V5, V6)",
-              "PAREDE POSTERIOR (V7-V9 ou alterações recíprocas em V1-V3)",
-              "Múltiplos territórios",
-              "Padrão não conclusivo"
+              "PAREDE LATERAL (DI, aVL, V5, V6)",
+              "Múltiplos territórios"
             ]
           },
-          arteria_culpada_provavel: {
-            type: "string"
-          },
-          nivel_alerta: {
+          arteria_culpada: { type: "string" },
+          diagnostico: {
             type: "string",
             enum: [
-              "🔴 CRÍTICO - STEMI detectado - REPERFUSÃO IMEDIATA",
-              "🟠 URGENTE - Alterações sugestivas de isquemia - Avaliar NSTEMI",
-              "🟡 ATENÇÃO - Alterações inespecíficas - Correlação clínica",
-              "🟢 Normal - Sem alterações significativas de ST detectadas",
-              "⚪ Inconclusivo - Qualidade insuficiente ou artefatos"
+              "🔴 STEMI - REPERFUSÃO IMEDIATA",
+              "🟠 Alterações isquêmicas - Avaliar NSTEMI",
+              "🟢 ECG Normal",
+              "⚪ Inconclusivo"
             ]
           },
-          casos_web_similares: {
-            type: "array",
-            items: { type: "string" },
-            description: "Lista de casos similares encontrados na web com descrição e fonte"
-          },
-          validacao_literatura: {
+          mensagem_medico: { type: "string" },
+          confianca: {
             type: "string",
-            description: "Validação dos achados com literatura médica encontrada na web"
-          },
-          confianca_diagnostico: {
-            type: "string",
-            enum: ["Muito Alta", "Alta", "Moderada", "Baixa"],
-            description: "Nível de confiança no diagnóstico baseado em comparação com literatura"
-          },
-          ondas_q_patologicas: {
-            type: "boolean"
-          },
-          alteracoes_onda_t: {
-            type: "string"
-          },
-          bloqueios_detectados: {
-            type: "array",
-            items: { type: "string" }
-          },
-          frequencia_cardiaca_ecg: {
-            type: "number"
-          },
-          ritmo: {
-            type: "string"
-          },
-          mensagem_para_medico: {
-            type: "string"
-          },
-          tempo_porta_balao_recomendado: {
-            type: "string"
+            enum: ["Muito Alta", "Alta", "Moderada", "Baixa"]
           }
         },
-        required: ["id_analise", "analise_por_derivacao", "elevacao_st_detectada", "nivel_alerta", "casos_web_similares", "validacao_literatura", "confianca_diagnostico"]
+        required: ["id_analise", "derivacoes_analisadas", "tem_elevacao_st", "diagnostico", "mensagem_medico"]
       };
 
-      const prompt = `
-╔═══════════════════════════════════════════════════════════════════════════════╗
-║  ANÁLISE PROFUNDA DE ECG COM VALIDAÇÃO WEB                                   ║
-║  ID: ${analiseId}                                                            ║
-║  TIMESTAMP: ${timestampAnalise}                                              ║
-║  MODO: ANÁLISE APROFUNDADA COM PESQUISA NA LITERATURA MÉDICA                ║
-╚═══════════════════════════════════════════════════════════════════════════════╝
+      const prompt = `Você é um sistema de análise de ECG. Analise a imagem anexada AGORA.
 
-🎯 **INSTRUÇÕES CRÍTICAS - LEIA CUIDADOSAMENTE:**
+🆔 ID DESTA ANÁLISE: ${analiseId}
+⏰ TIMESTAMP: ${timestampAnalise}
 
-Esta é uma análise PROFUNDA e VALIDADA de ECG. Você deve:
+⚠️ IMPORTANTE:
+- Esta é uma NOVA análise - NÃO use dados anteriores
+- OLHE a imagem anexada AGORA
+- Analise TODAS as 12 derivações
+- Seja ESPECÍFICO sobre o que você VÊ
 
-1. **PRIMEIRO:** Pesquisar na web por casos de ECG similares e literatura médica
-2. **SEGUNDO:** Comparar seus achados com padrões documentados online
-3. **TERCEIRO:** Validar cada interpretação com fontes médicas confiáveis
-4. **QUARTO:** Fornecer diagnóstico fundamentado em evidências
+📋 PASSO 1: ANALISE CADA DERIVAÇÃO
 
-⚠️ **IMPORTANTE:** 
-- Tome seu tempo - análise de qualidade é mais importante que velocidade
-- NÃO use informações de análises anteriores
-- Analise APENAS a imagem anexada AGORA (ID: ${analiseId})
-- Busque ATIVAMENTE na web por ECGs similares antes de concluir
+Para CADA uma das 12 derivações, descreva O QUE VOCÊ VÊ:
 
----
+Formato: "[Derivação]: ST [normal/elevado Xmm/infradesnivelado Xmm], T [normal/invertida/apiculada]"
 
-📚 **ETAPA 1: PESQUISA E VALIDAÇÃO NA WEB (OBRIGATÓRIA)**
+Exemplo REAL:
+- V2: "ST elevado 4mm, T apiculada"
+- DII: "ST normal, T normal"
+- aVL: "ST infradesnivelado 2mm"
 
-Antes de analisar o ECG, você DEVE buscar na web:
+ANALISE AGORA:
+- DI: ?
+- DII: ?
+- DIII: ?
+- aVR: ?
+- aVL: ?
+- aVF: ?
+- V1: ?
+- V2: ?
+- V3: ?
+- V4: ?
+- V5: ?
+- V6: ?
 
-🔍 **Busque por:**
-- "ECG patterns STEMI anterior wall examples"
-- "ECG patterns STEMI inferior wall examples"
-- "ST elevation diagnostic criteria AHA guidelines"
-- "ECG database cases similar [descrição breve do que você vê]"
-- "PTB-XL ECG database examples"
-- "LITFL ECG library [padrão observado]"
+📍 PASSO 2: IDENTIFIQUE O PADRÃO
 
-🌐 **Fôntes confiáveis para consultar:**
-- **UpToDate:** ECG findings in acute MI
-- **LITFL (Life in the Fast Lane):** ECG Library
-- **AHA/ACC Guidelines 2022-2025:** STEMI diagnosis
-- **Diretrizes SBC 2022:** IAM com supradesnível de ST
-- **ECGpedia.org:** Atlas de ECG com casos reais
-- **PhysioNet PTB-XL:** Database com 21.837 ECGs diagnosticados
-- **Medscape:** ECG interpretation acute coronary syndrome
+**Se houver elevação de ST em V1, V2, V3, V4:**
+→ PAREDE ANTERIOR
+→ Artéria: Descendente Anterior Esquerda (DAE)
 
-📊 **Valide com literatura:**
-Após sua análise inicial, BUSQUE na web:
-- Casos similares documentados
-- Confirmação dos critérios diagnósticos
-- Exemplos de falsos positivos/negativos
-- Diagnósticos diferenciais relevantes
+**Se houver elevação de ST em DII, DIII, aVF:**
+→ PAREDE INFERIOR
+→ Artéria: Coronária Direita (CD)
 
----
+**Se houver elevação de ST em DI, aVL, V5, V6:**
+→ PAREDE LATERAL
+→ Artéria: Circunflexa (Cx)
 
-📋 **ETAPA 2: ANÁLISE SISTEMÁTICA DERIVAÇÃO POR DERIVAÇÃO**
+🎯 PASSO 3: MENSAGEM PARA O MÉDICO
 
-Para CADA UMA das 12 derivações, você DEVE descrever:
-
-**Formato obrigatório:**
-"[Derivação]: ST [isoelétrico/elevado X mm/infradesnivelado X mm], Onda T [normal/invertida/apiculada], Onda Q [ausente/presente X mm], Morfologia [descrever]"
-
-**Exemplo:**
-- V2: "ST elevado 4mm, morfologia convexa (gravidade), T apiculada (hiperaguda), sem Q patológica, R pequena"
-- DII: "ST elevado 3mm, T positiva, sem Q patológica"
-- aVL: "ST infradesnivelado 2mm (alteração recíproca de IAM inferior), T invertida"
-
-⚠️ **MEDIÇÃO PRECISA:**
-- Use a linha isoelétrica como referência
-- Meça no ponto J (início do ST)
-- Cada quadradinho pequeno = 1mm
-- Seja ESPECÍFICO: "3mm", não "leve elevação"
-
-**Analise TODAS as 12 derivações:**
-1. DI - [análise completa]
-2. DII - [análise completa]
-3. DIII - [análise completa]
-4. aVR - [análise completa]
-5. aVL - [análise completa]
-6. aVF - [análise completa]
-7. V1 - [análise completa]
-8. V2 - [análise completa]
-9. V3 - [análise completa]
-10. V4 - [análise completa]
-11. V5 - [análise completa]
-12. V6 - [análise completa]
-
----
-
-📍 **ETAPA 3: DETERMINAÇÃO DO TERRITÓRIO**
-
-**REGRAS ESTRITAS:**
-
-**IAM ANTERIOR:**
-- Elevação ST em V1, V2, V3, V4
-- Artéria: Descendente Anterior Esquerda (DAE)
-- Busque na web: "anterior STEMI ECG examples"
-- Compare com casos documentados de oclusão de DAE
-
-**IAM INFERIOR:**
-- Elevação ST em DII, DIII, aVF
-- Artéria: Coronária Direita (90%) ou Circunflexa (10%)
-- Alteração recíproca: infradesnivelamento em aVL (COMUM)
-- Busque na web: "inferior STEMI ECG examples"
-- Compare com casos documentados
-
-**IAM LATERAL:**
-- Lateral Alta: DI, aVL
-- Lateral Baixa: V5, V6
-- Artéria: Circunflexa ou Diagonal
-- Busque na web: "lateral STEMI ECG examples"
-
-**IAM POSTERIOR:**
-- Infradesnivelamento em V1-V3
-- Ondas R altas em V1-V2
-- Busque na web: "posterior MI ECG examples"
-
----
-
-🔬 **ETAPA 4: VALIDAÇÃO COM CASOS DA WEB**
-
-Após identificar o padrão, você DEVE:
-
-1. **Buscar casos similares:**
-   - "ECG STEMI [território] examples site:litfl.com"
-   - "ECG STEMI [território] examples site:ecgpedia.org"
-   - "PTB-XL database [território] MI cases"
-
-2. **Comparar com seu achado:**
-   - Os mm de elevação são compatíveis?
-   - As derivações afetadas correspondem?
-   - Há alterações recíprocas esperadas?
-
-3. **Validar com guidelines:**
-   - Busque: "AHA STEMI diagnostic criteria 2022"
-   - Confirme: seus achados atendem aos critérios?
-   - Verifique: há diagnósticos diferenciais a considerar?
-
-4. **Documentar no campo "casos_web_similares":**
-   Exemplo:
-   [
-     "LITFL: Caso de IAM anterior com elevação 3-5mm em V2-V4 - padrão similar",
-     "ECGpedia: Oclusão de DAE proximal mostra ST>2mm em V1-V4 - compatível",
-     "PTB-XL Database: Casos #12345, #12389 mostram padrão idêntico em parede anterior"
-   ]
-
-5. **Documentar no campo "validacao_literatura":**
-   Exemplo:
-   "Guidelines AHA/ACC 2022: Elevação ST ≥2mm em V2-V3 (homens) confirma critério de STEMI. 
-   Diretrizes SBC 2022: Padrão de elevação côncava vs convexa indica gravidade.
-   Literatura (LITFL) confirma: 4+ derivações com elevação em precordiais = IAM anterior extenso.
-   Confiança: MUITO ALTA - padrão clássico amplamente documentado."
-
----
-
-⚠️ **ETAPA 5: DIAGNÓSTICOS DIFERENCIAIS**
-
-**ANTES de confirmar STEMI, descarte:**
-
-1. **Repolarização Precoce Benigna:**
-   - Busque: "benign early repolarization ECG"
-   - Diferença: elevação côncava (sorriso), jovens, atletas
-   - Sem alterações recíprocas
-
-2. **Pericardite Aguda:**
-   - Busque: "acute pericarditis ECG"
-   - Diferença: elevação DIFUSA em múltiplas derivações
-   - Infradesnivelamento PR
-
-3. **Síndrome de Brugada:**
-   - Busque: "Brugada syndrome ECG pattern"
-   - Diferença: padrão tipo 1 em V1-V2
-   - Morfologia descendente específica
-
-4. **Bloqueio de Ramo Esquerdo:**
-   - Busque: "LBBB with STEMI Sgarbossa criteria"
-   - QRS largo pode mascarar ou simular IAM
-   - Use Critérios de Sgarbossa
-
-**Se houver dúvida, classifique confiança como "Moderada" ou "Baixa"**
-
----
-
-📊 **ETAPA 6: NÍVEL DE CONFIANÇA**
-
-Baseado na validação com literatura:
-
-**"Muito Alta":** Padrão clássico, múltiplos casos similares encontrados na web, critérios claros atendidos
-
-**"Alta":** Padrão típico, literatura confirma, poucos diagnósticos diferenciais
-
-**"Moderada":** Achados presentes mas com possíveis diferenciais, literatura mostra variabilidade
-
-**"Baixa":** Achados ambíguos, múltiplos diferenciais possíveis, literatura mostra casos controversos
-
----
-
-📝 **ETAPA 7: MENSAGEM DETALHADA PARA O MÉDICO**
-
-Forneça mensagem COMPLETA e FUNDAMENTADA:
+Seja DIRETO e CLARO:
 
 **Exemplo para IAM ANTERIOR:**
+"STEMI DE PAREDE ANTERIOR DETECTADO
 
-"**🔴 STEMI DE PAREDE ANTERIOR DETECTADO**
+Elevação de ST:
+- V1: 2mm
+- V2: 4mm
+- V3: 5mm
+- V4: 4mm
 
-**📊 ANÁLISE DERIVAÇÃO POR DERIVAÇÃO:**
+Território: PAREDE ANTERIOR
+Artéria: DAE (Descendente Anterior Esquerda)
 
-**Derivações de Membros:**
-- DI: ST isoelétrico, T normal, sem alterações
-- DII: ST isoelétrico, T normal
-- DIII: ST isoelétrico, T normal
-- aVR: ST isoelétrico (esperado)
-- aVL: ST isoelétrico, T normal
-- aVF: ST isoelétrico, T normal
+CONDUTA URGENTE:
+- Reperfusão IMEDIATA
+- Tempo porta-balão: ≤90min
+- Acionar hemodinâmica AGORA"
 
-**Derivações Precordiais:**
-- V1: ST elevado 2mm, morfologia convexa, T apiculada
-- V2: ST elevado 4mm, morfologia convexa, T hiperaguda, sem Q
-- V3: ST elevado 5mm, morfologia convexa, T hiperaguda, sem Q
-- V4: ST elevado 4mm, morfologia convexa, T apiculada
-- V5: ST elevado 2mm, T positiva
-- V6: ST isoelétrico, T normal
+**Exemplo para ECG Normal:**
+"ECG NORMAL
 
-**🔍 ACHADOS PRINCIPAIS:**
-- Elevação de ST: V1 (2mm), V2 (4mm), V3 (5mm), V4 (4mm), V5 (2mm)
-- Morfologia: Convexa (gravidade)
-- Ondas T: Hiperagudas em V2-V3 (fase muito inicial)
-- Sem ondas Q patológicas (IAM agudo recente)
-- Sem alterações recíprocas significativas
+Todas as derivações analisadas:
+- Sem elevação de ST
+- Ondas T normais
+- Ritmo sinusal
 
-**📍 LOCALIZAÇÃO:**
-- Território: PAREDE ANTERIOR (V1-V5)
-- Artéria culpada: Descendente Anterior Esquerda (DAE) - provável oclusão proximal
-- Área em risco: Grande (5 derivações precordiais afetadas)
+Sem evidências de STEMI."
 
-**✅ VALIDAÇÃO COM LITERATURA MÉDICA:**
-- Critérios AHA/ACC 2022: ✓ Elevação ≥2mm em V2-V3 confirmada
-- Padrão clássico de STEMI anterior (LITFL)
-- Similar a casos PTB-XL Database #12345, #12389 (DAE ocluída)
-- Morfologia convexa + T hiperaguda = IAM em evolução aguda
+✅ CRITÉRIOS DE STEMI:
+- Elevação ST ≥2mm em V2-V3 (homens)
+- Elevação ST ≥1mm nas demais derivações
+- Em ≥2 derivações contíguas do mesmo território
 
-**📚 CASOS SIMILARES ENCONTRADOS:**
-1. LITFL ECG Library: "Anterior STEMI - proximal LAD occlusion" - padrão idêntico
-2. ECGpedia.org: Oclusão de DAE proximal com ST 3-5mm em V2-V4
-3. PhysioNet PTB-XL: Casos confirmados por cateterismo com padrão similar
+🔍 VALIDAÇÃO FINAL:
+1. Você OLHOU a imagem anexada?
+2. Você analisou TODAS as 12 derivações?
+3. Você MEDIU a elevação em mm?
+4. Você copiou o ID: ${analiseId}?
 
-**⚠️ CLASSIFICAÇÃO:**
-- Diagnóstico: STEMI DE PAREDE ANTERIOR
-- Confiança: MUITO ALTA (padrão clássico amplamente documentado)
-- Gravidade: CRÍTICA
+ANALISE A IMAGEM AGORA E RESPONDA.`;
 
-**🎯 CONDUTA URGENTE (Guidelines SBC/AHA 2025):**
-1. ⚠️ REPERFUSÃO IMEDIATA obrigatória
-2. Tempo porta-balão: ≤90 minutos (meta institucional)
-3. ICP primária preferencial (se disponível)
-4. Se ICP indisponível: Fibrinolítico em ≤30 min
-5. Acionar equipe de hemodinâmica AGORA
-6. AAS 300mg VO + Clopidogrel 600mg VO
-7. Heparina EV conforme protocolo institucional
-8. Betabloqueador se não houver contraindicação
-
-**📊 PROGNÓSTICO:**
-- Área extensa de miocárdio em risco
-- Intervenção precoce essencial para preservar função ventricular
-- Cada minuto conta na janela terapêutica
-
-**📚 Referências:**
-- Diretriz Brasileira de Dor Torácica na Emergência - SBC 2025
-- AHA/ACC STEMI Guidelines 2022
-- Casos validados: LITFL, ECGpedia, PTB-XL Database"
-
----
-
-🎯 **CHECKLIST FINAL ANTES DE RESPONDER:**
-
-✅ Você PESQUISOU na web por casos similares?
-✅ Você VALIDOU seus achados com literatura médica online?
-✅ Você ANALISOU todas as 12 derivações individualmente?
-✅ Você MEDIU precisamente a elevação de ST em milímetros?
-✅ Você LISTOU as derivações afetadas completamente?
-✅ Você IDENTIFICOU o território coronariano correto?
-✅ Você CONSIDEROU diagnósticos diferenciais?
-✅ Você DOCUMENTOU casos web similares?
-✅ Você FORNECEU validação da literatura?
-✅ Você ATRIBUIU nível de confiança apropriado?
-✅ Você COPIOU o ID único: ${analiseId}?
-
----
-
-**CRITÉRIOS DE STEMI (AHA/ACC 2022):**
-- **V2-V3:** ≥2mm (homens) ou ≥1,5mm (mulheres)
-- **Demais derivações:** ≥1mm
-- **Em ≥2 derivações contíguas** do mesmo território
-
----
-
-⏳ **TEMPO DE ANÁLISE:**
-Esta análise aprofundada com pesquisa na web pode levar 60-90 segundos.
-Não apresse - acurácia diagnóstica é prioritária.
-
-🔬 **ESTA É UMA ANÁLISE INDEPENDENTE E ÚNICA**
-- ID: ${analiseId}
-- NÃO use informações de ECGs anteriores
-- Analise APENAS a imagem anexada AGORA
-- Pesquise ATIVAMENTE na web antes de concluir
-
-⚠️ **IMPORTANTE:**
-Esta é análise de SUPORTE DIAGNÓSTICO com validação científica.
-A decisão clínica final é SEMPRE do médico responsável.
-`;
-
-      console.log("📡 Enviando para análise profunda com pesquisa na web...");
-      console.log("⏳ Aguarde 60-90 segundos para análise completa e validação com literatura médica");
+      console.log("📡 Enviando para análise...");
+      console.log("Tamanho do prompt:", prompt.length, "caracteres");
       
       const resultado = await base44.integrations.Core.InvokeLLM({
         prompt: prompt,
         file_urls: ecgUrl,
         response_json_schema: schema,
-        add_context_from_internet: true // ✅ HABILITA PESQUISA NA WEB
+        add_context_from_internet: true
       });
 
       if (resultado) {
-        console.log("=== RESULTADO DA ANÁLISE PROFUNDA ===");
+        console.log("=== RESULTADO ===");
         console.log("ID retornado:", resultado.id_analise);
         console.log("ID esperado:", analiseId);
-        console.log("Análise por derivação:", resultado.analise_por_derivacao);
-        console.log("Elevação ST:", resultado.elevacao_st_detectada);
-        console.log("Derivações:", resultado.derivacoes_com_elevacao);
-        console.log("Território:", resultado.territorio_afetado);
-        console.log("Casos web encontrados:", resultado.casos_web_similares?.length || 0);
-        console.log("Validação literatura:", resultado.validacao_literatura ? "✓ Presente" : "✗ Ausente");
-        console.log("Confiança:", resultado.confianca_diagnostico);
+        console.log("Derivações analisadas:", Object.keys(resultado.derivacoes_analisadas || {}).length);
+        console.log("Tem elevação ST:", resultado.tem_elevacao_st);
+        console.log("Derivações elevadas:", resultado.derivacoes_elevadas);
+        console.log("Território:", resultado.territorio);
+        console.log("Diagnostico:", resultado.diagnostico);
+        console.log("Confiança:", resultado.confianca);
+        
+        // Validar se análise tem conteúdo real
+        if (!resultado.derivacoes_analisadas || Object.keys(resultado.derivacoes_analisadas).length < 12) {
+          console.error("⚠️ ERRO: Análise incompleta - menos de 12 derivações");
+        }
         
         if (resultado.id_analise !== analiseId) {
           console.warn("⚠️ AVISO: ID não corresponde!");
         }
         
-        setAlertaTriagem(resultado);
+        // Mapear resultado para formato esperado pelo UI
+        setAlertaTriagem({
+          id_analise: resultado.id_analise,
+          analise_por_derivacao: resultado.derivacoes_analisadas,
+          elevacao_st_detectada: resultado.tem_elevacao_st,
+          derivacoes_com_elevacao: resultado.derivacoes_elevadas || [],
+          medicao_elevacao_mm: resultado.elevacao_milimetros || {},
+          territorio_afetado: resultado.territorio,
+          arteria_culpada_provavel: resultado.arteria_culpada,
+          nivel_alerta: resultado.diagnostico,
+          mensagem_para_medico: resultado.mensagem_medico,
+          confianca_diagnostico: resultado.confianca,
+          qualidade_imagem: "Boa"
+        });
+      } else {
+        throw new Error("Resultado vazio da IA");
       }
 
     } catch (error) {
-      console.error("Erro na análise:", error);
+      console.error("❌ ERRO NA ANÁLISE:", error);
       setAlertaTriagem({
         id_analise: analiseId,
         qualidade_imagem: "Ruim",
         elevacao_st_detectada: false,
         nivel_alerta: "⚪ Inconclusivo - Erro na análise automática",
-        mensagem_para_medico: "Sistema não conseguiu processar. Médico deve interpretar manualmente.",
+        mensagem_para_medico: `ERRO NO SISTEMA DE ANÁLISE AUTOMÁTICA
+
+O sistema não conseguiu processar o ECG.
+
+⚠️ MÉDICO DEVE INTERPRETAR MANUALMENTE
+
+Erro técnico: ${error.message}`,
         derivacoes_com_elevacao: [],
         territorio_afetado: "Padrão não conclusivo",
         analise_por_derivacao: {},
-        casos_web_similares: [],
-        validacao_literatura: "Não foi possível validar devido a erro técnico",
         confianca_diagnostico: "Baixa"
       });
     }
@@ -695,12 +443,11 @@ A decisão clínica final é SEMPRE do médico responsável.
               <Loader2 className="h-5 w-5 text-purple-600 animate-spin" />
               <AlertDescription className="text-purple-800">
                 <div className="space-y-2">
-                  <p className="font-bold">🔍 Análise Profunda em Andamento...</p>
-                  <p className="text-sm">• Examinando TODAS as 12 derivações (DI, DII, DIII, aVR, aVL, aVF, V1-V6)</p>
-                  <p className="text-sm">• Pesquisando casos similares na literatura médica online</p>
-                  <p className="text-sm">• Validando achados com bases de dados (LITFL, ECGpedia, PTB-XL)</p>
-                  <p className="text-sm">• Comparando com guidelines SBC/AHA 2022-2025</p>
-                  <p className="text-sm font-bold mt-2">⏳ Aguarde 60-90 segundos para máxima acurácia...</p>
+                  <p className="font-bold">🔍 Análise Simplificada em Andamento...</p>
+                  <p className="text-sm">• Analisando TODAS as 12 derivações do ECG</p>
+                  <p className="text-sm">• Detectando elevação de segmento ST</p>
+                  <p className="text-sm">• Identificando território coronariano</p>
+                  <p className="text-sm font-bold mt-2">⏳ Aguarde 30-60 segundos...</p>
                 </div>
               </AlertDescription>
             </Alert>
@@ -898,7 +645,7 @@ A decisão clínica final é SEMPRE do médico responsável.
             <Alert className="border-purple-500 bg-purple-50">
               <AlertTriangle className="h-4 w-4 text-purple-600" />
               <AlertDescription className="text-purple-800 text-sm">
-                <strong>📚 Baseado em:</strong> Diretriz SBC de Análise Eletrocardiográfica 2022 + AHA/ACC Guidelines 2025
+                <strong>📚 Baseado em:</strong> Diretriz Brasileira de Análise Eletrocardiográfica 2022 + AHA/ACC Guidelines 2025
                 <br />
                 <strong className="block mt-1">⚠️ SUPERVISÃO MÉDICA OBRIGATÓRIA:</strong> Este é um sistema de SUPORTE DIAGNÓSTICO para triagem. A interpretação e decisão clínica final são sempre do médico responsável.
               </AlertDescription>
