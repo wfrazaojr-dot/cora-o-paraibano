@@ -566,12 +566,12 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
             </div>
           )}
 
-          {/* 5. ECG E ANÁLISE */}
+          {/* 5. ECG E ANÁLISE AUTOMÁTICA */}
           {dadosPaciente.ecg_files && dadosPaciente.ecg_files.length > 0 && (
             <div className="border-l-4 border-l-purple-500 pl-4 bg-purple-50 p-4 rounded">
               <h3 className="font-bold text-purple-900 mb-3 text-lg flex items-center gap-2">
                 <FileImage className="w-5 h-5" />
-                5️⃣ ARQUIVOS DE ECG
+                5️⃣ ECG E ANÁLISE AUTOMÁTICA POR IA
               </h3>
               
               {dadosPaciente.tempo_triagem_ecg_minutos !== undefined && (
@@ -587,7 +587,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                 {dadosPaciente.ecg_files.map((url, index) => (
                   <div key={index} className="border rounded overflow-hidden bg-white">
                     <img
@@ -602,6 +602,80 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                   </div>
                 ))}
               </div>
+
+              {/* Análise Automática por IA */}
+              {dadosPaciente.analise_ecg && (
+                <div className={`p-4 rounded-lg border-2 ${
+                  dadosPaciente.analise_ecg.nivel_alerta === "danger" ? "bg-red-50 border-red-400" :
+                  dadosPaciente.analise_ecg.nivel_alerta === "warning" ? "bg-orange-50 border-orange-400" :
+                  "bg-green-50 border-green-400"
+                }`}>
+                  <p className="text-sm font-bold mb-2 flex items-center gap-2">
+                    🤖 Análise Automática por IA:
+                  </p>
+                  
+                  <div className={`p-3 rounded border-2 mb-3 font-bold ${
+                    dadosPaciente.analise_ecg.nivel_alerta === "danger" ? "bg-red-100 border-red-500 text-red-900" :
+                    dadosPaciente.analise_ecg.nivel_alerta === "warning" ? "bg-orange-100 border-orange-500 text-orange-900" :
+                    "bg-green-100 border-green-500 text-green-900"
+                  }`}>
+                    {dadosPaciente.analise_ecg.mensagem_alerta}
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-3 mb-3">
+                    <div className="bg-white p-2 rounded text-xs">
+                      <span className="text-gray-600">Qualidade:</span>{" "}
+                      <span className="font-semibold">{dadosPaciente.analise_ecg.qualidade_imagem}</span>
+                    </div>
+                    {dadosPaciente.analise_ecg.ritmo && (
+                      <div className="bg-white p-2 rounded text-xs">
+                        <span className="text-gray-600">Ritmo:</span>{" "}
+                        <span className="font-semibold">{dadosPaciente.analise_ecg.ritmo}</span>
+                      </div>
+                    )}
+                    {dadosPaciente.analise_ecg.frequencia_cardiaca && (
+                      <div className="bg-white p-2 rounded text-xs">
+                        <span className="text-gray-600">FC:</span>{" "}
+                        <span className="font-semibold">{dadosPaciente.analise_ecg.frequencia_cardiaca} bpm</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {dadosPaciente.analise_ecg.alteracoes_st && (
+                    <div className="bg-white p-2 rounded text-xs mb-2">
+                      <span className="text-gray-600 font-semibold">Segmento ST:</span>{" "}
+                      <span>{dadosPaciente.analise_ecg.alteracoes_st}</span>
+                    </div>
+                  )}
+
+                  {dadosPaciente.analise_ecg.alteracoes_onda_t && (
+                    <div className="bg-white p-2 rounded text-xs mb-2">
+                      <span className="text-gray-600 font-semibold">Onda T:</span>{" "}
+                      <span>{dadosPaciente.analise_ecg.alteracoes_onda_t}</span>
+                    </div>
+                  )}
+
+                  {dadosPaciente.analise_ecg.outras_alteracoes && dadosPaciente.analise_ecg.outras_alteracoes !== "nenhuma" && (
+                    <div className="bg-yellow-50 p-2 rounded text-xs mb-2 border border-yellow-300">
+                      <span className="text-yellow-900 font-semibold">Outras alterações:</span>{" "}
+                      <span className="text-yellow-800">{dadosPaciente.analise_ecg.outras_alteracoes}</span>
+                    </div>
+                  )}
+
+                  <details className="mt-3">
+                    <summary className="cursor-pointer text-xs font-semibold text-purple-700 hover:text-purple-900">
+                      Ver interpretação completa...
+                    </summary>
+                    <div className="mt-2 p-3 bg-white rounded text-xs whitespace-pre-wrap border">
+                      {dadosPaciente.analise_ecg.interpretacao_geral}
+                    </div>
+                  </details>
+
+                  <div className="mt-3 p-2 bg-purple-100 rounded text-xs text-purple-800 border border-purple-300">
+                    <strong>⚠️ Nota:</strong> Análise automática de suporte. Interpretação clínica médica é obrigatória.
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
