@@ -41,7 +41,6 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
   });
 
   const [editandoDadosVitais, setEditandoDadosVitais] = useState(false);
-  // Removed: const [gerandoSugestaoECG, setGerandoSugestaoECG] = useState(false);
   const [interpretacaoECG, setInterpretacaoECG] = useState(dadosPaciente.interpretacao_ecg_medico || "");
   
   const [dadosVitaisMedico, setDadosVitaisMedico] = useState(() => {
@@ -74,16 +73,8 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
     }
   }, [dadosPaciente.avaliacao_medica]);
 
-  // Removed: const gerarSugestaoInterpretacaoECG = async () => { ... };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    console.log("=== DEBUG ETAPA 6 - SUBMIT ===");
-    console.log("Médico:", medico);
-    console.log("Avaliação:", avaliacao);
-    console.log("Dados Vitais Médico (antes):", dadosVitaisMedico);
-    console.log("Interpretação ECG:", interpretacaoECG);
     
     if (!medico.nome || !medico.crm) {
       alert("Por favor, preencha o nome e CRM do médico");
@@ -109,21 +100,12 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
     const dadosParaSalvar = { 
       avaliacao_medica: avaliacao,
       dados_vitais_medico: dadosVitaisLimpos,
-      interpretacao_ecg_medico: interpretacaoECG || dadosPaciente.interpretacao_ecg_medico || "",
       medico_nome: medico.nome,
       medico_crm: medico.crm,
       status: "Em Atendimento"
     };
     
-    console.log("Dados para salvar (após limpeza):", dadosParaSalvar);
-    
-    try {
-      onProxima(dadosParaSalvar);
-      console.log("onProxima chamado com sucesso");
-    } catch (error) {
-      console.error("Erro ao chamar onProxima:", error);
-      alert("Erro ao avançar. Detalhes no console.");
-    }
+    onProxima(dadosParaSalvar);
   };
 
   const tempoDor = dadosPaciente.data_hora_inicio_sintomas
@@ -589,7 +571,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
             <div className="border-l-4 border-l-purple-500 pl-4 bg-purple-50 p-4 rounded">
               <h3 className="font-bold text-purple-900 mb-3 text-lg flex items-center gap-2">
                 <FileImage className="w-5 h-5" />
-                5️⃣ ECG E ANÁLISE AUTOMÁTICA
+                5️⃣ ARQUIVOS DE ECG
               </h3>
               
               {dadosPaciente.tempo_triagem_ecg_minutos !== undefined && (
@@ -605,7 +587,7 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {dadosPaciente.ecg_files.map((url, index) => (
                   <div key={index} className="border rounded overflow-hidden bg-white">
                     <img
@@ -615,81 +597,11 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
                       onClick={() => window.open(url, '_blank')}
                     />
                     <div className="p-2 bg-purple-600 text-white text-center text-xs font-semibold">
-                      ECG {index + 1}
+                      ECG {index + 1} - Clique para ampliar
                     </div>
                   </div>
                 ))}
               </div>
-
-              {dadosPaciente.alerta_triagem_ecg && (
-                <div className={`p-3 rounded border-2 ${
-                  dadosPaciente.alerta_triagem_ecg.nivel_alerta?.includes('CRÍTICO') ? 'bg-red-100 border-red-400' :
-                  dadosPaciente.alerta_triagem_ecg.nivel_alerta?.includes('URGENTE') ? 'bg-orange-100 border-orange-400' :
-                  dadosPaciente.alerta_triagem_ecg.nivel_alerta?.includes('Normal') ? 'bg-green-100 border-green-400' :
-                  'bg-gray-100 border-gray-400'
-                }`}>
-                  <p className="font-bold mb-2 text-sm">🤖 Análise Automática de Triagem:</p>
-                  <p className="font-bold mb-1">{dadosPaciente.alerta_triagem_ecg.nivel_alerta}</p>
-                  {dadosPaciente.alerta_triagem_ecg.elevacao_st_detectada && (
-                    <div className="mt-2 p-2 bg-white rounded">
-                      <p className="text-xs font-semibold mb-1">⚠️ Elevação de ST detectada em:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {dadosPaciente.alerta_triagem_ecg.derivacoes_com_elevacao?.map((der, i) => (
-                          <Badge key={i} className="bg-red-600 text-white text-xs">
-                            {der}
-                          </Badge>
-                        ))}
-                      </div>
-                      {dadosPaciente.alerta_triagem_ecg.territorio_afetado && (
-                        <p className="text-xs mt-2"><strong>Território:</strong> {dadosPaciente.alerta_triagem_ecg.territorio_afetado}</p>
-                      )}
-                    </div>
-                  )}
-                  {dadosPaciente.alerta_triagem_ecg.mensagem_para_medico && (
-                    <details className="mt-2">
-                      <summary className="cursor-pointer text-xs font-semibold text-blue-700 hover:text-blue-900">
-                        Ver análise completa...
-                      </summary>
-                      <div className="mt-2 p-2 bg-white rounded text-xs whitespace-pre-wrap">
-                        {dadosPaciente.alerta_triagem_ecg.mensagem_para_medico}
-                      </div>
-                    </details>
-                  )}
-                </div>
-              )}
-
-              {/* CAMPO DE INTERPRETAÇÃO MÉDICA - SEM BOTÃO DE ASSISTENTE */}
-              <div className="mt-4 space-y-3">
-                <div className="space-y-2">
-                  <Label htmlFor="interpretacao_ecg_medico" className="text-base font-semibold text-purple-900">
-                    📝 Interpretação Médica do ECG
-                  </Label>
-                  <Textarea
-                    id="interpretacao_ecg_medico"
-                    value={interpretacaoECG}
-                    onChange={(e) => setInterpretacaoECG(e.target.value)}
-                    placeholder="Digite sua interpretação médica do ECG...
-
-Exemplo:
-ECG de 12 derivações - Ritmo sinusal, FC 75 bpm
-Segmento ST: elevado 3mm em DII, DIII e aVF
-Infradesnivelamento recíproco em aVL
-Conclusão técnica: Alterações sugestivas de..."
-                    rows={15}
-                    className="font-mono text-sm resize-y"
-                  />
-                  <p className="text-xs text-purple-700">
-                    💡 Registre sua interpretação médica do ECG baseada na análise técnica acima
-                  </p>
-                </div>
-              </div>
-
-              {dadosPaciente.interpretacao_ecg_medico && !interpretacaoECG && (
-                <div className="mt-3 p-3 bg-white rounded border-2 border-blue-400">
-                  <p className="text-xs font-semibold text-blue-900 mb-1">📋 Interpretação Anterior do ECG:</p>
-                  <p className="text-xs whitespace-pre-wrap">{dadosPaciente.interpretacao_ecg_medico}</p>
-                </div>
-              )}
             </div>
           )}
 
@@ -754,7 +666,7 @@ Conclusão técnica: Alterações sugestivas de..."
             <Label htmlFor="quadro_atual">Quadro Clínico Atual *</Label>
             <Textarea
               id="quadro_atual"
-              placeholder="Características da dor torácica, dispneia, sintomas associados..."
+              placeholder="Características da dor torácica, dispneia, sintomas associados, interpretação do ECG..."
               value={avaliacao.quadro_atual}
               onChange={(e) => setAvaliacao({...avaliacao, quadro_atual: e.target.value})}
               rows={5}
