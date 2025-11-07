@@ -11,6 +11,46 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { differenceInMinutes } from "date-fns";
 
+// New component for displaying ECG history
+function HistoricoECG({ historico }) {
+  if (!historico || historico.length === 0) return null;
+
+  return (
+    <Card className="border-t-2 border-l-2 border-r-2 border-gray-200 mt-8">
+      <CardHeader className="bg-gray-100 border-b">
+        <CardTitle className="text-lg flex items-center gap-2 text-gray-800">
+          <Info className="w-5 h-5" /> Histórico de Análises de ECG
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-4 space-y-4">
+        {/* Render history in reverse order to show newest first */}
+        {historico.slice().reverse().map((analise, index) => (
+          <div key={index} className="border p-3 rounded-lg shadow-sm bg-white">
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-semibold text-sm">Análise Recente</span>
+              <Badge className={`text-xs ${
+                analise.nivel_alerta?.includes('STEMI') || analise.nivel_alerta?.includes('CRÍTICO') ? 'bg-red-500' :
+                analise.nivel_alerta?.includes('Alterações isquêmicas') || analise.nivel_alerta?.includes('URGENTE') ? 'bg-orange-500' :
+                analise.nivel_alerta?.includes('Normal') ? 'bg-green-500' :
+                'bg-gray-500'
+              } text-white`}>{analise.nivel_alerta || 'N/A'}</Badge>
+            </div>
+            <p className="text-sm text-gray-700"><strong>Timestamp:</strong> {new Date(analise.timestamp).toLocaleString()}</p>
+            {analise.diagnostico_resumido && <p className="text-sm text-gray-700"><strong>Diagnóstico:</strong> {analise.diagnostico_resumido}</p>}
+            {analise.territorio && <p className="text-sm text-gray-700"><strong>Território:</strong> {analise.territorio}</p>}
+            {analise.registrado_por && <p className="text-sm text-gray-700"><strong>Registrado por:</strong> {analise.registrado_por}</p>}
+            {analise.ecg_url && (
+              <a href={analise.ecg_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm flex items-center mt-2">
+                <ExternalLink className="w-4 h-4 mr-1" /> Ver ECG
+              </a>
+            )}
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function Etapa5ECGEnfermeiro({ dadosPaciente, onProxima, onAnterior }) {
   const [ecgFiles, setEcgFiles] = useState(dadosPaciente.ecg_files || []);
   const [uploading, setUploading] = useState(false);
@@ -346,7 +386,7 @@ AGORA ANALISE A IMAGEM E RESPONDA COM TODOS OS CAMPOS OBRIGATÓRIOS.`;
           V6: resultado.V6_analise
         };
         
-        setAlertaTriagem({
+        const analiseCompleta = {
           id_analise: resultado.id_analise,
           analise_por_derivacao: analise_por_derivacao,
           elevacao_st_detectada: resultado.tem_elevacao_st,
@@ -358,7 +398,9 @@ AGORA ANALISE A IMAGEM E RESPONDA COM TODOS OS CAMPOS OBRIGATÓRIOS.`;
           mensagem_para_medico: resultado.mensagem_medico,
           confianca_diagnostico: resultado.confianca,
           qualidade_imagem: "Boa"
-        });
+        };
+        
+        setAlertaTriagem(analiseCompleta);
       } else {
         throw new Error("Resultado vazio da IA");
       }
@@ -408,11 +450,31 @@ Erro técnico: ${error.message}`,
       ? differenceInMinutes(new Date(dataHoraEcg), new Date(dadosPaciente.data_hora_inicio_triagem))
       : 0);
 
+    // Criar entrada para o histórico
+    const historicoAtual = dadosPaciente.historico_ecg || [];
+    let novoHistorico = [...historicoAtual];
+    
+    if (alertaTriagem && alertaTriagem.id_analise) {
+      const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      
+      novoHistorico.push({
+        id_analise: alertaTriagem.id_analise,
+        timestamp: dataHoraEcg,
+        ecg_url: ecgFiles[0], // Primeiro ECG anexado
+        analise_completa: alertaTriagem,
+        diagnostico_resumido: alertaTriagem.nivel_alerta?.split(' - ')[0] || alertaTriagem.nivel_alerta || 'Análise de ECG',
+        territorio: alertaTriagem.territorio_afetado,
+        nivel_alerta: alertaTriagem.nivel_alerta,
+        registrado_por: user.email || 'Sistema'
+      });
+    }
+
     const dadosParaSalvar = {
       ecg_files: ecgFiles,
       data_hora_ecg: dataHoraEcg,
       tempo_triagem_ecg_minutos: tempoMinutos,
       alerta_triagem_ecg: alertaTriagem,
+      historico_ecg: novoHistorico,
       interpretacao_ecg_medico: interpretacaoMedico || "", // Opcional - pode ser preenchido pelo médico depois
       enfermeiro_nome: enfermeiro.nome,
       enfermeiro_coren: enfermeiro.coren,
@@ -420,6 +482,7 @@ Erro técnico: ${error.message}`,
     };
 
     console.log("Dados para salvar:", dadosParaSalvar);
+    console.log("Histórico de ECG atualizado:", novoHistorico.length, "análises");
 
     try {
       onProxima(dadosParaSalvar);
@@ -591,22 +654,22 @@ Erro técnico: ${error.message}`,
       {/* RESULTADO DA ANÁLISE AUTOMÁTICA */}
       {alertaTriagem && !analyzing && (
         <Card className={`border-2 shadow-lg ${
-          alertaTriagem.nivel_alerta?.includes('CRÍTICO') ? 'border-red-500 bg-red-50' :
-          alertaTriagem.nivel_alerta?.includes('URGENTE') ? 'border-orange-500 bg-orange-50' :
+          alertaTriagem.nivel_alerta?.includes('CRÍTICO') || alertaTriagem.nivel_alerta?.includes('STEMI') ? 'border-red-500 bg-red-50' :
+          alertaTriagem.nivel_alerta?.includes('URGENTE') || alertaTriagem.nivel_alerta?.includes('Alterações isquêmicas') ? 'border-orange-500 bg-orange-50' :
           alertaTriagem.nivel_alerta?.includes('ATENÇÃO') ? 'border-yellow-500 bg-yellow-50' :
           alertaTriagem.nivel_alerta?.includes('Normal') ? 'border-green-500 bg-green-50' :
           'border-gray-500 bg-gray-50'
         }`}>
           <CardHeader className={`${
-            alertaTriagem.nivel_alerta?.includes('CRÍTICO') ? 'bg-red-100 border-b-2 border-red-300' :
-            alertaTriagem.nivel_alerta?.includes('URGENTE') ? 'bg-orange-100 border-b-2 border-orange-300' :
+            alertaTriagem.nivel_alerta?.includes('CRÍTICO') || alertaTriagem.nivel_alerta?.includes('STEMI') ? 'bg-red-100 border-b-2 border-red-300' :
+            alertaTriagem.nivel_alerta?.includes('URGENTE') || alertaTriagem.nivel_alerta?.includes('Alterações isquêmicas') ? 'bg-orange-100 border-b-2 border-orange-300' :
             alertaTriagem.nivel_alerta?.includes('ATENÇÃO') ? 'bg-yellow-100 border-b-2 border-yellow-300' :
             alertaTriagem.nivel_alerta?.includes('Normal') ? 'bg-green-100 border-b-2 border-green-300' :
             'bg-gray-100 border-b-2 border-gray-300'
           }`}>
             <CardTitle className={`text-lg flex items-center gap-2 ${
-              alertaTriagem.nivel_alerta?.includes('CRÍTICO') ? 'text-red-900' :
-              alertaTriagem.nivel_alerta?.includes('URGENTE') ? 'text-orange-900' :
+              alertaTriagem.nivel_alerta?.includes('CRÍTICO') || alertaTriagem.nivel_alerta?.includes('STEMI') ? 'text-red-900' :
+              alertaTriagem.nivel_alerta?.includes('URGENTE') || alertaTriagem.nivel_alerta?.includes('Alterações isquêmicas') ? 'text-orange-900' :
               alertaTriagem.nivel_alerta?.includes('ATENÇÃO') ? 'text-yellow-900' :
               alertaTriagem.nivel_alerta?.includes('Normal') ? 'text-green-900' :
               'text-gray-900'
@@ -617,8 +680,8 @@ Erro técnico: ${error.message}`,
           </CardHeader>
           <CardContent className="p-6 space-y-4">
             <div className={`p-4 rounded-lg border-2 ${
-              alertaTriagem.nivel_alerta?.includes('CRÍTICO') ? 'bg-red-100 border-red-400' :
-              alertaTriagem.nivel_alerta?.includes('URGENTE') ? 'bg-orange-100 border-orange-400' :
+              alertaTriagem.nivel_alerta?.includes('CRÍTICO') || alertaTriagem.nivel_alerta?.includes('STEMI') ? 'bg-red-100 border-red-400' :
+              alertaTriagem.nivel_alerta?.includes('URGENTE') || alertaTriagem.nivel_alerta?.includes('Alterações isquêmicas') ? 'bg-orange-100 border-orange-400' :
               alertaTriagem.nivel_alerta?.includes('ATENÇÃO') ? 'bg-yellow-100 border-yellow-400' :
               alertaTriagem.nivel_alerta?.includes('Normal') ? 'bg-green-100 border-green-400' :
               'bg-gray-100 border-gray-400'
@@ -829,6 +892,11 @@ CONDUTA: Reperfusão imediata (ICP primária vs fibrinolítico)
           </div>
         </div>
       </div>
+
+      {/* HISTÓRICO DE ANÁLISES DE ECG */}
+      {dadosPaciente.historico_ecg && dadosPaciente.historico_ecg.length > 0 && (
+        <HistoricoECG historico={dadosPaciente.historico_ecg} />
+      )}
 
       <div className="flex justify-between pt-4">
         <Button type="button" variant="outline" onClick={onAnterior}>
