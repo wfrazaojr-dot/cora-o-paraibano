@@ -196,10 +196,6 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
             items: { type: "string" },
             description: "Lista de discriminadores identificados automaticamente baseado nos dados"
           },
-          justificativa: { // Ensuring 'justificativa' is present as it's used in UI and expected by prompt
-            type: "string",
-            description: "Justificativa clara e detalhada para a classificação sugerida, citando dados específicos"
-          },
           nivel_confianca: {
             type: "string",
             enum: ["Alta", "Média", "Baixa"],
@@ -225,7 +221,7 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
       const triagem = dadosAnalise.triagem_cardiologica || {};
 
       const prompt = `
-Você é um sistema especialista em triagem de emergência usando o Protocolo Manchester e diretrizes da SBC 2025 para dor torácica.
+Você é um sistema especialista em triagem de emergência usando o Protocolo Manchester.
 
 DADOS DO PACIENTE:
 - Idade: ${dadosAnalise.idade} anos
@@ -255,56 +251,15 @@ ${dadosAnalise.dados_vitais ? `
 - DPOC: ${dadosAnalise.dados_vitais.dpoc ? 'SIM' : 'NÃO'}
 ` : 'Não disponível'}
 
-PROTOCOLO MANCHESTER - CRITÉRIOS DETALHADOS:
+PROTOCOLO MANCHESTER - CRITÉRIOS:
 
-VERMELHA (Ameaça à vida - Atendimento IMEDIATO):
-- Alteração do Nível de Consciência
-- Obstrução das Vias Aéreas
-- SpO2 ≤ 89% em ar ambiente
-- PAS ≤ 80 mmHg
-- FC ≥ 140 bpm
-- FC ≤ 40 bpm
-- Diaforese (palidez, sudorese fria)
+VERMELHA: SpO2 ≤89%, PAS ≤80, FC ≥140 ou ≤40, Alteração consciência
+LARANJA: Alerta IAM, SpO2 90-94%, PAS ≥160 ou PAD ≥110
+AMARELA: PAS 140-159 ou PAD 90-109, Febre 38-39.9°C
+VERDE: PAS ≤139 e PAD ≤89, Febre 37-37.9°C
+AZUL: Sintomas > 7 dias
 
-LARANJA (Muito urgente - até 10 minutos):
-- Alerta de Provável IAM (qualquer SIM na triagem cardiológica)
-- Dispneia com SpO2 ≥ 90% e ≤ 94% em ar ambiente
-- PAS ≥ 160 e/ou PAD ≥ 110 mmHg
-- PA ≥ 140/90 mmHg com cefaleia, epigastralgia ou alterações visuais
-- Dor torácica intensa (7 a 10 pontos)
-- Início agudo de dor após trauma
-- Portador de doença falciforme
-
-AMARELA (Urgente - até 60 minutos):
-- Dispneia moderada (mas consegue falar frases mais longas)
-- PAS de 140-159 e/ou PAD de 90-109 mmHg, assintomática
-- Dor torácica moderada (4 a 6 pontos)
-- Edema unilateral de MMII ou dor na panturrilha
-- Febre com Tax: 38º C a 39,9º C
-- Dor de garganta com placas
-
-VERDE (Pouco urgente - até 120 minutos):
-- Obstrução nasal com secreção amarelada
-- Dor de garganta sem outras alterações
-- Tosse produtiva, persistente
-- Febre Tax: 37,9º C
-- PAS ≤ 139 mmHg e PAD ≤ 89 mmHg
-
-AZUL (Não urgente - até 240 minutos):
-- Sintomas a mais de 7 dias
-
-REGRAS DE CLASSIFICAÇÃO:
-1. Se QUALQUER critério de VERMELHA estiver presente, a classificação final é VERMELHA.
-2. Se "Alerta de Provável IAM" estiver presente, a classificação final é NO MÍNIMO LARANJA.
-3. A classificação é determinada pelo discriminador de maior gravidade encontrado.
-4. Analise TODOS os dados vitais cuidadosamente.
-5. Seja conservador - na dúvida, classifique para cima.
-6. Liste discriminadores específicos baseados nos DADOS REAIS do paciente.
-7. Forneça justificativa clara e detalhada para a classificação sugerida, citando dados específicos.
-8. Calcule o tempo de atendimento recomendado com base na classificação final.
-
-Analise e retorne a classificação de risco adequada com justificativa detalhada e outros campos solicitados.
-`;
+Analise e retorne APENAS: classificação, discriminadores, nível de confiança, alertas críticos, próximos passos e tempo recomendado.`;
 
       const resultado = await base44.integrations.Core.InvokeLLM({
         prompt: prompt,
@@ -470,7 +425,7 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
               <Loader2 className="w-6 h-6 text-purple-600 animate-spin" />
               <div>
                 <p className="font-semibold text-purple-900">🤖 Análise Automática em Andamento...</p>
-                <p className="text-sm text-purple-700">Analisando dados vitais, triagem cardiológica e histórico do paciente...</p>
+                <p className="text-sm text-purple-700">Analisando dados vitais e triagem cardiológica...</p>
               </div>
             </div>
           </CardContent>
@@ -507,12 +462,6 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
                   {sugestaoIA.nivel_confianca}
                 </Badge>
               </div>
-            </div>
-
-            {/* Justificativa */}
-            <div className="bg-white p-4 rounded-lg border border-purple-200">
-              <p className="text-sm font-semibold text-purple-900 mb-2">📋 Justificativa:</p>
-              <p className="text-sm text-gray-700 leading-relaxed">{sugestaoIA.justificativa}</p>
             </div>
 
             {/* Alertas Críticos */}
@@ -563,8 +512,7 @@ Analise e retorne a classificação de risco adequada com justificativa detalhad
 
             <Alert className="border-purple-500 bg-purple-50">
               <AlertDescription className="text-purple-800 text-xs">
-                <strong>💡 Nota:</strong> Esta é uma sugestão automatizada. O enfermeiro pode ajustar a classificação conforme julgamento clínico,
-                marcando ou desmarcando discriminadores abaixo.
+                <strong>💡 Nota:</strong> Esta é uma sugestão automatizada. O enfermeiro pode ajustar a classificação conforme julgamento clínico.
               </AlertDescription>
             </Alert>
           </CardContent>
