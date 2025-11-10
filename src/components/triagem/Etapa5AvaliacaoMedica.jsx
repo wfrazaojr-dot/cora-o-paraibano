@@ -1,11 +1,13 @@
+
 import React, { useState, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, ArrowRight, FileImage, Activity, User, Stethoscope, AlertTriangle, Edit, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, FileImage, Activity, User, Stethoscope, AlertTriangle, Edit, CheckCircle2, Smartphone, Upload, Loader2 } from "lucide-react";
 import { format, differenceInMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
@@ -62,6 +64,10 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
     };
   });
 
+  const [pmcardioLaudoTexto, setPmcardioLaudoTexto] = useState(dadosPaciente.pmcardio_laudo_texto || "");
+  const [pmcardioArquivo, setPmcardioArquivo] = useState(dadosPaciente.pmcardio_laudo_arquivo || "");
+  const [uploadingPmcardio, setUploadingPmcardio] = useState(false);
+
   useEffect(() => {
     if (!dadosPaciente.avaliacao_medica || !dadosPaciente.avaliacao_medica.data_hora_avaliacao) {
       setAvaliacao(prev => ({
@@ -70,6 +76,21 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
       }));
     }
   }, [dadosPaciente.avaliacao_medica]);
+
+  const handlePmcardioFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingPmcardio(true);
+    try {
+      const result = await base44.integrations.Core.UploadFile({ file });
+      setPmcardioArquivo(result.file_url);
+    } catch (error) {
+      console.error("Erro ao fazer upload:", error);
+      alert("Erro ao anexar laudo PMCardio. Tente novamente.");
+    }
+    setUploadingPmcardio(false);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -99,6 +120,8 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
       dados_vitais_medico: dadosVitaisLimpos,
       medico_nome: medico.nome,
       medico_crm: medico.crm,
+      pmcardio_laudo_texto: pmcardioLaudoTexto,
+      pmcardio_laudo_arquivo: pmcardioArquivo,
       status: "Em Atendimento"
     };
     
@@ -616,6 +639,119 @@ export default function Etapa5AvaliacaoMedica({ dadosPaciente, onProxima, onAnte
 
         </CardContent>
       </Card>
+
+      {/* NOVO: SEÇÃO PMCARDIO */}
+      {dadosPaciente.ecg_files && dadosPaciente.ecg_files.length > 0 && (
+        <Card className="shadow-lg border-l-4 border-l-green-600">
+          <CardHeader className="bg-green-50 border-b">
+            <CardTitle className="flex items-center gap-2 text-green-900 text-xl">
+              <Smartphone className="w-6 h-6" />
+              📱 PMCardio - Análise de ECG
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6 space-y-4">
+            <Alert className="border-blue-500 bg-blue-50">
+              <AlertDescription className="text-blue-800">
+                <strong className="block mb-2">💡 Como usar o PMCardio:</strong>
+                <ol className="list-decimal pl-5 space-y-1 text-sm">
+                  <li>Abra o <strong>app PMCardio</strong> no seu celular ou tablet</li>
+                  <li>Faça login com suas credenciais</li>
+                  <li>Envie o ECG do paciente para análise</li>
+                  <li>Aguarde o laudo do PMCardio</li>
+                  <li>Copie e cole o laudo no campo abaixo <strong>OU</strong></li>
+                  <li>Tire um print/foto do laudo e faça upload do arquivo</li>
+                </ol>
+              </AlertDescription>
+            </Alert>
+
+            <div className="space-y-2">
+              <Label htmlFor="pmcardio_texto">Laudo PMCardio (Texto)</Label>
+              <Textarea
+                id="pmcardio_texto"
+                placeholder="Cole aqui o laudo do PMCardio...
+
+Exemplo:
+- Ritmo sinusal regular
+- FC: 75 bpm
+- Eixo normal
+- Segmento ST: sem alterações
+- Onda T: normal
+- Conclusão: ECG normal"
+                value={pmcardioLaudoTexto}
+                onChange={(e) => setPmcardioLaudoTexto(e.target.value)}
+                rows={8}
+                className="resize-y font-mono text-sm"
+              />
+            </div>
+
+            <div className="border-t pt-4">
+              <Label className="mb-3 block">Laudo PMCardio (Arquivo)</Label>
+              <div className="space-y-4">
+                {!pmcardioArquivo ? (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <input
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={handlePmcardioFileUpload}
+                      className="hidden"
+                      id="pmcardio-upload"
+                      disabled={uploadingPmcardio}
+                    />
+                    <label htmlFor="pmcardio-upload" className="cursor-pointer flex flex-col items-center">
+                      {uploadingPmcardio ? (
+                        <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-2" />
+                      ) : (
+                        <Upload className="w-12 h-12 text-gray-400 mb-2" />
+                      )}
+                      <p className="text-sm font-medium text-gray-700">
+                        {uploadingPmcardio ? "Carregando..." : "Clique para anexar arquivo do laudo PMCardio"}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">PDF ou imagem (print do laudo)</p>
+                    </label>
+                  </div>
+                ) : (
+                  <div className="border-2 border-green-200 rounded p-4 bg-green-50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <CheckCircle2 className="w-6 h-6 text-green-600" />
+                        <div>
+                          <p className="font-medium text-green-900">Arquivo anexado com sucesso</p>
+                          <a 
+                            href={pmcardioArquivo} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-sm text-green-700 hover:underline"
+                          >
+                            Clique aqui para visualizar
+                          </a>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPmcardioArquivo("")}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        Remover
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {(pmcardioLaudoTexto || pmcardioArquivo) && (
+              <Alert className="border-green-500 bg-green-50">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-800 text-sm">
+                  ✓ Laudo PMCardio será incluído automaticamente no relatório final
+                </AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <div className="border-t-2 border-blue-600 pt-6 mt-8">
         <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
