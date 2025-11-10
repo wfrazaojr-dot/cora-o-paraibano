@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Activity, Plus, History, BookOpen, FileText, Users, AlertCircle, TrendingUp, Shield } from "lucide-react";
+import { Activity, Plus, History, BookOpen, FileText, Users, AlertCircle, TrendingUp, Shield, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { Button } from "@/components/ui/button";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
@@ -68,6 +69,12 @@ export default function Layout({ children, currentPageName }) {
       icon: Shield,
     });
   }
+
+  const handleLogout = () => {
+    if (confirm("Tem certeza que deseja sair do sistema?")) {
+      base44.auth.logout();
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -147,6 +154,34 @@ export default function Layout({ children, currentPageName }) {
                 </div>
               </SidebarGroupContent>
             </SidebarGroup>
+
+            {user && (
+              <SidebarGroup>
+                <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
+                  Usuário
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <div className="px-3 py-2">
+                    <div className="bg-blue-50 p-3 rounded-lg mb-3">
+                      <p className="text-xs text-blue-900 font-semibold">{user.full_name}</p>
+                      <p className="text-xs text-blue-700">{user.email}</p>
+                      {user.role === 'admin' && (
+                        <p className="text-xs text-red-600 font-bold mt-1">ADMINISTRADOR</p>
+                      )}
+                    </div>
+                    <Button
+                      onClick={handleLogout}
+                      variant="outline"
+                      className="w-full border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800 hover:border-red-300"
+                      size="sm"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sair do Sistema
+                    </Button>
+                  </div>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
           </SidebarContent>
 
           <SidebarFooter className="border-t border-red-200 p-4 bg-gray-50">
