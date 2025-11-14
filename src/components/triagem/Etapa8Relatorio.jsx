@@ -61,9 +61,6 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
     .alert-critical { background: #FEE2E2; border: 3px solid #DC2626; padding: 15px; margin: 15px 0; font-size: 16px; }
     .ecg-container { margin: 20px 0; }
     .ecg-img { max-width: 100%; height: auto; border: 1px solid #ccc; margin: 10px 0; }
-    .analise { background: #EFF6FF; border-left: 4px solid #3B82F6; padding: 15px; margin: 15px 0; white-space: pre-wrap; }
-    .pmcardio-box { background: #D1FAE5; border: 3px solid #16A34A; padding: 20px; margin: 20px 0; }
-    .pmcardio-texto { background: white; border: 1px solid #16A34A; padding: 15px; margin: 10px 0; white-space: pre-wrap; font-family: monospace; font-size: 13px; }
     table { width: 100%; border-collapse: collapse; margin: 15px 0; }
     table, th, td { border: 1px solid #ddd; }
     th, td { padding: 10px; text-align: left; }
@@ -167,33 +164,7 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
       `).join('')}
     </div>
     ` : '<p>Nenhum ECG anexado</p>'}
-    
-    ${dadosPaciente.analise_ecg_ia ? `
-    <div class="analise">
-      <h3>Análise de ECG por Inteligência Artificial:</h3>
-      ${dadosPaciente.analise_ecg_ia}
-    </div>
-    ` : ''}
   </div>
-
-  ${(dadosPaciente.pmcardio_laudo_texto || dadosPaciente.pmcardio_laudo_arquivo) ? `
-  <div class="section">
-    <div class="pmcardio-box">
-      <h2 style="margin-top: 0; color: #16A34A;">📱 LAUDO PMCARDIO</h2>
-      
-      ${dadosPaciente.pmcardio_laudo_texto ? `
-      <h3>Laudo (Texto):</h3>
-      <div class="pmcardio-texto">${dadosPaciente.pmcardio_laudo_texto}</div>
-      ` : ''}
-      
-      ${dadosPaciente.pmcardio_laudo_arquivo ? `
-      <h3>Arquivo Anexado:</h3>
-      <p><a href="${dadosPaciente.pmcardio_laudo_arquivo}" target="_blank" style="color: #16A34A; text-decoration: underline;">📎 Clique aqui para visualizar o laudo PMCardio (PDF/Imagem)</a></p>
-      <p style="font-size: 12px; color: #666; margin-top: 5px;"><em>URL: ${dadosPaciente.pmcardio_laudo_arquivo}</em></p>
-      ` : ''}
-    </div>
-  </div>
-  ` : ''}
 
   <div class="section">
     <h2>AVALIAÇÃO MÉDICA</h2>
@@ -314,8 +285,6 @@ ${dadosPaciente.triagem_cardiologica?.alerta_iam ? "⚠️ ALERTA DE PROVÁVEL I
 
 DIAGNÓSTICO: ${dadosPaciente.avaliacao_medica?.diagnostico_confirmado || "Em investigação"}
 
-${dadosPaciente.pmcardio_laudo_texto ? `LAUDO PMCARDIO:\n${dadosPaciente.pmcardio_laudo_texto}\n\n` : ''}
-
 PROFISSIONAIS RESPONSÁVEIS:
 Enfermeiro(a): ${dadosPaciente.enfermeiro_nome || "-"} - COREN ${dadosPaciente.enfermeiro_coren || "-"}
 Médico(a): ${medico.nome || "-"} - CRM ${medico.crm || "-"}
@@ -418,22 +387,6 @@ ${dadosPaciente.unidade_saude || ""}
                 ✓ Dentro da janela terapêutica ideal para intervenção
               </p>
             )}
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {(dadosPaciente.pmcardio_laudo_texto || dadosPaciente.pmcardio_laudo_arquivo) && (
-        <Alert className="border-green-500 bg-green-50 shadow-md">
-          <CheckCircle className="h-5 w-5 text-green-600" />
-          <AlertDescription className="text-green-800">
-            <strong className="block mb-2">📱 LAUDO PMCARDIO ANEXADO</strong>
-            {dadosPaciente.pmcardio_laudo_texto && (
-              <p className="text-sm mb-2">✓ Texto do laudo disponível</p>
-            )}
-            {dadosPaciente.pmcardio_laudo_arquivo && (
-              <p className="text-sm">✓ Arquivo anexado disponível</p>
-            )}
-            <p className="text-xs mt-2">O laudo PMCardio será incluído automaticamente no relatório final</p>
           </AlertDescription>
         </Alert>
       )}
