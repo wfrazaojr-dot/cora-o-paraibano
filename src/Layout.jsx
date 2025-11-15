@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -133,23 +134,19 @@ export default function Layout({ children, currentPageName }) {
 
             <SidebarGroup>
               <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
-                Informações
+                Metas de Qualidade
               </SidebarGroupLabel>
               <SidebarGroupContent>
-                <div className="px-3 py-2 space-y-3">
-                  <div className="flex items-center gap-2 text-sm p-2 bg-red-50 rounded-lg">
-                    <AlertCircle className="w-4 h-4 text-red-600" />
-                    <div>
-                      <p className="text-xs text-gray-600 font-medium">Meta IAM-ECG</p>
-                      <p className="text-xs text-red-600 font-bold">≤ 10 minutos</p>
-                    </div>
+                <div className="px-3 py-2 space-y-2">
+                  <div className="text-sm p-2 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-xs text-blue-900 font-bold mb-1">Tempos</p>
+                    <p className="text-xs text-blue-800">• Triagem ≤4min</p>
+                    <p className="text-xs text-blue-800">• Espera ≤15min</p>
+                    <p className="text-xs text-blue-800">• Triagem clínica ≤20min</p>
                   </div>
-                  <div className="flex items-center gap-2 text-sm p-2 bg-orange-50 rounded-lg">
-                    <Users className="w-4 h-4 text-orange-600" />
-                    <div>
-                      <p className="text-xs text-gray-600 font-medium">Meta Regulação</p>
-                      <p className="text-xs text-orange-600 font-bold">≤ 30 minutos</p>
-                    </div>
+                  <div className="text-sm p-2 bg-red-50 rounded-lg border border-red-200">
+                    <p className="text-xs text-red-900 font-bold mb-1">Meta Crítica</p>
+                    <p className="text-xs text-red-800">• IAM-ECG ≤10min</p>
                   </div>
                 </div>
               </SidebarGroupContent>
