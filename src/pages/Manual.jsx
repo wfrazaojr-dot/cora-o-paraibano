@@ -28,7 +28,7 @@ export default function Manual() {
                 </p>
                 <p>
                   O sistema segue as diretrizes da Sociedade Brasileira de Cardiologia (2025) e utiliza o Sistema 
-                  Manchester de Classificação de Risco, garantindo um atendimento padronizado e eficiente.
+                  Manchester Adaptado de Classificação de Risco, garantindo um atendimento padronizado e eficiente.
                 </p>
               </div>
             </CardContent>
@@ -47,7 +47,7 @@ export default function Manual() {
                   <h4 className="font-semibold mb-2">Enfermeiro de Triagem</h4>
                   <p className="text-gray-700">
                     Responsável pelas etapas 1 a 4: cadastro do paciente, triagem cardiológica, registro de dados 
-                    vitais e ECG, e classificação de risco pelo Sistema Manchester.
+                    vitais e ECG, e classificação de risco pelo Sistema Manchester Adaptado.
                   </p>
                 </div>
                 <div>
@@ -105,7 +105,7 @@ export default function Manual() {
                 <div className="border-l-4 border-l-orange-500 pl-4">
                   <h4 className="font-semibold mb-2">Etapa 4: Classificação de Risco</h4>
                   <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
-                    <li>Selecione discriminadores identificados (Sistema Manchester)</li>
+                    <li>Selecione discriminadores identificados (Sistema Manchester Adaptado)</li>
                     <li>Sistema calcula automaticamente a cor de classificação</li>
                     <li>Cores: Vermelha (imediato), Laranja (10 min), Amarela (60 min), Verde (120 min), Azul (240 min)</li>
                     <li>Se houve alerta de IAM, classificação mínima é Laranja</li>

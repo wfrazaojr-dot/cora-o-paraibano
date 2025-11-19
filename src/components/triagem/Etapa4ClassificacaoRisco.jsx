@@ -188,7 +188,7 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
           classificacao_sugerida: {
             type: "string",
             enum: ["Vermelha", "Laranja", "Amarela", "Verde", "Azul"],
-            description: "Classificação de risco sugerida pelo Sistema Manchester"
+            description: "Classificação de risco sugerida pelo Sistema Manchester Adaptado"
           },
           discriminadores_identificados: {
             type: "array",
@@ -220,7 +220,7 @@ export default function Etapa4ClassificacaoRisco({ dadosPaciente, onProxima, onA
       const triagem = dadosAnalise.triagem_cardiologica || {};
 
       const prompt = `
-Você é um sistema especialista em triagem de emergência usando o Protocolo Manchester.
+Você é um sistema especialista em triagem de emergência usando o Protocolo Manchester Adaptado.
 
 DADOS DO PACIENTE:
 - Idade: ${dadosAnalise.idade} anos

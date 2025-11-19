@@ -11,7 +11,7 @@ export default function Protocolos() {
           <p className="text-gray-600">Diretrizes e protocolos para atendimento de dor torácica</p>
           <p className="text-sm text-gray-500 mt-2">
             Baseados na Diretriz Brasileira de Atendimento à Dor Torácica na Unidade de Emergência – 2025 
-            (de Barros e Silva et al.) e Sistema Manchester de Classificação de Risco
+            (de Barros e Silva et al.) e Sistema Manchester Adaptado de Classificação de Risco
           </p>
         </div>
 
@@ -241,8 +241,8 @@ export default function Protocolos() {
                     </div>
 
                     <div>
-                      <p className="font-semibold">2. Sistema Manchester de Classificação de Risco</p>
-                      <p className="text-gray-600">MACKWAY-JONES, Kevin; MARSDEN, Janet; WINDLE, Jill. <strong>Sistema Manchester de Classificação de Risco.</strong> 2. ed. Belo Horizonte: Grupo Brasileiro de Classificação de Risco, 2017.</p>
+                      <p className="font-semibold">2. Sistema Manchester Adaptado de Classificação de Risco</p>
+                      <p className="text-gray-600">Baseado em: MACKWAY-JONES, Kevin; MARSDEN, Janet; WINDLE, Jill. <strong>Sistema Manchester de Classificação de Risco.</strong> 2. ed. Belo Horizonte: Grupo Brasileiro de Classificação de Risco, 2017. (Versão adaptada - não oficial)</p>
                     </div>
 
                     <div>
