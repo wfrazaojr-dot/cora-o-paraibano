@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Activity, Plus, History, BookOpen, FileText, Users, AlertCircle, TrendingUp, Shield, LogOut } from "lucide-react";
 import {
@@ -22,11 +22,20 @@ import { Button } from "@/components/ui/button";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
+
+  // Verificar se o PIN foi validado
+  React.useEffect(() => {
+    const pinVerified = localStorage.getItem("pin_verified");
+    if (user && !pinVerified) {
+      navigate(createPageUrl("PINLogin"));
+    }
+  }, [user, navigate]);
 
   const navigationItems = [
     {
@@ -72,6 +81,7 @@ export default function Layout({ children, currentPageName }) {
 
   const handleLogout = () => {
     if (confirm("Tem certeza que deseja sair do sistema?")) {
+      localStorage.removeItem("pin_verified");
       base44.auth.logout();
     }
   };

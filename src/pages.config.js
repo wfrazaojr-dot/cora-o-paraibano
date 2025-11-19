@@ -5,6 +5,8 @@ import Protocolos from './pages/Protocolos';
 import Manual from './pages/Manual';
 import Indicadores from './pages/Indicadores';
 import Administracao from './pages/Administracao';
+import PINLogin from './pages/PINLogin';
+import RecuperarPIN from './pages/RecuperarPIN';
 import __Layout from './Layout.jsx';
 
 
@@ -16,6 +18,8 @@ export const PAGES = {
     "Manual": Manual,
     "Indicadores": Indicadores,
     "Administracao": Administracao,
+    "PINLogin": PINLogin,
+    "RecuperarPIN": RecuperarPIN,
 }
 
 export const pagesConfig = {
