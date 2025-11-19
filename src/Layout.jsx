@@ -29,10 +29,10 @@ export default function Layout({ children, currentPageName }) {
     queryFn: () => base44.auth.me(),
   });
 
-  // Verificar se o PIN foi validado
+  // Verificar se o PIN foi validado para este usuário específico
   React.useEffect(() => {
     const pinVerified = localStorage.getItem("pin_verified");
-    if (user && !pinVerified) {
+    if (user && pinVerified !== user.email) {
       navigate(createPageUrl("PINLogin"));
     }
   }, [user, navigate]);

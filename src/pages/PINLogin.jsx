@@ -38,14 +38,14 @@ export default function PINLogin() {
           pin: pin,
           ultimo_acesso: new Date().toISOString()
         });
-        localStorage.setItem("pin_verified", "true");
+        localStorage.setItem("pin_verified", user.email);
         navigate(createPageUrl("Dashboard"));
       } else if (user.pin === pin) {
         // PIN correto
         await base44.auth.updateMe({ 
           ultimo_acesso: new Date().toISOString()
         });
-        localStorage.setItem("pin_verified", "true");
+        localStorage.setItem("pin_verified", user.email);
         navigate(createPageUrl("Dashboard"));
       } else {
         // PIN incorreto
