@@ -5,7 +5,7 @@ import Protocolos from './pages/Protocolos';
 import Manual from './pages/Manual';
 import Indicadores from './pages/Indicadores';
 import Administracao from './pages/Administracao';
-import Layout from './Layout.jsx';
+import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
@@ -21,5 +21,5 @@ export const PAGES = {
 export const pagesConfig = {
     mainPage: "Dashboard",
     Pages: PAGES,
-    Layout: Layout,
+    Layout: __Layout,
 };

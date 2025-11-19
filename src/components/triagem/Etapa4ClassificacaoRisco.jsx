@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -251,7 +250,7 @@ ${dadosAnalise.dados_vitais ? `
 - DPOC: ${dadosAnalise.dados_vitais.dpoc ? 'SIM' : 'NÃO'}
 ` : 'Não disponível'}
 
-PROTOCOLO MANCHESTER - CRITÉRIOS:
+PROTOCOLO MANCHESTER ADAPTADO - CRITÉRIOS:
 
 VERMELHA: SpO2 ≤89%, PAS ≤80, FC ≥140 ou ≤40, Alteração consciência
 LARANJA: Alerta IAM, SpO2 90-94%, PAS ≥160 ou PAD ≥110
@@ -364,7 +363,7 @@ Analise e retorne APENAS: classificação, discriminadores, nível de confiança
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Classificação de Risco</h2>
-        <p className="text-gray-600">Sistema Manchester com análise automatizada por IA</p>
+        <p className="text-gray-600">Sistema Manchester Adaptado com análise automatizada por IA</p>
       </div>
 
       {/* RESUMO DOS DADOS VITAIS */}

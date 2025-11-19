@@ -226,7 +226,7 @@ export default function Etapa8Relatorio({ dadosPaciente, onAnterior, pacienteId 
     <p><strong>Sistema de Triagem de Dor Torácica</strong></p>
     <p>Autor: Walber Alves Frazão Júnior - COREN 110.238</p>
     <p>Enfermeiro Emergencista - Pós-graduado em Cardiologia, Neurologia e Auditoria em Serviços de Saúde</p>
-    <p>Protocolos: Diretriz Brasileira de Atendimento à Dor Torácica na Unidade de Emergência – 2025 / Sistema Manchester</p>
+    <p>Protocolos: Diretriz Brasileira de Atendimento à Dor Torácica na Unidade de Emergência – 2025 / Sistema Manchester Adaptado</p>
     <p>Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm:ss", { locale: ptBR })}</p>
   </div>
 </body>
