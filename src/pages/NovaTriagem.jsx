@@ -19,6 +19,7 @@ import Etapa7Prescricao from "../components/triagem/Etapa6Prescricao";
 import Etapa8Exames from "../components/triagem/Etapa7Exames";
 import Etapa9Relatorio from "../components/triagem/Etapa8Relatorio";
 import { format } from "date-fns";
+import VerificarProfissional from "../components/VerificarProfissional";
 
 const etapas = [
   { numero: 1, titulo: "Dados do Paciente", componente: Etapa1DadosPaciente },
@@ -213,6 +214,7 @@ export default function NovaTriagem() {
   const progresso = (etapaAtual / 9) * 100;
 
   return (
+    <VerificarProfissional>
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-6">
@@ -283,5 +285,6 @@ export default function NovaTriagem() {
         </Card>
       </div>
     </div>
+    </VerificarProfissional>
   );
 }

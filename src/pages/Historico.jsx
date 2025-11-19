@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Search, ExternalLink, RefreshCw, Filter } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 const corClassificacao = {
@@ -32,8 +32,33 @@ const statusColors = {
 };
 
 export default function Historico() {
+  const navigate = useNavigate();
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("todos");
+
+  const verificarProfissional = (url) => {
+    const profissionalLogado = sessionStorage.getItem("profissional_logado");
+    if (!profissionalLogado) {
+      sessionStorage.setItem("redirect_after_pin", url);
+      navigate(createPageUrl("AcessoProfissional"));
+      return false;
+    }
+    return true;
+  };
+
+  const handleVerDetalhes = (pacienteId) => {
+    const url = `${createPageUrl("NovaTriagem")}?id=${pacienteId}`;
+    if (verificarProfissional(url)) {
+      navigate(url);
+    }
+  };
+
+  const handleRetriagem = (pacienteId) => {
+    const url = `${createPageUrl("NovaTriagem")}?id=${pacienteId}&retriagem=true`;
+    if (verificarProfissional(url)) {
+      navigate(url);
+    }
+  };
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -272,18 +297,23 @@ export default function Historico() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <Link to={`${createPageUrl("NovaTriagem")}?id=${paciente.id}`}>
-                          <Button variant="outline" size="sm">
-                            <ExternalLink className="w-4 h-4 mr-2" />
-                            Ver Detalhes
-                          </Button>
-                        </Link>
-                        <Link to={`${createPageUrl("NovaTriagem")}?id=${paciente.id}&retriagem=true`}>
-                          <Button variant="outline" size="sm" className="bg-blue-50 hover:bg-blue-100">
-                            <RefreshCw className="w-4 h-4 mr-2" />
-                            Retriagem
-                          </Button>
-                        </Link>
+                        <Button 
+                          onClick={() => handleVerDetalhes(paciente.id)}
+                          variant="outline" 
+                          size="sm"
+                        >
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Ver Detalhes
+                        </Button>
+                        <Button 
+                          onClick={() => handleRetriagem(paciente.id)}
+                          variant="outline" 
+                          size="sm" 
+                          className="bg-blue-50 hover:bg-blue-100"
+                        >
+                          <RefreshCw className="w-4 h-4 mr-2" />
+                          Retriagem
+                        </Button>
                       </div>
                     </div>
                   </div>

@@ -29,13 +29,7 @@ export default function Layout({ children, currentPageName }) {
     queryFn: () => base44.auth.me(),
   });
 
-  // Verificar se o PIN foi validado para este usuário específico
-  React.useEffect(() => {
-    const pinVerified = localStorage.getItem("pin_verified");
-    if (user && pinVerified !== user.email) {
-      navigate(createPageUrl("PINLogin"));
-    }
-  }, [user, navigate]);
+
 
   const navigationItems = [
     {
@@ -81,7 +75,7 @@ export default function Layout({ children, currentPageName }) {
 
   const handleLogout = () => {
     if (confirm("Tem certeza que deseja sair do sistema?")) {
-      localStorage.removeItem("pin_verified");
+      sessionStorage.removeItem("profissional_logado");
       base44.auth.logout();
     }
   };
@@ -175,6 +169,19 @@ export default function Layout({ children, currentPageName }) {
                         <p className="text-xs text-red-600 font-bold mt-1">ADMINISTRADOR</p>
                       )}
                     </div>
+                    {(() => {
+                      const profissionalLogado = sessionStorage.getItem("profissional_logado");
+                      if (profissionalLogado) {
+                        const prof = JSON.parse(profissionalLogado);
+                        return (
+                          <div className="bg-green-50 p-3 rounded-lg mb-3 border border-green-200">
+                            <p className="text-xs text-green-900 font-semibold">{prof.nome}</p>
+                            <p className="text-xs text-green-700">{prof.tipo} - {prof.registro}</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                     <Button
                       onClick={handleLogout}
                       variant="outline"
@@ -184,6 +191,22 @@ export default function Layout({ children, currentPageName }) {
                       <LogOut className="w-4 h-4 mr-2" />
                       Sair do Sistema
                     </Button>
+                    {sessionStorage.getItem("profissional_logado") && (
+                      <Button
+                        onClick={() => {
+                          if (confirm("Deseja desconectar o profissional atual?")) {
+                            sessionStorage.removeItem("profissional_logado");
+                            window.location.reload();
+                          }
+                        }}
+                        variant="outline"
+                        className="w-full mt-2 border-orange-200 text-orange-700 hover:bg-orange-50"
+                        size="sm"
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Desconectar Profissional
+                      </Button>
+                    )}
                   </div>
                 </SidebarGroupContent>
               </SidebarGroup>
