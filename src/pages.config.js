@@ -7,6 +7,7 @@ import Indicadores from './pages/Indicadores';
 import Administracao from './pages/Administracao';
 import PINLogin from './pages/PINLogin';
 import RecuperarPIN from './pages/RecuperarPIN';
+import CadastroProfissional from './pages/CadastroProfissional';
 import __Layout from './Layout.jsx';
 
 
@@ -20,6 +21,7 @@ export const PAGES = {
     "Administracao": Administracao,
     "PINLogin": PINLogin,
     "RecuperarPIN": RecuperarPIN,
+    "CadastroProfissional": CadastroProfissional,
 }
 
 export const pagesConfig = {
