@@ -129,7 +129,7 @@ export default function Layout({ children, currentPageName }) {
                 className="h-12 w-auto"
               />
             </div>
-            <p className="text-xs text-gray-600 mt-2">Sistema Médico Integrado</p>
+            <p className="text-xs text-gray-600 mt-2">App Coração Paraibano</p>
           </SidebarHeader>
           
           <SidebarContent className="p-2">
