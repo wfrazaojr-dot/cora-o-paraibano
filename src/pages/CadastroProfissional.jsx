@@ -74,7 +74,7 @@ export default function CadastroProfissional() {
       await base44.integrations.Core.SendEmail({
         to: dados.email,
         subject: "Cadastro Confirmado - Sistema de Triagem",
-        body: `Olá ${dados.nome},\n\nSeu cadastro foi realizado com sucesso!\n\nDados de acesso:\nNome: ${dados.nome}\nRegistro: ${dados.registro}\nTipo: ${dados.tipo}\nPIN: ${dados.pin}\n\nGuarde seu PIN em local seguro.\n\nSistema de Triagem de Dor Torácica`
+        body: `Olá ${dados.nome},\n\nSeu cadastro foi realizado com sucesso!\n\nDados de acesso:\nNome: ${dados.nome}\nRegistro: ${dados.registro}\nTipo: ${dados.tipo}\nPIN: ${dados.pin}\n\nGuarde seu PIN em local seguro.\n\nPrograma Coração Paraibano`
       });
 
       // Salvar na sessão

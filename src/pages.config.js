@@ -1,29 +1,80 @@
-import Dashboard from './pages/Dashboard';
-import NovaTriagem from './pages/NovaTriagem';
-import Historico from './pages/Historico';
-import Protocolos from './pages/Protocolos';
-import Manual from './pages/Manual';
-import Indicadores from './pages/Indicadores';
-import Administracao from './pages/Administracao';
-import PINLogin from './pages/PINLogin';
-import RecuperarPIN from './pages/RecuperarPIN';
-import CadastroProfissional from './pages/CadastroProfissional';
+/**
+ * pages.config.js - Page routing configuration
+ * 
+ * This file is AUTO-GENERATED. Do not add imports or modify PAGES manually.
+ * Pages are auto-registered when you create files in the ./pages/ folder.
+ * 
+ * THE ONLY EDITABLE VALUE: mainPage
+ * This controls which page is the landing page (shown when users visit the app).
+ * 
+ * Example file structure:
+ * 
+ *   import HomePage from './pages/HomePage';
+ *   import Dashboard from './pages/Dashboard';
+ *   import Settings from './pages/Settings';
+ *   
+ *   export const PAGES = {
+ *       "HomePage": HomePage,
+ *       "Dashboard": Dashboard,
+ *       "Settings": Settings,
+ *   }
+ *   
+ *   export const pagesConfig = {
+ *       mainPage: "HomePage",
+ *       Pages: PAGES,
+ *   };
+ * 
+ * Example with Layout (wraps all pages):
+ *
+ *   import Home from './pages/Home';
+ *   import Settings from './pages/Settings';
+ *   import __Layout from './Layout.jsx';
+ *
+ *   export const PAGES = {
+ *       "Home": Home,
+ *       "Settings": Settings,
+ *   }
+ *
+ *   export const pagesConfig = {
+ *       mainPage: "Home",
+ *       Pages: PAGES,
+ *       Layout: __Layout,
+ *   };
+ *
+ * To change the main page from HomePage to Dashboard, use find_replace:
+ *   Old: mainPage: "HomePage",
+ *   New: mainPage: "Dashboard",
+ *
+ * The mainPage value must match a key in the PAGES object exactly.
+ */
 import AcessoProfissional from './pages/AcessoProfissional';
+import Administracao from './pages/Administracao';
+import CadastroProfissional from './pages/CadastroProfissional';
+import Dashboard from './pages/Dashboard';
+import Historico from './pages/Historico';
+import Home from './pages/Home';
+import Indicadores from './pages/Indicadores';
+import Manual from './pages/Manual';
+import NovaTriagem from './pages/NovaTriagem';
+import PINLogin from './pages/PINLogin';
+import Protocolos from './pages/Protocolos';
+import RecuperarPIN from './pages/RecuperarPIN';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Dashboard": Dashboard,
-    "NovaTriagem": NovaTriagem,
-    "Historico": Historico,
-    "Protocolos": Protocolos,
-    "Manual": Manual,
-    "Indicadores": Indicadores,
-    "Administracao": Administracao,
-    "PINLogin": PINLogin,
-    "RecuperarPIN": RecuperarPIN,
-    "CadastroProfissional": CadastroProfissional,
     "AcessoProfissional": AcessoProfissional,
+    "Administracao": Administracao,
+    "CadastroProfissional": CadastroProfissional,
+    "Dashboard": Dashboard,
+    "Historico": Historico,
+    "Home": Home,
+    "Indicadores": Indicadores,
+    "Manual": Manual,
+    "NovaTriagem": NovaTriagem,
+    "PINLogin": PINLogin,
+    "Protocolos": Protocolos,
+    "RecuperarPIN": RecuperarPIN,
 }
 
 export const pagesConfig = {

@@ -103,7 +103,7 @@ export default function Layout({ children, currentPageName }) {
                 <Activity className="w-6 h-6 text-red-600" />
               </div>
               <div>
-                <h2 className="font-bold text-white text-lg">Triagem Dor Torácica</h2>
+                <h2 className="font-bold text-white text-lg">Coração Paraibano</h2>
                 <p className="text-xs text-red-100">Sistema Médico Integrado</p>
               </div>
             </div>
@@ -236,7 +236,7 @@ export default function Layout({ children, currentPageName }) {
           <header className="bg-white border-b border-gray-200 px-6 py-4 md:hidden shadow-sm">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200" />
-              <h1 className="text-xl font-bold text-red-600">Triagem Dor Torácica</h1>
+              <h1 className="text-xl font-bold text-red-600">Coração Paraibano</h1>
             </div>
           </header>
 

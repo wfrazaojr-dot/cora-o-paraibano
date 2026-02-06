@@ -67,7 +67,7 @@ export default function AcessoProfissional() {
           </div>
 
           <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">
-            Acesso Profissional
+            Coração Paraibano
           </h1>
           <p className="text-center text-gray-600 mb-8">
             Digite seu PIN de 4 dígitos
