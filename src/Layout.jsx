@@ -38,7 +38,7 @@ export default function Layout({ children, currentPageName }) {
       icon: Activity,
     },
     {
-      title: "Nova Triagem",
+      title: "Novo Paciente",
       url: createPageUrl("NovaTriagem"),
       icon: Plus,
     },

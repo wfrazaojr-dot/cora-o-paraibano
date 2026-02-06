@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Check } from "lucide-react";
 import { format } from "date-fns";
-import VerificarProfissional from "../components/VerificarProfissional";
+
 import Etapa1DadosPaciente from "../components/triagem/Etapa1DadosPaciente";
 import Etapa2TriagemMedica from "../components/triagem/Etapa2TriagemMedica";
 import Etapa3_1_SCACESST from "../components/triagem/Etapa3_1_SCACESST";
@@ -98,7 +98,6 @@ export default function NovaTriagem() {
   const progresso = (etapaAtual / 4) * 100;
 
   return (
-    <VerificarProfissional>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-6">
@@ -141,6 +140,5 @@ export default function NovaTriagem() {
           </Card>
         </div>
       </div>
-    </VerificarProfissional>
   );
 }

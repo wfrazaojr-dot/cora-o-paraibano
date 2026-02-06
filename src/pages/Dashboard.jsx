@@ -87,7 +87,7 @@ export default function Dashboard() {
           <Link to={createPageUrl("NovaTriagem")}>
             <Button className="bg-red-600 hover:bg-red-700 shadow-lg">
               <Plus className="w-5 h-5 mr-2" />
-              Nova Triagem
+              Novo Paciente
             </Button>
           </Link>
         </div>
