@@ -121,16 +121,15 @@ export default function Layout({ children, currentPageName }) {
 
         <div className="flex flex-1 min-h-0">
         <Sidebar className="border-r border-red-200 bg-white">
-          <SidebarHeader className="border-b border-red-200 p-4 bg-gradient-to-r from-red-600 to-red-700">
+          <SidebarHeader className="border-b border-red-200 p-4 bg-white">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md">
-                <Activity className="w-6 h-6 text-red-600" />
-              </div>
-              <div>
-                <h2 className="font-bold text-white text-lg">Coração Paraibano</h2>
-                <p className="text-xs text-red-100">Sistema Médico Integrado</p>
-              </div>
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/ffd6172a5_LOGOCORAAOPARAIBANO.png" 
+                alt="Coração Paraibano" 
+                className="h-12 w-auto"
+              />
             </div>
+            <p className="text-xs text-gray-600 mt-2">Sistema Médico Integrado</p>
           </SidebarHeader>
           
           <SidebarContent className="p-2">
