@@ -12,10 +12,8 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
     nome_completo: dadosPaciente.nome_completo || "",
     idade: dadosPaciente.idade || "",
     sexo: dadosPaciente.sexo || "",
-    prontuario: dadosPaciente.prontuario || "",
     data_hora_chegada: dadosPaciente.data_hora_chegada || format(new Date(), "yyyy-MM-dd'T'HH:mm"),
     data_hora_inicio_sintomas: dadosPaciente.data_hora_inicio_sintomas || "",
-    data_hora_inicio_triagem: dadosPaciente.data_hora_inicio_triagem || format(new Date(), "yyyy-MM-dd'T'HH:mm"),
     status: "Em Triagem"
   });
 
@@ -80,17 +78,6 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
             value={dados.nome_completo}
             onChange={(e) => setDados(prev => ({...prev, nome_completo: e.target.value}))}
             placeholder="Digite o nome completo"
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="prontuario">Número do Prontuário *</Label>
-          <Input
-            id="prontuario"
-            value={dados.prontuario}
-            onChange={(e) => setDados(prev => ({...prev, prontuario: e.target.value}))}
-            placeholder="Ex: 123456"
             required
           />
         </div>
