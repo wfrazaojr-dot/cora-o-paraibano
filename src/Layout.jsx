@@ -95,7 +95,31 @@ export default function Layout({ children, currentPageName }) {
           background-repeat: repeat;
         }
       `}</style>
-      <div className="min-h-screen flex w-full bg-gray-50 ecg-background">
+      <div className="min-h-screen flex flex-col w-full bg-gray-50 ecg-background">
+        {/* Header com as logos */}
+        <header className="bg-white border-b border-gray-200 px-6 py-3 shadow-sm">
+          <div className="flex items-center justify-between gap-4 max-w-full">
+            <div className="flex items-center gap-4 md:gap-8">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/2d931d4c1_LogoGovernodoEstadodaParaba.png" 
+                alt="Governo da Paraíba" 
+                className="h-12 md:h-16 w-auto"
+              />
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/f64530ac9_logoSecretariadeEstadodaSade.png" 
+                alt="Secretaria de Estado da Saúde" 
+                className="h-12 md:h-16 w-auto"
+              />
+            </div>
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/ffd6172a5_LOGOCORAAOPARAIBANO.png" 
+              alt="Coração Paraibano" 
+              className="h-12 md:h-16 w-auto"
+            />
+          </div>
+        </header>
+
+        <div className="flex flex-1 min-h-0">
         <Sidebar className="border-r border-red-200 bg-white">
           <SidebarHeader className="border-b border-red-200 p-4 bg-gradient-to-r from-red-600 to-red-700">
             <div className="flex items-center gap-3">
@@ -232,18 +256,19 @@ export default function Layout({ children, currentPageName }) {
           </SidebarFooter>
         </Sidebar>
 
-        <main className="flex-1 flex flex-col">
-          <header className="bg-white border-b border-gray-200 px-6 py-4 md:hidden shadow-sm">
-            <div className="flex items-center gap-4">
-              <SidebarTrigger className="hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200" />
-              <h1 className="text-xl font-bold text-red-600">Coração Paraibano</h1>
-            </div>
-          </header>
+          <main className="flex-1 flex flex-col">
+            <header className="bg-white border-b border-gray-200 px-6 py-4 md:hidden shadow-sm">
+              <div className="flex items-center gap-4">
+                <SidebarTrigger className="hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200" />
+                <h1 className="text-xl font-bold text-red-600">Coração Paraibano</h1>
+              </div>
+            </header>
 
-          <div className="flex-1 overflow-auto">
-            {children}
-          </div>
-        </main>
+            <div className="flex-1 overflow-auto">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
     </SidebarProvider>
   );
