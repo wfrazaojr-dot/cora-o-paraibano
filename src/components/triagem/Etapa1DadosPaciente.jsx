@@ -45,7 +45,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
         <div className="flex-1">
           <p className="text-sm font-medium text-blue-900">Data e Hora do Início da Triagem</p>
           <p className="text-lg font-bold text-blue-700">
-            {format(new Date(dados.data_hora_inicio_triagem), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+            {format(new Date(dados.data_hora_chegada), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
           </p>
         </div>
       </div>
