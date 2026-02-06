@@ -40,11 +40,17 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
 
   useEffect(() => {
     if (dados.data_hora_ecg && dadosPaciente.data_hora_chegada) {
-      const minutos = differenceInMinutes(
-        new Date(dados.data_hora_ecg),
-        new Date(dadosPaciente.data_hora_chegada)
-      );
-      setTempoEntradaEcg(minutos);
+      try {
+        const dataEcg = new Date(dados.data_hora_ecg);
+        const dataChegada = new Date(dadosPaciente.data_hora_chegada);
+        
+        if (!isNaN(dataEcg.getTime()) && !isNaN(dataChegada.getTime())) {
+          const minutos = differenceInMinutes(dataEcg, dataChegada);
+          setTempoEntradaEcg(minutos);
+        }
+      } catch (error) {
+        console.error("Erro ao calcular tempo ECG:", error);
+      }
     }
   }, [dados.data_hora_ecg, dadosPaciente.data_hora_chegada]);
 
