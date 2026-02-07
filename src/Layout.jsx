@@ -159,53 +159,6 @@ export default function Layout({ children, currentPageName }) {
       ];
     }
 
-    // Menu para Admin (acesso pleno)
-    if (equipe === 'admin' || user?.role === 'admin') {
-      const items = [
-        {
-          title: "Painel Inicial",
-          url: createPageUrl("Dashboard"),
-          icon: Activity,
-        },
-        {
-          title: "Novo Paciente",
-          url: createPageUrl("NovaTriagem"),
-          icon: Plus,
-        },
-        {
-          title: "Histórico",
-          url: createPageUrl("Historico"),
-          icon: History,
-        },
-        {
-          title: "Indicadores",
-          url: createPageUrl("Indicadores"),
-          icon: TrendingUp,
-        },
-        {
-          title: "Protocolos",
-          url: createPageUrl("Protocolos"),
-          icon: BookOpen,
-        },
-        {
-          title: "Estratégias e Condutas",
-          url: createPageUrl("ProtocoloEstrategias"),
-          icon: FileText,
-        },
-        {
-          title: "Manual",
-          url: createPageUrl("Manual"),
-          icon: FileText,
-        },
-        {
-          title: "Administração",
-          url: createPageUrl("Administracao"),
-          icon: Shield,
-        },
-      ];
-      return items;
-    }
-
     return [];
   };
 
