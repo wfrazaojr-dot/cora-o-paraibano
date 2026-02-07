@@ -54,8 +54,8 @@ export default function Administracao() {
   const [usuarioEditando, setUsuarioEditando] = useState(null);
   const [filtroRole, setFiltroRole] = useState("todos");
   const [unidadeFiltro, setUnidadeFiltro] = useState("todas");
-  const [usuarioFiltro, setUsuarioFiltro] = useState("todos"); // New state for professional filter
-  const [abaAtiva, setAbaAtiva] = useState("usuarios"); // "usuarios", "indicadores", "profissionais", "sistema"
+  const [usuarioFiltro, setUsuarioFiltro] = useState("todos");
+  const [abaAtiva, setAbaAtiva] = useState("usuarios"); // "usuarios", "indicadores", "profissionais", "sistema", "notificacoes"
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
