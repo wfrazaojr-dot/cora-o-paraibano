@@ -96,22 +96,6 @@ export default function Layout({ children, currentPageName }) {
         }
       `}</style>
       <div className="min-h-screen flex flex-col w-full bg-gray-50 ecg-background">
-        {/* Header com as logos */}
-        <header className="bg-white border-b border-gray-200 px-4 py-6 shadow-sm">
-          <div className="flex items-center justify-start gap-8 md:gap-12 w-full">
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/f64530ac9_logoSecretariadeEstadodaSade.png" 
-              alt="Secretaria de Estado da Saúde" 
-              className="h-20 md:h-28 w-auto object-contain flex-shrink-0"
-            />
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/ffd6172a5_LOGOCORAAOPARAIBANO.png" 
-              alt="Coração Paraibano" 
-              className="h-20 md:h-28 w-auto object-contain flex-shrink-0"
-            />
-          </div>
-        </header>
-
         <div className="flex flex-1 min-h-0">
         <Sidebar className="border-r border-red-200 bg-white">
           <SidebarHeader className="border-b border-red-200 p-4 bg-white">
