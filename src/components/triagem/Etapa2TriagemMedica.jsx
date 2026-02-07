@@ -192,7 +192,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
               <Alert className="mt-3 bg-red-100 border-red-400">
                 <AlertTriangle className="h-5 w-5 text-red-700" />
                 <AlertDescription className="text-red-800 font-bold text-lg">
-                  ⚠️ DESCARTAR DAA (Dissecção Aórtica Aguda)
+                  ⚠️ DESCARTAR DAA (Dissecção Aguda de Aorta)
                 </AlertDescription>
               </Alert>
             )}
