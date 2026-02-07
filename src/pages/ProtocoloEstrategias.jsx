@@ -134,6 +134,69 @@ export default function ProtocoloEstrategias() {
     ]
   };
 
+  const cenario3 = {
+    titulo: "Cenário 3: Estratégia 2 e 3",
+    condicao: "Paciente com Síndrome Coronariana Aguda",
+    medicamentos: [
+      {
+        categoria: "Medidas Iniciais",
+        itens: [
+          "Monitorização eletrocardiográfica",
+          "Oxigênio suplementar se SpO2 < 90%",
+          "Acesso Venoso Periférico",
+          "Eletrocardiografia de 12 derivações",
+          "Administrar AAS 300 mg mastigados"
+        ]
+      },
+      {
+        categoria: "Analgesia",
+        itens: [
+          "Considerar o uso de Nitrato 5 mg SL (até 15 mg) ou endovenoso (se não houver contraindicações)",
+          "Considerar o uso de Morfina 1 a 2 mg EV"
+        ]
+      },
+      {
+        categoria: "Adicionar 2º Antiagregante",
+        itens: [
+          "Clopidogrel 300 mg (ataque)",
+          "Ticagrelor 180 mg ou Prasugrel 60 mg"
+        ]
+      },
+      {
+        categoria: "Adicionar anticoagulante",
+        itens: [
+          "Enoxaparina de manutenção de 1 mg/kg 12/12 horas ou 0,75 mg/kg se idade > 75 anos, ou ajustar dose para ClCr < 30 (redução de 50% da dose), após realização de procedimento"
+        ]
+      },
+      {
+        categoria: "Realizar Estratificação Invasiva em até 24 horas",
+        itens: [
+          "Nos pacientes instáveis hemodinamicamente, ou com choque, realizar em até 2 horas"
+        ]
+      },
+      {
+        categoria: "Administrar Estatina",
+        itens: [
+          "Atorvastatina 80 mg via oral",
+          "Rosuvastatina 40 mg via oral",
+          "Sinvastatina 40 mg via oral (na indisponibilidade das demais)"
+        ]
+      },
+      {
+        categoria: "Administrar betabloqueador",
+        itens: [
+          "Iniciar nas primeiras 24 horas, em dose baixa, se não apresentar contraindicações"
+        ]
+      },
+      {
+        categoria: "Administrar IECA",
+        itens: [
+          "Iniciar nas primeiras 24 horas, em dose baixa, se não apresentar contraindicações"
+        ]
+      }
+    ]
+  };
+
   const renderCenario = (cenario) => (
     <div className="space-y-6">
       <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4">
@@ -172,21 +235,25 @@ export default function ProtocoloEstrategias() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Estratégias e Condutas Iniciais</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Condutas Iniciais</h1>
           <p className="text-gray-600">Protocolo Coração Paraibano - Secretaria de Estado da Saúde</p>
           <p className="text-sm text-gray-500 mt-2">Fonte: Protocolo Coração Paraibano, 2026</p>
         </div>
 
         {/* Tabs de Cenários */}
         <Tabs value={selectedCenario} onValueChange={setSelectedCenario} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="cenario1" className="text-left">
-              <span className="hidden sm:inline">Cenário 1:</span>
-              <span className="sm:hidden">Sem Hemodinâmica</span>
+          <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsTrigger value="cenario1" className="text-left text-xs sm:text-sm">
+              <span className="hidden sm:inline">Cenário 1</span>
+              <span className="sm:hidden">C1</span>
             </TabsTrigger>
-            <TabsTrigger value="cenario2" className="text-left">
-              <span className="hidden sm:inline">Cenário 2:</span>
-              <span className="sm:hidden">Com Hemodinâmica</span>
+            <TabsTrigger value="cenario2" className="text-left text-xs sm:text-sm">
+              <span className="hidden sm:inline">Cenário 2</span>
+              <span className="sm:hidden">C2</span>
+            </TabsTrigger>
+            <TabsTrigger value="cenario3" className="text-left text-xs sm:text-sm">
+              <span className="hidden sm:inline">Cenário 3</span>
+              <span className="sm:hidden">C3</span>
             </TabsTrigger>
           </TabsList>
 
@@ -206,6 +273,15 @@ export default function ProtocoloEstrategias() {
               </CardHeader>
             </Card>
             {renderCenario(cenario2)}
+          </TabsContent>
+
+          <TabsContent value="cenario3" className="space-y-6">
+            <Card className="border-2 border-gray-200 bg-white">
+              <CardHeader>
+                <CardTitle className="text-2xl text-gray-900">{cenario3.titulo}</CardTitle>
+              </CardHeader>
+            </Card>
+            {renderCenario(cenario3)}
           </TabsContent>
         </Tabs>
 
