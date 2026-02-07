@@ -71,16 +71,14 @@ export default function Historico() {
   const { data: pacientes = [], isLoading } = useQuery({
     queryKey: ['pacientes', user?.email],
     queryFn: async () => {
-      // Se for admin, mostra todos os pacientes
-      if (user?.role === 'admin') {
-        return base44.entities.Paciente.list("-created_date");
-      }
-      // Se for usuário comum, mostra apenas seus pacientes
-      return base44.entities.Paciente.filter({ created_by: user?.email }, "-created_date");
+      // Admin vê todos; usuário comum vê todos (fluxo aberto)
+      return base44.entities.Paciente.list("-created_date");
     },
     enabled: !!user,
     initialData: [],
   });
+
+  const unidadesDisponiveis = Array.from(new Set(pacientes.map(p => p.unidade_saude).filter(Boolean))).sort();
 
   const pacientesFiltrados = pacientes.filter(p => {
     // Filtro de busca por texto
