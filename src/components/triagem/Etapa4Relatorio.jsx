@@ -85,6 +85,27 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
 
   return (
     <div className="space-y-6">
+      {/* Header com as 3 logos */}
+      <div className="bg-white border rounded-lg p-4 mb-4 shadow-sm">
+        <div className="flex items-center justify-between gap-4 w-full">
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" 
+            alt="Secretaria de Estado da Saúde" 
+            className="h-16 md:h-20 w-auto object-contain"
+          />
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" 
+            alt="Coração Paraibano" 
+            className="h-16 md:h-20 w-auto object-contain"
+          />
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png" 
+            alt="PBSAÚDE" 
+            className="h-16 md:h-20 w-auto object-contain"
+          />
+        </div>
+      </div>
+
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Relatório Final</h2>
         <p className="text-gray-600">Revisão completa do atendimento</p>
@@ -169,18 +190,37 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         className="bg-white border-2 border-gray-300 rounded-lg p-8 shadow-lg"
         style={{ minHeight: "800px" }}
       >
-        {/* Cabeçalho */}
-        <div className="text-center mb-8 pb-4 border-b-4 border-red-600">
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <Heart className="w-10 h-10 text-red-600" />
-            <h1 className="text-3xl font-bold text-red-600">RELATÓRIO DE ATENDIMENTO</h1>
+        {/* Cabeçalho com logos */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between gap-4 w-full mb-6">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" 
+              alt="Secretaria de Estado da Saúde" 
+              className="h-16 md:h-20 w-auto object-contain"
+            />
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" 
+              alt="Coração Paraibano" 
+              className="h-16 md:h-20 w-auto object-contain"
+            />
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png" 
+              alt="PBSAÚDE" 
+              className="h-16 md:h-20 w-auto object-contain"
+            />
           </div>
-          <p className="text-lg font-semibold text-gray-700">Dor Torácica - Síndrome Coronariana Aguda</p>
-          {dadosPaciente.unidade_saude && (
-            <div className="mt-4 bg-blue-100 border-2 border-blue-500 rounded-lg p-3">
-              <p className="text-blue-900 font-bold text-lg">{dadosPaciente.unidade_saude}</p>
+          <div className="text-center pb-4 border-b-4 border-red-600">
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <Heart className="w-10 h-10 text-red-600" />
+              <h1 className="text-3xl font-bold text-red-600">RELATÓRIO DE ATENDIMENTO</h1>
             </div>
-          )}
+            <p className="text-lg font-semibold text-gray-700">Dor Torácica - Síndrome Coronariana Aguda</p>
+            {dadosPaciente.unidade_saude && (
+              <div className="mt-4 bg-blue-100 border-2 border-blue-500 rounded-lg p-3">
+                <p className="text-blue-900 font-bold text-lg">{dadosPaciente.unidade_saude}</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Tempo de Dor - DESTAQUE */}
