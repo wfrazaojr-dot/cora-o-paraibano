@@ -94,7 +94,6 @@ function LayoutContent({ children, currentPageName }) {
   };
 
   return (
-    <SidebarProvider>
       <style>{`
         :root {
           --primary: 0 72% 51%;
