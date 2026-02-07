@@ -62,6 +62,7 @@ import PINLogin from './pages/PINLogin';
 import ProtocoloEstrategias from './pages/ProtocoloEstrategias';
 import Protocolos from './pages/Protocolos';
 import RecuperarPIN from './pages/RecuperarPIN';
+import HistoricoUnidades from './pages/HistoricoUnidades';
 import __Layout from './Layout.jsx';
 
 
@@ -81,6 +82,7 @@ export const PAGES = {
     "ProtocoloEstrategias": ProtocoloEstrategias,
     "Protocolos": Protocolos,
     "RecuperarPIN": RecuperarPIN,
+    "HistoricoUnidades": HistoricoUnidades,
 }
 
 export const pagesConfig = {
