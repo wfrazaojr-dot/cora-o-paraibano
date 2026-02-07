@@ -22,6 +22,11 @@ const colorMap = {
     bg: "bg-orange-500",
     light: "bg-orange-50",
     text: "text-orange-600"
+  },
+  yellow: {
+    bg: "bg-yellow-500",
+    light: "bg-yellow-50",
+    text: "text-yellow-600"
   }
 };
 
