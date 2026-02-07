@@ -87,6 +87,10 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
     { nome: "Clopidogrel", dose: "300-600mg", via: "VO" },
     { nome: "Ticagrelor", dose: "180mg", via: "VO" },
     { nome: "Enoxaparina", dose: "1mg/kg", via: "SC" },
+    { nome: "Captopril", dose: "50-100mg", via: "VO" },
+    { nome: "Mononitrato de Isossorbida", dose: "5mg", via: "SL" },
+    { nome: "Dinitrato de Isossorbida", dose: "5mg", via: "SL" },
+    { nome: "Nitroglicerina", dose: "10-200mcg/min", via: "EV" },
     { nome: "Morfina", dose: "2-4mg", via: "EV" },
     { nome: "Fentanil", dose: "25-50mcg", via: "EV" },
     { nome: "Metoprolol", dose: "25-50mg", via: "VO" },
@@ -116,6 +120,36 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
         via: med.via
       }]
     }));
+  };
+
+  const adicionarMedicamentoManual = () => {
+    if (novoMedicamento.medicamento && novoMedicamento.dose) {
+      adicionarMedicamento(novoMedicamento);
+      setNovoMedicamento({ medicamento: "", dose: "", via: "" });
+    }
+  };
+
+  const removerMedicamento = (index) => {
+    setDados(prev => ({
+      ...prev,
+      prescricao_medicamentos: prev.prescricao_medicamentos.filter((_, i) => i !== index)
+    }));
+  };
+
+  const editarDoseMedicamento = (index, novaDose) => {
+    setDados(prev => ({
+      ...prev,
+      prescricao_medicamentos: prev.prescricao_medicamentos.map((med, i) => 
+        i === index ? { ...med, dose: novaDose } : med
+      )
+    }));
+  };
+
+  const adicionarExameManual = () => {
+    if (novoExame.trim()) {
+      toggleExame(novoExame.trim());
+      setNovoExame("");
+    }
   };
 
   const toggleExame = (exame) => {
@@ -165,35 +199,173 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
       {/* Tempo de Dor */}
       <TempoDor dataHoraInicioSintomas={dadosPaciente.data_hora_inicio_sintomas} />
 
-      {/* Dados Clínicos */}
+      {/* 1. Prescrição Medicamentosa */}
+      <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-purple-900 mb-4 flex items-center gap-2">
+          <Pill className="w-5 h-5" />
+          1. Prescrição Medicamentosa
+        </h3>
+
+        <div className="space-y-3 mb-4">
+          <Label>Medicamentos do Protocolo</Label>
+          <div className="grid md:grid-cols-2 gap-2">
+            {medicamentosComuns.map((med) => (
+              <Button
+                key={med.nome}
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => adicionarMedicamento(med)}
+                className="justify-start"
+              >
+                + {med.nome} {med.dose} {med.via}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-3 mb-4">
+          <Label>Adicionar Medicamento Personalizado</Label>
+          <div className="grid md:grid-cols-3 gap-2">
+            <Input
+              placeholder="Medicamento"
+              value={novoMedicamento.medicamento}
+              onChange={(e) => setNovoMedicamento(prev => ({...prev, medicamento: e.target.value}))}
+            />
+            <Input
+              placeholder="Dose"
+              value={novoMedicamento.dose}
+              onChange={(e) => setNovoMedicamento(prev => ({...prev, dose: e.target.value}))}
+            />
+            <Input
+              placeholder="Via"
+              value={novoMedicamento.via}
+              onChange={(e) => setNovoMedicamento(prev => ({...prev, via: e.target.value}))}
+            />
+          </div>
+          <Button type="button" variant="outline" onClick={adicionarMedicamentoManual}>
+            Adicionar
+          </Button>
+        </div>
+
+        {dados.prescricao_medicamentos.length > 0 && (
+          <div>
+            <Label className="mb-2 block">Medicamentos Prescritos</Label>
+            <div className="space-y-2">
+              {dados.prescricao_medicamentos.map((med, index) => (
+                <div key={index} className="flex items-center gap-2 bg-white p-3 rounded border">
+                  <div className="flex-1">
+                    <strong>{med.medicamento || med.nome}</strong> - ({med.via})
+                  </div>
+                  <Input
+                    type="text"
+                    value={med.dose}
+                    onChange={(e) => editarDoseMedicamento(index, e.target.value)}
+                    className="w-32"
+                    placeholder="Dose"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removerMedicamento(index)}
+                    className="text-red-600"
+                  >
+                    Remover
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 2. Exames Solicitados */}
+      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-green-900 mb-4 flex items-center gap-2">
+          <TestTube className="w-5 h-5" />
+          2. Requisição de Exames
+        </h3>
+
+        <div className="space-y-2 mb-4">
+          {examesComuns.map((exame) => (
+            <div key={exame} className="flex items-center gap-3">
+              <Checkbox
+                checked={dados.exames_solicitados.includes(exame)}
+                onCheckedChange={() => toggleExame(exame)}
+              />
+              <Label className="cursor-pointer">{exame}</Label>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex gap-2 mb-4">
+          <Input
+            placeholder="Adicionar exame personalizado"
+            value={novoExame}
+            onChange={(e) => setNovoExame(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), adicionarExameManual())}
+          />
+          <Button type="button" variant="outline" onClick={adicionarExameManual}>
+            Adicionar
+          </Button>
+        </div>
+
+        {dados.exames_solicitados.length > 0 && (
+          <div>
+            <Label className="mb-2 block">Exames Adicionados</Label>
+            <div className="bg-white p-3 rounded border">
+              <ul className="list-disc pl-5 space-y-1">
+                {dados.exames_solicitados.map((exame, index) => (
+                  <li key={index} className="text-sm">{exame}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 3. Antecedentes Clínicos */}
       <div className="space-y-4">
         <div>
-          <Label>1. Antecedentes Clínicos *</Label>
+          <Label>3. Antecedentes Clínicos *</Label>
+          <p className="text-xs text-gray-500 mb-2">
+            Histórico de doenças prévias, alergias, uso de inibidor da 5 fosfodiesterase, medicações em uso
+          </p>
           <Textarea
             value={dados.antecedentes}
             onChange={(e) => setDados(prev => ({...prev, antecedentes: e.target.value}))}
             rows={4}
             required
+            placeholder="Descreva os antecedentes clínicos do paciente..."
           />
         </div>
 
+        {/* 4. Quadro Atual */}
         <div>
-          <Label>2. Quadro Atual *</Label>
+          <Label>4. Quadro Atual *</Label>
+          <p className="text-xs text-gray-500 mb-2">
+            Característica da dor torácica, dispneia, sintomas associados, descartado sepse, dissecção aguda de aorta, 
+            tamponamento pericárdico, choque cardiogênico, rotura de esôfago e intoxicação por drogas
+          </p>
           <Textarea
             value={dados.quadro_atual}
             onChange={(e) => setDados(prev => ({...prev, quadro_atual: e.target.value}))}
             rows={6}
             required
+            placeholder="Descreva o quadro clínico atual..."
           />
         </div>
 
+        {/* 5. Hipótese Diagnóstica e Justificativa de Transferência */}
         <div>
-          <Label>3. Hipótese Diagnóstica *</Label>
+          <Label>5. Hipótese Diagnóstica e Justificativa de Transferência *</Label>
           <Textarea
             value={dados.hipotese_diagnostica}
             onChange={(e) => setDados(prev => ({...prev, hipotese_diagnostica: e.target.value}))}
             rows={3}
             required
+            placeholder="Hipótese diagnóstica e justificativa para transferência..."
           />
         </div>
       </div>
@@ -344,38 +516,7 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
         </div>
       </div>
 
-      {/* Prescrição e Exames - similar ao anterior */}
-      <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-purple-900 mb-4">Prescrição Medicamentosa</h3>
-        <div className="grid md:grid-cols-2 gap-2">
-          {medicamentosComuns.map((med) => (
-            <Button
-              key={med.nome}
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => adicionarMedicamento(med)}
-            >
-              + {med.nome} {med.dose}
-            </Button>
-          ))}
-        </div>
-      </div>
 
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-green-900 mb-4">Exames Solicitados</h3>
-        <div className="space-y-2">
-          {examesComuns.map((exame) => (
-            <div key={exame} className="flex items-center gap-3">
-              <Checkbox
-                checked={dados.exames_solicitados.includes(exame)}
-                onCheckedChange={() => toggleExame(exame)}
-              />
-              <Label>{exame}</Label>
-            </div>
-          ))}
-        </div>
-      </div>
 
       <div className="flex justify-between pt-4">
         <Button type="button" variant="outline" onClick={onAnterior}>
