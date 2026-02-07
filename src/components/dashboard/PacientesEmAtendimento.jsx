@@ -234,16 +234,14 @@ export default function PacientesEmAtendimento({ pacientes, isLoading }) {
                   )}
 
                   <div className="flex gap-2">
-                    <MonitorSinaisVitais paciente={paciente} />
-                    <Link to={`${createPageUrl("NovaTriagem")}?id=${paciente.id}`} className="flex-1">
-                      <Button variant="outline" size="sm" className="w-full">
-                        Ver Detalhes
+                    <Link to={`${createPageUrl("Cardiologia")}?id=${paciente.id}`} className="flex-1">
+                      <Button size="sm" className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                        ASSCARDIO
                       </Button>
                     </Link>
-                    <Link to={`${createPageUrl("NovaTriagem")}?id=${paciente.id}&retriagem=true`}>
-                      <Button variant="outline" size="sm" className="bg-blue-50 hover:bg-blue-100">
-                        <RefreshCw className="w-4 h-4 mr-2" />
-                        Retriagem
+                    <Link to={`${createPageUrl("CentralSES")}?id=${paciente.id}`} className="flex-1">
+                      <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                        CERH
                       </Button>
                     </Link>
                   </div>
