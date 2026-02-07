@@ -59,6 +59,8 @@ import NovaTriagem from './pages/NovaTriagem';
 import PINLogin from './pages/PINLogin';
 import Protocolos from './pages/Protocolos';
 import RecuperarPIN from './pages/RecuperarPIN';
+import Cardiologia from './pages/Cardiologia';
+import CentralSES from './pages/CentralSES';
 import __Layout from './Layout.jsx';
 
 
@@ -75,6 +77,8 @@ export const PAGES = {
     "PINLogin": PINLogin,
     "Protocolos": Protocolos,
     "RecuperarPIN": RecuperarPIN,
+    "Cardiologia": Cardiologia,
+    "CentralSES": CentralSES,
 }
 
 export const pagesConfig = {
