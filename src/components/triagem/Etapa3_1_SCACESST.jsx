@@ -49,7 +49,11 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
   const adicionarMedicamento = (med) => {
     setDados(prev => ({
       ...prev,
-      prescricao_medicamentos: [...prev.prescricao_medicamentos, med]
+      prescricao_medicamentos: [...prev.prescricao_medicamentos, {
+        medicamento: med.nome || med.medicamento,
+        dose: med.dose,
+        via: med.via
+      }]
     }));
   };
 
