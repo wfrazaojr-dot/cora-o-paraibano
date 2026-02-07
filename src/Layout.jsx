@@ -282,6 +282,15 @@ function LayoutContent({ children, currentPageName }) {
           </main>
         </div>
       </div>
+  );
+}
+
+export default function Layout({ children, currentPageName }) {
+  return (
+    <SidebarProvider>
+      <LayoutContent currentPageName={currentPageName}>
+        {children}
+      </LayoutContent>
     </SidebarProvider>
   );
 }
