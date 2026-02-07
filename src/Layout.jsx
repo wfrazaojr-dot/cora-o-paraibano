@@ -261,7 +261,7 @@ export default function Layout({ children, currentPageName }) {
           <main className="flex-1 flex flex-col">
             <header className="bg-white border-b border-gray-200 px-6 py-4 md:hidden shadow-sm">
               <div className="flex items-center gap-4">
-                <SidebarTrigger className="hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200" />
+                <SidebarTrigger className="h-10 w-10 p-2 rounded-lg transition-all duration-200 bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-800 border border-red-200 flex items-center justify-center" />
                 <h1 className="text-xl font-bold text-red-600">Coração Paraibano</h1>
               </div>
             </header>
