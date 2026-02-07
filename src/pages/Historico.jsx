@@ -81,19 +81,31 @@ export default function Historico() {
   const unidadesDisponiveis = Array.from(new Set(pacientes.map(p => p.unidade_saude).filter(Boolean))).sort();
 
   const pacientesFiltrados = pacientes.filter(p => {
-    // Filtro de busca por texto
+    // Filtro de busca por nome
     const termoBusca = busca.toLowerCase().trim();
-    const matchBusca = !termoBusca || (
-      p.nome_completo?.toLowerCase().includes(termoBusca) ||
-      p.prontuario?.includes(termoBusca) ||
-      p.classificacao_risco?.cor?.toLowerCase().includes(termoBusca) ||
-      p.id?.toLowerCase().includes(termoBusca)
-    );
+    const matchBusca = !termoBusca || p.nome_completo?.toLowerCase().includes(termoBusca);
 
     // Filtro de status
     const matchStatus = filtroStatus === "todos" || p.status === filtroStatus;
 
-    return matchBusca && matchStatus;
+    // Filtro de unidade
+    const matchUnidade = filtroUnidade === "todas" || p.unidade_saude === filtroUnidade;
+
+    // Filtro de data
+    let matchData = true;
+    if (dataInicio || dataFim) {
+      const dataPaciente = new Date(p.data_hora_chegada);
+      if (dataInicio) {
+        matchData = matchData && dataPaciente >= new Date(dataInicio);
+      }
+      if (dataFim) {
+        const dataFimAjustada = new Date(dataFim);
+        dataFimAjustada.setHours(23, 59, 59, 999);
+        matchData = matchData && dataPaciente <= dataFimAjustada;
+      }
+    }
+
+    return matchBusca && matchStatus && matchUnidade && matchData;
   });
 
   // Contadores por status
