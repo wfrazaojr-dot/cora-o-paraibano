@@ -24,7 +24,8 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
       interpretacao: ""
     },
     prescricao_medicamentos: dadosPaciente.avaliacao_clinica?.prescricao_medicamentos || [],
-    exames_solicitados: dadosPaciente.avaliacao_clinica?.exames_solicitados || []
+    exames_solicitados: dadosPaciente.avaliacao_clinica?.exames_solicitados || [],
+    resultados_exames: dadosPaciente.avaliacao_clinica?.resultados_exames || []
   });
 
   const [novoMedicamento, setNovoMedicamento] = useState({ medicamento: "", dose: "", via: "" });
@@ -152,6 +153,37 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
     }
   };
 
+  const tiposExamesMNM = [
+    "Troponina US (0h)",
+    "Troponina US (1h)",
+    "Troponina Convencional (0h)",
+    "Troponina Convencional (2h)",
+    "Outros"
+  ];
+
+  const adicionarResultadoExame = () => {
+    setDados(prev => ({
+      ...prev,
+      resultados_exames: [...prev.resultados_exames, { tipo: "", resultado: "" }]
+    }));
+  };
+
+  const atualizarResultadoExame = (index, campo, valor) => {
+    setDados(prev => ({
+      ...prev,
+      resultados_exames: prev.resultados_exames.map((res, i) =>
+        i === index ? { ...res, [campo]: valor } : res
+      )
+    }));
+  };
+
+  const removerResultadoExame = (index) => {
+    setDados(prev => ({
+      ...prev,
+      resultados_exames: prev.resultados_exames.filter((_, i) => i !== index)
+    }));
+  };
+
   const toggleExame = (exame) => {
     setDados(prev => ({
       ...prev,
@@ -198,6 +230,60 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
 
       {/* Tempo de Dor */}
       <TempoDor dataHoraInicioSintomas={dadosPaciente.data_hora_inicio_sintomas} />
+
+      {/* Resultados de Exames MNM */}
+      <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-orange-900 mb-4 flex items-center gap-2">
+          <TestTube className="w-5 h-5" />
+          Resultados de Exames - MNM
+        </h3>
+
+        <div className="space-y-3 mb-4">
+          {dados.resultados_exames.map((resultado, index) => (
+            <div key={index} className="bg-white p-3 rounded border flex gap-2 items-end">
+              <div className="flex-1">
+                <Label className="text-xs mb-1 block">Tipo de Exame</Label>
+                <select
+                  value={resultado.tipo}
+                  onChange={(e) => atualizarResultadoExame(index, "tipo", e.target.value)}
+                  className="w-full h-9 rounded-md border border-input px-3 text-sm"
+                >
+                  <option value="">Selecione...</option>
+                  {tiposExamesMNM.map((tipo) => (
+                    <option key={tipo} value={tipo}>{tipo}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex-1">
+                <Label className="text-xs mb-1 block">Resultado</Label>
+                <Input
+                  placeholder="Ex: 0.05, positivo, normal..."
+                  value={resultado.resultado}
+                  onChange={(e) => atualizarResultadoExame(index, "resultado", e.target.value)}
+                />
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => removerResultadoExame(index)}
+                className="text-red-600"
+              >
+                Remover
+              </Button>
+            </div>
+          ))}
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={adicionarResultadoExame}
+          className="w-full"
+        >
+          + Adicionar Resultado de Exame
+        </Button>
+      </div>
 
       {/* 1. Prescrição Medicamentosa */}
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
