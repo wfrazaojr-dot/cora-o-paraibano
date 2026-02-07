@@ -12,7 +12,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
     nome_completo: dadosPaciente.nome_completo || "",
     idade: dadosPaciente.idade || "",
     sexo: dadosPaciente.sexo || "",
-    data_hora_chegada: dadosPaciente.data_hora_chegada || format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+    data_hora_chegada: dadosPaciente.data_hora_chegada || "",
     data_hora_inicio_sintomas: dadosPaciente.data_hora_inicio_sintomas || "",
     status: "Em Triagem"
   });
@@ -45,7 +45,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
         <div className="flex-1">
           <p className="text-sm font-medium text-blue-900">Data e Hora do Início da Triagem</p>
           <p className="text-lg font-bold text-blue-700">
-            {format(new Date(dados.data_hora_chegada), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+            {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
           </p>
         </div>
       </div>
