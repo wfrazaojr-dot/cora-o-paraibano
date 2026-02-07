@@ -12,7 +12,9 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
     nome_completo: dadosPaciente.nome_completo || "",
     idade: dadosPaciente.idade || "",
     sexo: dadosPaciente.sexo || "",
-    data_hora_chegada: dadosPaciente.data_hora_chegada || "",
+    data_atendimento: dadosPaciente.data_atendimento || format(new Date(), "yyyy-MM-dd"),
+    hora_chegada: dadosPaciente.hora_chegada || "",
+    hora_ecg: dadosPaciente.hora_ecg || "",
     data_hora_inicio_sintomas: dadosPaciente.data_hora_inicio_sintomas || "",
     status: "Em Triagem"
   });
@@ -44,8 +46,21 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
       alert("Por favor, selecione o sexo do paciente");
       return;
     }
+
+    if (!dados.hora_chegada || !dados.hora_ecg) {
+      alert("Por favor, preencha os horários de chegada e ECG");
+      return;
+    }
     
-    onProxima(dados);
+    // Converter data e horas para datetime-local format
+    const dataChegada = `${dados.data_atendimento}T${dados.hora_chegada}`;
+    const dataEcg = `${dados.data_atendimento}T${dados.hora_ecg}`;
+    
+    onProxima({
+      ...dados,
+      data_hora_chegada: dataChegada,
+      data_hora_ecg: dataEcg
+    });
   };
 
   return (
@@ -127,18 +142,6 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="data_hora_chegada">Data e Hora de Chegada na Unidade *</Label>
-          <Input
-            id="data_hora_chegada"
-            type="datetime-local"
-            value={dados.data_hora_chegada}
-            onChange={(e) => setDados(prev => ({...prev, data_hora_chegada: e.target.value}))}
-            required
-          />
-          <p className="text-xs text-gray-500">Pode ser ajustada se necessário</p>
-        </div>
-
-        <div className="space-y-2">
           <Label htmlFor="data_hora_inicio_sintomas">Data e Hora do Início dos Sintomas *</Label>
           <Input
             id="data_hora_inicio_sintomas"
@@ -148,7 +151,49 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
             required
           />
         </div>
-      </div>
+        </div>
+
+        {/* Data e Horários */}
+        <div className="bg-indigo-50 border-2 border-indigo-300 rounded-lg p-4">
+        <Label className="text-base font-semibold text-indigo-900 mb-4 block">
+          Data e Horários do Atendimento *
+        </Label>
+
+        <div className="grid md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="data_atendimento" className="text-sm">Data *</Label>
+            <Input
+              id="data_atendimento"
+              type="date"
+              value={dados.data_atendimento}
+              onChange={(e) => setDados(prev => ({...prev, data_atendimento: e.target.value}))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="hora_chegada" className="text-sm">Hora de Chegada na Unidade *</Label>
+            <Input
+              id="hora_chegada"
+              type="time"
+              value={dados.hora_chegada}
+              onChange={(e) => setDados(prev => ({...prev, hora_chegada: e.target.value}))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="hora_ecg" className="text-sm">Hora de Realização do ECG *</Label>
+            <Input
+              id="hora_ecg"
+              type="time"
+              value={dados.hora_ecg}
+              onChange={(e) => setDados(prev => ({...prev, hora_ecg: e.target.value}))}
+              required
+            />
+          </div>
+        </div>
+        </div>
 
       {tempoDor && tempoDor.totalMinutos >= 0 && (
         <div className={`border-2 rounded-lg p-4 ${
