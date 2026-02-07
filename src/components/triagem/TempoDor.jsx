@@ -6,7 +6,12 @@ import { ptBR } from "date-fns/locale";
 export default function TempoDor({ dataHoraInicioSintomas, className = "" }) {
   if (!dataHoraInicioSintomas) return null;
 
-  const tempoDorMinutos = differenceInMinutes(new Date(), new Date(dataHoraInicioSintomas));
+  const dataInicio = new Date(dataHoraInicioSintomas);
+  
+  // Verifica se a data é válida
+  if (isNaN(dataInicio.getTime())) return null;
+
+  const tempoDorMinutos = differenceInMinutes(new Date(), dataInicio);
   const horas = Math.floor(tempoDorMinutos / 60);
   const minutos = tempoDorMinutos % 60;
   const foraJanela = tempoDorMinutos > 720; // mais de 12 horas
@@ -31,7 +36,7 @@ export default function TempoDor({ dataHoraInicioSintomas, className = "" }) {
             {horas}h {minutos}min
           </p>
           <p className="text-xs text-gray-600 mt-1">
-            Início: {format(new Date(dataHoraInicioSintomas), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+            Início: {format(dataInicio, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
           </p>
           {foraJanela && (
             <div className="mt-2 flex items-center gap-2 text-red-700">
