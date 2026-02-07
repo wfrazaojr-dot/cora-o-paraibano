@@ -112,7 +112,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="data_hora_chegada">Data e Hora de Chegada *</Label>
+          <Label htmlFor="data_hora_chegada">Data e Hora de Chegada na Unidade *</Label>
           <Input
             id="data_hora_chegada"
             type="datetime-local"
