@@ -96,6 +96,27 @@ export default function Layout({ children, currentPageName }) {
         }
       `}</style>
       <div className="min-h-screen flex flex-col w-full bg-gray-50 ecg-background">
+        {/* Header com as 3 logos */}
+        <header className="bg-white border-b border-gray-200 px-4 py-4 shadow-sm">
+          <div className="flex items-center justify-between gap-4 w-full max-w-7xl mx-auto">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" 
+              alt="Secretaria de Estado da Saúde" 
+              className="h-16 md:h-20 w-auto object-contain"
+            />
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" 
+              alt="Coração Paraibano" 
+              className="h-16 md:h-20 w-auto object-contain"
+            />
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png" 
+              alt="PBSAÚDE" 
+              className="h-16 md:h-20 w-auto object-contain"
+            />
+          </div>
+        </header>
+
         <div className="flex flex-1 min-h-0">
         <Sidebar className="border-r border-red-200 bg-white">
           <SidebarHeader className="border-b border-red-200 p-4 bg-white">
