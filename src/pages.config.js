@@ -50,6 +50,8 @@
 import AcessoProfissional from './pages/AcessoProfissional';
 import Administracao from './pages/Administracao';
 import CadastroProfissional from './pages/CadastroProfissional';
+import Cardiologia from './pages/Cardiologia';
+import CentralSES from './pages/CentralSES';
 import Dashboard from './pages/Dashboard';
 import Historico from './pages/Historico';
 import Home from './pages/Home';
@@ -59,8 +61,6 @@ import NovaTriagem from './pages/NovaTriagem';
 import PINLogin from './pages/PINLogin';
 import Protocolos from './pages/Protocolos';
 import RecuperarPIN from './pages/RecuperarPIN';
-import Cardiologia from './pages/Cardiologia';
-import CentralSES from './pages/CentralSES';
 import __Layout from './Layout.jsx';
 
 
@@ -68,6 +68,8 @@ export const PAGES = {
     "AcessoProfissional": AcessoProfissional,
     "Administracao": Administracao,
     "CadastroProfissional": CadastroProfissional,
+    "Cardiologia": Cardiologia,
+    "CentralSES": CentralSES,
     "Dashboard": Dashboard,
     "Historico": Historico,
     "Home": Home,
@@ -77,8 +79,6 @@ export const PAGES = {
     "PINLogin": PINLogin,
     "Protocolos": Protocolos,
     "RecuperarPIN": RecuperarPIN,
-    "Cardiologia": Cardiologia,
-    "CentralSES": CentralSES,
 }
 
 export const pagesConfig = {

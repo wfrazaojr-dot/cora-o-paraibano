@@ -400,6 +400,31 @@ export default function CentralSES() {
                 </div>
               </div>
 
+              {/* Medicamentos Prescritos */}
+              {paciente.avaliacao_clinica?.prescricao_medicamentos?.length > 0 && (
+                <div className="mb-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-3 pb-2 border-b-2 border-gray-300">MEDICAMENTOS PRESCRITOS</h2>
+                  <table className="w-full text-sm border border-collapse">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="border border-gray-400 p-2 text-left">Medicamento</th>
+                        <th className="border border-gray-400 p-2 text-left">Dose</th>
+                        <th className="border border-gray-400 p-2 text-left">Via</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paciente.avaliacao_clinica.prescricao_medicamentos.map((med, i) => (
+                        <tr key={i}>
+                          <td className="border border-gray-400 p-2">{med.medicamento || med.nome || "-"}</td>
+                          <td className="border border-gray-400 p-2">{med.dose || "-"}</td>
+                          <td className="border border-gray-400 p-2">{med.via || "-"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
               {/* Parecer do Médico Regulador */}
               {paciente.regulacao_central?.parecer_medico_regulador && (
                 <div className="mb-6">
