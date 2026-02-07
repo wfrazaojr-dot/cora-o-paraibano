@@ -31,7 +31,13 @@ function LayoutContent({ children, currentPageName }) {
     queryFn: () => base44.auth.me(),
   });
 
-
+  // Fechar sidebar ao navegar no mobile
+  useEffect(() => {
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) {
+      setOpen(false);
+    }
+  }, [location.pathname, setOpen]);
 
   const navigationItems = [
     {
