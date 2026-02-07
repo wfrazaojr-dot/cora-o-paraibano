@@ -112,6 +112,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
     const dadosTriagem = {
       triagem_medica: {
         ...dados,
+        litros_oxigenio: dados.uso_oxigenio && dados.litros_oxigenio ? parseFloat(dados.litros_oxigenio) : undefined,
         data_hora_inicio: dadosPaciente.data_hora_chegada,
         tempo_entrada_ecg_minutos: tempoEntradaEcg
       }
