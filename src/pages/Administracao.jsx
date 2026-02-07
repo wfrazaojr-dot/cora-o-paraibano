@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -559,7 +558,18 @@ export default function Administracao() {
             <Database className="w-4 h-4 inline mr-2" />
             Sistema
           </button>
-        </div>
+          <button
+            onClick={() => setAbaAtiva("notificacoes")}
+            className={`px-6 py-3 font-semibold transition-colors ${
+              abaAtiva === "notificacoes"
+                ? "text-red-600 border-b-2 border-red-600"
+                : "text-gray-600 hover:text-gray-900"
+            }`}
+          >
+            <AlertTriangle className="w-4 h-4 inline mr-2" />
+            Notificações
+          </button>
+          </div>
 
         {/* ABA: RELATÓRIOS POR PROFISSIONAL */}
         {abaAtiva === "profissionais" && (
