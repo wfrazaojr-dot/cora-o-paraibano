@@ -61,6 +61,7 @@ import NovaTriagem from './pages/NovaTriagem';
 import PINLogin from './pages/PINLogin';
 import Protocolos from './pages/Protocolos';
 import RecuperarPIN from './pages/RecuperarPIN';
+import ProtocoloEstrategias from './pages/ProtocoloEstrategias';
 import __Layout from './Layout.jsx';
 
 
@@ -79,6 +80,7 @@ export const PAGES = {
     "PINLogin": PINLogin,
     "Protocolos": Protocolos,
     "RecuperarPIN": RecuperarPIN,
+    "ProtocoloEstrategias": ProtocoloEstrategias,
 }
 
 export const pagesConfig = {
