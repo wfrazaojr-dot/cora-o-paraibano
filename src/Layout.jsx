@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Activity, Plus, History, BookOpen, FileText, Users, AlertCircle, TrendingUp, Shield, LogOut } from "lucide-react";
@@ -15,14 +15,16 @@ import {
   SidebarFooter,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 
-export default function Layout({ children, currentPageName }) {
+function LayoutContent({ children, currentPageName }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { setOpen } = useSidebar();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
