@@ -11,8 +11,9 @@ import { format, differenceInMinutes } from "date-fns";
 export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnterior }) {
   const [loading, setLoading] = useState(false);
   const [dados, setDados] = useState({
-    pa_braco_esquerdo: dadosPaciente.triagem_medica?.pa_braco_esquerdo || "",
-    pa_braco_direito: dadosPaciente.triagem_medica?.pa_braco_direito || "",
+    pa_sistolica: dadosPaciente.triagem_medica?.pa_sistolica || "",
+    pa_diastolica: dadosPaciente.triagem_medica?.pa_diastolica || "",
+    diferenca_pa_mse_msd: dadosPaciente.triagem_medica?.diferenca_pa_mse_msd || "",
     frequencia_cardiaca: dadosPaciente.triagem_medica?.frequencia_cardiaca || "",
     frequencia_respiratoria: dadosPaciente.triagem_medica?.frequencia_respiratoria || "",
     temperatura: dadosPaciente.triagem_medica?.temperatura || "",
@@ -32,7 +33,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
   const [mostrarAlertaEcg, setMostrarAlertaEcg] = useState(false);
 
   useEffect(() => {
-    if (dados.pa_braco_esquerdo && dados.pa_braco_direito && dados.frequencia_cardiaca && 
+    if (dados.pa_sistolica && dados.pa_diastolica && dados.frequencia_cardiaca && 
         dados.frequencia_respiratoria && dados.temperatura && dados.spo2) {
       setMostrarAlertaEcg(true);
     }
@@ -137,23 +138,55 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
         
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <Label>PA Braço Esquerdo (mmHg) *</Label>
+            <Label>Pressão Arterial Sistólica (mmHg) *</Label>
             <Input
-              value={dados.pa_braco_esquerdo}
-              onChange={(e) => setDados(prev => ({...prev, pa_braco_esquerdo: e.target.value}))}
-              placeholder="Ex: 120/80"
+              type="number"
+              value={dados.pa_sistolica}
+              onChange={(e) => setDados(prev => ({...prev, pa_sistolica: parseInt(e.target.value) || ""}))}
+              placeholder="Ex: 120"
               required
             />
           </div>
 
           <div>
-            <Label>PA Braço Direito (mmHg) *</Label>
+            <Label>Pressão Arterial Diastólica (mmHg) *</Label>
             <Input
-              value={dados.pa_braco_direito}
-              onChange={(e) => setDados(prev => ({...prev, pa_braco_direito: e.target.value}))}
-              placeholder="Ex: 120/80"
+              type="number"
+              value={dados.pa_diastolica}
+              onChange={(e) => setDados(prev => ({...prev, pa_diastolica: parseInt(e.target.value) || ""}))}
+              placeholder="Ex: 80"
               required
             />
+          </div>
+
+          <div className="md:col-span-2">
+            <Label className="mb-3 block">Há diferença maior que 15 mmHg entre PA em MSE X MSD? *</Label>
+            <div className="flex gap-4">
+              <div className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="diferenca_pa"
+                  value="Sim"
+                  checked={dados.diferenca_pa_mse_msd === "Sim"}
+                  onChange={(e) => setDados(prev => ({...prev, diferenca_pa_mse_msd: e.target.value}))}
+                  className="w-4 h-4"
+                  required
+                />
+                <Label>Sim</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="diferenca_pa"
+                  value="Não"
+                  checked={dados.diferenca_pa_mse_msd === "Não"}
+                  onChange={(e) => setDados(prev => ({...prev, diferenca_pa_mse_msd: e.target.value}))}
+                  className="w-4 h-4"
+                  required
+                />
+                <Label>Não</Label>
+              </div>
+            </div>
           </div>
 
           <div>
