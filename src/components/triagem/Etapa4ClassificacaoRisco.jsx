@@ -361,6 +361,27 @@ Analise e retorne APENAS: classificação, discriminadores, nível de confiança
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Header com as 3 logos */}
+      <div className="bg-white border rounded-lg p-4 mb-4 shadow-sm">
+        <div className="flex items-center justify-between gap-4 w-full">
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" 
+            alt="Secretaria de Estado da Saúde" 
+            className="h-16 md:h-20 w-auto object-contain"
+          />
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" 
+            alt="Coração Paraibano" 
+            className="h-16 md:h-20 w-auto object-contain"
+          />
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png" 
+            alt="PBSAÚDE" 
+            className="h-16 md:h-20 w-auto object-contain"
+          />
+        </div>
+      </div>
+
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Classificação de Risco</h2>
         <p className="text-gray-600">Sistema Manchester Adaptado com análise automatizada por IA</p>
