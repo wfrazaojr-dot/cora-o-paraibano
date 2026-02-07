@@ -13,6 +13,7 @@ import Etapa1DadosPaciente from "../components/triagem/Etapa1DadosPaciente";
 import Etapa2TriagemMedica from "../components/triagem/Etapa2TriagemMedica";
 import Etapa3_1_SCACESST from "../components/triagem/Etapa3_1_SCACESST";
 import Etapa3_2_SCASESST_ComTroponina from "../components/triagem/Etapa3_2_SCASESST_ComTroponina";
+import Etapa4Relatorio from "../components/triagem/Etapa4Relatorio";
 
 const etapas = [
   { numero: 1, titulo: "Dados do Paciente" },
@@ -89,7 +90,7 @@ export default function NovaTriagem() {
           return <div>Etapa 3.3 em desenvolvimento</div>;
         }
       case 4:
-        return <div>Etapa 4 - Relatório em desenvolvimento</div>;
+        return <Etapa4Relatorio dadosPaciente={dadosPaciente} onAnterior={handleEtapaAnterior} pacienteId={pacienteId} />;
       default:
         return <div>Etapa não encontrada</div>;
     }
