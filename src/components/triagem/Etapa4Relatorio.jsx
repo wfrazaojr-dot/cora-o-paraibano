@@ -39,7 +39,9 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
       const canvas = await html2canvas(relatorioRef.current, {
         scale: 2,
         logging: false,
-        useCORS: true
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff'
       });
 
       const imgData = canvas.toDataURL("image/png");
@@ -297,13 +299,27 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
             </div>
           )}
           {dadosPaciente.triagem_medica?.alteracoes_ecg?.length > 0 && (
-            <div className="text-sm">
+            <div className="text-sm mb-3">
               <p className="font-semibold mb-2">Alterações:</p>
               <ul className="list-disc pl-5">
                 {dadosPaciente.triagem_medica.alteracoes_ecg.map((alt, i) => (
                   <li key={i}>{alt}</li>
                 ))}
               </ul>
+            </div>
+          )}
+          {dadosPaciente.triagem_medica?.ecg_files?.length > 0 && (
+            <div className="space-y-2">
+              <p className="font-semibold text-sm mb-2">Imagens do ECG:</p>
+              {dadosPaciente.triagem_medica.ecg_files.map((file, i) => (
+                <img 
+                  key={i} 
+                  src={file} 
+                  alt={`ECG ${i + 1}`} 
+                  className="w-full border-2 border-gray-300 rounded"
+                  crossOrigin="anonymous"
+                />
+              ))}
             </div>
           )}
         </div>
@@ -340,20 +356,20 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         {dadosPaciente.avaliacao_clinica?.prescricao_medicamentos?.length > 0 && (
           <div className="mb-6">
             <h2 className="text-xl font-bold text-gray-900 mb-3 pb-2 border-b-2 border-gray-300">PRESCRIÇÃO MEDICAMENTOSA</h2>
-            <table className="w-full text-sm border">
+            <table className="w-full text-sm border border-collapse">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="border p-2 text-left">Medicamento</th>
-                  <th className="border p-2 text-left">Dose</th>
-                  <th className="border p-2 text-left">Via</th>
+                  <th className="border border-gray-400 p-2 text-left">Medicamento</th>
+                  <th className="border border-gray-400 p-2 text-left">Dose</th>
+                  <th className="border border-gray-400 p-2 text-left">Via</th>
                 </tr>
               </thead>
               <tbody>
                 {dadosPaciente.avaliacao_clinica.prescricao_medicamentos.map((med, i) => (
                   <tr key={i}>
-                    <td className="border p-2">{med.medicamento || med.nome}</td>
-                    <td className="border p-2">{med.dose}</td>
-                    <td className="border p-2">{med.via}</td>
+                    <td className="border border-gray-400 p-2">{med.medicamento || med.nome || "-"}</td>
+                    <td className="border border-gray-400 p-2">{med.dose || "-"}</td>
+                    <td className="border border-gray-400 p-2">{med.via || "-"}</td>
                   </tr>
                 ))}
               </tbody>
