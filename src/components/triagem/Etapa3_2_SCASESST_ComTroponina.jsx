@@ -231,60 +231,6 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
       {/* Tempo de Dor */}
       <TempoDor dataHoraInicioSintomas={dadosPaciente.data_hora_inicio_sintomas} />
 
-      {/* Resultados de Exames MNM */}
-      <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-orange-900 mb-4 flex items-center gap-2">
-          <TestTube className="w-5 h-5" />
-          Resultados de Exames - MNM
-        </h3>
-
-        <div className="space-y-3 mb-4">
-          {dados.resultados_exames.map((resultado, index) => (
-            <div key={index} className="bg-white p-3 rounded border flex gap-2 items-end">
-              <div className="flex-1">
-                <Label className="text-xs mb-1 block">Tipo de Exame</Label>
-                <select
-                  value={resultado.tipo}
-                  onChange={(e) => atualizarResultadoExame(index, "tipo", e.target.value)}
-                  className="w-full h-9 rounded-md border border-input px-3 text-sm"
-                >
-                  <option value="">Selecione...</option>
-                  {tiposExamesMNM.map((tipo) => (
-                    <option key={tipo} value={tipo}>{tipo}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex-1">
-                <Label className="text-xs mb-1 block">Resultado</Label>
-                <Input
-                  placeholder="Ex: 0.05, positivo, normal..."
-                  value={resultado.resultado}
-                  onChange={(e) => atualizarResultadoExame(index, "resultado", e.target.value)}
-                />
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => removerResultadoExame(index)}
-                className="text-red-600"
-              >
-                Remover
-              </Button>
-            </div>
-          ))}
-        </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          onClick={adicionarResultadoExame}
-          className="w-full"
-        >
-          + Adicionar Resultado de Exame
-        </Button>
-      </div>
-
       {/* 1. Prescrição Medicamentosa */}
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-purple-900 mb-4 flex items-center gap-2">
@@ -409,6 +355,60 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
             </div>
           </div>
         )}
+      </div>
+
+      {/* Resultados de Exames MNM */}
+      <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-orange-900 mb-4 flex items-center gap-2">
+          <TestTube className="w-5 h-5" />
+          Resultados de Exames - MNM
+        </h3>
+
+        <div className="space-y-3 mb-4">
+          {dados.resultados_exames.map((resultado, index) => (
+            <div key={index} className="bg-white p-3 rounded border flex gap-2 items-end">
+              <div className="flex-1">
+                <Label className="text-xs mb-1 block">Tipo de Exame</Label>
+                <select
+                  value={resultado.tipo}
+                  onChange={(e) => atualizarResultadoExame(index, "tipo", e.target.value)}
+                  className="w-full h-9 rounded-md border border-input px-3 text-sm"
+                >
+                  <option value="">Selecione...</option>
+                  {tiposExamesMNM.map((tipo) => (
+                    <option key={tipo} value={tipo}>{tipo}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex-1">
+                <Label className="text-xs mb-1 block">Resultado</Label>
+                <Input
+                  placeholder="Ex: 0.05, positivo, normal..."
+                  value={resultado.resultado}
+                  onChange={(e) => atualizarResultadoExame(index, "resultado", e.target.value)}
+                />
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => removerResultadoExame(index)}
+                className="text-red-600"
+              >
+                Remover
+              </Button>
+            </div>
+          ))}
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={adicionarResultadoExame}
+          className="w-full"
+        >
+          + Adicionar Resultado de Exame
+        </Button>
       </div>
 
       {/* 3. Antecedentes Clínicos */}
