@@ -99,18 +99,11 @@ export default function Layout({ children, currentPageName }) {
         {/* Header com as logos */}
         <header className="bg-white border-b border-gray-200 px-6 py-3 shadow-sm">
           <div className="flex items-center justify-between gap-4 max-w-full">
-            <div className="flex items-center gap-4 md:gap-8">
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/2d931d4c1_LogoGovernodoEstadodaParaba.png" 
-                alt="Governo da Paraíba" 
-                className="h-12 md:h-16 w-auto"
-              />
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/f64530ac9_logoSecretariadeEstadodaSade.png" 
-                alt="Secretaria de Estado da Saúde" 
-                className="h-12 md:h-16 w-auto"
-              />
-            </div>
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/f64530ac9_logoSecretariadeEstadodaSade.png" 
+              alt="Secretaria de Estado da Saúde" 
+              className="h-12 md:h-16 w-auto"
+            />
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/ffd6172a5_LOGOCORAAOPARAIBANO.png" 
               alt="Coração Paraibano" 
