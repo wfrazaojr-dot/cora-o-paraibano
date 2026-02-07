@@ -23,6 +23,8 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
     { nome: "Clopidogrel", dose: "300-600mg", via: "VO" },
     { nome: "Ticagrelor", dose: "180mg", via: "VO" },
     { nome: "Enoxaparina", dose: "1mg/kg", via: "SC" },
+    { nome: "Mononitrato de Isossorbida", dose: "5mg", via: "SL" },
+    { nome: "Dinitrato de Isossorbida", dose: "5mg", via: "SL" },
     { nome: "Morfina", dose: "2-4mg", via: "EV" },
     { nome: "Fentanil", dose: "25-50mcg", via: "EV" },
     { nome: "Metoprolol", dose: "25-50mg", via: "VO" },
@@ -64,6 +66,15 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
     }));
   };
 
+  const editarDoseMedicamento = (index, novaDose) => {
+    setDados(prev => ({
+      ...prev,
+      prescricao_medicamentos: prev.prescricao_medicamentos.map((med, i) => 
+        i === index ? { ...med, dose: novaDose } : med
+      )
+    }));
+  };
+
   const toggleExame = (exame) => {
     setDados(prev => ({
       ...prev,
@@ -96,49 +107,6 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Avaliação Clínica - SCACESST</h2>
         <p className="text-gray-600">Paciente com Síndrome Coronariana Aguda COM Supra de ST</p>
-      </div>
-
-      {/* Dados Clínicos */}
-      <div className="space-y-4">
-        <div>
-          <Label>1. Antecedentes Clínicos *</Label>
-          <p className="text-xs text-gray-500 mb-2">
-            Histórico de doenças prévias, alergias, uso de inibidor da 5 fosfodiesterase, medicações em uso
-          </p>
-          <Textarea
-            value={dados.antecedentes}
-            onChange={(e) => setDados(prev => ({...prev, antecedentes: e.target.value}))}
-            rows={4}
-            required
-            placeholder="Descreva os antecedentes clínicos do paciente..."
-          />
-        </div>
-
-        <div>
-          <Label>2. Quadro Atual *</Label>
-          <p className="text-xs text-gray-500 mb-2">
-            Característica da dor torácica, dispneia, sintomas associados, descartado sepse, dissecção aguda de aorta, 
-            tamponamento pericárdico, choque cardiogênico, rotura de esôfago e intoxicação por drogas
-          </p>
-          <Textarea
-            value={dados.quadro_atual}
-            onChange={(e) => setDados(prev => ({...prev, quadro_atual: e.target.value}))}
-            rows={6}
-            required
-            placeholder="Descreva o quadro clínico atual..."
-          />
-        </div>
-
-        <div>
-          <Label>3. Hipótese Diagnóstica *</Label>
-          <Textarea
-            value={dados.hipotese_diagnostica}
-            onChange={(e) => setDados(prev => ({...prev, hipotese_diagnostica: e.target.value}))}
-            rows={3}
-            required
-            placeholder="Hipótese diagnóstica..."
-          />
-        </div>
       </div>
 
       {/* Prescrição Medicamentosa */}
@@ -195,10 +163,17 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
             <Label className="mb-2 block">Medicamentos Prescritos</Label>
             <div className="space-y-2">
               {dados.prescricao_medicamentos.map((med, index) => (
-                <div key={index} className="flex items-center justify-between bg-white p-3 rounded border">
-                  <span>
-                    <strong>{med.medicamento || med.nome}</strong> - {med.dose} ({med.via})
-                  </span>
+                <div key={index} className="flex items-center gap-2 bg-white p-3 rounded border">
+                  <div className="flex-1">
+                    <strong>{med.medicamento || med.nome}</strong> - ({med.via})
+                  </div>
+                  <Input
+                    type="text"
+                    value={med.dose}
+                    onChange={(e) => editarDoseMedicamento(index, e.target.value)}
+                    className="w-32"
+                    placeholder="Dose"
+                  />
                   <Button
                     type="button"
                     variant="ghost"
@@ -219,7 +194,7 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
       <div className="bg-green-50 border border-green-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-green-900 mb-4 flex items-center gap-2">
           <TestTube className="w-5 h-5" />
-          Exames Solicitados
+          Requisição de Exames
         </h3>
 
         <div className="space-y-2 mb-4">
@@ -234,7 +209,7 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
           ))}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 mb-4">
           <Input
             placeholder="Adicionar exame personalizado"
             value={novoExame}
@@ -244,6 +219,62 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
           <Button type="button" variant="outline" onClick={adicionarExameManual}>
             Adicionar
           </Button>
+        </div>
+
+        {dados.exames_solicitados.length > 0 && (
+          <div>
+            <Label className="mb-2 block">Exames Adicionados</Label>
+            <div className="bg-white p-3 rounded border">
+              <ul className="list-disc pl-5 space-y-1">
+                {dados.exames_solicitados.map((exame, index) => (
+                  <li key={index} className="text-sm">{exame}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Dados Clínicos */}
+      <div className="space-y-4">
+        <div>
+          <Label>3. Antecedentes Clínicos *</Label>
+          <p className="text-xs text-gray-500 mb-2">
+            Histórico de doenças prévias, alergias, uso de inibidor da 5 fosfodiesterase, medicações em uso
+          </p>
+          <Textarea
+            value={dados.antecedentes}
+            onChange={(e) => setDados(prev => ({...prev, antecedentes: e.target.value}))}
+            rows={4}
+            required
+            placeholder="Descreva os antecedentes clínicos do paciente..."
+          />
+        </div>
+
+        <div>
+          <Label>4. Quadro Atual *</Label>
+          <p className="text-xs text-gray-500 mb-2">
+            Característica da dor torácica, dispneia, sintomas associados, descartado sepse, dissecção aguda de aorta, 
+            tamponamento pericárdico, choque cardiogênico, rotura de esôfago e intoxicação por drogas
+          </p>
+          <Textarea
+            value={dados.quadro_atual}
+            onChange={(e) => setDados(prev => ({...prev, quadro_atual: e.target.value}))}
+            rows={6}
+            required
+            placeholder="Descreva o quadro clínico atual..."
+          />
+        </div>
+
+        <div>
+          <Label>5. Hipótese Diagnóstica *</Label>
+          <Textarea
+            value={dados.hipotese_diagnostica}
+            onChange={(e) => setDados(prev => ({...prev, hipotese_diagnostica: e.target.value}))}
+            rows={3}
+            required
+            placeholder="Hipótese diagnóstica..."
+          />
         </div>
       </div>
 
