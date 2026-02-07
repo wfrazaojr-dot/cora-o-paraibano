@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ArrowLeft, Clock, Building2 } from "lucide-react";
-import { format } from "date-fns";
+import { ArrowRight, ArrowLeft, Clock, Building2, AlertCircle } from "lucide-react";
+import { format, differenceInMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnterior }) {
@@ -16,6 +16,21 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
     data_hora_inicio_sintomas: dadosPaciente.data_hora_inicio_sintomas || "",
     status: "Em Triagem"
   });
+
+  const calcularTempoDor = () => {
+    if (!dados.data_hora_inicio_sintomas) return null;
+    
+    const inicioSintomas = new Date(dados.data_hora_inicio_sintomas);
+    const agora = new Date();
+    const minutos = differenceInMinutes(agora, inicioSintomas);
+    
+    const horas = Math.floor(minutos / 60);
+    const mins = minutos % 60;
+    
+    return { horas, minutos: mins, totalMinutos: minutos };
+  };
+
+  const tempoDor = calcularTempoDor();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -134,6 +149,35 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
           />
         </div>
       </div>
+
+      {tempoDor && tempoDor.totalMinutos >= 0 && (
+        <div className={`border-2 rounded-lg p-4 ${
+          tempoDor.totalMinutos > 720 ? 'bg-red-50 border-red-300' : 'bg-yellow-50 border-yellow-300'
+        }`}>
+          <div className="flex items-center gap-3">
+            <AlertCircle className={`w-6 h-6 ${
+              tempoDor.totalMinutos > 720 ? 'text-red-600' : 'text-yellow-600'
+            }`} />
+            <div className="flex-1">
+              <p className={`text-sm font-semibold ${
+                tempoDor.totalMinutos > 720 ? 'text-red-900' : 'text-yellow-900'
+              }`}>
+                Tempo de Dor
+              </p>
+              <p className={`text-2xl font-bold ${
+                tempoDor.totalMinutos > 720 ? 'text-red-700' : 'text-yellow-700'
+              }`}>
+                {tempoDor.horas}h {tempoDor.minutos}min
+              </p>
+              {tempoDor.totalMinutos > 720 && (
+                <p className="text-xs text-red-700 font-medium mt-1">
+                  ⚠️ Paciente fora da janela terapêutica ideal (mais de 12 horas)
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex justify-between pt-4">
         {onAnterior && (
