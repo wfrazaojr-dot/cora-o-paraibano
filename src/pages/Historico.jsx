@@ -35,6 +35,9 @@ export default function Historico() {
   const navigate = useNavigate();
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("todos");
+  const [filtroUnidade, setFiltroUnidade] = useState("todas");
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
 
   const verificarProfissional = (url) => {
     const profissionalLogado = sessionStorage.getItem("profissional_logado");
