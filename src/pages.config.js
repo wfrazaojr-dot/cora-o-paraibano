@@ -54,6 +54,7 @@ import Cardiologia from './pages/Cardiologia';
 import CentralSES from './pages/CentralSES';
 import Dashboard from './pages/Dashboard';
 import Historico from './pages/Historico';
+import HistoricoUnidades from './pages/HistoricoUnidades';
 import Home from './pages/Home';
 import Indicadores from './pages/Indicadores';
 import Manual from './pages/Manual';
@@ -62,7 +63,6 @@ import PINLogin from './pages/PINLogin';
 import ProtocoloEstrategias from './pages/ProtocoloEstrategias';
 import Protocolos from './pages/Protocolos';
 import RecuperarPIN from './pages/RecuperarPIN';
-import HistoricoUnidades from './pages/HistoricoUnidades';
 import __Layout from './Layout.jsx';
 
 
@@ -74,6 +74,7 @@ export const PAGES = {
     "CentralSES": CentralSES,
     "Dashboard": Dashboard,
     "Historico": Historico,
+    "HistoricoUnidades": HistoricoUnidades,
     "Home": Home,
     "Indicadores": Indicadores,
     "Manual": Manual,
@@ -82,7 +83,6 @@ export const PAGES = {
     "ProtocoloEstrategias": ProtocoloEstrategias,
     "Protocolos": Protocolos,
     "RecuperarPIN": RecuperarPIN,
-    "HistoricoUnidades": HistoricoUnidades,
 }
 
 export const pagesConfig = {

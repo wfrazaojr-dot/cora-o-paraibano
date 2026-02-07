@@ -33,6 +33,52 @@ export default function Layout({ children, currentPageName }) {
 
 
   const getNavigationItems = () => {
+    // Menu para Admin (acesso pleno) - Verificação prioritária
+    if (user?.role === 'admin') {
+      return [
+        {
+          title: "Painel Inicial",
+          url: createPageUrl("Dashboard"),
+          icon: Activity,
+        },
+        {
+          title: "Novo Paciente",
+          url: createPageUrl("NovaTriagem"),
+          icon: Plus,
+        },
+        {
+          title: "Histórico",
+          url: createPageUrl("Historico"),
+          icon: History,
+        },
+        {
+          title: "Indicadores",
+          url: createPageUrl("Indicadores"),
+          icon: TrendingUp,
+        },
+        {
+          title: "Protocolos",
+          url: createPageUrl("Protocolos"),
+          icon: BookOpen,
+        },
+        {
+          title: "Estratégias e Condutas",
+          url: createPageUrl("ProtocoloEstrategias"),
+          icon: FileText,
+        },
+        {
+          title: "Manual",
+          url: createPageUrl("Manual"),
+          icon: FileText,
+        },
+        {
+          title: "Administração",
+          url: createPageUrl("Administracao"),
+          icon: Shield,
+        },
+      ];
+    }
+
     const equipe = user?.equipe || 'unidade_saude';
 
     // Menu para Unidades de Saúde
