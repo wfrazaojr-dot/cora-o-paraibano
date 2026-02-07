@@ -1259,9 +1259,14 @@ export default function Administracao() {
           </div>
         )}
 
+        {/* CONTEÚDO DA ABA: NOTIFICAÇÕES */}
+         {abaAtiva === "notificacoes" && (
+           <ConfiguracaoNotificacoesAdmin />
+         )}
+
         {/* CONTEÚDO DA ABA: SISTEMA */}
-        {abaAtiva === "sistema" && (
-          <div className="space-y-6">
+         {abaAtiva === "sistema" && (
+           <div className="space-y-6">
             {/* Limpar Histórico */}
             <Card className="shadow-lg border-2 border-red-300">
               <CardHeader className="bg-red-50 border-b border-red-200">
