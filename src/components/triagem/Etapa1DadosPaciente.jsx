@@ -179,14 +179,8 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
         </div>
       )}
 
-      <div className="flex justify-between pt-4">
-        {onAnterior && (
-          <Button type="button" variant="outline" onClick={onAnterior}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Etapa Anterior
-          </Button>
-        )}
-        <Button type="submit" className="bg-red-600 hover:bg-red-700 ml-auto">
+      <div className="flex justify-end pt-4">
+        <Button type="submit" className="bg-red-600 hover:bg-red-700">
           Próxima Etapa
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
