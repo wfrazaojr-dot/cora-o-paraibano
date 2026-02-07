@@ -58,6 +58,11 @@ export default function Layout({ children, currentPageName }) {
       icon: BookOpen,
     },
     {
+      title: "Estratégias e Condutas",
+      url: createPageUrl("ProtocoloEstrategias"),
+      icon: FileText,
+    },
+    {
       title: "Manual",
       url: createPageUrl("Manual"),
       icon: FileText,
