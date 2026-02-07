@@ -20,126 +20,87 @@ export default function Protocolos() {
             <CardHeader className="bg-red-50 border-b">
               <CardTitle className="flex items-center gap-2">
                 <Heart className="w-5 h-5 text-red-600" />
-                1. Dor Torácica e Síndromes Coronarianas Agudas
+                Protocolo de Dor Torácica - Coração Paraibano 2026
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="space-y-4 text-sm">
+              <div className="space-y-4 text-sm text-gray-700">
                 <div>
-                  <h4 className="font-semibold mb-2">Definição</h4>
-                  <p className="text-gray-700">
-                    Síndrome Coronariana Aguda (SCA) engloba um espectro de condições causadas por isquemia miocárdica aguda, 
-                    incluindo angina instável, IAM sem supra de ST (IAMSSST) e IAM com supra de ST (IAMCSST).
+                  <h4 className="font-semibold mb-2 text-gray-900">Indicação</h4>
+                  <p>
+                    Protocolo para pacientes com dor torácica aguda de origem não traumática, ou sintoma equivalente em repouso, 
+                    ou originalmente ao esforço mas que não melhorou após 10 minutos de repouso (sintoma presente nas últimas 24h).
                   </p>
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">Apresentação Clínica</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-gray-700">
-                    <li>Dor ou desconforto torácico em aperto, queimação ou peso</li>
-                    <li>Irradiação para braços, mandíbula, dorso ou epigástrio</li>
-                    <li>Sintomas associados: dispneia, náuseas, diaforese, síncope</li>
-                    <li>Duração geralmente maior que 10 minutos</li>
-                  </ul>
-                </div>
-
-                <div className="bg-red-50 p-4 rounded border border-red-200">
-                  <h4 className="font-semibold mb-2 text-red-900">⚠️ Meta de Tempo</h4>
-                  <p className="text-red-800 font-medium">
-                    ECG em até 10 minutos do primeiro contato médico para pacientes com suspeita de SCA
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-md">
-            <CardHeader className="bg-blue-50 border-b">
-              <CardTitle className="flex items-center gap-2">
-                <Pill className="w-5 h-5 text-blue-600" />
-                2. Medicamentos nas SCA
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-4 text-sm">
-                <div>
-                  <h4 className="font-semibold mb-2">Terapia Antiplaquetária Dupla (DAPT)</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-gray-700">
-                    <li><strong>AAS:</strong> 200-300mg VO (mastigado) - dose de ataque</li>
-                    <li><strong>Clopidogrel:</strong> 300-600mg VO</li>
-                    <li><strong>Ticagrelor:</strong> 180mg VO (preferencial em IAMCSST)</li>
-                    <li><strong>Prasugrel:</strong> 60mg VO (considerar em ICP primária)</li>
+                  <h4 className="font-semibold mb-2 text-gray-900">Objetivos</h4>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li><strong>Identificação precoce:</strong> Triagem de qualidade e ECG em até 10 minutos</li>
+                    <li><strong>Salvar vida:</strong> Check-list do tratamento medicamentoso inicial</li>
+                    <li><strong>Reduzir necrose:</strong> SCACST com fluxo porta-balão até 60 minutos ou transferência rápida</li>
+                    <li><strong>Evitar altas inadvertidas:</strong> Investigação ambulatorial precoce para casos de baixo risco</li>
                   </ul>
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">Betabloqueadores</h4>
-                  <p className="text-gray-700 mb-2">Iniciar nas primeiras 24h, quando não contraindicados:</p>
-                  <ul className="list-disc pl-5 space-y-1 text-gray-700">
-                    <li><strong>Metoprolol:</strong> 25-50mg VO a cada 6-12h</li>
-                    <li><strong>Contraindicações:</strong> IC aguda, choque, BAV avançado, bradicardia grave</li>
+                  <h4 className="font-semibold mb-2 text-gray-900">Classificação da Dor Torácica</h4>
+                  <div className="space-y-2 mt-2">
+                    <div className="bg-red-50 p-3 rounded border border-red-200">
+                      <p className="font-semibold text-red-900">Tipo A - Alta Probabilidade</p>
+                      <p className="text-xs">Características clássicas com irradiação e piora com esforço. Tratar como SCA mesmo com ECG e troponina negativos.</p>
+                    </div>
+                    <div className="bg-orange-50 p-3 rounded border border-orange-200">
+                      <p className="font-semibold text-orange-900">Tipo B - Provavelmente Anginosa</p>
+                      <p className="text-xs">Características típicas mas ausência de algumas manifestações. Exame adicional confirmatório necessário.</p>
+                    </div>
+                    <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
+                      <p className="font-semibold text-yellow-900">Tipo C - Provavelmente Não Anginosa</p>
+                      <p className="text-xs">Redução na probabilidade de SCA mas diagnóstico alternativo não bem definido. Parametrização de troponina essencial.</p>
+                    </div>
+                    <div className="bg-green-50 p-3 rounded border border-green-200">
+                      <p className="font-semibold text-green-900">Tipo D - Não Anginosa</p>
+                      <p className="text-xs">Diagnóstico alternativo bem definido ou baixa probabilidade. Pode não necessitar investigação de SCA.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2 text-gray-900">Eletrocardiografia (ECG)</h4>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>Realizar em até 10 minutos da chegada do paciente</li>
+                    <li>Elevação de ST ≥ 1mm em duas derivações contíguas = SCACST</li>
+                    <li>Ausência de elevação do ST indica fluxo transitório ou parcial (SCASST)</li>
+                    <li>Novos ECGs se houver mudança clínica ou de dor</li>
+                    <li>Considerar derivações V3R, V4R, V7-V9 para suspeita de infarto de VD ou posterior</li>
                   </ul>
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">IECA/BRA</h4>
-                  <p className="text-gray-700 mb-2">Iniciar nas primeiras 24h em pacientes com:</p>
-                  <ul className="list-disc pl-5 space-y-1 text-gray-700">
-                    <li>Disfunção ventricular esquerda (FEVE ≤ 40%)</li>
-                    <li>IAM anterior</li>
-                    <li>Congestão pulmonar</li>
+                  <h4 className="font-semibold mb-2 text-gray-900">Marcadores de Necrose Miocárdica</h4>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li><strong>Troponina Ultrassensível:</strong> Recomendação 2025 (SBC, ESC, AHA). Medida em ng/L com 100% sensibilidade em 3h de dor</li>
+                    <li><strong>Troponina Convencional:</strong> Segunda escolha. Dosagem repetida em 6-12h</li>
+                    <li><strong>CK-MB:</strong> Não indicado quando troponina disponível</li>
                   </ul>
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">Estatinas de Alta Potência</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-gray-700">
-                    <li><strong>Atorvastatina:</strong> 40-80mg VO</li>
-                    <li><strong>Rosuvastatina:</strong> 20-40mg VO</li>
-                    <li>Iniciar desde a admissão hospitalar</li>
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-md">
-            <CardHeader className="bg-green-50 border-b">
-              <CardTitle className="flex items-center gap-2">
-                <TestTube className="w-5 h-5 text-green-600" />
-                3. Exames Laboratoriais
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-4 text-sm">
-                <div>
-                  <h4 className="font-semibold mb-2">Protocolo de Troponina Ultrassensível</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-gray-700">
-                    <li><strong>0h e 1h:</strong> Protocolo rápido (alta sensibilidade)</li>
-                    <li><strong>0h e 3h:</strong> Protocolo padrão</li>
-                    <li>Elevação significativa indica necrose miocárdica</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold mb-2">Exames Complementares Essenciais</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-gray-700">
-                    <li>Hemograma completo</li>
-                    <li>Função renal (creatinina, ureia)</li>
-                    <li>Eletrólitos (Na, K, Mg)</li>
-                    <li>Glicemia</li>
-                    <li>Coagulograma (se anticoagulação prevista)</li>
-                    <li>CPK-MB (marcador adicional)</li>
-                    <li>D-dímero (se suspeita de TEP)</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold mb-2">Exames de Imagem</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-gray-700">
-                    <li><strong>Radiografia de tórax:</strong> Avaliar congestão, cardiomegalia, pneumotórax</li>
-                    <li><strong>Ecocardiograma:</strong> Função ventricular, alterações de motilidade segmentar</li>
-                  </ul>
+                  <h4 className="font-semibold mb-2 text-gray-900">Estratégias de Tratamento</h4>
+                  <div className="space-y-2">
+                    <div className="bg-blue-50 p-3 rounded border border-blue-200">
+                      <p className="font-semibold text-blue-900">Estratégia 1 - SCACST</p>
+                      <p className="text-xs">Transferência imediata para centro especializado. Porta-balão até 60 minutos se hemodinâmica disponível, ou transferência em 120-150 minutos. Considerar fibrinólise precoce em casos de distância ou logística.</p>
+                    </div>
+                    <div className="bg-blue-50 p-3 rounded border border-blue-200">
+                      <p className="font-semibold text-blue-900">Estratégia 2 - SCASST de Alto Risco</p>
+                      <p className="text-xs">Estratificação invasiva precoce em padrões de alto risco (alterações dinâmicas, padrões de Wellens, Winter, Aslanger).</p>
+                    </div>
+                    <div className="bg-blue-50 p-3 rounded border border-blue-200">
+                      <p className="font-semibold text-blue-900">Estratégia 3 - SCASST sem Alto Risco</p>
+                      <p className="text-xs">Estratificação invasiva precoce durante internação para casos que não se enquadram na estratégia 2.</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -258,6 +219,24 @@ export default function Protocolos() {
                 </div>
 
                 <div className="mt-6 pt-6 border-t border-gray-300">
+                  <h4 className="font-bold text-gray-900 mb-3">Protocolos Principais:</h4>
+                  <div className="space-y-3 pl-4">
+                    <div>
+                      <p className="font-semibold">1. Diretriz ACC/AHA/ACEP/NAEMSP/SCAI 2025</p>
+                      <p className="text-gray-600 text-xs">AMERICAN COLLEGE OF CARDIOLOGY et al. 2025 ACC/AHA/ACEP/NAEMSP/SCAI Guideline for the Management of Patients With Acute Coronary Syndromes. Circulation, 2025. Disponível em: <a href="https://www.ahajournals.org/journal/circ" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">https://www.ahajournals.org/journal/circ</a></p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">2. Diretriz Brasileira - SBC 2025</p>
+                      <p className="text-gray-600 text-xs">DE BARROS E SILVA, P. G. M. et al. Diretriz Brasileira de Atendimento à Dor Torácica na Unidade de Emergência – 2025. Arquivos Brasileiros de Cardiologia, v. 123, n. 1, 2025. Disponível em: <a href="https://www.scielo.br/j/abc" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">https://www.scielo.br/j/abc</a></p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">3. Programa Coração Paraibano</p>
+                      <p className="text-gray-600 text-xs">SECRETARIA DE ESTADO DA SAÚDE. Protocolo de Dor Torácica do Programa Coração Paraibano – 2º Edição Atualizada e Ampliada Ano 2026. Paraíba, 2026.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-gray-300">
                   <h4 className="font-bold text-gray-900 mb-2">Desenvolvido por:</h4>
                   <p><strong>Walber Alves Frazão Júnior</strong></p>
                   <p>Enfermeiro Emergencista - COREN 110.238</p>
@@ -267,6 +246,7 @@ export default function Protocolos() {
                 <div className="mt-4 pt-4 border-t border-gray-300 text-xs text-gray-600">
                   <p>© 2025 - Todos os direitos reservados</p>
                   <p>Uso, cópia ou venda não autorizados são proibidos por lei</p>
+                  <p className="mt-2 font-semibold">⚠️ Este protocolo está sujeito a sofrer novas atualizações e publicações a qualquer momento.</p>
                 </div>
               </div>
             </CardContent>

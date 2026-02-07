@@ -59,9 +59,9 @@ import Indicadores from './pages/Indicadores';
 import Manual from './pages/Manual';
 import NovaTriagem from './pages/NovaTriagem';
 import PINLogin from './pages/PINLogin';
+import ProtocoloEstrategias from './pages/ProtocoloEstrategias';
 import Protocolos from './pages/Protocolos';
 import RecuperarPIN from './pages/RecuperarPIN';
-import ProtocoloEstrategias from './pages/ProtocoloEstrategias';
 import __Layout from './Layout.jsx';
 
 
@@ -78,9 +78,9 @@ export const PAGES = {
     "Manual": Manual,
     "NovaTriagem": NovaTriagem,
     "PINLogin": PINLogin,
+    "ProtocoloEstrategias": ProtocoloEstrategias,
     "Protocolos": Protocolos,
     "RecuperarPIN": RecuperarPIN,
-    "ProtocoloEstrategias": ProtocoloEstrategias,
 }
 
 export const pagesConfig = {
