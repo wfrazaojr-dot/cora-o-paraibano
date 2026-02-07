@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, ArrowRight, Pill, TestTube } from "lucide-react";
+import TempoDor from "./TempoDor";
 
 export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior }) {
   const [dados, setDados] = useState({
@@ -108,6 +109,9 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Avaliação Clínica - SCACESST</h2>
         <p className="text-gray-600">Paciente com Síndrome Coronariana Aguda COM Supra de ST</p>
       </div>
+
+      {/* Tempo de Dor */}
+      <TempoDor dataHoraInicioSintomas={dadosPaciente.data_hora_inicio_sintomas} />
 
       {/* Prescrição Medicamentosa */}
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">

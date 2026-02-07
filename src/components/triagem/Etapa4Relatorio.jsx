@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, FileText, Download, CheckCircle, AlertCircle, Heart, Activity } from "lucide-react";
+import { ArrowLeft, FileText, Download, CheckCircle, AlertCircle, Heart, Activity, Truck } from "lucide-react";
 import { format, differenceInMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import TempoDor from "./TempoDor";
 
 export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId }) {
   const navigate = useNavigate();
@@ -19,6 +20,10 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
     nome: dadosPaciente.medico_nome || "",
     crm: dadosPaciente.medico_crm || ""
   });
+  const [tempoDeslocamento, setTempoDeslocamento] = useState(
+    dadosPaciente.tempo_deslocamento_minutos || ""
+  );
+  const [mostrarAlerta, setMostrarAlerta] = useState(false);
 
   const tempoDorMinutos = dadosPaciente.data_hora_inicio_sintomas
     ? differenceInMinutes(new Date(), new Date(dadosPaciente.data_hora_inicio_sintomas))
@@ -70,6 +75,10 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
       alert("Por favor, preencha o nome e CRM do médico");
       return;
     }
+    if (!tempoDeslocamento) {
+      alert("Por favor, informe o tempo de deslocamento");
+      return;
+    }
     alert("Atendimento finalizado com sucesso!");
     navigate(createPageUrl("Dashboard"));
   };
@@ -80,6 +89,9 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Relatório Final</h2>
         <p className="text-gray-600">Revisão completa do atendimento</p>
       </div>
+
+      {/* Tempo de Dor */}
+      <TempoDor dataHoraInicioSintomas={dadosPaciente.data_hora_inicio_sintomas} />
 
       {/* Identificação do Médico */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
@@ -106,6 +118,49 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
             />
           </div>
         </div>
+      </div>
+
+      {/* Tempo de Deslocamento */}
+      <div className="bg-orange-50 border-2 border-orange-300 rounded-lg p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Truck className="w-6 h-6 text-orange-600" />
+          <h3 className="font-bold text-lg text-orange-900">Tempo de Deslocamento</h3>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="tempo_deslocamento">
+            O tempo de deslocamento até a hemodinâmica será de quantos minutos? *
+          </Label>
+          <Input
+            id="tempo_deslocamento"
+            type="number"
+            value={tempoDeslocamento}
+            onChange={(e) => {
+              const valor = parseInt(e.target.value) || "";
+              setTempoDeslocamento(valor);
+              if (valor > 120) {
+                setMostrarAlerta(true);
+              } else {
+                setMostrarAlerta(false);
+              }
+            }}
+            placeholder="Ex: 30, 60, 90..."
+            min="0"
+            required
+          />
+          <p className="text-xs text-gray-600">
+            Tempo estimado de transporte do paciente até o centro de hemodinâmica
+          </p>
+        </div>
+
+        {mostrarAlerta && (
+          <Alert className="mt-4 bg-red-100 border-red-400">
+            <AlertCircle className="h-5 w-5 text-red-600" />
+            <AlertDescription className="text-red-900 font-bold">
+              ⚠️ ALERTA TROMBÓLISE! Tempo de deslocamento superior a 120 minutos. 
+              Considerar trombólise química antes do transporte.
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
 
       {/* Relatório Visual */}
@@ -324,7 +379,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         <Button
           onClick={handleFinalizar}
           className="bg-green-600 hover:bg-green-700"
-          disabled={!medico.nome || !medico.crm}
+          disabled={!medico.nome || !medico.crm || !tempoDeslocamento}
         >
           <CheckCircle className="w-4 h-4 mr-2" />
           Finalizar Atendimento
