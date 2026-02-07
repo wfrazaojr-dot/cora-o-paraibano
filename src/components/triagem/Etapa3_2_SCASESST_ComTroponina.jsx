@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, ArrowRight, Pill, TestTube, Activity } from "lucide-react";
 import TempoDor from "./TempoDor";
+import TempoECG from "./TempoECG";
 
 export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxima, onAnterior }) {
   const [dados, setDados] = useState({
@@ -230,6 +231,9 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
 
       {/* Tempo de Dor */}
       <TempoDor dataHoraInicioSintomas={dadosPaciente.data_hora_inicio_sintomas} />
+
+      {/* Tempo de ECG */}
+      <TempoECG dataHoraChegada={dadosPaciente.data_hora_chegada} dataHoraEcg={dadosPaciente.data_hora_ecg} />
 
       {/* 1. Prescrição Medicamentosa */}
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
