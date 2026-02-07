@@ -32,52 +32,138 @@ export default function Layout({ children, currentPageName }) {
 
 
 
-  const navigationItems = [
-    {
-      title: "Painel Inicial",
-      url: createPageUrl("Dashboard"),
-      icon: Activity,
-    },
-    {
-      title: "Novo Paciente",
-      url: createPageUrl("NovaTriagem"),
-      icon: Plus,
-    },
-    {
-      title: "Histórico",
-      url: createPageUrl("Historico"),
-      icon: History,
-    },
-    {
-      title: "Indicadores",
-      url: createPageUrl("Indicadores"),
-      icon: TrendingUp,
-    },
-    {
-      title: "Protocolos",
-      url: createPageUrl("Protocolos"),
-      icon: BookOpen,
-    },
-    {
-      title: "Estratégias e Condutas",
-      url: createPageUrl("ProtocoloEstrategias"),
-      icon: FileText,
-    },
-    {
-      title: "Manual",
-      url: createPageUrl("Manual"),
-      icon: FileText,
-    },
-  ];
+  const getNavigationItems = () => {
+    const equipe = user?.equipe || 'unidade_saude';
 
-  // Adicionar item de Administração apenas para admins
-  if (user?.role === 'admin') {
-    navigationItems.push({
-      title: "Administração",
-      url: createPageUrl("Administracao"),
-      icon: Shield,
-    });
-  }
+    // Menu para Unidades de Saúde
+    if (equipe === 'unidade_saude') {
+      return [
+        {
+          title: "Novo Paciente",
+          url: createPageUrl("NovaTriagem"),
+          icon: Plus,
+        },
+        {
+          title: "Histórico Unidades",
+          url: createPageUrl("HistoricoUnidades"),
+          icon: History,
+        },
+        {
+          title: "Protocolos",
+          url: createPageUrl("Protocolos"),
+          icon: BookOpen,
+        },
+        {
+          title: "Estratégias e Condutas",
+          url: createPageUrl("ProtocoloEstrategias"),
+          icon: FileText,
+        },
+      ];
+    }
+
+    // Menu para CERH
+    if (equipe === 'cerh') {
+      return [
+        {
+          title: "Painel Inicial",
+          url: createPageUrl("Dashboard"),
+          icon: Activity,
+        },
+        {
+          title: "Histórico",
+          url: createPageUrl("Historico"),
+          icon: History,
+        },
+        {
+          title: "Protocolos",
+          url: createPageUrl("Protocolos"),
+          icon: BookOpen,
+        },
+        {
+          title: "Manual",
+          url: createPageUrl("Manual"),
+          icon: FileText,
+        },
+      ];
+    }
+
+    // Menu para ASSCARDIO
+    if (equipe === 'asscardio') {
+      return [
+        {
+          title: "Painel Inicial",
+          url: createPageUrl("Dashboard"),
+          icon: Activity,
+        },
+        {
+          title: "Histórico",
+          url: createPageUrl("Historico"),
+          icon: History,
+        },
+        {
+          title: "Protocolos",
+          url: createPageUrl("Protocolos"),
+          icon: BookOpen,
+        },
+        {
+          title: "Manual",
+          url: createPageUrl("Manual"),
+          icon: FileText,
+        },
+      ];
+    }
+
+    // Menu para Admin (acesso pleno)
+    if (equipe === 'admin' || user?.role === 'admin') {
+      const items = [
+        {
+          title: "Painel Inicial",
+          url: createPageUrl("Dashboard"),
+          icon: Activity,
+        },
+        {
+          title: "Novo Paciente",
+          url: createPageUrl("NovaTriagem"),
+          icon: Plus,
+        },
+        {
+          title: "Histórico",
+          url: createPageUrl("Historico"),
+          icon: History,
+        },
+        {
+          title: "Indicadores",
+          url: createPageUrl("Indicadores"),
+          icon: TrendingUp,
+        },
+        {
+          title: "Protocolos",
+          url: createPageUrl("Protocolos"),
+          icon: BookOpen,
+        },
+        {
+          title: "Estratégias e Condutas",
+          url: createPageUrl("ProtocoloEstrategias"),
+          icon: FileText,
+        },
+        {
+          title: "Manual",
+          url: createPageUrl("Manual"),
+          icon: FileText,
+        },
+        {
+          title: "Administração",
+          url: createPageUrl("Administracao"),
+          icon: Shield,
+        },
+      ];
+      return items;
+    }
+
+    return [];
+  };
+
+  const navigationItems = getNavigationItems();
 
   const handleLogout = () => {
     if (confirm("Tem certeza que deseja sair do sistema?")) {
