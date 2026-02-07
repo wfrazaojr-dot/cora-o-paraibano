@@ -43,21 +43,21 @@ export default function Dashboard() {
     return dataPaciente.toDateString() === hoje.toDateString();
   });
 
-  const pacientesVermelhos = pacientesEmAtendimento.filter(p => 
-    p.classificacao_risco?.cor === "Vermelha"
+  const casosCriticos = pacientes.filter(p => 
+    p.triagem_medica?.tipo_sca === "SCACESST"
   );
 
-  const tempoMedioTriagem = pacientes
-    .filter(p => p.tempo_triagem_ecg_minutos)
-    .reduce((acc, p) => acc + p.tempo_triagem_ecg_minutos, 0) / 
-    (pacientes.filter(p => p.tempo_triagem_ecg_minutos).length || 1);
+  const casosAmarelosPrioridade = pacientes.filter(p => 
+    p.triagem_medica?.tipo_sca === "SCASESST_COM_TROPONINA" || 
+    p.triagem_medica?.tipo_sca === "SCASESST_SEM_TROPONINA"
+  );
 
-  const alertasMeta = pacientesEmAtendimento.filter(p => {
-    if (!p.data_hora_inicio_triagem) return false;
-    const minutos = differenceInMinutes(new Date(), new Date(p.data_hora_inicio_triagem));
-    return (p.classificacao_risco?.cor === "Vermelha" && minutos > 10) ||
-           (p.classificacao_risco?.cor === "Laranja" && minutos > 30);
-  });
+  const alertasCriticos = casosCriticos.length > 5 ? casosCriticos : [];
+  
+  const alertasAtivos = pacientesEmAtendimento.filter(p => 
+    p.triagem_medica?.tipo_sca === "SCACESST" && 
+    !p.regulacao_central?.medico_regulador_nome
+  );
 
   if (!user) {
     return (
@@ -102,24 +102,24 @@ export default function Dashboard() {
           />
           <StatsCard
             title="Casos Críticos"
-            value={pacientesVermelhos.length}
+            value={casosCriticos.length}
             icon={AlertTriangle}
             color="red"
-            subtitle="Prioridade vermelha"
+            subtitle="SCACESST"
           />
           <StatsCard
-            title="Tempo Médio ECG"
-            value={`${Math.round(tempoMedioTriagem)} min`}
+            title="Prioridade Amarela"
+            value={casosAmarelosPrioridade.length}
             icon={Clock}
-            color="green"
-            subtitle={tempoMedioTriagem <= 10 ? "Dentro da meta" : "Acima da meta"}
+            color="yellow"
+            subtitle="SCASESST"
           />
           <StatsCard
             title="Alertas Ativos"
-            value={alertasMeta.length}
+            value={alertasAtivos.length}
             icon={Activity}
             color="orange"
-            subtitle="Fora do tempo esperado"
+            subtitle="Aguardando CERH"
           />
         </div>
 
@@ -131,7 +131,9 @@ export default function Dashboard() {
             />
           </div>
           <div className="space-y-6">
-            <AlertasCriticos pacientes={alertasMeta} />
+            {alertasCriticos.length > 0 && (
+              <AlertasCriticos pacientes={alertasCriticos} />
+            )}
             <GraficoClassificacao pacientes={pacientesHoje} />
           </div>
         </div>
