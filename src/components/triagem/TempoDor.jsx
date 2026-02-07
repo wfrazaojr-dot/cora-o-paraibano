@@ -17,7 +17,7 @@ export default function TempoDor({ dataHoraInicioSintomas, className = "" }) {
   
   // Metas terapêuticas (em minutos)
   const metaPortaAgulha = 30; // Trombolítico
-  const metaPortaBalaο = 90; // Angioplastia primária
+  const metaPortaBalaο = 120; // Angioplastia primária
   const janelaMaximaIAM = 720; // 12 horas
   
   // Cálculo de tempo restante
@@ -122,7 +122,7 @@ export default function TempoDor({ dataHoraInicioSintomas, className = "" }) {
               }`}>
                 {formatarTempo(tempoRestanteBalaο)}
               </p>
-              <p className="text-xs text-gray-600 mt-0.5">Meta: 90 min</p>
+              <p className="text-xs text-gray-600 mt-0.5">Meta: 120 min</p>
               <p className={`text-xs font-medium mt-1 ${
                 dentroMetaBalaο ? 'text-blue-700' : 'text-orange-700'
               }`}>
