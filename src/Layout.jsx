@@ -19,6 +19,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
+import NotificacoesCenter from "@/components/NotificacoesCenter";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
