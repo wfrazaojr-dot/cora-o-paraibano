@@ -85,18 +85,20 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
   }, [dados.heart_score.historia_clinica, dados.heart_score.ecg, dados.heart_score.idade, dados.heart_score.fatores_risco, dados.heart_score.troponina]);
 
   const medicamentosComuns = [
-    { nome: "AAS", dose: "200-300mg", via: "VO (mastigado)" },
+    { nome: "AAS", dose: "300mg", via: "VO (mastigado)" },
+    { nome: "Mononitrato de Isossorbida", dose: "5-15mg", via: "SL" },
+    { nome: "Dinitrato de Isossorbida", dose: "5-15mg", via: "SL" },
+    { nome: "Morfina", dose: "1-2mg", via: "EV" },
+    { nome: "Atorvastatina", dose: "80mg", via: "VO" },
+    { nome: "Rosuvastatina", dose: "40mg", via: "VO" },
+    { nome: "Sinvastatina", dose: "40mg", via: "VO" },
+    { nome: "Enoxaparina", dose: "0,75-1mg/kg", via: "SC" },
+    { nome: "Enoxaparina (Trombólise)", dose: "30mg EV (15-30min pós fibrinolítico) + 30mg EV (15min pós)", via: "EV" },
     { nome: "Clopidogrel", dose: "300-600mg", via: "VO" },
-    { nome: "Ticagrelor", dose: "180mg", via: "VO" },
-    { nome: "Enoxaparina", dose: "1mg/kg", via: "SC" },
     { nome: "Captopril", dose: "50-100mg", via: "VO" },
-    { nome: "Mononitrato de Isossorbida", dose: "5mg", via: "SL" },
-    { nome: "Dinitrato de Isossorbida", dose: "5mg", via: "SL" },
     { nome: "Nitroglicerina", dose: "10-200mcg/min", via: "EV" },
-    { nome: "Morfina", dose: "2-4mg", via: "EV" },
     { nome: "Fentanil", dose: "25-50mcg", via: "EV" },
-    { nome: "Metoprolol", dose: "25-50mg", via: "VO" },
-    { nome: "Atorvastatina", dose: "40-80mg", via: "VO" }
+    { nome: "Metoprolol", dose: "25-50mg", via: "VO" }
   ];
 
   const examesComuns = [
