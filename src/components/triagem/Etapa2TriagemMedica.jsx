@@ -11,6 +11,10 @@ import { format, differenceInMinutes } from "date-fns";
 export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnterior }) {
   const [loading, setLoading] = useState(false);
   const [dados, setDados] = useState({
+    medico_nome: dadosPaciente.triagem_medica?.medico_nome || "",
+    medico_crm: dadosPaciente.triagem_medica?.medico_crm || "",
+    pa_braco_esquerdo: dadosPaciente.triagem_medica?.pa_braco_esquerdo || "",
+    pa_braco_direito: dadosPaciente.triagem_medica?.pa_braco_direito || "",
     pa_sistolica: dadosPaciente.triagem_medica?.pa_sistolica || "",
     pa_diastolica: dadosPaciente.triagem_medica?.pa_diastolica || "",
     diferenca_pa_mse_msd: dadosPaciente.triagem_medica?.diferenca_pa_mse_msd || "",
@@ -129,6 +133,33 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
         <p className="text-gray-600">Dados vitais, ECG e classificação inicial</p>
       </div>
 
+      {/* Identificação do Médico */}
+      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-green-900 mb-4">Identificação do Médico</h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <Label>Nome Completo do Médico *</Label>
+            <Input
+              type="text"
+              value={dados.medico_nome}
+              onChange={(e) => setDados(prev => ({...prev, medico_nome: e.target.value}))}
+              placeholder="Digite o nome completo"
+              required
+            />
+          </div>
+          <div>
+            <Label>Número do CRM *</Label>
+            <Input
+              type="text"
+              value={dados.medico_crm}
+              onChange={(e) => setDados(prev => ({...prev, medico_crm: e.target.value}))}
+              placeholder="Ex: 123456"
+              required
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Sinais Vitais */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center gap-2">
@@ -138,23 +169,23 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
         
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <Label>Pressão Arterial Sistólica (mmHg) *</Label>
+            <Label>Pressão Arterial Braço Esquerdo (mmHg) *</Label>
             <Input
-              type="number"
-              value={dados.pa_sistolica}
-              onChange={(e) => setDados(prev => ({...prev, pa_sistolica: parseInt(e.target.value) || ""}))}
-              placeholder="Ex: 120"
+              type="text"
+              value={dados.pa_braco_esquerdo}
+              onChange={(e) => setDados(prev => ({...prev, pa_braco_esquerdo: e.target.value}))}
+              placeholder="Ex: 120/80"
               required
             />
           </div>
 
           <div>
-            <Label>Pressão Arterial Diastólica (mmHg) *</Label>
+            <Label>Pressão Arterial Braço Direito (mmHg) *</Label>
             <Input
-              type="number"
-              value={dados.pa_diastolica}
-              onChange={(e) => setDados(prev => ({...prev, pa_diastolica: parseInt(e.target.value) || ""}))}
-              placeholder="Ex: 80"
+              type="text"
+              value={dados.pa_braco_direito}
+              onChange={(e) => setDados(prev => ({...prev, pa_braco_direito: e.target.value}))}
+              placeholder="Ex: 120/80"
               required
             />
           </div>
@@ -229,7 +260,17 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
             />
           </div>
 
-          <div>
+          <div className="md:col-span-2">
+            <div className="flex items-center gap-4">
+              <Checkbox
+                checked={dados.dpoc}
+                onCheckedChange={(checked) => setDados(prev => ({...prev, dpoc: checked}))}
+              />
+              <Label>DPOC</Label>
+            </div>
+          </div>
+
+          <div className="md:col-span-2">
             <Label>SpO2 (%) *</Label>
             <Input
               type="number"
@@ -237,6 +278,21 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
               onChange={(e) => setDados(prev => ({...prev, spo2: parseInt(e.target.value) || ""}))}
               required
             />
+            {dados.spo2 && (
+              <Alert className={`mt-2 ${
+                dados.dpoc 
+                  ? (dados.spo2 >= 88 && dados.spo2 <= 92 ? 'bg-green-50 border-green-300' : 'bg-orange-50 border-orange-300')
+                  : (dados.spo2 >= 92 && dados.spo2 <= 96 ? 'bg-green-50 border-green-300' : 'bg-orange-50 border-orange-300')
+              }`}>
+                <AlertDescription className={
+                  dados.dpoc 
+                    ? (dados.spo2 >= 88 && dados.spo2 <= 92 ? 'text-green-800' : 'text-orange-800')
+                    : (dados.spo2 >= 92 && dados.spo2 <= 96 ? 'text-green-800' : 'text-orange-800')
+                }>
+                  <strong>SpO2 Alvo {dados.dpoc ? 'DPOC' : ''}:</strong> {dados.dpoc ? '88% a 92%' : '92% a 96%'}
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
 
           <div className="md:col-span-2">
@@ -250,7 +306,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
             
             {dados.uso_oxigenio && (
               <div className="ml-8">
-                <Label>Litros de O2 por minuto *</Label>
+                <Label>Litros de O2 por minuto (L/min) *</Label>
                 <Input
                   type="number"
                   value={dados.litros_oxigenio}
@@ -262,7 +318,17 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
             )}
           </div>
 
-          <div>
+          <div className="md:col-span-2">
+            <div className="flex items-center gap-4">
+              <Checkbox
+                checked={dados.diabetes}
+                onCheckedChange={(checked) => setDados(prev => ({...prev, diabetes: checked}))}
+              />
+              <Label>Diabetes</Label>
+            </div>
+          </div>
+
+          <div className="md:col-span-2">
             <Label>Glicemia Capilar (mg/dL) *</Label>
             <Input
               type="number"
@@ -270,20 +336,56 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
               onChange={(e) => setDados(prev => ({...prev, glicemia_capilar: parseInt(e.target.value) || ""}))}
               required
             />
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Checkbox
-              checked={dados.diabetes}
-              onCheckedChange={(checked) => setDados(prev => ({...prev, diabetes: checked}))}
-            />
-            <Label>Diabetes</Label>
-
-            <Checkbox
-              checked={dados.dpoc}
-              onCheckedChange={(checked) => setDados(prev => ({...prev, dpoc: checked}))}
-            />
-            <Label>DPOC</Label>
+            {dados.glicemia_capilar && (
+              <div className="mt-2 space-y-1">
+                {dados.diabetes ? (
+                  <>
+                    <Alert className={`${
+                      (dados.glicemia_capilar < 70 || dados.glicemia_capilar > 400) 
+                        ? 'bg-red-100 border-red-400' 
+                        : (dados.glicemia_capilar >= 80 && dados.glicemia_capilar <= 180)
+                        ? 'bg-green-50 border-green-300'
+                        : 'bg-orange-50 border-orange-300'
+                    }`}>
+                      <AlertDescription className={
+                        (dados.glicemia_capilar < 70 || dados.glicemia_capilar > 400) 
+                          ? 'text-red-800 font-bold' 
+                          : (dados.glicemia_capilar >= 80 && dados.glicemia_capilar <= 180)
+                          ? 'text-green-800'
+                          : 'text-orange-800'
+                      }>
+                        {(dados.glicemia_capilar < 70 || dados.glicemia_capilar > 400) && (
+                          <>⚠️ <strong>Valores críticos:</strong> &lt; 70 ou &gt; 400 mg/dL (requer correção imediata)</>
+                        )}
+                        {(dados.glicemia_capilar >= 70 && dados.glicemia_capilar <= 400) && (
+                          <><strong>Meta de glicemia:</strong> 80 a 180 mg/dL</>
+                        )}
+                      </AlertDescription>
+                    </Alert>
+                  </>
+                ) : (
+                  <>
+                    <Alert className={`${
+                      (dados.glicemia_capilar < 60 || dados.glicemia_capilar > 400) 
+                        ? 'bg-red-100 border-red-400' 
+                        : 'bg-green-50 border-green-300'
+                    }`}>
+                      <AlertDescription className={
+                        (dados.glicemia_capilar < 60 || dados.glicemia_capilar > 400) 
+                          ? 'text-red-800 font-bold' 
+                          : 'text-green-800'
+                      }>
+                        {(dados.glicemia_capilar < 60 || dados.glicemia_capilar > 400) ? (
+                          <>⚠️ <strong>Valores críticos:</strong> &lt; 60 ou &gt; 400 mg/dL</>
+                        ) : (
+                          <><strong>Valores aceitáveis:</strong> 70 a 400 mg/dL</>
+                        )}
+                      </AlertDescription>
+                    </Alert>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
