@@ -12,6 +12,7 @@ import { Shield, Trash2, Database, Users, Activity, AlertTriangle, UserCog, Eye,
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import ConfiguracaoNotificacoesAdmin from "@/components/ConfiguracaoNotificacoesAdmin";
 
 const ROLES_INFO = {
   admin: {
