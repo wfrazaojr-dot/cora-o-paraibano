@@ -305,11 +305,19 @@ export default function Historico() {
                             <p className="text-xs text-gray-500 font-mono mt-1">
                               ID: {paciente.id}
                             </p>
-                            {user.role === 'admin' && (
-                              <p className="text-xs text-blue-600 mt-1">
-                                👤 Criado por: {paciente.created_by}
-                              </p>
-                            )}
+                            <p className="text-xs text-blue-600 mt-1">
+                               👤 Criado por: {paciente.created_by}
+                             </p>
+                             {paciente.historico_etapas && paciente.historico_etapas.length > 0 && (
+                               <div className="text-xs text-gray-500 mt-2 p-2 bg-gray-50 rounded">
+                                 <p className="font-semibold mb-1">Etapas preenchidas:</p>
+                                 {paciente.historico_etapas.map((etapa, idx) => (
+                                   <div key={idx} className="text-xs">
+                                     Etapa {etapa.etapa}: {etapa.medico_nome} ({format(new Date(etapa.data_hora), "dd/MM HH:mm", { locale: ptBR })})
+                                   </div>
+                                 ))}
+                               </div>
+                             )}
                           </div>
                           <div className="flex flex-col gap-2 items-end">
                             {paciente.classificacao_risco?.cor && (
