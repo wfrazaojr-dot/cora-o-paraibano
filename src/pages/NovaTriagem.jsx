@@ -77,7 +77,7 @@ export default function NovaTriagem() {
   const renderEtapa = () => {
     switch (etapaAtual) {
       case 1:
-        return <Etapa1DadosPaciente dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} />;
+        return <Etapa1DadosPaciente dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} />;
       case 2:
         return <Etapa2TriagemMedica dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} />;
       case 3:

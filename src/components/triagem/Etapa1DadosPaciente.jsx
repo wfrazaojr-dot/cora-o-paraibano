@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Clock, Building2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, Clock, Building2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
+export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnterior }) {
   const [dados, setDados] = useState({
     unidade_saude: dadosPaciente.unidade_saude || "",
     nome_completo: dadosPaciente.nome_completo || "",
@@ -135,8 +135,14 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima }) {
         </div>
       </div>
 
-      <div className="flex justify-end pt-4">
-        <Button type="submit" className="bg-red-600 hover:bg-red-700">
+      <div className="flex justify-between pt-4">
+        {onAnterior && (
+          <Button type="button" variant="outline" onClick={onAnterior}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Etapa Anterior
+          </Button>
+        )}
+        <Button type="submit" className="bg-red-600 hover:bg-red-700 ml-auto">
           Próxima Etapa
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
