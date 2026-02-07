@@ -144,7 +144,7 @@ export default function PacientesEmAtendimento({ pacientes, isLoading }) {
                       </p>
                     </div>
                     {paciente.classificacao_risco?.cor && (
-                      <Badge className={`${corClassificacao[paciente.classificacao_risco.cor]} border font-semibold`}>
+                      <Badge className={`${corClassificacao[paciente.classificacao_risco.cor] || 'bg-gray-100 text-gray-800 border-gray-300'} border font-semibold`}>
                         {paciente.classificacao_risco.cor}
                       </Badge>
                     )}
