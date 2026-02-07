@@ -267,9 +267,24 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         {/* Classificação */}
         <div className="mb-6">
           <h2 className="text-xl font-bold text-gray-900 mb-3 pb-2 border-b-2 border-gray-300">CLASSIFICAÇÃO</h2>
-          <div className="bg-yellow-50 border-2 border-yellow-500 rounded-lg p-4">
+          <div className={`rounded-lg p-4 border-2 ${
+            dadosPaciente.triagem_medica?.tipo_sca === 'SCACESST' 
+              ? 'bg-red-50 border-red-500' 
+              : dadosPaciente.classificacao_prioridade === 'Amarela'
+                ? 'bg-yellow-50 border-yellow-500'
+                : dadosPaciente.classificacao_prioridade === 'Verde'
+                  ? 'bg-green-50 border-green-500'
+                  : 'bg-yellow-50 border-yellow-500'
+          }`}>
             <p className="text-lg"><span className="font-semibold">Tipo de SCA:</span> {dadosPaciente.triagem_medica?.tipo_sca || "-"}</p>
-            <p className="text-lg"><span className="font-semibold">Prioridade:</span> {dadosPaciente.classificacao_prioridade || "-"}</p>
+            <p className="text-lg">
+              <span className="font-semibold">Prioridade:</span> 
+              <span className={`ml-2 font-bold ${
+                dadosPaciente.triagem_medica?.tipo_sca === 'SCACESST' ? 'text-red-700' : ''
+              }`}>
+                {dadosPaciente.triagem_medica?.tipo_sca === 'SCACESST' ? 'Vermelha' : (dadosPaciente.classificacao_prioridade || "-")}
+              </span>
+            </p>
           </div>
         </div>
 
