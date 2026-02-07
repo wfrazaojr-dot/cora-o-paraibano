@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, ArrowRight, Pill, TestTube } from "lucide-react";
 import TempoDor from "./TempoDor";
+import TempoECG from "./TempoECG";
 
 export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior }) {
   const [dados, setDados] = useState({
@@ -116,6 +117,9 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
 
       {/* Tempo de Dor */}
       <TempoDor dataHoraInicioSintomas={dadosPaciente.data_hora_inicio_sintomas} />
+
+      {/* Tempo de ECG */}
+      <TempoECG dataHoraChegada={dadosPaciente.data_hora_chegada} dataHoraEcg={dadosPaciente.data_hora_ecg} />
 
       {/* Prescrição Medicamentosa */}
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
