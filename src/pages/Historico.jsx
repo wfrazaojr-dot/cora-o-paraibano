@@ -137,93 +137,137 @@ export default function Historico() {
         </div>
 
         {/* Filtros */}
-        <Card className="shadow-md mb-6">
-          <CardContent className="p-6 space-y-4">
-            {/* Busca */}
-            <div>
-              <Label htmlFor="busca" className="mb-2 block text-sm font-medium">Buscar paciente</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                <Input
-                  id="busca"
-                  placeholder="Buscar por nome, prontuário, classificação ou ID do paciente..."
-                  value={busca}
-                  onChange={(e) => setBusca(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
+         <Card className="shadow-md mb-6">
+           <CardContent className="p-6 space-y-4">
+             {/* Busca por nome */}
+             <div>
+               <Label htmlFor="busca" className="mb-2 block text-sm font-medium">Buscar por nome do paciente</Label>
+               <div className="relative">
+                 <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                 <Input
+                   id="busca"
+                   placeholder="Digite o nome do paciente..."
+                   value={busca}
+                   onChange={(e) => setBusca(e.target.value)}
+                   className="pl-10"
+                 />
+               </div>
+             </div>
 
-            {/* Filtro de Status */}
-            <div>
-              <Label htmlFor="filtro-status" className="mb-2 block text-sm font-medium flex items-center gap-2">
-                <Filter className="w-4 h-4" />
-                Filtrar por Status
-              </Label>
-              <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-                <SelectTrigger id="filtro-status">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">
-                    📊 Todos os Status ({contadores.todos})
-                  </SelectItem>
-                  <SelectItem value="Em Atendimento">
-                    🔵 Em Atendimento ({contadores["Em Atendimento"]})
-                  </SelectItem>
-                  <SelectItem value="Aguardando Médico">
-                    🟡 Aguardando Médico ({contadores["Aguardando Médico"]})
-                  </SelectItem>
-                  <SelectItem value="Aguardando Regulação">
-                    🟠 Aguardando Regulação ({contadores["Aguardando Regulação"]})
-                  </SelectItem>
-                  <SelectItem value="Em Triagem">
-                    ⚪ Em Triagem
-                  </SelectItem>
-                  <SelectItem value="Transferido">
-                    🟣 Transferido
-                  </SelectItem>
-                  <SelectItem value="Alta">
-                    🟢 Alta
-                  </SelectItem>
-                  <SelectItem value="Óbito">
-                    🔴 Óbito
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+             {/* Filtro de Unidade */}
+             <div>
+               <Label htmlFor="filtro-unidade" className="mb-2 block text-sm font-medium flex items-center gap-2">
+                 <Filter className="w-4 h-4" />
+                 Filtrar por Unidade de Saúde
+               </Label>
+               <Select value={filtroUnidade} onValueChange={setFiltroUnidade}>
+                 <SelectTrigger id="filtro-unidade">
+                   <SelectValue />
+                 </SelectTrigger>
+                 <SelectContent>
+                   <SelectItem value="todas">Todas as Unidades</SelectItem>
+                   {unidadesDisponiveis.map(unidade => (
+                     <SelectItem key={unidade} value={unidade}>
+                       {unidade}
+                     </SelectItem>
+                   ))}
+                 </SelectContent>
+               </Select>
+             </div>
 
-            {/* Resumo dos filtros */}
-            {(busca || filtroStatus !== "todos") && (
-              <div className="pt-2 border-t">
-                <p className="text-sm text-gray-600">
-                  {pacientesFiltrados.length === 0 ? (
-                    <span className="text-red-600 font-medium">
-                      Nenhum paciente encontrado com os filtros aplicados
-                    </span>
-                  ) : (
-                    <span className="text-green-600 font-medium">
-                      Mostrando {pacientesFiltrados.length} de {pacientes.length} paciente(s)
-                    </span>
-                  )}
-                </p>
-                {(busca || filtroStatus !== "todos") && (
-                  <Button
-                    onClick={() => {
-                      setBusca("");
-                      setFiltroStatus("todos");
-                    }}
-                    variant="link"
-                    size="sm"
-                    className="text-blue-600 px-0 mt-1"
-                  >
-                    Limpar filtros
-                  </Button>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+             {/* Filtro de Data */}
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div>
+                 <Label htmlFor="data-inicio" className="mb-2 block text-sm font-medium">Data Inicial</Label>
+                 <Input
+                   id="data-inicio"
+                   type="date"
+                   value={dataInicio}
+                   onChange={(e) => setDataInicio(e.target.value)}
+                 />
+               </div>
+               <div>
+                 <Label htmlFor="data-fim" className="mb-2 block text-sm font-medium">Data Final</Label>
+                 <Input
+                   id="data-fim"
+                   type="date"
+                   value={dataFim}
+                   onChange={(e) => setDataFim(e.target.value)}
+                 />
+               </div>
+             </div>
+
+             {/* Filtro de Status */}
+             <div>
+               <Label htmlFor="filtro-status" className="mb-2 block text-sm font-medium flex items-center gap-2">
+                 <Filter className="w-4 h-4" />
+                 Filtrar por Status
+               </Label>
+               <Select value={filtroStatus} onValueChange={setFiltroStatus}>
+                 <SelectTrigger id="filtro-status">
+                   <SelectValue />
+                 </SelectTrigger>
+                 <SelectContent>
+                   <SelectItem value="todos">
+                     📊 Todos os Status ({contadores.todos})
+                   </SelectItem>
+                   <SelectItem value="Em Atendimento">
+                     🔵 Em Atendimento ({contadores["Em Atendimento"]})
+                   </SelectItem>
+                   <SelectItem value="Aguardando Médico">
+                     🟡 Aguardando Médico ({contadores["Aguardando Médico"]})
+                   </SelectItem>
+                   <SelectItem value="Aguardando Regulação">
+                     🟠 Aguardando Regulação ({contadores["Aguardando Regulação"]})
+                   </SelectItem>
+                   <SelectItem value="Em Triagem">
+                     ⚪ Em Triagem
+                   </SelectItem>
+                   <SelectItem value="Transferido">
+                     🟣 Transferido
+                   </SelectItem>
+                   <SelectItem value="Alta">
+                     🟢 Alta
+                   </SelectItem>
+                   <SelectItem value="Óbito">
+                     🔴 Óbito
+                   </SelectItem>
+                 </SelectContent>
+               </Select>
+             </div>
+
+             {/* Resumo dos filtros */}
+             {(busca || filtroStatus !== "todos" || filtroUnidade !== "todas" || dataInicio || dataFim) && (
+               <div className="pt-2 border-t">
+                 <p className="text-sm text-gray-600">
+                   {pacientesFiltrados.length === 0 ? (
+                     <span className="text-red-600 font-medium">
+                       Nenhum paciente encontrado com os filtros aplicados
+                     </span>
+                   ) : (
+                     <span className="text-green-600 font-medium">
+                       Mostrando {pacientesFiltrados.length} de {pacientes.length} paciente(s)
+                     </span>
+                   )}
+                 </p>
+                 <Button
+                   onClick={() => {
+                     setBusca("");
+                     setFiltroStatus("todos");
+                     setFiltroUnidade("todas");
+                     setDataInicio("");
+                     setDataFim("");
+                   }}
+                   variant="link"
+                   size="sm"
+                   className="text-blue-600 px-0 mt-1"
+                 >
+                   Limpar filtros
+                 </Button>
+               </div>
+             )}
+           </CardContent>
+         </Card>
 
         {/* Lista de Pacientes */}
         <Card className="shadow-md">
