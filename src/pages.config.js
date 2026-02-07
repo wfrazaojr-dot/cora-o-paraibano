@@ -60,7 +60,6 @@ import Manual from './pages/Manual';
 import NovaTriagem from './pages/NovaTriagem';
 import PINLogin from './pages/PINLogin';
 import ProtocoloEstrategias from './pages/ProtocoloEstrategias';
-import Protocolos from './pages/Protocolos';
 import RecuperarPIN from './pages/RecuperarPIN';
 import __Layout from './Layout.jsx';
 
@@ -79,7 +78,6 @@ export const PAGES = {
     "NovaTriagem": NovaTriagem,
     "PINLogin": PINLogin,
     "ProtocoloEstrategias": ProtocoloEstrategias,
-    "Protocolos": Protocolos,
     "RecuperarPIN": RecuperarPIN,
 }
 
