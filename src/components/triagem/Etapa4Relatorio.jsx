@@ -11,10 +11,13 @@ import { ptBR } from "date-fns/locale";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import TempoDor from "./TempoDor";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 
 export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId }) {
   const navigate = useNavigate();
   const relatorioRef = useRef(null);
+  const queryClient = useQueryClient();
   const [gerandoPDF, setGerandoPDF] = useState(false);
   const [medico, setMedico] = useState({
     nome: dadosPaciente.medico_nome || "",
@@ -24,6 +27,16 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
     dadosPaciente.tempo_deslocamento_minutos || ""
   );
   const [mostrarAlerta, setMostrarAlerta] = useState(false);
+
+  const updatePacienteMutation = useMutation({
+    mutationFn: async (dados) => {
+      return await base44.entities.Paciente.update(pacienteId, dados);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['paciente', pacienteId] });
+      queryClient.invalidateQueries({ queryKey: ['pacientes'] });
+    },
+  });
 
   const tempoDorMinutos = dadosPaciente.data_hora_inicio_sintomas
     ? differenceInMinutes(new Date(), new Date(dadosPaciente.data_hora_inicio_sintomas))
@@ -72,17 +85,29 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
     setGerandoPDF(false);
   };
 
-  const handleFinalizar = () => {
+  const handleFinalizar = async () => {
     if (!medico.nome || !medico.crm) {
       alert("Por favor, preencha o nome e CRM do médico");
       return;
     }
-    if (!tempoDeslocamento) {
+    if (tempoDeslocamento === "") {
       alert("Por favor, informe o tempo de deslocamento");
       return;
     }
-    alert("Atendimento finalizado com sucesso!");
-    navigate(createPageUrl("Dashboard"));
+
+    try {
+      await updatePacienteMutation.mutateAsync({
+        medico_nome: medico.nome,
+        medico_crm: medico.crm,
+        tempo_deslocamento_minutos: parseInt(tempoDeslocamento),
+        status: "Aguardando Assessoria",
+      });
+      alert("Atendimento finalizado com sucesso!");
+      navigate(createPageUrl("Dashboard"));
+    } catch (error) {
+      console.error("Erro ao finalizar atendimento:", error);
+      alert("Erro ao finalizar atendimento. Tente novamente.");
+    }
   };
 
   return (

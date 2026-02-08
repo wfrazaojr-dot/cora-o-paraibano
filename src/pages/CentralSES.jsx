@@ -245,6 +245,9 @@ export default function CentralSES() {
                   <div><strong>Idade:</strong> {paciente.idade} anos</div>
                   <div><strong>Sexo:</strong> {paciente.sexo}</div>
                   <div><strong>Unidade:</strong> {paciente.unidade_saude}</div>
+                  <div><strong>Médico Triagem:</strong> {paciente.medico_nome || "-"}</div>
+                  <div><strong>CRM:</strong> {paciente.medico_crm || "-"}</div>
+                  <div><strong>Tempo Deslocamento:</strong> {paciente.tempo_deslocamento_minutos ? `${paciente.tempo_deslocamento_minutos} min` : "-"}</div>
                   {paciente.triagem_medica?.tipo_sca && (
                     <div className="md:col-span-2">
                       <strong>Tipo de SCA:</strong> 
@@ -392,6 +395,9 @@ export default function CentralSES() {
                   <div><span className="font-semibold">Idade:</span> {paciente.idade} anos</div>
                   <div><span className="font-semibold">Sexo:</span> {paciente.sexo}</div>
                   <div><span className="font-semibold">Unidade:</span> {paciente.unidade_saude}</div>
+                  <div><span className="font-semibold">Médico Triagem:</span> {paciente.medico_nome || "-"}</div>
+                  <div><span className="font-semibold">CRM:</span> {paciente.medico_crm || "-"}</div>
+                  <div><span className="font-semibold">Tempo Deslocamento:</span> {paciente.tempo_deslocamento_minutos ? `${paciente.tempo_deslocamento_minutos} min` : "-"}</div>
                   {paciente.triagem_medica?.tipo_sca && (
                     <div className="col-span-2">
                       <span className="font-semibold">Tipo de SCA:</span> {paciente.triagem_medica.tipo_sca}
