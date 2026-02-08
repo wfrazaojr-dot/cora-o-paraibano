@@ -345,10 +345,10 @@ export default function Layout({ children, currentPageName }) {
         </Sidebar>
 
           <main className="flex-1 flex flex-col">
-            <header className="bg-white border-b border-gray-200 px-6 py-4 md:hidden shadow-sm">
-              <div className="flex items-center gap-4">
-                <SidebarTrigger className="hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200" />
-                <h1 className="text-xl font-bold text-red-600">Coração Paraibano</h1>
+            <header className="bg-white border-b border-gray-200 px-4 py-3 md:hidden shadow-sm">
+              <div className="flex items-center gap-3">
+                <SidebarTrigger className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-lg shadow-lg transition-all duration-200" />
+                <h1 className="text-lg font-bold text-red-600">Coração Paraibano</h1>
               </div>
             </header>
 
