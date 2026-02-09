@@ -15,7 +15,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
     sexo: dadosPaciente.sexo || "",
     data_atendimento: dadosPaciente.data_atendimento || format(new Date(), "yyyy-MM-dd"),
     hora_chegada: dadosPaciente.hora_chegada || "",
-    data_hora_inicio_sintomas: dadosPaciente.data_hora_inicio_sintomas || format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+    data_hora_inicio_sintomas: dadosPaciente.data_hora_inicio_sintomas || "",
     hora_classificacao_risco: dadosPaciente.triagem_enfermagem?.hora_classificacao_risco || "",
     hora_ecg: dadosPaciente.triagem_enfermagem?.hora_ecg || "",
     classificacao_risco: dadosPaciente.triagem_enfermagem?.classificacao_risco || "",
