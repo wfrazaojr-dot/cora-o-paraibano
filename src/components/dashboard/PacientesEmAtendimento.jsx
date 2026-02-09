@@ -137,12 +137,19 @@ export default function PacientesEmAtendimento({ pacientes, isLoading }) {
                 getVitalStatus(vitais.spo2, "spo2", paciente) === "critico" ||
                 getVitalStatus(vitais.glicemia_capilar, "glicemia", paciente) === "critico";
               
+              // Definir cor de fundo baseado na prioridade
+              const corFundoPrioridade = {
+                "Vermelha": "bg-red-100 border-red-400",
+                "Amarela": "bg-yellow-100 border-yellow-400",
+                "Verde": "bg-green-100 border-green-400"
+              };
+              
+              const classePrioridade = corFundoPrioridade[paciente.classificacao_prioridade] || "bg-white border-gray-200";
+              
               return (
                 <div 
                   key={paciente.id}
-                  className={`p-4 border-2 rounded-lg hover:shadow-md transition-all ${
-                    temVitaisCriticos ? "border-red-300 bg-red-50" : "border-gray-200 bg-white"
-                  }`}
+                  className={`p-4 border-2 rounded-lg hover:shadow-md transition-all ${classePrioridade}`}
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div>
