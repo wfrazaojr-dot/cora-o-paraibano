@@ -14,8 +14,10 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
     sexo: dadosPaciente.sexo || "",
     data_atendimento: dadosPaciente.data_atendimento || format(new Date(), "yyyy-MM-dd"),
     hora_chegada: dadosPaciente.hora_chegada || "",
-    hora_ecg: dadosPaciente.hora_ecg || "",
     data_hora_inicio_sintomas: dadosPaciente.data_hora_inicio_sintomas || "",
+    hora_classificacao_risco: dadosPaciente.triagem_enfermagem?.hora_classificacao_risco || "",
+    hora_ecg: dadosPaciente.triagem_enfermagem?.hora_ecg || "",
+    classificacao_risco: dadosPaciente.triagem_enfermagem?.classificacao_risco || "",
     status: "Em Triagem"
   });
 
@@ -34,6 +36,19 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
 
   const tempoDor = calcularTempoDor();
 
+  const calcularTempoTriagemEcg = () => {
+    if (!dados.hora_classificacao_risco || !dados.hora_ecg) return null;
+    
+    const dataAtendimento = dados.data_atendimento || format(new Date(), "yyyy-MM-dd");
+    const dataClassificacao = new Date(`${dataAtendimento}T${dados.hora_classificacao_risco}`);
+    const dataEcg = new Date(`${dataAtendimento}T${dados.hora_ecg}`);
+    
+    const minutos = differenceInMinutes(dataEcg, dataClassificacao);
+    return minutos;
+  };
+
+  const tempoTriagemEcg = calcularTempoTriagemEcg();
+
   const handleSubmit = (e) => {
     e.preventDefault();
     
@@ -47,19 +62,30 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
       return;
     }
 
-    if (!dados.hora_chegada || !dados.hora_ecg) {
-      alert("Por favor, preencha os horários de chegada e ECG");
+    if (!dados.hora_chegada) {
+      alert("Por favor, preencha o horário de chegada");
+      return;
+    }
+
+    if (!dados.hora_classificacao_risco || !dados.hora_ecg || !dados.classificacao_risco) {
+      alert("Por favor, preencha todos os campos da Triagem de Enfermagem (hora da classificação de risco, hora do ECG e classificação de risco)");
       return;
     }
     
     // Converter data e horas para datetime-local format
     const dataChegada = `${dados.data_atendimento}T${dados.hora_chegada}`;
+    const dataClassificacaoRisco = `${dados.data_atendimento}T${dados.hora_classificacao_risco}`;
     const dataEcg = `${dados.data_atendimento}T${dados.hora_ecg}`;
     
     onProxima({
       ...dados,
       data_hora_chegada: dataChegada,
-      data_hora_ecg: dataEcg
+      triagem_enfermagem: {
+        data_hora_classificacao_risco: dataClassificacaoRisco,
+        data_hora_ecg: dataEcg,
+        tempo_triagem_ecg_minutos: tempoTriagemEcg,
+        classificacao_risco: dados.classificacao_risco
+      }
     });
   };
 
@@ -159,7 +185,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
           Data e Horários do Atendimento *
         </Label>
 
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="data_atendimento" className="text-sm">Data *</Label>
             <Input
@@ -181,6 +207,26 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
               required
             />
           </div>
+        </div>
+      </div>
+
+      {/* Triagem de Enfermagem */}
+      <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-4">
+        <Label className="text-base font-semibold text-purple-900 mb-4 block">
+          Triagem de Enfermagem *
+        </Label>
+
+        <div className="grid md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="hora_classificacao_risco" className="text-sm">Hora da Classificação de Risco *</Label>
+            <Input
+              id="hora_classificacao_risco"
+              type="time"
+              value={dados.hora_classificacao_risco}
+              onChange={(e) => setDados(prev => ({...prev, hora_classificacao_risco: e.target.value}))}
+              required
+            />
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="hora_ecg" className="text-sm">Hora de Realização do ECG *</Label>
@@ -192,8 +238,54 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
               required
             />
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="classificacao_risco" className="text-sm">Classificação de Risco *</Label>
+            <select
+              id="classificacao_risco"
+              value={dados.classificacao_risco}
+              onChange={(e) => setDados(prev => ({...prev, classificacao_risco: e.target.value}))}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              required
+            >
+              <option value="">Selecione a cor</option>
+              <option value="vermelha">🔴 Vermelha</option>
+              <option value="laranja">🟠 Laranja</option>
+              <option value="amarela">🟡 Amarela</option>
+              <option value="verde">🟢 Verde</option>
+            </select>
+          </div>
         </div>
-        </div>
+
+        {tempoTriagemEcg !== null && tempoTriagemEcg >= 0 && (
+          <div className={`mt-4 border-2 rounded-lg p-3 ${
+            tempoTriagemEcg <= 10 ? 'bg-green-50 border-green-300' : 'bg-orange-50 border-orange-300'
+          }`}>
+            <div className="flex items-center gap-3">
+              <Clock className={`w-5 h-5 ${
+                tempoTriagemEcg <= 10 ? 'text-green-600' : 'text-orange-600'
+              }`} />
+              <div className="flex-1">
+                <p className={`text-sm font-semibold ${
+                  tempoTriagemEcg <= 10 ? 'text-green-900' : 'text-orange-900'
+                }`}>
+                  Indicador Triagem ECG
+                </p>
+                <p className={`text-xl font-bold ${
+                  tempoTriagemEcg <= 10 ? 'text-green-700' : 'text-orange-700'
+                }`}>
+                  {tempoTriagemEcg} minutos
+                </p>
+                <p className={`text-xs font-medium mt-1 ${
+                  tempoTriagemEcg <= 10 ? 'text-green-700' : 'text-orange-700'
+                }`}>
+                  {tempoTriagemEcg <= 10 ? '✓ Dentro da meta (≤ 10 minutos)' : '⚠️ Acima da meta de 10 minutos'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {tempoDor && tempoDor.totalMinutos >= 0 && (
         <div className={`border-2 rounded-lg p-4 ${

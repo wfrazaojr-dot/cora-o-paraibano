@@ -28,12 +28,10 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
     dpoc: dadosPaciente.triagem_medica?.dpoc || false,
     glicemia_capilar: dadosPaciente.triagem_medica?.glicemia_capilar || "",
     ecg_files: dadosPaciente.triagem_medica?.ecg_files || [],
-    data_hora_ecg: dadosPaciente.triagem_medica?.data_hora_ecg || "",
     alteracoes_ecg: dadosPaciente.triagem_medica?.alteracoes_ecg || [],
     tipo_sca: dadosPaciente.triagem_medica?.tipo_sca || ""
   });
 
-  const [tempoEntradaEcg, setTempoEntradaEcg] = useState(null);
   const [mostrarAlertaEcg, setMostrarAlertaEcg] = useState(false);
 
   useEffect(() => {
@@ -42,22 +40,6 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
       setMostrarAlertaEcg(true);
     }
   }, [dados]);
-
-  useEffect(() => {
-    if (dados.data_hora_ecg && dadosPaciente.data_hora_chegada) {
-      try {
-        const dataEcg = new Date(dados.data_hora_ecg);
-        const dataChegada = new Date(dadosPaciente.data_hora_chegada);
-        
-        if (!isNaN(dataEcg.getTime()) && !isNaN(dataChegada.getTime())) {
-          const minutos = differenceInMinutes(dataEcg, dataChegada);
-          setTempoEntradaEcg(minutos);
-        }
-      } catch (error) {
-        console.error("Erro ao calcular tempo ECG:", error);
-      }
-    }
-  }, [dados.data_hora_ecg, dadosPaciente.data_hora_chegada]);
 
   const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files);
@@ -118,8 +100,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
       triagem_medica: {
         ...dados,
         litros_oxigenio: dados.uso_oxigenio && dados.litros_oxigenio ? parseFloat(dados.litros_oxigenio) : undefined,
-        data_hora_inicio: dadosPaciente.data_hora_chegada,
-        tempo_entrada_ecg_minutos: tempoEntradaEcg
+        data_hora_inicio: dadosPaciente.data_hora_chegada
       }
     };
 
@@ -422,26 +403,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
             )}
           </div>
 
-          {dados.ecg_files.length > 0 && (
-            <div>
-              <Label>Data e Hora da Realização do ECG *</Label>
-              <Input
-                type="datetime-local"
-                value={dados.data_hora_ecg}
-                onChange={(e) => setDados(prev => ({...prev, data_hora_ecg: e.target.value}))}
-                required
-              />
-              
-              {tempoEntradaEcg !== null && (
-                <Alert className={`mt-3 ${tempoEntradaEcg <= 10 ? 'bg-green-50 border-green-300' : 'bg-orange-50 border-orange-300'}`}>
-                  <AlertDescription className={tempoEntradaEcg <= 10 ? 'text-green-800' : 'text-orange-800'}>
-                    <strong>Tempo Entrada → ECG:</strong> {tempoEntradaEcg} minutos
-                    {tempoEntradaEcg <= 10 ? ' ✓ Dentro da meta' : ' ⚠ Acima da meta de 10 minutos'}
-                  </AlertDescription>
-                </Alert>
-              )}
-            </div>
-          )}
+
         </div>
 
         {/* Alterações ECG */}
