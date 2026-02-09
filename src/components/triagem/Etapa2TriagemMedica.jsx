@@ -26,20 +26,12 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
     diabetes: dadosPaciente.triagem_medica?.diabetes || false,
     dpoc: dadosPaciente.triagem_medica?.dpoc || false,
     glicemia_capilar: dadosPaciente.triagem_medica?.glicemia_capilar || "",
-    ecg_files: dadosPaciente.triagem_medica?.ecg_files || [],
+    ecg_files: dadosPaciente.triagem_enfermagem?.ecg_files || [],
     alteracoes_ecg: dadosPaciente.triagem_medica?.alteracoes_ecg || [],
     tipo_sca: dadosPaciente.triagem_medica?.tipo_sca || ""
   });
 
-  // Carregar ECGs da etapa 1 se existirem
-  useEffect(() => {
-    if (dadosPaciente.triagem_enfermagem?.ecg_files?.length > 0 && dados.ecg_files.length === 0) {
-      setDados(prev => ({
-        ...prev,
-        ecg_files: dadosPaciente.triagem_enfermagem.ecg_files
-      }));
-    }
-  }, [dadosPaciente.triagem_enfermagem?.ecg_files]);
+
 
   const alteracoesEcgOptions = [
     "Onda T hiperaguda ou evolução típica",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -9,22 +9,40 @@ import { base44 } from "@/api/base44Client";
 
 export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnterior }) {
   const [dados, setDados] = useState({
-    unidade_saude: dadosPaciente.unidade_saude || "",
-    nome_completo: dadosPaciente.nome_completo || "",
-    idade: dadosPaciente.idade || "",
-    sexo: dadosPaciente.sexo || "",
-    data_atendimento: dadosPaciente.data_atendimento || format(new Date(), "yyyy-MM-dd"),
-    hora_chegada: dadosPaciente.hora_chegada || "",
-    data_sintomas: dadosPaciente.data_sintomas || format(new Date(), "yyyy-MM-dd"),
-    hora_sintomas: dadosPaciente.hora_sintomas || "",
-    hora_classificacao_risco: dadosPaciente.triagem_enfermagem?.hora_classificacao_risco || "",
-    hora_ecg: dadosPaciente.triagem_enfermagem?.hora_ecg || "",
-    classificacao_risco: dadosPaciente.triagem_enfermagem?.classificacao_risco || "",
-    ecg_files: dadosPaciente.triagem_enfermagem?.ecg_files || [],
+    unidade_saude: "",
+    nome_completo: "",
+    idade: "",
+    sexo: "",
+    data_atendimento: format(new Date(), "yyyy-MM-dd"),
+    hora_chegada: "",
+    data_sintomas: format(new Date(), "yyyy-MM-dd"),
+    hora_sintomas: "",
+    hora_classificacao_risco: "",
+    hora_ecg: "",
+    classificacao_risco: "",
+    ecg_files: [],
     status: "Em Triagem"
   });
 
   const [uploadingECG, setUploadingECG] = useState(false);
+
+  useEffect(() => {
+    setDados({
+      unidade_saude: dadosPaciente.unidade_saude || "",
+      nome_completo: dadosPaciente.nome_completo || "",
+      idade: dadosPaciente.idade || "",
+      sexo: dadosPaciente.sexo || "",
+      data_atendimento: dadosPaciente.data_hora_chegada ? format(new Date(dadosPaciente.data_hora_chegada), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
+      hora_chegada: dadosPaciente.data_hora_chegada ? format(new Date(dadosPaciente.data_hora_chegada), "HH:mm") : "",
+      data_sintomas: dadosPaciente.data_hora_inicio_sintomas ? format(new Date(dadosPaciente.data_hora_inicio_sintomas), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
+      hora_sintomas: dadosPaciente.data_hora_inicio_sintomas ? format(new Date(dadosPaciente.data_hora_inicio_sintomas), "HH:mm") : "",
+      hora_classificacao_risco: dadosPaciente.triagem_enfermagem?.data_hora_classificacao_risco ? format(new Date(dadosPaciente.triagem_enfermagem.data_hora_classificacao_risco), "HH:mm") : "",
+      hora_ecg: dadosPaciente.triagem_enfermagem?.data_hora_ecg ? format(new Date(dadosPaciente.triagem_enfermagem.data_hora_ecg), "HH:mm") : "",
+      classificacao_risco: dadosPaciente.triagem_enfermagem?.classificacao_risco || "",
+      ecg_files: dadosPaciente.triagem_enfermagem?.ecg_files || [],
+      status: "Em Triagem"
+    });
+  }, [dadosPaciente]);
 
   const calcularTempoDor = () => {
     if (!dados.data_sintomas || !dados.hora_sintomas) return null;
