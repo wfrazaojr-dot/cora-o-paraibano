@@ -8,6 +8,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, ArrowRight, Pill, TestTube, Activity, AlertCircle } from "lucide-react";
 import TempoDor from "./TempoDor";
 import TempoECG from "./TempoECG";
+import TempoPortaAgulhaEtapa3 from "./TempoPortaAgulhaEtapa3";
+import TempoPortaBalaoEtapa3 from "./TempoPortaBalaoEtapa3";
 
 export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxima, onAnterior }) {
   const [dados, setDados] = useState({
@@ -236,6 +238,12 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
 
       {/* Tempo de ECG */}
       <TempoECG dataHoraChegada={dadosPaciente.data_hora_chegada} dataHoraEcg={dadosPaciente.data_hora_ecg} />
+
+      {/* Temporizadores Porta-Agulha e Porta-Balão */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <TempoPortaAgulhaEtapa3 dataHoraInicioTriagem={dadosPaciente.data_hora_inicio_triagem} />
+        <TempoPortaBalaoEtapa3 dataHoraInicioTriagem={dadosPaciente.data_hora_inicio_triagem} />
+      </div>
 
       {/* Alerta sobre uso de inibidor da fosfodiesterase */}
       {dadosPaciente.uso_inibidor_fosfodiesterase === true && (

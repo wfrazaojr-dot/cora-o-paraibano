@@ -7,6 +7,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, ArrowRight, Pill, TestTube, AlertCircle } from "lucide-react";
 import TempoDor from "./TempoDor";
 import TempoECG from "./TempoECG";
+import TempoPortaAgulhaEtapa3 from "./TempoPortaAgulhaEtapa3";
+import TempoPortaBalaoEtapa3 from "./TempoPortaBalaoEtapa3";
 
 export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior }) {
   const [dados, setDados] = useState({
@@ -120,6 +122,12 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
 
       {/* Tempo de ECG */}
       <TempoECG dataHoraChegada={dadosPaciente.data_hora_chegada} dataHoraEcg={dadosPaciente.data_hora_ecg} />
+
+      {/* Temporizadores Porta-Agulha e Porta-Balão */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <TempoPortaAgulhaEtapa3 dataHoraInicioTriagem={dadosPaciente.data_hora_inicio_triagem} />
+        <TempoPortaBalaoEtapa3 dataHoraInicioTriagem={dadosPaciente.data_hora_inicio_triagem} />
+      </div>
 
       {/* Alerta sobre uso de inibidor da fosfodiesterase */}
       {dadosPaciente.uso_inibidor_fosfodiesterase === true && (
