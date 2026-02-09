@@ -43,6 +43,9 @@ export default function NovaTriagem() {
           setPacienteId(paciente.id);
         }
       });
+    } else {
+      // Novo paciente - iniciar contagem de tempo
+      setDataHoraInicioTriagem(new Date().toISOString());
     }
   }, [idUrl]);
 
@@ -66,7 +69,11 @@ export default function NovaTriagem() {
 
   const handleProximaEtapa = async (dadosEtapa) => {
     try {
-      const dadosAtualizados = { ...dadosPaciente, ...dadosEtapa };
+      const dadosAtualizados = { 
+        ...dadosPaciente, 
+        ...dadosEtapa,
+        data_hora_inicio_triagem: dadosPaciente.data_hora_inicio_triagem || dataHoraInicioTriagem
+      };
       setDadosPaciente(dadosAtualizados);
       
       const resultado = await salvarMutation.mutateAsync(dadosAtualizados);
