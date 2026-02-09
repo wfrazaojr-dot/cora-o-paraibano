@@ -4,12 +4,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, ArrowRight, Upload, AlertTriangle, Activity, FileText, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Activity, FileText } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { format, differenceInMinutes } from "date-fns";
 
 export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnterior }) {
-  const [loading, setLoading] = useState(false);
   const [dados, setDados] = useState({
     medico_nome: dadosPaciente.triagem_medica?.medico_nome || "",
     medico_crm: dadosPaciente.triagem_medica?.medico_crm || "",
@@ -32,8 +31,6 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
     tipo_sca: dadosPaciente.triagem_medica?.tipo_sca || ""
   });
 
-  const [mostrarAlertaEcg, setMostrarAlertaEcg] = useState(false);
-
   // Carregar ECGs da etapa 1 se existirem
   useEffect(() => {
     if (dadosPaciente.triagem_enfermagem?.ecg_files?.length > 0 && dados.ecg_files.length === 0) {
@@ -43,44 +40,6 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
       }));
     }
   }, [dadosPaciente.triagem_enfermagem?.ecg_files]);
-
-  useEffect(() => {
-    if (dados.pa_sistolica && dados.pa_diastolica && dados.frequencia_cardiaca && 
-        dados.frequencia_respiratoria && dados.temperatura && dados.spo2) {
-      setMostrarAlertaEcg(true);
-    }
-  }, [dados]);
-
-  const handleFileUpload = async (e) => {
-    const files = Array.from(e.target.files);
-    if (dados.ecg_files.length + files.length > 3) {
-      alert("Máximo de 3 arquivos");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const uploadPromises = files.map(file => base44.integrations.Core.UploadFile({ file }));
-      const results = await Promise.all(uploadPromises);
-      const urls = results.map(r => r.file_url);
-      
-      setDados(prev => ({
-        ...prev,
-        ecg_files: [...prev.ecg_files, ...urls]
-      }));
-    } catch (error) {
-      alert("Erro ao fazer upload dos arquivos");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRemoveECG = (index) => {
-    setDados(prev => ({
-      ...prev,
-      ecg_files: prev.ecg_files.filter((_, i) => i !== index)
-    }));
-  };
 
   const alteracoesEcgOptions = [
     "Onda T hiperaguda ou evolução típica",
@@ -388,81 +347,42 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
         </div>
       </div>
 
-      {/* Alerta ECG */}
-      {mostrarAlertaEcg && (
-        <Alert className="bg-red-50 border-red-300">
-          <AlertTriangle className="h-5 w-5 text-red-600" />
-          <AlertDescription className="text-red-800 font-semibold text-lg">
-            ⚠️ ANEXAR ECG
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Upload ECG */}
+      {/* Visualização ECG */}
       <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-yellow-900 mb-4">Eletrocardiograma (ECG)</h3>
         
-        <div className="space-y-4">
-          <div>
-            <Label>Anexar ECG (até 3 arquivos - PDF, JPEG, PNG)</Label>
-            <Input
-              type="file"
-              accept=".pdf,.jpg,.jpeg,.png,image/*"
-              multiple
-              onChange={handleFileUpload}
-              disabled={loading || dados.ecg_files.length >= 3}
-              className="mt-2"
-            />
-            {dados.ecg_files.length > 0 && (
-              <p className="text-sm text-green-600 mt-2">
-                ✓ {dados.ecg_files.length} arquivo(s) anexado(s)
-              </p>
-            )}
-          </div>
-
-          {/* Visualização dos ECGs */}
-          {dados.ecg_files.length > 0 && (
-            <div className="grid md:grid-cols-2 gap-4 mt-4">
-              {dados.ecg_files.map((fileUrl, index) => (
-                <div key={index} className="relative border-2 border-yellow-200 rounded-lg overflow-hidden bg-white">
-                  <div className="absolute top-2 right-2 z-10">
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="destructive"
-                      onClick={() => handleRemoveECG(index)}
-                      className="h-8 w-8"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  {fileUrl.toLowerCase().endsWith('.pdf') ? (
-                    <div className="p-4 flex items-center gap-3">
-                      <FileText className="w-8 h-8 text-yellow-600" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">ECG {index + 1}</p>
-                        <a
-                          href={fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-yellow-600 hover:underline"
-                        >
-                          Visualizar PDF
-                        </a>
-                      </div>
+        {dados.ecg_files.length > 0 ? (
+          <div className="grid md:grid-cols-2 gap-4">
+            {dados.ecg_files.map((fileUrl, index) => (
+              <div key={index} className="border-2 border-yellow-200 rounded-lg overflow-hidden bg-white">
+                {fileUrl.toLowerCase().endsWith('.pdf') ? (
+                  <div className="p-4 flex items-center gap-3">
+                    <FileText className="w-8 h-8 text-yellow-600" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">ECG {index + 1}</p>
+                      <a
+                        href={fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-yellow-600 hover:underline"
+                      >
+                        Visualizar PDF
+                      </a>
                     </div>
-                  ) : (
-                    <img
-                      src={fileUrl}
-                      alt={`ECG ${index + 1}`}
-                      className="w-full h-48 object-contain bg-gray-50"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                  </div>
+                ) : (
+                  <img
+                    src={fileUrl}
+                    alt={`ECG ${index + 1}`}
+                    className="w-full h-48 object-contain bg-gray-50"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-600">Nenhum ECG anexado na Etapa 1</p>
+        )}
 
         {/* Alterações ECG */}
         {dados.ecg_files.length > 0 && (
