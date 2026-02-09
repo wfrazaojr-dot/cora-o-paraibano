@@ -341,14 +341,14 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
                     <Alert className={`${
                       (dados.glicemia_capilar < 70 || dados.glicemia_capilar > 400) 
                         ? 'bg-red-100 border-red-400' 
-                        : (dados.glicemia_capilar >= 80 && dados.glicemia_capilar <= 180)
+                        : (dados.glicemia_capilar >= 80 && dados.glicemia_capilar <= 200)
                         ? 'bg-green-50 border-green-300'
                         : 'bg-orange-50 border-orange-300'
                     }`}>
                       <AlertDescription className={
                         (dados.glicemia_capilar < 70 || dados.glicemia_capilar > 400) 
                           ? 'text-red-800 font-bold' 
-                          : (dados.glicemia_capilar >= 80 && dados.glicemia_capilar <= 180)
+                          : (dados.glicemia_capilar >= 80 && dados.glicemia_capilar <= 200)
                           ? 'text-green-800'
                           : 'text-orange-800'
                       }>
@@ -356,7 +356,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
                           <>⚠️ <strong>Valores críticos:</strong> &lt; 70 ou &gt; 400 mg/dL (requer correção imediata)</>
                         )}
                         {(dados.glicemia_capilar >= 70 && dados.glicemia_capilar <= 400) && (
-                          <><strong>Meta de glicemia:</strong> 80 a 180 mg/dL</>
+                          <><strong>Meta de glicemia:</strong> 80 a 200 mg/dL</>
                         )}
                       </AlertDescription>
                     </Alert>
@@ -364,17 +364,17 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
                 ) : (
                   <>
                     <Alert className={`${
-                      (dados.glicemia_capilar < 60 || dados.glicemia_capilar > 200) 
+                      (dados.glicemia_capilar < 70 || dados.glicemia_capilar > 200) 
                         ? 'bg-red-100 border-red-400' 
                         : 'bg-green-50 border-green-300'
                     }`}>
                       <AlertDescription className={
-                        (dados.glicemia_capilar < 60 || dados.glicemia_capilar > 200) 
+                        (dados.glicemia_capilar < 70 || dados.glicemia_capilar > 200) 
                           ? 'text-red-800 font-bold' 
                           : 'text-green-800'
                       }>
-                        {(dados.glicemia_capilar < 60 || dados.glicemia_capilar > 200) ? (
-                          <>⚠️ <strong>Valores críticos:</strong> &lt; 60 ou &gt; 200 mg/dL</>
+                        {(dados.glicemia_capilar < 70 || dados.glicemia_capilar > 200) ? (
+                          <>⚠️ <strong>Valores críticos:</strong> &lt; 70 ou &gt; 200 mg/dL</>
                         ) : (
                           <><strong>Valores aceitáveis:</strong> 70 a 200 mg/dL</>
                         )}
