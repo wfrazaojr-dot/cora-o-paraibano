@@ -30,13 +30,13 @@ export default function Layout({ children, currentPageName }) {
     queryFn: () => base44.auth.me(),
   });
 
-  // Redirecionar para PerfilSelection se necessário
+  // Redirecionar para PerfilSelection se não tiver equipe selecionada
   useEffect(() => {
-    if (user && currentPageName !== "PerfilSelection" && currentPageName !== "CoracaoParaibano") {
-      const profissionalLogado = sessionStorage.getItem("profissional_logado");
-      if (!profissionalLogado) {
-        navigate(createPageUrl("PerfilSelection"));
-      }
+    if (user && currentPageName === "PerfilSelection") {
+      return; // Já está na página de seleção
+    }
+    if (user && !user.equipe) {
+      navigate(createPageUrl("PerfilSelection"));
     }
   }, [user, currentPageName, navigate]);
 
