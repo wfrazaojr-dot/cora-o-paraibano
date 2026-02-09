@@ -32,6 +32,19 @@ export default function NovaTriagem() {
   const urlParams = new URLSearchParams(window.location.search);
   const idUrl = urlParams.get('id');
 
+  // Carregar dados do paciente se ID existir na URL
+  useEffect(() => {
+    if (idUrl) {
+      base44.entities.Paciente.filter({ id: idUrl }).then((pacientes) => {
+        if (pacientes && pacientes.length > 0) {
+          const paciente = pacientes[0];
+          setDadosPaciente(paciente);
+          setPacienteId(paciente.id);
+        }
+      });
+    }
+  }, [idUrl]);
+
   const salvarMutation = useMutation({
     mutationFn: async (dados) => {
       if (pacienteId) {
