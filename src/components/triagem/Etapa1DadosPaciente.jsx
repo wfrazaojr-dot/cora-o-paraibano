@@ -20,7 +20,6 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
     hora_classificacao_risco: "",
     hora_ecg: "",
     classificacao_risco: "",
-    ecg_files: [],
     status: "Em Triagem"
   });
 
