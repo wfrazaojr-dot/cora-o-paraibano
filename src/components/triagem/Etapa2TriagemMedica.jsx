@@ -31,6 +31,13 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
     tipo_sca: dadosPaciente.triagem_medica?.tipo_sca || ""
   });
 
+  useEffect(() => {
+    setDados(prev => ({
+      ...prev,
+      ecg_files: dadosPaciente.triagem_enfermagem?.ecg_files || []
+    }));
+  }, [dadosPaciente.triagem_enfermagem?.ecg_files]);
+
 
 
   const alteracoesEcgOptions = [
