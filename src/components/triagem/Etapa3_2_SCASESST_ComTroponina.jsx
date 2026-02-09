@@ -28,7 +28,8 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
     },
     prescricao_medicamentos: dadosPaciente.avaliacao_clinica?.prescricao_medicamentos || [],
     exames_solicitados: dadosPaciente.avaliacao_clinica?.exames_solicitados || [],
-    resultados_exames: dadosPaciente.avaliacao_clinica?.resultados_exames || []
+    resultados_exames_mnm: dadosPaciente.avaliacao_clinica?.resultados_exames_mnm || [],
+    resultados_exames: dadosPaciente.avaliacao_clinica?.resultados_exames || {}
   });
 
   const [novoMedicamento, setNovoMedicamento] = useState({ medicamento: "", dose: "", via: "" });
@@ -104,8 +105,13 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
   ];
 
   const examesComuns = [
-    "Troponina (0h e 1h ou 3h)",
-    "Troponina convencional",
+    "Troponina US 0h",
+    "Troponina US 1h",
+    "Troponina US 3h",
+    "Troponina Convencional 0h",
+    "Troponina Convencional 3h",
+    "Troponina Convencional 6h",
+    "Troponina Convencional 12h",
     "Hemograma completo",
     "Creatinina / Ureia",
     "Eletrólitos (Na, K, Mg)",
@@ -173,19 +179,29 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
     }));
   };
 
-  const atualizarResultadoExame = (index, campo, valor) => {
+  const atualizarResultadoExameMNM = (index, campo, valor) => {
     setDados(prev => ({
       ...prev,
-      resultados_exames: prev.resultados_exames.map((res, i) =>
+      resultados_exames_mnm: prev.resultados_exames_mnm.map((res, i) =>
         i === index ? { ...res, [campo]: valor } : res
       )
     }));
   };
 
-  const removerResultadoExame = (index) => {
+  const removerResultadoExameMNM = (index) => {
     setDados(prev => ({
       ...prev,
-      resultados_exames: prev.resultados_exames.filter((_, i) => i !== index)
+      resultados_exames_mnm: prev.resultados_exames_mnm.filter((_, i) => i !== index)
+    }));
+  };
+
+  const atualizarResultadoExame = (exame, resultado) => {
+    setDados(prev => ({
+      ...prev,
+      resultados_exames: {
+        ...prev.resultados_exames,
+        [exame]: resultado
+      }
     }));
   };
 
@@ -374,18 +390,6 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
           </Button>
         </div>
 
-        {dados.exames_solicitados.length > 0 && (
-          <div>
-            <Label className="mb-2 block">Exames Adicionados</Label>
-            <div className="bg-white p-3 rounded border">
-              <ul className="list-disc pl-5 space-y-1">
-                {dados.exames_solicitados.map((exame, index) => (
-                  <li key={index} className="text-sm">{exame}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Resultados de Exames MNM */}
@@ -396,13 +400,13 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
         </h3>
 
         <div className="space-y-3 mb-4">
-          {dados.resultados_exames.map((resultado, index) => (
+          {dados.resultados_exames_mnm.map((resultado, index) => (
             <div key={index} className="bg-white p-3 rounded border flex gap-2 items-end">
               <div className="flex-1">
                 <Label className="text-xs mb-1 block">Tipo de Exame</Label>
                 <select
                   value={resultado.tipo}
-                  onChange={(e) => atualizarResultadoExame(index, "tipo", e.target.value)}
+                  onChange={(e) => atualizarResultadoExameMNM(index, "tipo", e.target.value)}
                   className="w-full h-9 rounded-md border border-input px-3 text-sm"
                 >
                   <option value="">Selecione...</option>
@@ -416,14 +420,14 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
                 <Input
                   placeholder="Ex: 0.05, positivo, normal..."
                   value={resultado.resultado}
-                  onChange={(e) => atualizarResultadoExame(index, "resultado", e.target.value)}
+                  onChange={(e) => atualizarResultadoExameMNM(index, "resultado", e.target.value)}
                 />
               </div>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={() => removerResultadoExame(index)}
+                onClick={() => removerResultadoExameMNM(index)}
                 className="text-red-600"
               >
                 Remover
@@ -435,12 +439,44 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
         <Button
           type="button"
           variant="outline"
-          onClick={adicionarResultadoExame}
+          onClick={() => setDados(prev => ({
+            ...prev,
+            resultados_exames_mnm: [...prev.resultados_exames_mnm, { tipo: "", resultado: "" }]
+          }))}
           className="w-full"
         >
           + Adicionar Resultado de Exame
         </Button>
       </div>
+
+      {/* Exames Solicitados e Resultados */}
+      {dados.exames_solicitados.length > 0 && (
+        <div className="bg-teal-50 border border-teal-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-teal-900 mb-4 flex items-center gap-2">
+            <TestTube className="w-5 h-5" />
+            Exames Solicitados e Resultados
+          </h3>
+          <div className="space-y-3">
+            {dados.exames_solicitados.map((exame, index) => (
+              <div key={index} className="bg-white p-4 rounded border border-teal-200">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                  <div>
+                    <Label className="text-sm font-semibold text-gray-900">{exame}</Label>
+                  </div>
+                  <div>
+                    <Input
+                      placeholder="Resultado do exame..."
+                      value={dados.resultados_exames[exame] || ""}
+                      onChange={(e) => atualizarResultadoExame(exame, e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 3. Antecedentes Clínicos */}
       <div className="space-y-4">

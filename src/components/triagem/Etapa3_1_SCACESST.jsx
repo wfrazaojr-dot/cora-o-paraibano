@@ -16,7 +16,8 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
     quadro_atual: dadosPaciente.avaliacao_clinica?.quadro_atual || "",
     hipotese_diagnostica: dadosPaciente.avaliacao_clinica?.hipotese_diagnostica || "",
     prescricao_medicamentos: dadosPaciente.avaliacao_clinica?.prescricao_medicamentos || [],
-    exames_solicitados: dadosPaciente.avaliacao_clinica?.exames_solicitados || []
+    exames_solicitados: dadosPaciente.avaliacao_clinica?.exames_solicitados || [],
+    resultados_exames: dadosPaciente.avaliacao_clinica?.resultados_exames || {}
   });
 
   const [novoMedicamento, setNovoMedicamento] = useState({ medicamento: "", dose: "", via: "" });
@@ -36,8 +37,13 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
   ];
 
   const examesComuns = [
-    "Troponina (0h e 1h ou 3h)",
-    "Troponina convencional",
+    "Troponina US 0h",
+    "Troponina US 1h",
+    "Troponina US 3h",
+    "Troponina Convencional 0h",
+    "Troponina Convencional 3h",
+    "Troponina Convencional 6h",
+    "Troponina Convencional 12h",
     "Hemograma completo",
     "Creatinina / Ureia",
     "Eletrólitos (Na, K, Mg)",
@@ -97,6 +103,16 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
       toggleExame(novoExame.trim());
       setNovoExame("");
     }
+  };
+
+  const atualizarResultadoExame = (exame, resultado) => {
+    setDados(prev => ({
+      ...prev,
+      resultados_exames: {
+        ...prev.resultados_exames,
+        [exame]: resultado
+      }
+    }));
   };
 
   const handleSubmit = (e) => {
@@ -258,19 +274,36 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
           </Button>
         </div>
 
-        {dados.exames_solicitados.length > 0 && (
-          <div>
-            <Label className="mb-2 block">Exames Adicionados</Label>
-            <div className="bg-white p-3 rounded border">
-              <ul className="list-disc pl-5 space-y-1">
-                {dados.exames_solicitados.map((exame, index) => (
-                  <li key={index} className="text-sm">{exame}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Exames Solicitados e Resultados */}
+      {dados.exames_solicitados.length > 0 && (
+        <div className="bg-teal-50 border border-teal-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-teal-900 mb-4 flex items-center gap-2">
+            <TestTube className="w-5 h-5" />
+            Exames Solicitados e Resultados
+          </h3>
+          <div className="space-y-3">
+            {dados.exames_solicitados.map((exame, index) => (
+              <div key={index} className="bg-white p-4 rounded border border-teal-200">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                  <div>
+                    <Label className="text-sm font-semibold text-gray-900">{exame}</Label>
+                  </div>
+                  <div>
+                    <Input
+                      placeholder="Resultado do exame..."
+                      value={dados.resultados_exames[exame] || ""}
+                      onChange={(e) => atualizarResultadoExame(exame, e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Dados Clínicos */}
       <div className="space-y-4">
