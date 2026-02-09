@@ -6,6 +6,8 @@ import { ArrowRight, ArrowLeft, Clock, Building2, AlertCircle } from "lucide-rea
 import { format, differenceInMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { base44 } from "@/api/base44Client";
+import TempoPortaAgulha from "./TempoPortaAgulha";
+import TempoPortaBalao from "./TempoPortaBalao";
 
 export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnterior }) {
   const [dados, setDados] = useState({
@@ -136,6 +138,12 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
             {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
           </p>
         </div>
+      </div>
+
+      {/* Timers de Tempo Porta-Agulha e Porta-Balão */}
+      <div className="grid md:grid-cols-2 gap-4">
+        <TempoPortaAgulha dataHoraInicio={dadosPaciente.data_hora_inicio_triagem} />
+        <TempoPortaBalao dataHoraInicio={dadosPaciente.data_hora_inicio_triagem} />
       </div>
 
       <div className="bg-green-50 border-2 border-green-300 rounded-lg p-4">

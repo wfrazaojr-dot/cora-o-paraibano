@@ -28,6 +28,7 @@ export default function NovaTriagem() {
   const [etapaAtual, setEtapaAtual] = useState(1);
   const [dadosPaciente, setDadosPaciente] = useState({});
   const [pacienteId, setPacienteId] = useState(null);
+  const [dataHoraInicioTriagem, setDataHoraInicioTriagem] = useState(null);
 
   const urlParams = new URLSearchParams(window.location.search);
   const idUrl = urlParams.get('id');
