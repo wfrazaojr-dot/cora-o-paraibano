@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ArrowLeft, Clock, Building2, AlertCircle, Upload } from "lucide-react";
+import { ArrowRight, ArrowLeft, Clock, Building2, AlertCircle } from "lucide-react";
 import { format, differenceInMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { base44 } from "@/api/base44Client";
@@ -24,7 +24,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
     status: "Em Triagem"
   });
 
-  const [uploadingECG, setUploadingECG] = useState(false);
+
 
   useEffect(() => {
     setDados({
@@ -39,7 +39,6 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
       hora_classificacao_risco: dadosPaciente.triagem_enfermagem?.data_hora_classificacao_risco ? format(new Date(dadosPaciente.triagem_enfermagem.data_hora_classificacao_risco), "HH:mm") : "",
       hora_ecg: dadosPaciente.triagem_enfermagem?.data_hora_ecg ? format(new Date(dadosPaciente.triagem_enfermagem.data_hora_ecg), "HH:mm") : "",
       classificacao_risco: dadosPaciente.triagem_enfermagem?.classificacao_risco || "",
-      ecg_files: dadosPaciente.triagem_enfermagem?.ecg_files || [],
       status: "Em Triagem"
     });
   }, [dadosPaciente]);
@@ -71,28 +70,6 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
   };
 
   const tempoTriagemEcg = calcularTempoTriagemEcg();
-
-  const handleUploadECG = async (e) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    setUploadingECG(true);
-    try {
-      const uploadedUrls = [];
-      for (let i = 0; i < files.length; i++) {
-        const { file_url } = await base44.integrations.Core.UploadFile({ file: files[i] });
-        uploadedUrls.push(file_url);
-      }
-      setDados(prev => ({
-        ...prev,
-        ecg_files: [...prev.ecg_files, ...uploadedUrls]
-      }));
-    } catch (error) {
-      alert("Erro ao enviar arquivo(s) de ECG");
-    } finally {
-      setUploadingECG(false);
-    }
-  };
 
 
 
@@ -133,8 +110,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
         data_hora_classificacao_risco: dataClassificacaoRisco,
         data_hora_ecg: dataEcg,
         tempo_triagem_ecg_minutos: tempoTriagemEcg,
-        classificacao_risco: dados.classificacao_risco,
-        ecg_files: dados.ecg_files
+        classificacao_risco: dados.classificacao_risco
       }
     });
   };
@@ -356,34 +332,6 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
             </div>
           </div>
         )}
-
-        {/* Upload de ECG */}
-        <div className="mt-4 space-y-3">
-          <Label className="text-sm font-semibold text-purple-900">Arquivos de ECG</Label>
-          <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-purple-300 rounded-lg cursor-pointer hover:bg-purple-50 transition-colors">
-              <Upload className="w-4 h-4 text-purple-600" />
-              <span className="text-sm font-medium text-purple-700">
-                {uploadingECG ? "Enviando..." : "Adicionar ECG"}
-              </span>
-              <input
-                type="file"
-                accept="image/*,.pdf"
-                multiple
-                onChange={handleUploadECG}
-                disabled={uploadingECG}
-                className="hidden"
-              />
-            </label>
-            {dados.ecg_files.length > 0 && (
-              <span className="text-sm text-purple-700">
-                {dados.ecg_files.length} arquivo(s) anexado(s)
-              </span>
-            )}
-          </div>
-
-
-        </div>
       </div>
 
       {tempoDor && tempoDor.totalMinutos >= 0 && (

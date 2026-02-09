@@ -4,11 +4,12 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, ArrowRight, Activity, FileText } from "lucide-react";
+import { ArrowLeft, ArrowRight, Activity, FileText, Upload, X, ExternalLink } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { format, differenceInMinutes } from "date-fns";
 
 export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnterior }) {
+  const [uploadingECG, setUploadingECG] = useState(false);
   const [dados, setDados] = useState({
     medico_nome: dadosPaciente.triagem_medica?.medico_nome || "",
     medico_crm: dadosPaciente.triagem_medica?.medico_crm || "",
@@ -26,7 +27,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
     diabetes: dadosPaciente.triagem_medica?.diabetes || false,
     dpoc: dadosPaciente.triagem_medica?.dpoc || false,
     glicemia_capilar: dadosPaciente.triagem_medica?.glicemia_capilar || "",
-    ecg_files: dadosPaciente.triagem_enfermagem?.ecg_files || [],
+    ecg_files: dadosPaciente.triagem_medica?.ecg_files || [],
     alteracoes_ecg: dadosPaciente.triagem_medica?.alteracoes_ecg || [],
     tipo_sca: dadosPaciente.triagem_medica?.tipo_sca || ""
   });
@@ -46,6 +47,35 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
     "Elevação leve do ST com concavidade para cima com Onda J discreta",
     "Inversão de onda T em DIII isolada"
   ];
+
+  const handleUploadECG = async (e) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingECG(true);
+    try {
+      const uploadedUrls = [];
+      for (let i = 0; i < files.length; i++) {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file: files[i] });
+        uploadedUrls.push(file_url);
+      }
+      setDados(prev => ({
+        ...prev,
+        ecg_files: [...prev.ecg_files, ...uploadedUrls]
+      }));
+    } catch (error) {
+      alert("Erro ao enviar arquivo(s) de ECG");
+    } finally {
+      setUploadingECG(false);
+    }
+  };
+
+  const removerECG = (index) => {
+    setDados(prev => ({
+      ...prev,
+      ecg_files: prev.ecg_files.filter((_, i) => i !== index)
+    }));
+  };
 
   const toggleAlteracao = (alteracao) => {
     setDados(prev => ({
@@ -339,14 +369,39 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
         </div>
       </div>
 
-      {/* Visualização ECG */}
+      {/* Upload e Visualização ECG */}
       <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-yellow-900 mb-4">Eletrocardiograma (ECG)</h3>
         
+        {/* Upload de ECG */}
+        <div className="mb-4">
+          <label className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-yellow-300 rounded-lg cursor-pointer hover:bg-yellow-50 transition-colors w-fit">
+            <Upload className="w-4 h-4 text-yellow-600" />
+            <span className="text-sm font-medium text-yellow-700">
+              {uploadingECG ? "Enviando..." : "Adicionar ECG"}
+            </span>
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              multiple
+              onChange={handleUploadECG}
+              disabled={uploadingECG}
+              className="hidden"
+            />
+          </label>
+        </div>
+
         {dados.ecg_files.length > 0 ? (
           <div className="grid md:grid-cols-2 gap-4">
             {dados.ecg_files.map((fileUrl, index) => (
-              <div key={index} className="border-2 border-yellow-200 rounded-lg overflow-hidden bg-white">
+              <div key={index} className="border-2 border-yellow-200 rounded-lg overflow-hidden bg-white relative group">
+                <button
+                  onClick={() => removerECG(index)}
+                  className="absolute top-2 right-2 z-10 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
+                  title="Remover ECG"
+                >
+                  <X className="w-4 h-4" />
+                </button>
                 {fileUrl.toLowerCase().endsWith('.pdf') ? (
                   <div className="p-4 flex items-center gap-3">
                     <FileText className="w-8 h-8 text-yellow-600" />
@@ -356,24 +411,29 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
                         href={fileUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-yellow-600 hover:underline"
+                        className="text-xs text-yellow-600 hover:underline flex items-center gap-1"
                       >
-                        Visualizar PDF
+                        Visualizar PDF <ExternalLink className="w-3 h-3" />
                       </a>
                     </div>
                   </div>
                 ) : (
-                  <img
-                    src={fileUrl}
-                    alt={`ECG ${index + 1}`}
-                    className="w-full h-48 object-contain bg-gray-50"
-                  />
+                  <div className="relative cursor-pointer" onClick={() => window.open(fileUrl, '_blank')}>
+                    <img
+                      src={fileUrl}
+                      alt={`ECG ${index + 1}`}
+                      className="w-full h-48 object-contain bg-gray-50"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all flex items-center justify-center">
+                      <ExternalLink className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  </div>
                 )}
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-gray-600">Nenhum ECG anexado na Etapa 1</p>
+          <p className="text-gray-600">Nenhum ECG anexado. Adicione arquivos de ECG acima.</p>
         )}
 
         {/* Alterações ECG */}
