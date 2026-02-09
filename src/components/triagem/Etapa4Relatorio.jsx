@@ -21,12 +21,14 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
   const [gerandoPDF, setGerandoPDF] = useState(false);
   const [medico, setMedico] = useState({
     nome: dadosPaciente.medico_nome || "",
-    crm: dadosPaciente.medico_crm || ""
+    crm: dadosPaciente.medico_crm || "",
+    celular: dadosPaciente.medico_celular || ""
   });
   const [tempoDeslocamento, setTempoDeslocamento] = useState(
     dadosPaciente.tempo_deslocamento_minutos || ""
   );
   const [mostrarAlerta, setMostrarAlerta] = useState(false);
+  const [temKitTrombolitico, setTemKitTrombolitico] = useState(null);
 
   const updatePacienteMutation = useMutation({
     mutationFn: async (dados) => {
@@ -86,8 +88,8 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
   };
 
   const handleFinalizar = async () => {
-    if (!medico.nome || !medico.crm) {
-      alert("Por favor, preencha o nome e CRM do médico");
+    if (!medico.nome || !medico.crm || !medico.celular) {
+      alert("Por favor, preencha o nome, CRM e celular do médico");
       return;
     }
     if (tempoDeslocamento === "") {
@@ -99,6 +101,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
       await updatePacienteMutation.mutateAsync({
         medico_nome: medico.nome,
         medico_crm: medico.crm,
+        medico_celular: medico.celular,
         tempo_deslocamento_minutos: parseInt(tempoDeslocamento),
         status: "Aguardando Assessoria",
       });
@@ -144,7 +147,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
       {/* Identificação do Médico */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
         <h3 className="font-bold text-lg mb-4">Identificação do Médico Responsável</h3>
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="medico_nome">Nome Completo *</Label>
             <Input
@@ -165,6 +168,16 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
               required
             />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="medico_celular">Celular com DDD *</Label>
+            <Input
+              id="medico_celular"
+              value={medico.celular}
+              onChange={(e) => setMedico({...medico, celular: e.target.value})}
+              placeholder="(83) 99999-9999"
+              required
+            />
+          </div>
         </div>
       </div>
 
@@ -172,7 +185,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
       <div className="bg-orange-50 border-2 border-orange-300 rounded-lg p-6">
         <div className="flex items-center gap-3 mb-4">
           <Truck className="w-6 h-6 text-orange-600" />
-          <h3 className="font-bold text-lg text-orange-900">Tempo de Deslocamento</h3>
+          <h3 className="font-bold text-lg text-orange-900">Se USA Disponível de Imediato, Informe o Tempo de Deslocamento</h3>
         </div>
         <div className="space-y-2">
           <Label htmlFor="tempo_deslocamento">
@@ -185,10 +198,11 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
             onChange={(e) => {
               const valor = parseInt(e.target.value) || "";
               setTempoDeslocamento(valor);
-              if (valor > 120) {
+              if (valor > 90) {
                 setMostrarAlerta(true);
               } else {
                 setMostrarAlerta(false);
+                setTemKitTrombolitico(null);
               }
             }}
             placeholder="Ex: 30, 60, 90..."
@@ -201,13 +215,48 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         </div>
 
         {mostrarAlerta && (
-          <Alert className="mt-4 bg-red-100 border-red-400">
-            <AlertCircle className="h-5 w-5 text-red-600" />
-            <AlertDescription className="text-red-900 font-bold">
-              ⚠️ ALERTA TROMBÓLISE! Tempo de deslocamento superior a 120 minutos. 
-              Considerar trombólise química antes do transporte.
-            </AlertDescription>
-          </Alert>
+          <div className="mt-4 space-y-4">
+            <Alert className="bg-yellow-100 border-yellow-400">
+              <AlertCircle className="h-5 w-5 text-yellow-600" />
+              <AlertDescription className="text-yellow-900 font-bold">
+                ⚠️ Tempo de deslocamento superior a 90 minutos.
+              </AlertDescription>
+            </Alert>
+
+            <div className="bg-white border-2 border-orange-500 rounded-lg p-4">
+              <Label className="font-bold text-orange-900 mb-3 block">
+                Seu serviço tem disponível o KIT Trombolítico de ALTEPLASE 100mg e ENOXAPARINA?
+              </Label>
+              <div className="flex gap-4">
+                <Button
+                  type="button"
+                  variant={temKitTrombolitico === true ? "default" : "outline"}
+                  onClick={() => setTemKitTrombolitico(true)}
+                  className={temKitTrombolitico === true ? "bg-green-600" : ""}
+                >
+                  Sim
+                </Button>
+                <Button
+                  type="button"
+                  variant={temKitTrombolitico === false ? "default" : "outline"}
+                  onClick={() => setTemKitTrombolitico(false)}
+                  className={temKitTrombolitico === false ? "bg-red-600" : ""}
+                >
+                  Não
+                </Button>
+              </div>
+            </div>
+
+            {temKitTrombolitico === true && (
+              <Alert className="bg-red-100 border-red-600 border-2">
+                <AlertCircle className="h-6 w-6 text-red-700" />
+                <AlertDescription className="text-red-900 font-bold text-base">
+                  🚨 ALERTA! Fique atento para possível autorização de trombólise. 
+                  Abra sua caixa de e-mail e cobre a CERH a resposta da Cardiologia.
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
         )}
       </div>
 
@@ -452,6 +501,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
           <div className="text-sm space-y-2">
             <div><span className="font-semibold">Médico:</span> {medico.nome || "-"}</div>
             <div><span className="font-semibold">CRM:</span> {medico.crm || "-"}</div>
+            <div><span className="font-semibold">Celular:</span> {medico.celular || "-"}</div>
           </div>
         </div>
 
@@ -468,17 +518,17 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         <Button
           onClick={gerarPDF}
           className="w-full bg-blue-600 hover:bg-blue-700"
-          disabled={gerandoPDF || !medico.nome || !medico.crm}
+          disabled={gerandoPDF || !medico.nome || !medico.crm || !medico.celular}
         >
           <Download className="w-4 h-4 mr-2" />
           {gerandoPDF ? "Gerando PDF..." : "Baixar Relatório em PDF"}
         </Button>
 
-        {!medico.nome || !medico.crm ? (
+        {!medico.nome || !medico.crm || !medico.celular ? (
           <Alert className="border-orange-500 bg-orange-50">
             <AlertCircle className="h-4 w-4 text-orange-600" />
             <AlertDescription className="text-orange-800">
-              Preencha os dados do médico para gerar o PDF e finalizar o atendimento
+              Preencha todos os dados do médico (nome, CRM e celular) para gerar o PDF e finalizar o atendimento
             </AlertDescription>
           </Alert>
         ) : null}
@@ -492,7 +542,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         <Button
           onClick={handleFinalizar}
           className="bg-green-600 hover:bg-green-700"
-          disabled={!medico.nome || !medico.crm || !tempoDeslocamento}
+          disabled={!medico.nome || !medico.crm || !medico.celular || !tempoDeslocamento}
         >
           <CheckCircle className="w-4 h-4 mr-2" />
           Finalizar Atendimento
