@@ -15,7 +15,8 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
     sexo: dadosPaciente.sexo || "",
     data_atendimento: dadosPaciente.data_atendimento || format(new Date(), "yyyy-MM-dd"),
     hora_chegada: dadosPaciente.hora_chegada || "",
-    data_hora_inicio_sintomas: dadosPaciente.data_hora_inicio_sintomas || "",
+    data_sintomas: dadosPaciente.data_sintomas || format(new Date(), "yyyy-MM-dd"),
+    hora_sintomas: dadosPaciente.hora_sintomas || "",
     hora_classificacao_risco: dadosPaciente.triagem_enfermagem?.hora_classificacao_risco || "",
     hora_ecg: dadosPaciente.triagem_enfermagem?.hora_ecg || "",
     classificacao_risco: dadosPaciente.triagem_enfermagem?.classificacao_risco || "",
@@ -26,9 +27,9 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
   const [uploadingECG, setUploadingECG] = useState(false);
 
   const calcularTempoDor = () => {
-    if (!dados.data_hora_inicio_sintomas) return null;
+    if (!dados.data_sintomas || !dados.hora_sintomas) return null;
     
-    const inicioSintomas = new Date(dados.data_hora_inicio_sintomas);
+    const inicioSintomas = new Date(`${dados.data_sintomas}T${dados.hora_sintomas}`);
     const agora = new Date();
     const minutos = differenceInMinutes(agora, inicioSintomas);
     
@@ -104,10 +105,12 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
     const dataChegada = `${dados.data_atendimento}T${dados.hora_chegada}`;
     const dataClassificacaoRisco = `${dados.data_atendimento}T${dados.hora_classificacao_risco}`;
     const dataEcg = `${dados.data_atendimento}T${dados.hora_ecg}`;
+    const dataHoraInicioSintomas = `${dados.data_sintomas}T${dados.hora_sintomas}`;
     
     onProxima({
       ...dados,
       data_hora_chegada: dataChegada,
+      data_hora_inicio_sintomas: dataHoraInicioSintomas,
       triagem_enfermagem: {
         data_hora_classificacao_risco: dataClassificacaoRisco,
         data_hora_ecg: dataEcg,
@@ -196,17 +199,38 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
           </select>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="data_hora_inicio_sintomas">Data e Hora do Início dos Sintomas *</Label>
-          <Input
-            id="data_hora_inicio_sintomas"
-            type="datetime-local"
-            value={dados.data_hora_inicio_sintomas}
-            onChange={(e) => setDados(prev => ({...prev, data_hora_inicio_sintomas: e.target.value}))}
-            required
-          />
+      </div>
+
+      {/* Data e Hora do Início dos Sintomas */}
+      <div className="bg-orange-50 border-2 border-orange-300 rounded-lg p-4">
+        <Label className="text-base font-semibold text-orange-900 mb-4 block">
+          Data e Hora do Início dos Sintomas *
+        </Label>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="data_sintomas" className="text-sm">Data *</Label>
+            <Input
+              id="data_sintomas"
+              type="date"
+              value={dados.data_sintomas}
+              onChange={(e) => setDados(prev => ({...prev, data_sintomas: e.target.value}))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="hora_sintomas" className="text-sm">Hora *</Label>
+            <Input
+              id="hora_sintomas"
+              type="time"
+              value={dados.hora_sintomas}
+              onChange={(e) => setDados(prev => ({...prev, hora_sintomas: e.target.value}))}
+              required
+            />
+          </div>
         </div>
-        </div>
+      </div>
 
         {/* Data e Horários */}
         <div className="bg-indigo-50 border-2 border-indigo-300 rounded-lg p-4">
