@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, ArrowRight, Pill, TestTube, Activity } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pill, TestTube, Activity, AlertCircle } from "lucide-react";
 import TempoDor from "./TempoDor";
 import TempoECG from "./TempoECG";
 
@@ -236,6 +236,23 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
 
       {/* Tempo de ECG */}
       <TempoECG dataHoraChegada={dadosPaciente.data_hora_chegada} dataHoraEcg={dadosPaciente.data_hora_ecg} />
+
+      {/* Alerta sobre uso de inibidor da fosfodiesterase */}
+      {dadosPaciente.uso_inibidor_fosfodiesterase === true && (
+        <div className="bg-red-100 border-2 border-red-500 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-6 h-6 text-red-700" />
+            <div>
+              <p className="text-lg font-bold text-red-900">
+                🚨 ATENÇÃO: EVITAR USO DE NITRATOS
+              </p>
+              <p className="text-sm text-red-800 mt-1">
+                Paciente fez uso de inibidor da 5-fosfodiesterase nas últimas 24-72h
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 1. Prescrição Medicamentosa */}
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
