@@ -79,6 +79,14 @@ const VitalBadge = ({ label, valor, status }) => {
 };
 
 export default function PacientesEmAtendimento({ pacientes, isLoading }) {
+  // Ordenar pacientes por prioridade: Vermelha > Amarela > Verde
+  const pacientesOrdenados = [...pacientes].sort((a, b) => {
+    const prioridades = { "Vermelha": 1, "Amarela": 2, "Verde": 3 };
+    const prioridadeA = prioridades[a.classificacao_prioridade] || 999;
+    const prioridadeB = prioridades[b.classificacao_prioridade] || 999;
+    return prioridadeA - prioridadeB;
+  });
+
   if (isLoading) {
     return (
       <Card className="shadow-md">
@@ -115,7 +123,7 @@ export default function PacientesEmAtendimento({ pacientes, isLoading }) {
           </div>
         ) : (
           <div className="space-y-3">
-            {pacientes.map((paciente) => {
+            {pacientesOrdenados.map((paciente) => {
               const tempoEspera = paciente.data_hora_inicio_triagem 
                 ? differenceInMinutes(new Date(), new Date(paciente.data_hora_inicio_triagem))
                 : 0;
