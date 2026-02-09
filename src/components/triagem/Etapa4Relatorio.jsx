@@ -341,6 +341,37 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
                 );
               })()}
             </div>
+
+            {/* Tempo Porta-Agulha */}
+            {dadosPaciente.data_hora_inicio_triagem && (
+              <div className="mt-6 pt-6 border-t-2 border-red-400">
+                <h3 className="text-xl font-bold text-red-900 mb-3">TEMPO PORTA-AGULHA</h3>
+                {(() => {
+                  const metaMinutos = 30;
+                  const tempoPortaAgulhaMinutos = differenceInMinutes(new Date(), new Date(dadosPaciente.data_hora_inicio_triagem));
+                  const tempoRestantePortaAgulha = metaMinutos - tempoPortaAgulhaMinutos;
+                  const foraMetaPortaAgulha = tempoRestantePortaAgulha < 0;
+                  const minutosPortaAgulha = Math.floor(Math.abs(tempoPortaAgulhaMinutos));
+                  const segundosPortaAgulha = Math.floor((Math.abs(tempoPortaAgulhaMinutos) - minutosPortaAgulha) * 60);
+
+                  return (
+                    <div className={`rounded-lg p-4 border-2 ${foraMetaPortaAgulha ? 'bg-red-100 border-red-600' : 'bg-green-100 border-green-600'}`}>
+                      <div className="text-center">
+                        <p className={`text-3xl font-bold mb-2 ${foraMetaPortaAgulha ? 'text-red-700' : 'text-green-700'}`}>
+                          {minutosPortaAgulha} min
+                        </p>
+                        <p className="text-sm font-semibold mb-2">
+                          {foraMetaPortaAgulha ? '⚠️ Tempo Excedido' : '✓ Tempo Restante: ' + Math.abs(tempoRestantePortaAgulha) + ' min'}
+                        </p>
+                        <p className="text-xs text-gray-700">
+                          Meta: até {metaMinutos} minutos desde o início da triagem
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
           </div>
         )}
 
