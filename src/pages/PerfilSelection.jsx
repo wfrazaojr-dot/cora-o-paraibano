@@ -46,15 +46,14 @@ export default function PerfilSelection() {
 
   const handleSelectPerfil = async (perfilId) => {
     if (perfilId === "unidade_saude") {
-      navigate(createPageUrl("CoracaoParaibano"));
-    } else if (perfilId === "admin") {
-      // Admin vai direto para o Dashboard
-      navigate(createPageUrl("Dashboard"));
-    } else {
-      // Atualizar o perfil do usuário (CERH ou ASSCARDIO)
+      // Atualizar equipe para unidade_saude
       await base44.auth.updateMe({ equipe: perfilId });
-      navigate(createPageUrl("Dashboard"));
+    } else {
+      // Atualizar o perfil do usuário (CERH, ASSCARDIO ou admin)
+      await base44.auth.updateMe({ equipe: perfilId });
     }
+    // Todos os perfis vão para o Histórico
+    navigate(createPageUrl("Historico"));
   };
 
   return (

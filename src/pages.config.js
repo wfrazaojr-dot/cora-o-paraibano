@@ -52,6 +52,7 @@ import Administracao from './pages/Administracao';
 import CadastroProfissional from './pages/CadastroProfissional';
 import Cardiologia from './pages/Cardiologia';
 import CentralSES from './pages/CentralSES';
+import CoracaoParaibano from './pages/CoracaoParaibano';
 import Dashboard from './pages/Dashboard';
 import Historico from './pages/Historico';
 import HistoricoUnidades from './pages/HistoricoUnidades';
@@ -60,11 +61,10 @@ import Indicadores from './pages/Indicadores';
 import Manual from './pages/Manual';
 import NovaTriagem from './pages/NovaTriagem';
 import PINLogin from './pages/PINLogin';
+import PerfilSelection from './pages/PerfilSelection';
 import ProtocoloEstrategias from './pages/ProtocoloEstrategias';
 import Protocolos from './pages/Protocolos';
 import RecuperarPIN from './pages/RecuperarPIN';
-import PerfilSelection from './pages/PerfilSelection';
-import CoracaoParaibano from './pages/CoracaoParaibano';
 import __Layout from './Layout.jsx';
 
 
@@ -74,6 +74,7 @@ export const PAGES = {
     "CadastroProfissional": CadastroProfissional,
     "Cardiologia": Cardiologia,
     "CentralSES": CentralSES,
+    "CoracaoParaibano": CoracaoParaibano,
     "Dashboard": Dashboard,
     "Historico": Historico,
     "HistoricoUnidades": HistoricoUnidades,
@@ -82,11 +83,10 @@ export const PAGES = {
     "Manual": Manual,
     "NovaTriagem": NovaTriagem,
     "PINLogin": PINLogin,
+    "PerfilSelection": PerfilSelection,
     "ProtocoloEstrategias": ProtocoloEstrategias,
     "Protocolos": Protocolos,
     "RecuperarPIN": RecuperarPIN,
-    "PerfilSelection": PerfilSelection,
-    "CoracaoParaibano": CoracaoParaibano,
 }
 
 export const pagesConfig = {
