@@ -14,16 +14,12 @@ import Etapa2TriagemMedica from "../components/triagem/Etapa2TriagemMedica";
 import Etapa3_1_SCACESST from "../components/triagem/Etapa3_1_SCACESST";
 import Etapa3_2_SCASESST_ComTroponina from "../components/triagem/Etapa3_2_SCASESST_ComTroponina";
 import Etapa4Relatorio from "../components/triagem/Etapa4Relatorio";
-import Etapa5ECGEnfermeiro from "../components/triagem/Etapa5ECGEnfermeiro";
-import Etapa5AvaliacaoMedica from "../components/triagem/Etapa5AvaliacaoMedica";
 
 const etapas = [
   { numero: 1, titulo: "Dados do Paciente" },
   { numero: 2, titulo: "Triagem Médica Cardiológica" },
   { numero: 3, titulo: "Avaliação Clínica" },
-  { numero: 4, titulo: "Relatório e Regulação" },
-  { numero: 5, titulo: "ECG - Enfermeiro" },
-  { numero: 6, titulo: "Avaliação Médica" }
+  { numero: 4, titulo: "Relatório e Regulação" }
 ];
 
 export default function NovaTriagem() {
@@ -83,7 +79,7 @@ export default function NovaTriagem() {
       const resultado = await salvarMutation.mutateAsync(dadosAtualizados);
       
       if (resultado) {
-        if (etapaAtual < 6) {
+        if (etapaAtual < 4) {
           setEtapaAtual(etapaAtual + 1);
         }
       }
@@ -116,16 +112,12 @@ export default function NovaTriagem() {
         }
       case 4:
         return <Etapa4Relatorio dadosPaciente={dadosPaciente} onAnterior={handleEtapaAnterior} pacienteId={pacienteId} />;
-      case 5:
-        return <Etapa5ECGEnfermeiro dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} />;
-      case 6:
-        return <Etapa5AvaliacaoMedica dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} />;
       default:
         return <div>Etapa não encontrada</div>;
     }
   };
 
-  const progresso = (etapaAtual / 6) * 100;
+  const progresso = (etapaAtual / 4) * 100;
 
   return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
@@ -136,7 +128,7 @@ export default function NovaTriagem() {
               Voltar ao Painel
             </Button>
             <div className="text-right">
-              <p className="text-sm text-gray-600">Etapa {etapaAtual} de 6</p>
+              <p className="text-sm text-gray-600">Etapa {etapaAtual} de 4</p>
               <p className="font-semibold text-gray-900">{etapas[etapaAtual - 1].titulo}</p>
             </div>
           </div>
