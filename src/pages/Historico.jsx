@@ -40,6 +40,11 @@ export default function Historico() {
   const [dataFim, setDataFim] = useState("");
 
   const verificarProfissional = (url) => {
+    // Admin tem acesso direto sem verificação de profissional
+    if (user?.role === 'admin') {
+      return true;
+    }
+    
     const profissionalLogado = sessionStorage.getItem("profissional_logado");
     if (!profissionalLogado) {
       sessionStorage.setItem("redirect_after_pin", url);
