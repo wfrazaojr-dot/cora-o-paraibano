@@ -250,30 +250,47 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
           </div>
         </div>
 
-        {/* Tempo de Dor - DESTAQUE */}
+        {/* Tempo Restante de Janela Terapêutica */}
         {tempoDorMinutos !== null && (
           <div className="mb-8 bg-red-50 border-4 border-red-500 rounded-lg p-6">
             <div className="flex items-center gap-3 mb-4">
               <Activity className="w-8 h-8 text-red-600" />
-              <h2 className="text-2xl font-bold text-red-900">JANELA TERAPÊUTICA</h2>
+              <h2 className="text-2xl font-bold text-red-900">TEMPO RESTANTE DE JANELA TERAPÊUTICA</h2>
             </div>
             <div className="text-center">
-              <p className="text-5xl font-bold text-red-600 mb-4">
-                {tempoDorHoras}h {tempoDorMin}min
-              </p>
-              <div className="text-sm text-gray-700 space-y-1">
-                <p><strong>Início dos sintomas:</strong> {format(new Date(dadosPaciente.data_hora_inicio_sintomas), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
-                <p><strong>Relatório gerado em:</strong> {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
-              </div>
-              {tempoDorMinutos > 180 ? (
-                <div className="mt-4 bg-red-200 border-2 border-red-700 rounded p-3">
-                  <p className="font-bold text-red-900">⚠️ ATENÇÃO: Tempo superior a 3 horas</p>
-                </div>
-              ) : (
-                <div className="mt-4 bg-green-200 border-2 border-green-700 rounded p-3">
-                  <p className="font-bold text-green-900">✓ Dentro da janela ideal</p>
-                </div>
-              )}
+              {(() => {
+                const janelaMaximaMinutos = 720; // 12 horas em minutos
+                const tempoRestanteMinutos = janelaMaximaMinutos - tempoDorMinutos;
+                const tempoRestanteHoras = Math.floor(Math.abs(tempoRestanteMinutos) / 60);
+                const tempoRestanteMin = Math.abs(tempoRestanteMinutos) % 60;
+                const foraJanela = tempoRestanteMinutos < 0;
+
+                return (
+                  <>
+                    <p className={`text-5xl font-bold mb-4 ${foraJanela ? 'text-red-700' : 'text-red-600'}`}>
+                      {foraJanela && '-'}{tempoRestanteHoras}h {tempoRestanteMin}min
+                    </p>
+                    <div className="text-sm text-gray-700 space-y-1 mb-4">
+                      <p><strong>Tempo de Dor:</strong> {tempoDorHoras}h {tempoDorMin}min</p>
+                      <p><strong>Início dos sintomas:</strong> {format(new Date(dadosPaciente.data_hora_inicio_sintomas), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+                      <p><strong>Relatório gerado em:</strong> {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+                    </div>
+                    {foraJanela ? (
+                      <div className="mt-4 bg-red-200 border-2 border-red-700 rounded p-3">
+                        <p className="font-bold text-red-900">⚠️ FORA DA JANELA TERAPÊUTICA (mais de 12 horas)</p>
+                      </div>
+                    ) : tempoRestanteMinutos < 60 ? (
+                      <div className="mt-4 bg-yellow-200 border-2 border-yellow-700 rounded p-3">
+                        <p className="font-bold text-yellow-900">⚠️ JANELA TERAPÊUTICA SE ENCERRANDO (menos de 1 hora restante)</p>
+                      </div>
+                    ) : (
+                      <div className="mt-4 bg-green-200 border-2 border-green-700 rounded p-3">
+                        <p className="font-bold text-green-900">✓ Dentro da janela terapêutica</p>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         )}
