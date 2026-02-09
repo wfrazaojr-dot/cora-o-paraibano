@@ -347,19 +347,19 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
                 ) : (
                   <>
                     <Alert className={`${
-                      (dados.glicemia_capilar < 60 || dados.glicemia_capilar > 400) 
+                      (dados.glicemia_capilar < 60 || dados.glicemia_capilar > 200) 
                         ? 'bg-red-100 border-red-400' 
                         : 'bg-green-50 border-green-300'
                     }`}>
                       <AlertDescription className={
-                        (dados.glicemia_capilar < 60 || dados.glicemia_capilar > 400) 
+                        (dados.glicemia_capilar < 60 || dados.glicemia_capilar > 200) 
                           ? 'text-red-800 font-bold' 
                           : 'text-green-800'
                       }>
-                        {(dados.glicemia_capilar < 60 || dados.glicemia_capilar > 400) ? (
-                          <>⚠️ <strong>Valores críticos:</strong> &lt; 60 ou &gt; 400 mg/dL</>
+                        {(dados.glicemia_capilar < 60 || dados.glicemia_capilar > 200) ? (
+                          <>⚠️ <strong>Valores críticos:</strong> &lt; 60 ou &gt; 200 mg/dL</>
                         ) : (
-                          <><strong>Valores aceitáveis:</strong> 70 a 400 mg/dL</>
+                          <><strong>Valores aceitáveis:</strong> 70 a 200 mg/dL</>
                         )}
                       </AlertDescription>
                     </Alert>
