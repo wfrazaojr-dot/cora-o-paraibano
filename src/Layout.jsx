@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Activity, Plus, History, BookOpen, FileText, Users, AlertCircle, TrendingUp, Shield, LogOut } from "lucide-react";
@@ -29,6 +29,16 @@ export default function Layout({ children, currentPageName }) {
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
+
+  // Redirecionar para PerfilSelection se necessário
+  useEffect(() => {
+    if (user && currentPageName !== "PerfilSelection" && currentPageName !== "CoracaoParaibano") {
+      const profissionalLogado = sessionStorage.getItem("profissional_logado");
+      if (!profissionalLogado) {
+        navigate(createPageUrl("PerfilSelection"));
+      }
+    }
+  }, [user, currentPageName, navigate]);
 
 
 
