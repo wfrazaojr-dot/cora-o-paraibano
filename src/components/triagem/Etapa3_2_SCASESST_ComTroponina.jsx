@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, ArrowRight, Pill, TestTube, Activity, AlertCircle } from "lucide-react";
 import TempoDor from "./TempoDor";
 import TempoECG from "./TempoECG";
+import TempoPortaAgulha from "./TempoPortaAgulha";
 
 export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxima, onAnterior }) {
   const [dados, setDados] = useState({
@@ -230,6 +231,9 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Avaliação Clínica - SCASESST com Troponina</h2>
         <p className="text-gray-600">Paciente SEM Supra de ST COM exame de Troponina</p>
       </div>
+
+      {/* Tempo Porta-Agulha */}
+      <TempoPortaAgulha dataHoraInicio={dadosPaciente.data_hora_inicio_triagem} />
 
       {/* Tempo de Dor */}
       <TempoDor dataHoraInicioSintomas={dadosPaciente.data_hora_inicio_sintomas} />
