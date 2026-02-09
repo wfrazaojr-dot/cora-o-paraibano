@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ArrowLeft, Clock, Building2, AlertCircle } from "lucide-react";
+import { ArrowRight, ArrowLeft, Clock, Building2, AlertCircle, Upload, FileText, X } from "lucide-react";
 import { format, differenceInMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { base44 } from "@/api/base44Client";
 
 export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnterior }) {
   const [dados, setDados] = useState({
@@ -18,8 +19,11 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
     hora_classificacao_risco: dadosPaciente.triagem_enfermagem?.hora_classificacao_risco || "",
     hora_ecg: dadosPaciente.triagem_enfermagem?.hora_ecg || "",
     classificacao_risco: dadosPaciente.triagem_enfermagem?.classificacao_risco || "",
+    ecg_files: dadosPaciente.triagem_enfermagem?.ecg_files || [],
     status: "Em Triagem"
   });
+
+  const [uploadingECG, setUploadingECG] = useState(false);
 
   const calcularTempoDor = () => {
     if (!dados.data_hora_inicio_sintomas) return null;
@@ -48,6 +52,35 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
   };
 
   const tempoTriagemEcg = calcularTempoTriagemEcg();
+
+  const handleUploadECG = async (e) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingECG(true);
+    try {
+      const uploadedUrls = [];
+      for (let i = 0; i < files.length; i++) {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file: files[i] });
+        uploadedUrls.push(file_url);
+      }
+      setDados(prev => ({
+        ...prev,
+        ecg_files: [...prev.ecg_files, ...uploadedUrls]
+      }));
+    } catch (error) {
+      alert("Erro ao enviar arquivo(s) de ECG");
+    } finally {
+      setUploadingECG(false);
+    }
+  };
+
+  const handleRemoveECG = (index) => {
+    setDados(prev => ({
+      ...prev,
+      ecg_files: prev.ecg_files.filter((_, i) => i !== index)
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -84,7 +117,8 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
         data_hora_classificacao_risco: dataClassificacaoRisco,
         data_hora_ecg: dataEcg,
         tempo_triagem_ecg_minutos: tempoTriagemEcg,
-        classificacao_risco: dados.classificacao_risco
+        classificacao_risco: dados.classificacao_risco,
+        ecg_files: dados.ecg_files
       }
     });
   };
@@ -285,6 +319,75 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
             </div>
           </div>
         )}
+
+        {/* Upload de ECG */}
+        <div className="mt-4 space-y-3">
+          <Label className="text-sm font-semibold text-purple-900">Arquivos de ECG</Label>
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-purple-300 rounded-lg cursor-pointer hover:bg-purple-50 transition-colors">
+              <Upload className="w-4 h-4 text-purple-600" />
+              <span className="text-sm font-medium text-purple-700">
+                {uploadingECG ? "Enviando..." : "Adicionar ECG"}
+              </span>
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                multiple
+                onChange={handleUploadECG}
+                disabled={uploadingECG}
+                className="hidden"
+              />
+            </label>
+            {dados.ecg_files.length > 0 && (
+              <span className="text-sm text-purple-700">
+                {dados.ecg_files.length} arquivo(s) anexado(s)
+              </span>
+            )}
+          </div>
+
+          {/* Visualização dos arquivos de ECG */}
+          {dados.ecg_files.length > 0 && (
+            <div className="grid md:grid-cols-2 gap-4 mt-4">
+              {dados.ecg_files.map((fileUrl, index) => (
+                <div key={index} className="relative border-2 border-purple-200 rounded-lg overflow-hidden bg-white">
+                  <div className="absolute top-2 right-2 z-10">
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="destructive"
+                      onClick={() => handleRemoveECG(index)}
+                      className="h-8 w-8"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  {fileUrl.toLowerCase().endsWith('.pdf') ? (
+                    <div className="p-4 flex items-center gap-3">
+                      <FileText className="w-8 h-8 text-purple-600" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">ECG {index + 1}</p>
+                        <a
+                          href={fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-purple-600 hover:underline"
+                        >
+                          Visualizar PDF
+                        </a>
+                      </div>
+                    </div>
+                  ) : (
+                    <img
+                      src={fileUrl}
+                      alt={`ECG ${index + 1}`}
+                      className="w-full h-48 object-contain bg-gray-50"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {tempoDor && tempoDor.totalMinutos >= 0 && (
