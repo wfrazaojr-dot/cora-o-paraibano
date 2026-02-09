@@ -296,13 +296,13 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
         </div>
 
         <div>
-          <Label>5. Hipótese Diagnóstica *</Label>
+          <Label>5. Hipótese Diagnóstica e Justificativa de Transferência *</Label>
           <Textarea
             value={dados.hipotese_diagnostica}
             onChange={(e) => setDados(prev => ({...prev, hipotese_diagnostica: e.target.value}))}
             rows={3}
             required
-            placeholder="Hipótese diagnóstica..."
+            placeholder="Hipótese diagnóstica e justificativa para transferência..."
           />
         </div>
       </div>
