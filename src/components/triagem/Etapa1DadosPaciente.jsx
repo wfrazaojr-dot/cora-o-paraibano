@@ -13,6 +13,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
     nome_completo: "",
     idade: "",
     sexo: "",
+    uso_inibidor_fosfodiesterase: null,
     data_atendimento: format(new Date(), "yyyy-MM-dd"),
     hora_chegada: "",
     data_sintomas: format(new Date(), "yyyy-MM-dd"),
@@ -31,6 +32,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
       nome_completo: dadosPaciente.nome_completo || "",
       idade: dadosPaciente.idade || "",
       sexo: dadosPaciente.sexo || "",
+      uso_inibidor_fosfodiesterase: dadosPaciente.uso_inibidor_fosfodiesterase ?? null,
       data_atendimento: dadosPaciente.data_hora_chegada ? format(new Date(dadosPaciente.data_hora_chegada), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
       hora_chegada: dadosPaciente.data_hora_chegada ? format(new Date(dadosPaciente.data_hora_chegada), "HH:mm") : "",
       data_sintomas: dadosPaciente.data_hora_inicio_sintomas ? format(new Date(dadosPaciente.data_hora_inicio_sintomas), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
@@ -82,6 +84,11 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
     
     if (!dados.sexo) {
       alert("Por favor, selecione o sexo do paciente");
+      return;
+    }
+
+    if (dados.sexo === "Masculino" && dados.uso_inibidor_fosfodiesterase === null) {
+      alert("Por favor, informe se o paciente fez uso de inibidor da 5-fosfodiesterase nas últimas 24-72h");
       return;
     }
 
@@ -182,7 +189,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
           <select
             id="sexo"
             value={dados.sexo}
-            onChange={(e) => setDados(prev => ({...prev, sexo: e.target.value}))}
+            onChange={(e) => setDados(prev => ({...prev, sexo: e.target.value, uso_inibidor_fosfodiesterase: e.target.value === "Masculino" ? null : false}))}
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             required
           >
@@ -193,6 +200,51 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
         </div>
 
       </div>
+
+      {/* Alerta para pacientes masculinos sobre inibidor da 5-fosfodiesterase */}
+      {dados.sexo === "Masculino" && (
+        <div className="bg-amber-50 border-2 border-amber-400 rounded-lg p-4">
+          <Label className="text-base font-semibold text-amber-900 mb-3 block">
+            ⚠️ Fez uso de inibidor da 5-fosfodiesterase nas últimas 24-72h? *
+          </Label>
+          <p className="text-sm text-amber-800 mb-3">
+            (Medicamentos como Sildenafil/Viagra, Tadalafil/Cialis, Vardenafil/Levitra)
+          </p>
+          <div className="flex gap-4">
+            <div className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="uso_inibidor"
+                value="sim"
+                checked={dados.uso_inibidor_fosfodiesterase === true}
+                onChange={(e) => setDados(prev => ({...prev, uso_inibidor_fosfodiesterase: true}))}
+                className="w-4 h-4"
+                required
+              />
+              <Label>Sim</Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="uso_inibidor"
+                value="nao"
+                checked={dados.uso_inibidor_fosfodiesterase === false}
+                onChange={(e) => setDados(prev => ({...prev, uso_inibidor_fosfodiesterase: false}))}
+                className="w-4 h-4"
+                required
+              />
+              <Label>Não</Label>
+            </div>
+          </div>
+          {dados.uso_inibidor_fosfodiesterase === true && (
+            <div className="mt-3 p-3 bg-red-100 border border-red-400 rounded-lg">
+              <p className="text-sm font-bold text-red-900">
+                🚨 ATENÇÃO: Paciente em uso recente de inibidor da fosfodiesterase. EVITAR USO DE NITRATOS!
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Data e Hora do Início dos Sintomas */}
       <div className="bg-orange-50 border-2 border-orange-300 rounded-lg p-4">
