@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, ArrowRight, Pill, TestTube } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pill, TestTube, AlertCircle } from "lucide-react";
 import TempoDor from "./TempoDor";
 import TempoECG from "./TempoECG";
 
@@ -120,6 +120,23 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
 
       {/* Tempo de ECG */}
       <TempoECG dataHoraChegada={dadosPaciente.data_hora_chegada} dataHoraEcg={dadosPaciente.data_hora_ecg} />
+
+      {/* Alerta sobre uso de inibidor da fosfodiesterase */}
+      {dadosPaciente.uso_inibidor_fosfodiesterase === true && (
+        <div className="bg-red-100 border-2 border-red-500 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-6 h-6 text-red-700" />
+            <div>
+              <p className="text-lg font-bold text-red-900">
+                🚨 ATENÇÃO: EVITAR USO DE NITRATOS
+              </p>
+              <p className="text-sm text-red-800 mt-1">
+                Paciente fez uso de inibidor da 5-fosfodiesterase nas últimas 24-72h
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Prescrição Medicamentosa */}
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
