@@ -363,8 +363,11 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
                         <p className="text-sm font-semibold mb-2">
                           {foraMetaPortaAgulha ? '⚠️ Tempo Excedido' : '✓ Tempo Restante: ' + Math.abs(tempoRestantePortaAgulha) + ' min'}
                         </p>
-                        <p className="text-xs text-gray-700">
+                        <p className="text-xs text-gray-700 mb-1">
                           Meta: até {metaMinutos} minutos desde o início da triagem
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          <strong>Triagem Médica Cardiológica realizada em:</strong> {format(new Date(dadosPaciente.data_hora_inicio_triagem), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                         </p>
                       </div>
                     </div>
