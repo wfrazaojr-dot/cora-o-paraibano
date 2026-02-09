@@ -47,8 +47,11 @@ export default function PerfilSelection() {
   const handleSelectPerfil = async (perfilId) => {
     if (perfilId === "unidade_saude") {
       navigate(createPageUrl("CoracaoParaibano"));
+    } else if (perfilId === "admin") {
+      // Admin vai direto para o Dashboard
+      navigate(createPageUrl("Dashboard"));
     } else {
-      // Atualizar o perfil do usuário
+      // Atualizar o perfil do usuário (CERH ou ASSCARDIO)
       await base44.auth.updateMe({ equipe: perfilId });
       navigate(createPageUrl("Dashboard"));
     }
