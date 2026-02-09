@@ -83,13 +83,21 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Painel de Controle</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {user?.equipe === 'cerh' && 'Painel CERH'}
+              {user?.equipe === 'asscardio' && 'Painel ASSCARDIO'}
+              {user?.equipe === 'unidade_saude' && 'Painel de Controle'}
+              {user?.role === 'admin' && 'Painel Administrativo'}
+            </h1>
             <p className="text-gray-600 mt-1">
               {format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
             </p>
             <p className="text-sm text-blue-600 mt-1">
               👤 {user.full_name} • {user.email}
-              {user.role === 'admin' && <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">ADMINISTRADOR</span>}
+              {user?.equipe === 'cerh' && <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">CERH</span>}
+              {user?.equipe === 'asscardio' && <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">ASSCARDIO</span>}
+              {user?.equipe === 'unidade_saude' && <span className="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-semibold">UNIDADE DE SAÚDE</span>}
+              {user?.role === 'admin' && <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">ADMINISTRADOR</span>}
             </p>
           </div>
           <Link to={createPageUrl("NovaTriagem")}>
