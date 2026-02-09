@@ -20,14 +20,22 @@ export default function Dashboard() {
   });
 
   const { data: pacientes = [], isLoading } = useQuery({
-    queryKey: ['pacientes', user?.email],
+    queryKey: ['pacientes', user?.email, user?.equipe],
     queryFn: async () => {
-      // Se for admin, mostra todos os pacientes
+      const equipe = user?.equipe || 'unidade_saude';
+      
+      // Admin: mostra todos os pacientes
       if (user?.role === 'admin') {
         return base44.entities.Paciente.list("-created_date");
       }
-      // Se for usuário comum, mostra apenas seus pacientes
-      return base44.entities.Paciente.filter({ created_by: user?.email }, "-created_date");
+
+      // Usuário de unidade de saúde: mostra apenas pacientes da sua unidade
+      if (equipe === 'unidade_saude') {
+        return base44.entities.Paciente.filter({ unidade_saude: user?.unidade_saude }, "-created_date");
+      }
+
+      // CERH e ASSCARDIO: mostra todos os pacientes (consolidado)
+      return base44.entities.Paciente.list("-created_date");
     },
     enabled: !!user,
     initialData: [],
