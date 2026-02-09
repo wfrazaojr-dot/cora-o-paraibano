@@ -232,19 +232,6 @@ export default function PacientesEmAtendimento({ pacientes, isLoading }) {
                       ⚠️ PROVÁVEL IAM - REALIZE ECG EM ATÉ 10 MIN
                     </div>
                   )}
-
-                  <div className="flex gap-2">
-                    <Link to={`${createPageUrl("Cardiologia")}?id=${paciente.id}`} className="flex-1">
-                      <Button size="sm" className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-                        ASSCARDIO
-                      </Button>
-                    </Link>
-                    <Link to={`${createPageUrl("CentralSES")}?id=${paciente.id}`} className="flex-1">
-                      <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                        CERH
-                      </Button>
-                    </Link>
-                  </div>
                 </div>
               );
             })}
