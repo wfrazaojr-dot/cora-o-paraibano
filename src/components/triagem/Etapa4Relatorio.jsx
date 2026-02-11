@@ -347,95 +347,61 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         )}
 
         {/* Dados do Paciente */}
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-3 pb-2 border-b-2 border-gray-300">DADOS DO PACIENTE</h2>
-          <div className="grid grid-cols-2 gap-3 text-sm">
+        <div className="mb-4">
+          <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">DADOS DO PACIENTE</h2>
+          <div className="grid grid-cols-2 gap-2 text-xs">
             <div><span className="font-semibold">Nome:</span> {dadosPaciente.nome_completo}</div>
             <div><span className="font-semibold">Idade:</span> {dadosPaciente.idade} anos</div>
             <div><span className="font-semibold">Sexo:</span> {dadosPaciente.sexo}</div>
-            <div><span className="font-semibold">Data/Hora Chegada:</span> {dadosPaciente.data_hora_chegada ? format(new Date(dadosPaciente.data_hora_chegada), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}</div>
+            <div><span className="font-semibold">Chegada:</span> {dadosPaciente.data_hora_chegada ? format(new Date(dadosPaciente.data_hora_chegada), "dd/MM/yy HH:mm", { locale: ptBR }) : "-"}</div>
           </div>
         </div>
 
         {/* Classificação */}
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-3 pb-2 border-b-2 border-gray-300">CLASSIFICAÇÃO</h2>
-          <div className={`rounded-lg p-4 border-2 ${
-            dadosPaciente.triagem_medica?.tipo_sca === 'SCACESST' 
-              ? 'bg-red-50 border-red-500' 
-              : dadosPaciente.classificacao_prioridade === 'Amarela'
-                ? 'bg-yellow-50 border-yellow-500'
-                : dadosPaciente.classificacao_prioridade === 'Verde'
-                  ? 'bg-green-50 border-green-500'
-                  : 'bg-yellow-50 border-yellow-500'
+        <div className="mb-4">
+          <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">CLASSIFICAÇÃO</h2>
+          <div className={`rounded p-2 border ${
+            dadosPaciente.triagem_medica?.tipo_sca === 'SCACESST' ? 'bg-red-50 border-red-500' : 'bg-yellow-50 border-yellow-500'
           }`}>
-            <p className="text-lg"><span className="font-semibold">Tipo de SCA:</span> {dadosPaciente.triagem_medica?.tipo_sca || "-"}</p>
-            <p className="text-lg">
-              <span className="font-semibold">Prioridade:</span> 
-              <span className={`ml-2 font-bold ${
-                dadosPaciente.triagem_medica?.tipo_sca === 'SCACESST' ? 'text-red-700' : ''
-              }`}>
-                {dadosPaciente.triagem_medica?.tipo_sca === 'SCACESST' ? 'Vermelha' : (dadosPaciente.classificacao_prioridade || "-")}
-              </span>
-            </p>
+            <p className="text-xs"><span className="font-semibold">SCA:</span> {dadosPaciente.triagem_medica?.tipo_sca || "-"}</p>
+            <p className="text-xs"><span className="font-semibold">Prioridade:</span> {dadosPaciente.triagem_medica?.tipo_sca === 'SCACESST' ? 'Vermelha' : (dadosPaciente.classificacao_prioridade || "-")}</p>
           </div>
         </div>
 
         {/* Sinais Vitais */}
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-3 pb-2 border-b-2 border-gray-300">SINAIS VITAIS</h2>
-          <div className="grid grid-cols-3 gap-3 text-sm">
-            <div><span className="font-semibold">PA Esquerdo:</span> {dadosPaciente.triagem_medica?.pa_braco_esquerdo || "-"}</div>
-            <div><span className="font-semibold">PA Direito:</span> {dadosPaciente.triagem_medica?.pa_braco_direito || "-"}</div>
-            <div><span className="font-semibold">FC:</span> {dadosPaciente.triagem_medica?.frequencia_cardiaca || "-"} bpm</div>
-            <div><span className="font-semibold">FR:</span> {dadosPaciente.triagem_medica?.frequencia_respiratoria || "-"} irpm</div>
-            <div><span className="font-semibold">Temp:</span> {dadosPaciente.triagem_medica?.temperatura || "-"} °C</div>
-            <div><span className="font-semibold">SpO2:</span> {dadosPaciente.triagem_medica?.spo2 || "-"} %</div>
-            <div><span className="font-semibold">Glicemia:</span> {dadosPaciente.triagem_medica?.glicemia_capilar || "-"} mg/dL</div>
-            <div><span className="font-semibold">Diabetes:</span> {dadosPaciente.triagem_medica?.diabetes ? "Sim" : "Não"}</div>
-            <div><span className="font-semibold">DPOC:</span> {dadosPaciente.triagem_medica?.dpoc ? "Sim" : "Não"}</div>
+        <div className="mb-4">
+          <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">SINAIS VITAIS</h2>
+          <div className="grid grid-cols-4 gap-2 text-xs">
+            <div><span className="font-semibold">PA E:</span> {dadosPaciente.triagem_medica?.pa_braco_esquerdo || "-"}</div>
+            <div><span className="font-semibold">PA D:</span> {dadosPaciente.triagem_medica?.pa_braco_direito || "-"}</div>
+            <div><span className="font-semibold">FC:</span> {dadosPaciente.triagem_medica?.frequencia_cardiaca || "-"}</div>
+            <div><span className="font-semibold">FR:</span> {dadosPaciente.triagem_medica?.frequencia_respiratoria || "-"}</div>
+            <div><span className="font-semibold">Temp:</span> {dadosPaciente.triagem_medica?.temperatura || "-"}°C</div>
+            <div><span className="font-semibold">SpO2:</span> {dadosPaciente.triagem_medica?.spo2 || "-"}%</div>
+            <div><span className="font-semibold">Glic:</span> {dadosPaciente.triagem_medica?.glicemia_capilar || "-"}</div>
+            <div><span className="font-semibold">DM/DPOC:</span> {dadosPaciente.triagem_medica?.diabetes ? "Sim" : "Não"}/{dadosPaciente.triagem_medica?.dpoc ? "Sim" : "Não"}</div>
           </div>
         </div>
 
         {/* ECG */}
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-3 pb-2 border-b-2 border-gray-300">ELETROCARDIOGRAMA</h2>
-          {dadosPaciente.triagem_medica?.data_hora_ecg && (
-            <div className="bg-green-50 border-2 border-green-500 rounded-lg p-4 mb-3">
-              <p><span className="font-semibold">Tempo Triagem→ECG:</span> {dadosPaciente.triagem_medica?.tempo_entrada_ecg_minutos || "-"} minutos</p>
-              <p><span className="font-semibold">Realizado em:</span> {format(new Date(dadosPaciente.triagem_medica.data_hora_ecg), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
-            </div>
-          )}
+        <div className="mb-4">
+          <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">ECG</h2>
           {dadosPaciente.triagem_medica?.alteracoes_ecg?.length > 0 && (
-            <div className="text-sm mb-3">
-              <p className="font-semibold mb-2">Alterações:</p>
-              <ul className="list-disc pl-5">
-                {dadosPaciente.triagem_medica.alteracoes_ecg.map((alt, i) => (
+            <div className="text-xs mb-2">
+              <p className="font-semibold mb-1">Alterações:</p>
+              <ul className="list-disc pl-4">
+                {dadosPaciente.triagem_medica.alteracoes_ecg.slice(0, 3).map((alt, i) => (
                   <li key={i}>{alt}</li>
                 ))}
               </ul>
             </div>
           )}
-          {dadosPaciente.triagem_medica?.ecg_files?.length > 0 && (
-            <div className="space-y-2">
-              <p className="font-semibold text-sm mb-2">Imagens do ECG:</p>
-              {dadosPaciente.triagem_medica.ecg_files.map((file, i) => (
-                <img 
-                  key={i} 
-                  src={file} 
-                  alt={`ECG ${i + 1}`} 
-                  className="w-full border-2 border-gray-300 rounded"
-                  crossOrigin="anonymous"
-                />
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Avaliação Clínica */}
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-3 pb-2 border-b-2 border-gray-300">AVALIAÇÃO CLÍNICA</h2>
-          <div className="space-y-3 text-sm">
+        <div className="mb-4">
+          <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">AVALIAÇÃO CLÍNICA</h2>
+          <div className="space-y-2 text-xs">
             <div>
               <p className="font-semibold">Antecedentes:</p>
               <p className="text-gray-700">{dadosPaciente.avaliacao_clinica?.antecedentes || "-"}</p>
@@ -445,7 +411,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
               <p className="text-gray-700">{dadosPaciente.avaliacao_clinica?.quadro_atual || "-"}</p>
             </div>
             <div>
-              <p className="font-semibold">Hipótese Diagnóstica:</p>
+              <p className="font-semibold">Hipótese:</p>
               <p className="text-gray-700">{dadosPaciente.avaliacao_clinica?.hipotese_diagnostica || "-"}</p>
             </div>
           </div>
@@ -453,31 +419,29 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
 
         {/* HEART Score */}
         {dadosPaciente.avaliacao_clinica?.heart_score?.total > 0 && (
-          <div className="mb-6 bg-blue-50 border-2 border-blue-500 rounded-lg p-4">
-            <h3 className="font-bold text-lg mb-2">HEART SCORE</h3>
-            <p className="text-2xl font-bold text-blue-700 mb-2">{dadosPaciente.avaliacao_clinica.heart_score.total} pontos</p>
-            <p className="text-sm">{dadosPaciente.avaliacao_clinica.heart_score.interpretacao}</p>
+          <div className="mb-3 bg-blue-50 border border-blue-500 rounded p-2">
+            <h3 className="font-bold text-xs">HEART SCORE: {dadosPaciente.avaliacao_clinica.heart_score.total} pontos</h3>
           </div>
         )}
 
         {/* Prescrição */}
         {dadosPaciente.avaliacao_clinica?.prescricao_medicamentos?.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-3 pb-2 border-b-2 border-gray-300">PRESCRIÇÃO MEDICAMENTOSA</h2>
-            <table className="w-full text-sm border border-collapse">
+          <div className="mb-3">
+            <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">PRESCRIÇÃO</h2>
+            <table className="w-full text-xs border border-collapse">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="border border-gray-400 p-2 text-left">Medicamento</th>
-                  <th className="border border-gray-400 p-2 text-left">Dose</th>
-                  <th className="border border-gray-400 p-2 text-left">Via</th>
+                  <th className="border border-gray-400 p-1 text-left">Medicamento</th>
+                  <th className="border border-gray-400 p-1 text-left">Dose</th>
+                  <th className="border border-gray-400 p-1 text-left">Via</th>
                 </tr>
               </thead>
               <tbody>
                 {dadosPaciente.avaliacao_clinica.prescricao_medicamentos.map((med, i) => (
                   <tr key={i}>
-                    <td className="border border-gray-400 p-2">{med.medicamento || med.nome || "-"}</td>
-                    <td className="border border-gray-400 p-2">{med.dose || "-"}</td>
-                    <td className="border border-gray-400 p-2">{med.via || "-"}</td>
+                    <td className="border border-gray-400 p-1">{med.medicamento || med.nome || "-"}</td>
+                    <td className="border border-gray-400 p-1">{med.dose || "-"}</td>
+                    <td className="border border-gray-400 p-1">{med.via || "-"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -485,24 +449,63 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
           </div>
         )}
 
-        {/* Exames */}
+        {/* Exames Solicitados e Resultados */}
         {dadosPaciente.avaliacao_clinica?.exames_solicitados?.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-3 pb-2 border-b-2 border-gray-300">EXAMES SOLICITADOS</h2>
-            <ul className="list-disc pl-5 text-sm">
-              {dadosPaciente.avaliacao_clinica.exames_solicitados.map((exame, i) => (
-                <li key={i}>{exame}</li>
-              ))}
-            </ul>
+          <div className="mb-3">
+            <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">EXAMES SOLICITADOS E RESULTADOS</h2>
+            <table className="w-full text-xs border border-collapse">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="border border-gray-400 p-1 text-left">Exame</th>
+                  <th className="border border-gray-400 p-1 text-left">Resultado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dadosPaciente.avaliacao_clinica.exames_solicitados.map((exame, i) => (
+                  <tr key={i}>
+                    <td className="border border-gray-400 p-1">{exame}</td>
+                    <td className="border border-gray-400 p-1">{dadosPaciente.avaliacao_clinica?.resultados_exames?.[exame] || "-"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {dadosPaciente.avaliacao_clinica?.observacoes_exames && (
+              <div className="mt-2 text-xs">
+                {dadosPaciente.avaliacao_clinica.observacoes_exames.exames_nao_realizados && (
+                  <p>• Exames não Realizados</p>
+                )}
+                {dadosPaciente.avaliacao_clinica.observacoes_exames.exames_nao_liberados && (
+                  <p>• Exames Não Liberados até o Momento</p>
+                )}
+                {dadosPaciente.avaliacao_clinica.observacoes_exames.outros && (
+                  <p>• Outros: {dadosPaciente.avaliacao_clinica.observacoes_exames.outros}</p>
+                )}
+              </div>
+            )}
           </div>
         )}
 
-        {/* Profissionais */}
-        <div className="mt-8 bg-green-50 border-2 border-green-500 rounded-lg p-4">
-          <h3 className="font-bold text-lg mb-3">PROFISSIONAIS RESPONSÁVEIS</h3>
-          <div className="text-sm space-y-2">
-            <div><span className="font-semibold">Médico:</span> {medico.nome || "-"}</div>
-            <div><span className="font-semibold">CRM:</span> {medico.crm || "-"}</div>
+        {/* USA Disponível */}
+        {confirmacaoHemodinamica !== null && (
+          <div className="mb-3">
+            <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">USA DISPONÍVEL</h2>
+            <div className={`p-2 rounded border text-xs ${confirmacaoHemodinamica ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'}`}>
+              <p><span className="font-semibold">USA com chegada &lt; 90min:</span> {confirmacaoHemodinamica ? 'Sim' : 'Não'}</p>
+              {confirmacaoHemodinamica && dadosPaciente.data_hora_inicio_triagem && (
+                <p className="text-blue-700 font-semibold">
+                  Limite: {format(new Date(new Date(dadosPaciente.data_hora_inicio_triagem).getTime() + 120 * 60 * 1000), "dd/MM HH:mm", { locale: ptBR })}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Médico Responsável */}
+        <div className="mt-4 bg-green-50 border border-green-500 rounded p-2">
+          <h3 className="font-bold text-xs mb-1">MÉDICO RESPONSÁVEL</h3>
+          <div className="text-xs space-y-1">
+            <div><span className="font-semibold">Nome:</span> {dadosPaciente.triagem_medica?.medico_nome || medico.nome || "-"}</div>
+            <div><span className="font-semibold">CRM:</span> {dadosPaciente.triagem_medica?.medico_crm || medico.crm || "-"}</div>
             <div><span className="font-semibold">Celular:</span> {medico.celular || "-"}</div>
           </div>
         </div>

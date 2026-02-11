@@ -112,33 +112,6 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
         <p className="text-gray-600">Dados vitais, ECG e classificação inicial</p>
       </div>
 
-      {/* Identificação do Médico */}
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-green-900 mb-4">Identificação do Médico</h3>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <Label>Nome Completo do Médico *</Label>
-            <Input
-              type="text"
-              value={dados.medico_nome}
-              onChange={(e) => setDados(prev => ({...prev, medico_nome: e.target.value}))}
-              placeholder="Digite o nome completo"
-              required
-            />
-          </div>
-          <div>
-            <Label>Número do CRM *</Label>
-            <Input
-              type="text"
-              value={dados.medico_crm}
-              onChange={(e) => setDados(prev => ({...prev, medico_crm: e.target.value}))}
-              placeholder="Ex: 123456"
-              required
-            />
-          </div>
-        </div>
-      </div>
-
       {/* Sinais Vitais */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center gap-2">
