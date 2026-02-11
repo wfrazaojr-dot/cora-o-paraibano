@@ -497,7 +497,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         ) : permitirNavegacao ? (
-          <Button type="button" onClick={() => onProxima({ triagem_medica: dados })} className="bg-blue-600 hover:bg-blue-700">
+          <Button type="button" onClick={() => onProxima({}, true)} className="bg-blue-600 hover:bg-blue-700">
             Próxima Etapa
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>

@@ -68,8 +68,17 @@ export default function NovaTriagem() {
     },
   });
 
-  const handleProximaEtapa = async (dadosEtapa) => {
+  const handleProximaEtapa = async (dadosEtapa, apenasNavegar = false) => {
     try {
+      // Se é apenas navegação (modo leitura), não salva dados
+      if (apenasNavegar) {
+        if (etapaAtual < 4) {
+          setEtapaAtual(etapaAtual + 1);
+        }
+        return;
+      }
+
+      // Caso contrário, salva normalmente
       const dadosAtualizados = { 
         ...dadosPaciente, 
         ...dadosEtapa,
