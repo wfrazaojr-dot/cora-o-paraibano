@@ -257,8 +257,8 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
 
       {/* Temporizadores Porta-Agulha e Porta-Balão */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <TempoPortaAgulhaEtapa3 dataHoraInicioTriagem={dadosPaciente.data_hora_inicio_triagem} />
-        <TempoPortaBalaoEtapa3 dataHoraInicioTriagem={dadosPaciente.data_hora_inicio_triagem} />
+        <TempoPortaAgulhaEtapa3 dataHoraChegada={dadosPaciente.data_hora_chegada} />
+        <TempoPortaBalaoEtapa3 dataHoraChegada={dadosPaciente.data_hora_chegada} />
       </div>
 
       {/* Alerta sobre uso de inibidor da fosfodiesterase */}

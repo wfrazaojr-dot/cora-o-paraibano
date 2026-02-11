@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Clock, AlertCircle, Zap } from "lucide-react";
 import { differenceInSeconds } from "date-fns";
 
-export default function TempoPortaAgulhaEtapa3({ dataHoraInicioTriagem }) {
+export default function TempoPortaAgulhaEtapa3({ dataHoraChegada }) {
   const [tempoDecorrido, setTempoDecorrido] = useState(0);
 
   useEffect(() => {
-    if (!dataHoraInicioTriagem) return;
+    if (!dataHoraChegada) return;
 
     const calcularTempo = () => {
-      const inicio = new Date(dataHoraInicioTriagem);
+      const inicio = new Date(dataHoraChegada);
       const segundos = differenceInSeconds(new Date(), inicio);
       setTempoDecorrido(segundos);
     };
@@ -18,9 +18,9 @@ export default function TempoPortaAgulhaEtapa3({ dataHoraInicioTriagem }) {
     const interval = setInterval(calcularTempo, 1000);
 
     return () => clearInterval(interval);
-  }, [dataHoraInicioTriagem]);
+  }, [dataHoraChegada]);
 
-  if (!dataHoraInicioTriagem) return null;
+  if (!dataHoraChegada) return null;
 
   const minutos = Math.floor(tempoDecorrido / 60);
   const segundos = tempoDecorrido % 60;
