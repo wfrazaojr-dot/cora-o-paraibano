@@ -101,9 +101,9 @@ export default function NovaTriagem() {
     
     switch (etapaAtual) {
       case 1:
-        return <Etapa1DadosPaciente dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={modoLeituraEtapas1e2} />;
+        return <Etapa1DadosPaciente dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={modoLeituraEtapas1e2} permitirNavegacao={true} />;
       case 2:
-        return <Etapa2TriagemMedica dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={modoLeituraEtapas1e2} />;
+        return <Etapa2TriagemMedica dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={modoLeituraEtapas1e2} permitirNavegacao={true} />;
       case 3:
         const tipoSca = dadosPaciente.triagem_medica?.tipo_sca;
         if (tipoSca === "SCACESST") {
@@ -111,7 +111,17 @@ export default function NovaTriagem() {
         } else if (tipoSca === "SCASESST_COM_TROPONINA") {
           return <Etapa3_2_SCASESST_ComTroponina dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={false} />;
         } else {
-          return <div>Etapa 3.3 em desenvolvimento</div>;
+          return <div className="text-center py-8">
+            <p className="text-gray-600 mb-4">Tipo de SCA não definido ou sem protocolo específico</p>
+            <div className="flex justify-between">
+              <Button onClick={handleEtapaAnterior} variant="outline">
+                Voltar
+              </Button>
+              <Button onClick={() => setEtapaAtual(4)} className="bg-red-600 hover:bg-red-700">
+                Ir para Relatório
+              </Button>
+            </div>
+          </div>;
         }
       case 4:
         return <Etapa4Relatorio dadosPaciente={dadosPaciente} onAnterior={handleEtapaAnterior} pacienteId={pacienteId} />;
