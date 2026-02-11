@@ -293,7 +293,13 @@ export default function Dashboard() {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => navigate(createPageUrl("NovaTriagem") + `?id=${paciente.id}`)}
+                        onClick={() => {
+                          if (paciente.relatorio_url) {
+                            window.open(paciente.relatorio_url, '_blank');
+                          } else {
+                            alert('Relatório ainda não foi gerado para este paciente');
+                          }
+                        }}
                       >
                         <Eye className="w-4 h-4 mr-2" />
                         Visualizar
