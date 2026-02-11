@@ -8,7 +8,7 @@ import { ArrowLeft, ArrowRight, Activity, FileText, Upload, X, ExternalLink } fr
 import { base44 } from "@/api/base44Client";
 import { format, differenceInMinutes } from "date-fns";
 
-export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnterior, modoLeitura = false }) {
+export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnterior, modoLeitura = false, permitirNavegacao = false }) {
   const [uploadingECG, setUploadingECG] = useState(false);
   const [dados, setDados] = useState({
     medico_nome: dadosPaciente.triagem_medica?.medico_nome || "",
@@ -496,12 +496,12 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
             Próxima Etapa
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
-        ) : (
+        ) : permitirNavegacao ? (
           <Button type="button" onClick={() => onProxima({ triagem_medica: dados })} className="bg-blue-600 hover:bg-blue-700">
             Próxima Etapa
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
-        )}
+        ) : null}
       </div>
     </form>
   );
