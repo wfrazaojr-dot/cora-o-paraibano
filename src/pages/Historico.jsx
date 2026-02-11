@@ -146,12 +146,7 @@ export default function Historico() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {user?.equipe === 'cerh' && 'Painel Assistencial - CERH'}
-              {user?.equipe === 'asscardio' && 'Painel Assistencial - ASSCARDIO'}
-              {user?.equipe === 'unidade_saude' && 'Painel Assistencial'}
-              {user?.role === 'admin' && 'Painel Assistencial Completo'}
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Painel Assistencial</h1>
             <p className="text-gray-600">
               {user?.equipe === 'unidade_saude' && 'Registro de atendimentos da sua unidade'}
               {user?.equipe === 'cerh' && 'Registro consolidado de pacientes com assessoria cardiológica'}

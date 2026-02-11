@@ -58,6 +58,7 @@ import Historico from './pages/Historico';
 import HistoricoUnidades from './pages/HistoricoUnidades';
 import Home from './pages/Home';
 import Indicadores from './pages/Indicadores';
+import Inicio from './pages/Inicio';
 import Manual from './pages/Manual';
 import NovaTriagem from './pages/NovaTriagem';
 import PINLogin from './pages/PINLogin';
@@ -65,7 +66,6 @@ import PerfilSelection from './pages/PerfilSelection';
 import ProtocoloEstrategias from './pages/ProtocoloEstrategias';
 import Protocolos from './pages/Protocolos';
 import RecuperarPIN from './pages/RecuperarPIN';
-import Inicio from './pages/Inicio';
 import __Layout from './Layout.jsx';
 
 
@@ -81,6 +81,7 @@ export const PAGES = {
     "HistoricoUnidades": HistoricoUnidades,
     "Home": Home,
     "Indicadores": Indicadores,
+    "Inicio": Inicio,
     "Manual": Manual,
     "NovaTriagem": NovaTriagem,
     "PINLogin": PINLogin,
@@ -88,7 +89,6 @@ export const PAGES = {
     "ProtocoloEstrategias": ProtocoloEstrategias,
     "Protocolos": Protocolos,
     "RecuperarPIN": RecuperarPIN,
-    "Inicio": Inicio,
 }
 
 export const pagesConfig = {
