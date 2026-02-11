@@ -161,7 +161,7 @@ export default function Historico() {
               {user?.role === 'admin' && <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">ADMINISTRADOR</span>}
             </p>
           </div>
-          {user?.equipe === 'unidade_saude' && (
+          {(user?.equipe === 'unidade_saude' || user?.role === 'admin') && (
             <Link to={createPageUrl("NovaTriagem")}>
               <Button className="bg-red-600 hover:bg-red-700 shadow-lg">
                 <Plus className="w-5 h-5 mr-2" />
