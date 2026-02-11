@@ -47,7 +47,7 @@ export default function Layout({ children, currentPageName }) {
     if (user?.role === 'admin') {
       return [
         {
-          title: "Painel Inicial",
+          title: "Painel de Regulação",
           url: createPageUrl("Dashboard"),
           icon: Activity,
         },
@@ -57,7 +57,7 @@ export default function Layout({ children, currentPageName }) {
           icon: Plus,
         },
         {
-          title: "Histórico",
+          title: "Painel Assistencial",
           url: createPageUrl("Historico"),
           icon: History,
         },
@@ -121,12 +121,12 @@ export default function Layout({ children, currentPageName }) {
     if (equipe === 'cerh') {
       return [
         {
-          title: "Painel Inicial",
+          title: "Painel de Regulação",
           url: createPageUrl("Dashboard"),
           icon: Activity,
         },
         {
-          title: "Histórico",
+          title: "Painel Assistencial",
           url: createPageUrl("Historico"),
           icon: History,
         },
@@ -147,12 +147,12 @@ export default function Layout({ children, currentPageName }) {
     if (equipe === 'asscardio') {
       return [
         {
-          title: "Painel Inicial",
+          title: "Painel de Regulação",
           url: createPageUrl("Dashboard"),
           icon: Activity,
         },
         {
-          title: "Histórico",
+          title: "Painel Assistencial",
           url: createPageUrl("Historico"),
           icon: History,
         },
