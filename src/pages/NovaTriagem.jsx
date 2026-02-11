@@ -97,19 +97,19 @@ export default function NovaTriagem() {
   };
 
   const renderEtapa = () => {
-    const modoLeitura = idUrl && !isRetriagem;
+    const modoLeituraEtapas1e2 = idUrl && !isRetriagem;
     
     switch (etapaAtual) {
       case 1:
-        return <Etapa1DadosPaciente dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={modoLeitura} />;
+        return <Etapa1DadosPaciente dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={modoLeituraEtapas1e2} />;
       case 2:
-        return <Etapa2TriagemMedica dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={modoLeitura} />;
+        return <Etapa2TriagemMedica dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={modoLeituraEtapas1e2} />;
       case 3:
         const tipoSca = dadosPaciente.triagem_medica?.tipo_sca;
         if (tipoSca === "SCACESST") {
-          return <Etapa3_1_SCACESST dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={modoLeitura} />;
+          return <Etapa3_1_SCACESST dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={false} />;
         } else if (tipoSca === "SCASESST_COM_TROPONINA") {
-          return <Etapa3_2_SCASESST_ComTroponina dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={modoLeitura} />;
+          return <Etapa3_2_SCASESST_ComTroponina dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={false} />;
         } else {
           return <div>Etapa 3.3 em desenvolvimento</div>;
         }
