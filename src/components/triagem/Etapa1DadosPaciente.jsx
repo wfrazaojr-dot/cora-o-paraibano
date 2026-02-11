@@ -8,7 +8,7 @@ import { ptBR } from "date-fns/locale";
 import { base44 } from "@/api/base44Client";
 
 
-export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnterior, modoLeitura = false }) {
+export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnterior, modoLeitura = false, permitirNavegacao = false }) {
   const [dados, setDados] = useState({
     unidade_saude: "",
     nome_completo: "",
@@ -434,12 +434,12 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
             Próxima Etapa
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
-        ) : (
+        ) : permitirNavegacao ? (
           <Button type="button" onClick={() => onProxima(dados)} className="bg-blue-600 hover:bg-blue-700">
             Próxima Etapa
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
-        )}
+        ) : null}
       </div>
     </form>
   );
