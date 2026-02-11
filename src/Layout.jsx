@@ -30,13 +30,13 @@ export default function Layout({ children, currentPageName }) {
     queryFn: () => base44.auth.me(),
   });
 
-  // Redirecionar para PerfilSelection se não tiver equipe selecionada
+  // Redirecionar para Inicio se não tiver equipe selecionada
   useEffect(() => {
-    if (user && currentPageName === "PerfilSelection") {
-      return; // Já está na página de seleção
+    if (user && currentPageName === "Inicio") {
+      return; // Já está na página de início
     }
     if (user && !user.equipe) {
-      navigate(createPageUrl("PerfilSelection"));
+      navigate(createPageUrl("Inicio"));
     }
   }, [user, currentPageName, navigate]);
 
