@@ -84,10 +84,10 @@ export default function Dashboard() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-              {user?.equipe === 'cerh' && 'Painel CERH'}
-              {user?.equipe === 'asscardio' && 'Painel ASSCARDIO'}
+              {user?.equipe === 'cerh' && 'Painel de Regulação - CERH'}
+              {user?.equipe === 'asscardio' && 'Painel de Regulação - ASSCARDIO'}
               {user?.equipe === 'unidade_saude' && 'Painel de Controle'}
-              {user?.role === 'admin' && 'Painel Administrativo'}
+              {user?.role === 'admin' && 'Painel de Regulação'}
             </h1>
             <p className="text-gray-600 mt-1">
               {format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
