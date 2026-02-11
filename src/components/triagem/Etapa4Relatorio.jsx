@@ -24,11 +24,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
     crm: dadosPaciente.medico_crm || "",
     celular: dadosPaciente.medico_celular || ""
   });
-  const [tempoDeslocamento, setTempoDeslocamento] = useState(
-    dadosPaciente.tempo_deslocamento_minutos || ""
-  );
-  const [mostrarAlerta, setMostrarAlerta] = useState(false);
-  const [temKitTrombolitico, setTemKitTrombolitico] = useState(null);
+  const [confirmacaoHemodinamica, setConfirmacaoHemodinamica] = useState(null);
 
   const updatePacienteMutation = useMutation({
     mutationFn: async (dados) => {
@@ -92,8 +88,8 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
       alert("Por favor, preencha o nome, CRM e celular do médico");
       return;
     }
-    if (tempoDeslocamento === "") {
-      alert("Por favor, informe o tempo de deslocamento");
+    if (confirmacaoHemodinamica === null) {
+      alert("Por favor, responda se o USA está disponível com chegada na Hemodinâmica < 90 minutos.");
       return;
     }
 
@@ -102,7 +98,8 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         medico_nome: medico.nome,
         medico_crm: medico.crm,
         medico_celular: medico.celular,
-        tempo_deslocamento_minutos: parseInt(tempoDeslocamento),
+        tempo_deslocamento_minutos: confirmacaoHemodinamica ? 60 : 120,
+        usa_disponivel_menos_90min: confirmacaoHemodinamica,
         status: "Aguardando Assessoria",
       });
       alert("Atendimento finalizado com sucesso!");
@@ -181,83 +178,54 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         </div>
       </div>
 
-      {/* Tempo de Deslocamento */}
+      {/* Disponibilidade de USA */}
       <div className="bg-orange-50 border-2 border-orange-300 rounded-lg p-6">
         <div className="flex items-center gap-3 mb-4">
           <Truck className="w-6 h-6 text-orange-600" />
-          <h3 className="font-bold text-lg text-orange-900">Se USA Disponível de Imediato, Informe o Tempo de Deslocamento</h3>
+          <h3 className="font-bold text-lg text-orange-900">USA Disponível com chegada na Hemodinâmica &lt; 90 minutos?</h3>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="tempo_deslocamento">
-            O tempo de deslocamento até a hemodinâmica será de quantos minutos? *
-          </Label>
-          <Input
-            id="tempo_deslocamento"
-            type="number"
-            value={tempoDeslocamento}
-            onChange={(e) => {
-              const valor = parseInt(e.target.value) || "";
-              setTempoDeslocamento(valor);
-              if (valor > 90) {
-                setMostrarAlerta(true);
-              } else {
-                setMostrarAlerta(false);
-                setTemKitTrombolitico(null);
-              }
-            }}
-            placeholder="Ex: 30, 60, 90..."
-            min="0"
-            required
-          />
-          <p className="text-xs text-gray-600">
-            Tempo estimado de transporte do paciente até o centro de hemodinâmica
-          </p>
-        </div>
+        <div className="space-y-4">
+          <div className="flex gap-4">
+            <Button
+              type="button"
+              variant={confirmacaoHemodinamica === true ? "default" : "outline"}
+              onClick={() => setConfirmacaoHemodinamica(true)}
+              className={confirmacaoHemodinamica === true ? "bg-green-600 hover:bg-green-700" : ""}
+            >
+              Sim
+            </Button>
+            <Button
+              type="button"
+              variant={confirmacaoHemodinamica === false ? "default" : "outline"}
+              onClick={() => setConfirmacaoHemodinamica(false)}
+              className={confirmacaoHemodinamica === false ? "bg-red-600 hover:bg-red-700" : ""}
+            >
+              Não
+            </Button>
+          </div>
 
-        {mostrarAlerta && (
-          <div className="mt-4 space-y-4">
-            <Alert className="bg-yellow-100 border-yellow-400">
-              <AlertCircle className="h-5 w-5 text-yellow-600" />
-              <AlertDescription className="text-yellow-900 font-bold">
-                ⚠️ Tempo de deslocamento superior a 90 minutos.
+          {confirmacaoHemodinamica === true && dadosPaciente.data_hora_inicio_triagem && (
+            <Alert className="bg-blue-100 border-blue-400">
+              <AlertCircle className="h-5 w-5 text-blue-600" />
+              <AlertDescription className="text-blue-900 font-bold">
+                {(() => {
+                  const dataInicioTriagem = new Date(dadosPaciente.data_hora_inicio_triagem);
+                  const horarioLimite = new Date(dataInicioTriagem.getTime() + 120 * 60 * 1000);
+                  return `Horário Limite Estimado para Chegada a Hemodinâmica: ${format(horarioLimite, "dd/MM/yyyy HH:mm", { locale: ptBR })}`;
+                })()}
               </AlertDescription>
             </Alert>
+          )}
 
-            <div className="bg-white border-2 border-orange-500 rounded-lg p-4">
-              <Label className="font-bold text-orange-900 mb-3 block">
-                Seu serviço tem disponível o KIT Trombolítico de ALTEPLASE 100mg e ENOXAPARINA?
-              </Label>
-              <div className="flex gap-4">
-                <Button
-                  type="button"
-                  variant={temKitTrombolitico === true ? "default" : "outline"}
-                  onClick={() => setTemKitTrombolitico(true)}
-                  className={temKitTrombolitico === true ? "bg-green-600" : ""}
-                >
-                  Sim
-                </Button>
-                <Button
-                  type="button"
-                  variant={temKitTrombolitico === false ? "default" : "outline"}
-                  onClick={() => setTemKitTrombolitico(false)}
-                  className={temKitTrombolitico === false ? "bg-red-600" : ""}
-                >
-                  Não
-                </Button>
-              </div>
-            </div>
-
-            {temKitTrombolitico === true && (
-              <Alert className="bg-red-100 border-red-600 border-2">
-                <AlertCircle className="h-6 w-6 text-red-700" />
-                <AlertDescription className="text-red-900 font-bold text-base">
-                  🚨 ALERTA! Fique atento para possível autorização de trombólise. 
-                  Abra sua caixa de e-mail e cobre a CERH a resposta da Cardiologia.
-                </AlertDescription>
-              </Alert>
-            )}
-          </div>
-        )}
+          {confirmacaoHemodinamica === false && (
+            <Alert className="bg-red-100 border-red-600 border-2">
+              <AlertCircle className="h-6 w-6 text-red-700" />
+              <AlertDescription className="text-red-900 font-bold text-base">
+                Esteja preparado para possível trombólise, avalie os critérios e as medicações necessárias e aguarde o parecer da cardiologia.
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
       </div>
 
       {/* Relatório Visual */}
@@ -576,7 +544,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         <Button
           onClick={handleFinalizar}
           className="bg-green-600 hover:bg-green-700"
-          disabled={!medico.nome || !medico.crm || !medico.celular || !tempoDeslocamento}
+          disabled={!medico.nome || !medico.crm || !medico.celular || confirmacaoHemodinamica === null}
         >
           <CheckCircle className="w-4 h-4 mr-2" />
           Finalizar Atendimento
