@@ -32,6 +32,7 @@ export default function NovaTriagem() {
 
   const urlParams = new URLSearchParams(window.location.search);
   const idUrl = urlParams.get('id');
+  const isRetriagem = urlParams.get('retriagem') === 'true';
 
   // Carregar dados do paciente se ID existir na URL
   useEffect(() => {
@@ -96,17 +97,19 @@ export default function NovaTriagem() {
   };
 
   const renderEtapa = () => {
+    const modoLeitura = idUrl && !isRetriagem;
+    
     switch (etapaAtual) {
       case 1:
-        return <Etapa1DadosPaciente dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} />;
+        return <Etapa1DadosPaciente dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={modoLeitura} />;
       case 2:
-        return <Etapa2TriagemMedica dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} />;
+        return <Etapa2TriagemMedica dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={modoLeitura} />;
       case 3:
         const tipoSca = dadosPaciente.triagem_medica?.tipo_sca;
         if (tipoSca === "SCACESST") {
-          return <Etapa3_1_SCACESST dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} />;
+          return <Etapa3_1_SCACESST dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={modoLeitura} />;
         } else if (tipoSca === "SCASESST_COM_TROPONINA") {
-          return <Etapa3_2_SCASESST_ComTroponina dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} />;
+          return <Etapa3_2_SCASESST_ComTroponina dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={modoLeitura} />;
         } else {
           return <div>Etapa 3.3 em desenvolvimento</div>;
         }

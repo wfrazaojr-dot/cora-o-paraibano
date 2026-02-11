@@ -8,7 +8,7 @@ import { ptBR } from "date-fns/locale";
 import { base44 } from "@/api/base44Client";
 
 
-export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnterior }) {
+export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnterior, modoLeitura = false }) {
   const [dados, setDados] = useState({
     unidade_saude: "",
     nome_completo: "",
@@ -153,6 +153,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
           placeholder="Ex: Hospital Municipal São José, UPA Centro, etc."
           required
           className="text-base border-2 border-green-400"
+          disabled={modoLeitura}
         />
         <p className="text-xs text-green-700 mt-2 font-medium">
           ⚠️ Este nome aparecerá nos relatórios e documentos oficiais - campo obrigatório
@@ -168,6 +169,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
             onChange={(e) => setDados(prev => ({...prev, nome_completo: e.target.value}))}
             placeholder="Digite o nome completo"
             required
+            disabled={modoLeitura}
           />
         </div>
 
@@ -182,6 +184,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
             required
             min="0"
             max="150"
+            disabled={modoLeitura}
           />
         </div>
 
@@ -193,6 +196,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
             onChange={(e) => setDados(prev => ({...prev, sexo: e.target.value, uso_inibidor_fosfodiesterase: e.target.value === "Masculino" ? null : false}))}
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             required
+            disabled={modoLeitura}
           >
             <option value="">Selecione o sexo</option>
             <option value="Masculino">Masculino</option>
@@ -221,6 +225,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
                 onChange={(e) => setDados(prev => ({...prev, uso_inibidor_fosfodiesterase: true}))}
                 className="w-4 h-4"
                 required
+                disabled={modoLeitura}
               />
               <Label>Sim</Label>
             </div>
@@ -233,6 +238,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
                 onChange={(e) => setDados(prev => ({...prev, uso_inibidor_fosfodiesterase: false}))}
                 className="w-4 h-4"
                 required
+                disabled={modoLeitura}
               />
               <Label>Não</Label>
             </div>
@@ -262,6 +268,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
               value={dados.data_sintomas}
               onChange={(e) => setDados(prev => ({...prev, data_sintomas: e.target.value}))}
               required
+              disabled={modoLeitura}
             />
           </div>
 
@@ -273,6 +280,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
               value={dados.hora_sintomas}
               onChange={(e) => setDados(prev => ({...prev, hora_sintomas: e.target.value}))}
               required
+              disabled={modoLeitura}
             />
           </div>
         </div>
@@ -293,6 +301,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
               value={dados.data_atendimento}
               onChange={(e) => setDados(prev => ({...prev, data_atendimento: e.target.value}))}
               required
+              disabled={modoLeitura}
             />
           </div>
 
@@ -304,6 +313,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
               value={dados.hora_chegada}
               onChange={(e) => setDados(prev => ({...prev, hora_chegada: e.target.value}))}
               required
+              disabled={modoLeitura}
             />
           </div>
         </div>
@@ -324,6 +334,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
               value={dados.hora_classificacao_risco}
               onChange={(e) => setDados(prev => ({...prev, hora_classificacao_risco: e.target.value}))}
               required
+              disabled={modoLeitura}
             />
           </div>
 
@@ -335,6 +346,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
               value={dados.hora_ecg}
               onChange={(e) => setDados(prev => ({...prev, hora_ecg: e.target.value}))}
               required
+              disabled={modoLeitura}
             />
           </div>
 
@@ -346,6 +358,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
               onChange={(e) => setDados(prev => ({...prev, classificacao_risco: e.target.value}))}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               required
+              disabled={modoLeitura}
             >
               <option value="">Selecione a cor</option>
               <option value="vermelha">🔴 Vermelha</option>
@@ -416,10 +429,17 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
       )}
 
       <div className="flex justify-end pt-4">
-        <Button type="submit" className="bg-red-600 hover:bg-red-700">
-          Próxima Etapa
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </Button>
+        {!modoLeitura ? (
+          <Button type="submit" className="bg-red-600 hover:bg-red-700">
+            Próxima Etapa
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        ) : (
+          <Button type="button" onClick={() => onProxima(dados)} className="bg-blue-600 hover:bg-blue-700">
+            Próxima Etapa
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        )}
       </div>
     </form>
   );

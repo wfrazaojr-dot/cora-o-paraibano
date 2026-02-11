@@ -11,7 +11,7 @@ import TempoECG from "./TempoECG";
 import TempoPortaAgulhaEtapa3 from "./TempoPortaAgulhaEtapa3";
 import TempoPortaBalaoEtapa3 from "./TempoPortaBalaoEtapa3";
 
-export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxima, onAnterior }) {
+export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxima, onAnterior, modoLeitura = false }) {
   const [dados, setDados] = useState({
     antecedentes: dadosPaciente.avaliacao_clinica?.antecedentes || "",
     quadro_atual: dadosPaciente.avaliacao_clinica?.quadro_atual || "",
@@ -671,15 +671,30 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
 
 
 
+      {modoLeitura && (
+        <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6">
+          <p className="text-blue-900 font-semibold text-center">
+            ℹ️ Modo Visualização: Os dados desta etapa não podem ser modificados
+          </p>
+        </div>
+      )}
+
       <div className="flex justify-between pt-4">
         <Button type="button" variant="outline" onClick={onAnterior}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           Etapa Anterior
         </Button>
-        <Button type="submit" className="bg-red-600 hover:bg-red-700">
-          Próxima Etapa
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </Button>
+        {!modoLeitura ? (
+          <Button type="submit" className="bg-red-600 hover:bg-red-700">
+            Próxima Etapa
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        ) : (
+          <Button type="button" onClick={() => onProxima({ avaliacao_clinica: dados })} className="bg-blue-600 hover:bg-blue-700">
+            Próxima Etapa
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        )}
       </div>
     </form>
   );

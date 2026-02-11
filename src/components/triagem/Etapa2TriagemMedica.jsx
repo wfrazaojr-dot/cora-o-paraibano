@@ -8,7 +8,7 @@ import { ArrowLeft, ArrowRight, Activity, FileText, Upload, X, ExternalLink } fr
 import { base44 } from "@/api/base44Client";
 import { format, differenceInMinutes } from "date-fns";
 
-export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnterior }) {
+export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnterior, modoLeitura = false }) {
   const [uploadingECG, setUploadingECG] = useState(false);
   const [dados, setDados] = useState({
     medico_nome: dadosPaciente.triagem_medica?.medico_nome || "",
@@ -505,15 +505,30 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
         </div>
       </div>
 
+      {modoLeitura && (
+        <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6">
+          <p className="text-blue-900 font-semibold text-center">
+            ℹ️ Modo Visualização: Os dados desta etapa não podem ser modificados
+          </p>
+        </div>
+      )}
+
       <div className="flex justify-between pt-4">
         <Button type="button" variant="outline" onClick={onAnterior}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           Etapa Anterior
         </Button>
-        <Button type="submit" className="bg-red-600 hover:bg-red-700">
-          Próxima Etapa
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </Button>
+        {!modoLeitura ? (
+          <Button type="submit" className="bg-red-600 hover:bg-red-700">
+            Próxima Etapa
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        ) : (
+          <Button type="button" onClick={() => onProxima({ triagem_medica: dados })} className="bg-blue-600 hover:bg-blue-700">
+            Próxima Etapa
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        )}
       </div>
     </form>
   );
