@@ -32,10 +32,13 @@ export default function Layout({ children, currentPageName }) {
 
   // Redirecionar para Inicio se não tiver equipe selecionada
   useEffect(() => {
-    if (user && currentPageName === "Inicio") {
-      return; // Já está na página de início
-    }
-    if (user && !user.equipe) {
+    if (!user) return;
+    
+    // Se já está na página Inicio, não redirecionar
+    if (currentPageName === "Inicio") return;
+    
+    // Se não tem equipe definida, vai para Inicio
+    if (!user.equipe) {
       navigate(createPageUrl("Inicio"));
     }
   }, [user, currentPageName, navigate]);
