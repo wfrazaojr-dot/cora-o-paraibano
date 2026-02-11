@@ -126,11 +126,6 @@ export default function Layout({ children, currentPageName }) {
           icon: Activity,
         },
         {
-          title: "Painel Assistencial",
-          url: createPageUrl("Historico"),
-          icon: History,
-        },
-        {
           title: "Protocolos",
           url: createPageUrl("Protocolos"),
           icon: BookOpen,
@@ -150,11 +145,6 @@ export default function Layout({ children, currentPageName }) {
           title: "Painel de Regulação",
           url: createPageUrl("Dashboard"),
           icon: Activity,
-        },
-        {
-          title: "Painel Assistencial",
-          url: createPageUrl("Historico"),
-          icon: History,
         },
         {
           title: "Protocolos",
