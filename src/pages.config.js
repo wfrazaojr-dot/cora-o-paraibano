@@ -66,6 +66,7 @@ import PerfilSelection from './pages/PerfilSelection';
 import ProtocoloEstrategias from './pages/ProtocoloEstrategias';
 import Protocolos from './pages/Protocolos';
 import RecuperarPIN from './pages/RecuperarPIN';
+import PainelInicial from './pages/PainelInicial';
 import __Layout from './Layout.jsx';
 
 
@@ -89,6 +90,7 @@ export const PAGES = {
     "ProtocoloEstrategias": ProtocoloEstrategias,
     "Protocolos": Protocolos,
     "RecuperarPIN": RecuperarPIN,
+    "PainelInicial": PainelInicial,
 }
 
 export const pagesConfig = {

@@ -50,6 +50,11 @@ export default function Layout({ children, currentPageName }) {
     if (user?.role === 'admin') {
       return [
         {
+          title: "Painel Inicial",
+          url: createPageUrl("PainelInicial"),
+          icon: Activity,
+        },
+        {
           title: "Painel de Regulação",
           url: createPageUrl("Dashboard"),
           icon: Activity,
