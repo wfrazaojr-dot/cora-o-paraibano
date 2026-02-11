@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Search, ExternalLink, RefreshCw, Filter } from "lucide-react";
+import { Search, ExternalLink, RefreshCw, Filter, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Link, useNavigate } from "react-router-dom";
@@ -144,26 +144,36 @@ export default function Historico() {
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {user?.equipe === 'cerh' && 'Histórico CERH'}
-            {user?.equipe === 'asscardio' && 'Histórico ASSCARDIO'}
-            {user?.equipe === 'unidade_saude' && 'Histórico de Atendimentos'}
-            {user?.role === 'admin' && 'Histórico Completo do Sistema'}
-          </h1>
-          <p className="text-gray-600">
-            {user?.equipe === 'unidade_saude' && 'Registro de atendimentos da sua unidade'}
-            {user?.equipe === 'cerh' && 'Registro consolidado de pacientes com assessoria cardiológica'}
-            {user?.equipe === 'asscardio' && 'Registro consolidado de pacientes com regulação central'}
-            {user?.role === 'admin' && 'Registro completo de todos os pacientes atendidos no sistema'}
-          </p>
-          <p className="text-sm text-blue-600 mt-1">
-            👤 {user.full_name} • {user.email}
-            {user?.equipe === 'cerh' && <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">CERH</span>}
-            {user?.equipe === 'asscardio' && <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">ASSCARDIO</span>}
-            {user?.equipe === 'unidade_saude' && <span className="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-semibold">UNIDADE DE SAÚDE</span>}
-            {user?.role === 'admin' && <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">ADMINISTRADOR</span>}
-          </p>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              {user?.equipe === 'cerh' && 'Painel Assistencial - CERH'}
+              {user?.equipe === 'asscardio' && 'Painel Assistencial - ASSCARDIO'}
+              {user?.equipe === 'unidade_saude' && 'Painel Assistencial'}
+              {user?.role === 'admin' && 'Painel Assistencial Completo'}
+            </h1>
+            <p className="text-gray-600">
+              {user?.equipe === 'unidade_saude' && 'Registro de atendimentos da sua unidade'}
+              {user?.equipe === 'cerh' && 'Registro consolidado de pacientes com assessoria cardiológica'}
+              {user?.equipe === 'asscardio' && 'Registro consolidado de pacientes com regulação central'}
+              {user?.role === 'admin' && 'Registro completo de todos os pacientes atendidos no sistema'}
+            </p>
+            <p className="text-sm text-blue-600 mt-1">
+              👤 {user.full_name} • {user.email}
+              {user?.equipe === 'cerh' && <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">CERH</span>}
+              {user?.equipe === 'asscardio' && <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">ASSCARDIO</span>}
+              {user?.equipe === 'unidade_saude' && <span className="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-semibold">UNIDADE DE SAÚDE</span>}
+              {user?.role === 'admin' && <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">ADMINISTRADOR</span>}
+            </p>
+          </div>
+          {user?.equipe === 'unidade_saude' && (
+            <Link to={createPageUrl("NovaTriagem")}>
+              <Button className="bg-red-600 hover:bg-red-700 shadow-lg">
+                <Plus className="w-5 h-5 mr-2" />
+                Novo Paciente
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Filtros */}

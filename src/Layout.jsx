@@ -95,9 +95,9 @@ export default function Layout({ children, currentPageName }) {
     if (equipe === 'unidade_saude') {
       return [
         {
-          title: "Novo Paciente",
-          url: createPageUrl("NovaTriagem"),
-          icon: Plus,
+          title: "Painel Assistencial",
+          url: createPageUrl("Historico"),
+          icon: History,
         },
         {
           title: "Histórico Unidades",

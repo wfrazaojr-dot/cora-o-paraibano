@@ -63,7 +63,7 @@ export default function Inicio() {
       
       // Redirecionar baseado no perfil escolhido
       if (equipe === 'unidade_saude') {
-        navigate(createPageUrl("NovaTriagem"));
+        navigate(createPageUrl("Historico"));
       } else if (equipe === 'cerh' || equipe === 'asscardio') {
         navigate(createPageUrl("Dashboard"));
       } else if (equipe === 'transporte' || equipe === 'hemodinamica') {
