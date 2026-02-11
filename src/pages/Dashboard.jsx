@@ -85,6 +85,12 @@ export default function Dashboard() {
   const aguardandoCERH = pacientesRegulacao.filter(p => 
     p.status === "Aguardando Regulação" || !p.regulacao_central?.medico_regulador_nome
   );
+  const aguardandoTransporte = pacientesRegulacao.filter(p => 
+    p.status === "Aguardando Transporte"
+  );
+  const aguardandoHemodinamica = pacientesRegulacao.filter(p => 
+    p.status === "Aguardando Hemodinâmica"
+  );
   const dentroDaJanela = pacientesRegulacao.filter(p => p.janelaTerapeutica?.dentroJanela);
 
   // Aplicar filtro
@@ -94,6 +100,8 @@ export default function Dashboard() {
   if (filtroSelecionado === "prioridade2") pacientesFiltrados = prioridade2;
   if (filtroSelecionado === "aguardando_asscardio") pacientesFiltrados = aguardandoASSCARDIO;
   if (filtroSelecionado === "aguardando_cerh") pacientesFiltrados = aguardandoCERH;
+  if (filtroSelecionado === "aguardando_transporte") pacientesFiltrados = aguardandoTransporte;
+  if (filtroSelecionado === "aguardando_hemodinamica") pacientesFiltrados = aguardandoHemodinamica;
   if (filtroSelecionado === "janela_terapeutica") pacientesFiltrados = dentroDaJanela;
 
   if (!user) {
@@ -122,7 +130,7 @@ export default function Dashboard() {
         </div>
 
         {/* Cards de Estatísticas */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
           <Card 
             className={`cursor-pointer transition-all ${filtroSelecionado === 'prioridade0' ? 'ring-2 ring-red-500' : ''}`}
             onClick={() => setFiltroSelecionado(filtroSelecionado === 'prioridade0' ? 'todos' : 'prioridade0')}
@@ -198,6 +206,32 @@ export default function Dashboard() {
             <CardContent>
               <div className="text-3xl font-bold text-blue-600">{aguardandoCERH.length}</div>
               <p className="text-xs text-gray-500 mt-1">Regulação pendente</p>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className={`cursor-pointer transition-all ${filtroSelecionado === 'aguardando_transporte' ? 'ring-2 ring-indigo-500' : ''}`}
+            onClick={() => setFiltroSelecionado(filtroSelecionado === 'aguardando_transporte' ? 'todos' : 'aguardando_transporte')}
+          >
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Aguard. Transporte</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-indigo-600">{aguardandoTransporte.length}</div>
+              <p className="text-xs text-gray-500 mt-1">Transporte pendente</p>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className={`cursor-pointer transition-all ${filtroSelecionado === 'aguardando_hemodinamica' ? 'ring-2 ring-pink-500' : ''}`}
+            onClick={() => setFiltroSelecionado(filtroSelecionado === 'aguardando_hemodinamica' ? 'todos' : 'aguardando_hemodinamica')}
+          >
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Aguard. Hemodinâmica</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-pink-600">{aguardandoHemodinamica.length}</div>
+              <p className="text-xs text-gray-500 mt-1">Hemodinâmica pendente</p>
             </CardContent>
           </Card>
         </div>
