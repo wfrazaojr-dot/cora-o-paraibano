@@ -1,79 +1,105 @@
-import React from "react";
+import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, Clock, AlertTriangle, Activity } from "lucide-react";
-import { format, differenceInMinutes } from "date-fns";
+import { AlertTriangle, Clock, Users, Activity, Eye } from "lucide-react";
+import { format, differenceInHours } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-import StatsCard from "../components/dashboard/StatsCard";
-import PacientesEmAtendimento from "../components/dashboard/PacientesEmAtendimento";
-import GraficoClassificacao from "../components/dashboard/GraficoClassificacao";
-import AlertasCriticos from "../components/dashboard/AlertasCriticos";
-
 export default function Dashboard() {
+  const navigate = useNavigate();
+  const [filtroSelecionado, setFiltroSelecionado] = useState("todos");
+
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
 
+  // Redirecionar Unidade de Saúde
+  if (user?.equipe === 'unidade_saude' && user?.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle className="text-red-600">Acesso Negado</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">
+              O Painel de Regulação não está disponível para usuários de Unidade de Saúde.
+            </p>
+            <Button onClick={() => navigate(createPageUrl("Historico"))} className="w-full">
+              Ir para Painel Assistencial
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const { data: pacientes = [], isLoading } = useQuery({
-    queryKey: ['pacientes', user?.email, user?.equipe],
-    queryFn: async () => {
-      const equipe = user?.equipe || 'unidade_saude';
-      
-      // Admin: mostra todos os pacientes
-      if (user?.role === 'admin') {
-        return base44.entities.Paciente.list("-created_date");
-      }
-
-      // Usuário de unidade de saúde: mostra apenas pacientes da sua unidade
-      if (equipe === 'unidade_saude') {
-        return base44.entities.Paciente.filter({ unidade_saude: user?.unidade_saude }, "-created_date");
-      }
-
-      // CERH e ASSCARDIO: mostra todos os pacientes (consolidado)
-      return base44.entities.Paciente.list("-created_date");
-    },
+    queryKey: ['pacientes-regulacao'],
+    queryFn: () => base44.entities.Paciente.list("-created_date"),
     enabled: !!user,
     initialData: [],
   });
 
-  const pacientesEmAtendimento = pacientes.filter(p => 
-    ['Em Triagem', 'Aguardando Médico', 'Em Atendimento'].includes(p.status)
-  );
+  // Função para calcular prioridade
+  const calcularPrioridade = (paciente) => {
+    const tipoSCA = paciente.triagem_medica?.tipo_sca;
+    if (tipoSCA === "SCACESST") return 0;
+    if (tipoSCA === "SCASESST_COM_TROPONINA") return 1;
+    if (tipoSCA === "SCASESST_SEM_TROPONINA") return 2;
+    return 3;
+  };
 
-  const pacientesHoje = pacientes.filter(p => {
-    const hoje = new Date();
-    const dataPaciente = new Date(p.created_date);
-    return dataPaciente.toDateString() === hoje.toDateString();
-  });
+  // Função para verificar janela terapêutica
+  const calcularJanelaTerapeutica = (paciente) => {
+    if (!paciente.data_hora_inicio_sintomas) return null;
+    const horasDesdeInicio = differenceInHours(new Date(), new Date(paciente.data_hora_inicio_sintomas));
+    return {
+      horas: horasDesdeInicio,
+      dentroJanela: horasDesdeInicio <= 12
+    };
+  };
 
-  const casosCriticos = pacientes.filter(p => 
-    p.triagem_medica?.tipo_sca === "SCACESST"
-  );
+  // Filtrar e ordenar pacientes por prioridade
+  const pacientesRegulacao = pacientes
+    .map(p => ({
+      ...p,
+      prioridade: calcularPrioridade(p),
+      janelaTerapeutica: calcularJanelaTerapeutica(p)
+    }))
+    .sort((a, b) => a.prioridade - b.prioridade);
 
-  const casosAmarelosPrioridade = pacientes.filter(p => 
-    p.triagem_medica?.tipo_sca === "SCASESST_COM_TROPONINA" || 
-    p.triagem_medica?.tipo_sca === "SCASESST_SEM_TROPONINA"
+  // Estatísticas
+  const prioridade0 = pacientesRegulacao.filter(p => p.prioridade === 0);
+  const prioridade1 = pacientesRegulacao.filter(p => p.prioridade === 1);
+  const prioridade2 = pacientesRegulacao.filter(p => p.prioridade === 2);
+  const aguardandoASSCARDIO = pacientesRegulacao.filter(p => 
+    p.status === "Aguardando Assessoria" || !p.assessoria_cardiologia?.cardiologista_nome
   );
+  const aguardandoCERH = pacientesRegulacao.filter(p => 
+    p.status === "Aguardando Regulação" || !p.regulacao_central?.medico_regulador_nome
+  );
+  const dentroDaJanela = pacientesRegulacao.filter(p => p.janelaTerapeutica?.dentroJanela);
 
-  const alertasCriticos = casosCriticos.length > 5 ? casosCriticos : [];
-  
-  const alertasAtivos = pacientesEmAtendimento.filter(p => 
-    p.triagem_medica?.tipo_sca === "SCACESST" && 
-    !p.regulacao_central?.medico_regulador_nome
-  );
+  // Aplicar filtro
+  let pacientesFiltrados = pacientesRegulacao;
+  if (filtroSelecionado === "prioridade0") pacientesFiltrados = prioridade0;
+  if (filtroSelecionado === "prioridade1") pacientesFiltrados = prioridade1;
+  if (filtroSelecionado === "prioridade2") pacientesFiltrados = prioridade2;
+  if (filtroSelecionado === "aguardando_asscardio") pacientesFiltrados = aguardandoASSCARDIO;
+  if (filtroSelecionado === "aguardando_cerh") pacientesFiltrados = aguardandoCERH;
+  if (filtroSelecionado === "janela_terapeutica") pacientesFiltrados = dentroDaJanela;
 
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Activity className="w-12 h-12 text-red-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Carregando...</p>
-        </div>
+        <Activity className="w-12 h-12 text-red-600 animate-spin" />
       </div>
     );
   }
@@ -81,68 +107,204 @@ export default function Dashboard() {
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Painel de Regulação</h1>
-            <p className="text-gray-600 mt-1">
-              {format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
-            </p>
-            <p className="text-sm text-blue-600 mt-1">
-              👤 {user.full_name} • {user.email}
-              {user?.equipe === 'cerh' && <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">CERH</span>}
-              {user?.equipe === 'asscardio' && <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">ASSCARDIO</span>}
-              {user?.equipe === 'unidade_saude' && <span className="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-semibold">UNIDADE DE SAÚDE</span>}
-              {user?.role === 'admin' && <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">ADMINISTRADOR</span>}
-            </p>
-          </div>
-
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Painel de Regulação</h1>
+          <p className="text-gray-600 mt-1">
+            {format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+          </p>
+          <p className="text-sm text-blue-600 mt-1">
+            👤 {user.full_name} • {user.email}
+            {user?.equipe === 'cerh' && <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">CERH</span>}
+            {user?.equipe === 'asscardio' && <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">ASSCARDIO</span>}
+            {user?.role === 'admin' && <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">ADMINISTRADOR</span>}
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatsCard
-            title="Em Atendimento"
-            value={pacientesEmAtendimento.length}
-            icon={Users}
-            color="blue"
-            subtitle={`${pacientesHoje.length} hoje`}
-          />
-          <StatsCard
-            title="Casos Críticos"
-            value={casosCriticos.length}
-            icon={AlertTriangle}
-            color="red"
-            subtitle="SCACESST"
-          />
-          <StatsCard
-            title="Prioridade Amarela"
-            value={casosAmarelosPrioridade.length}
-            icon={Clock}
-            color="yellow"
-            subtitle="SCASESST"
-          />
-          <StatsCard
-            title="Alertas Ativos"
-            value={alertasAtivos.length}
-            icon={Activity}
-            color="orange"
-            subtitle="Aguardando CERH"
-          />
+        {/* Cards de Estatísticas */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+          <Card 
+            className={`cursor-pointer transition-all ${filtroSelecionado === 'prioridade0' ? 'ring-2 ring-red-500' : ''}`}
+            onClick={() => setFiltroSelecionado(filtroSelecionado === 'prioridade0' ? 'todos' : 'prioridade0')}
+          >
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Prioridade 0</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-red-600">{prioridade0.length}</div>
+              <p className="text-xs text-gray-500 mt-1">SCACESST</p>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className={`cursor-pointer transition-all ${filtroSelecionado === 'prioridade1' ? 'ring-2 ring-orange-500' : ''}`}
+            onClick={() => setFiltroSelecionado(filtroSelecionado === 'prioridade1' ? 'todos' : 'prioridade1')}
+          >
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Prioridade 1</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-orange-600">{prioridade1.length}</div>
+              <p className="text-xs text-gray-500 mt-1">SCASESST c/ Troponina</p>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className={`cursor-pointer transition-all ${filtroSelecionado === 'prioridade2' ? 'ring-2 ring-yellow-500' : ''}`}
+            onClick={() => setFiltroSelecionado(filtroSelecionado === 'prioridade2' ? 'todos' : 'prioridade2')}
+          >
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Prioridade 2</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-yellow-600">{prioridade2.length}</div>
+              <p className="text-xs text-gray-500 mt-1">SCASESST s/ Troponina</p>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className={`cursor-pointer transition-all ${filtroSelecionado === 'janela_terapeutica' ? 'ring-2 ring-green-500' : ''}`}
+            onClick={() => setFiltroSelecionado(filtroSelecionado === 'janela_terapeutica' ? 'todos' : 'janela_terapeutica')}
+          >
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Janela ≤12h</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-green-600">{dentroDaJanela.length}</div>
+              <p className="text-xs text-gray-500 mt-1">Dentro da janela</p>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className={`cursor-pointer transition-all ${filtroSelecionado === 'aguardando_asscardio' ? 'ring-2 ring-purple-500' : ''}`}
+            onClick={() => setFiltroSelecionado(filtroSelecionado === 'aguardando_asscardio' ? 'todos' : 'aguardando_asscardio')}
+          >
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Aguard. ASSCARDIO</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-purple-600">{aguardandoASSCARDIO.length}</div>
+              <p className="text-xs text-gray-500 mt-1">Assessoria pendente</p>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className={`cursor-pointer transition-all ${filtroSelecionado === 'aguardando_cerh' ? 'ring-2 ring-blue-500' : ''}`}
+            onClick={() => setFiltroSelecionado(filtroSelecionado === 'aguardando_cerh' ? 'todos' : 'aguardando_cerh')}
+          >
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Aguard. CERH</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-blue-600">{aguardandoCERH.length}</div>
+              <p className="text-xs text-gray-500 mt-1">Regulação pendente</p>
+            </CardContent>
+          </Card>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2">
-            <PacientesEmAtendimento 
-              pacientes={pacientesEmAtendimento}
-              isLoading={isLoading}
-            />
-          </div>
-          <div className="space-y-6">
-            {alertasCriticos.length > 0 && (
-              <AlertasCriticos pacientes={alertasCriticos} />
-            )}
-            <GraficoClassificacao pacientes={pacientesHoje} />
-          </div>
-        </div>
+        {/* Lista de Pacientes */}
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>
+                Pacientes para Regulação 
+                {filtroSelecionado !== 'todos' && (
+                  <Badge className="ml-2" variant="secondary">
+                    {pacientesFiltrados.length} filtrados
+                  </Badge>
+                )}
+              </CardTitle>
+              {filtroSelecionado !== 'todos' && (
+                <Button variant="outline" size="sm" onClick={() => setFiltroSelecionado('todos')}>
+                  Limpar Filtro
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {isLoading ? (
+                <p className="text-center text-gray-500 py-8">Carregando...</p>
+              ) : pacientesFiltrados.length === 0 ? (
+                <p className="text-center text-gray-500 py-8">Nenhum paciente encontrado</p>
+              ) : (
+                pacientesFiltrados.map((paciente) => (
+                  <div 
+                    key={paciente.id} 
+                    className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-lg">{paciente.nome_completo}</h3>
+                          {paciente.prioridade === 0 && (
+                            <Badge className="bg-red-600">Prioridade 0</Badge>
+                          )}
+                          {paciente.prioridade === 1 && (
+                            <Badge className="bg-orange-500">Prioridade 1</Badge>
+                          )}
+                          {paciente.prioridade === 2 && (
+                            <Badge className="bg-yellow-500">Prioridade 2</Badge>
+                          )}
+                          {paciente.janelaTerapeutica?.dentroJanela && (
+                            <Badge className="bg-green-600">
+                              <Clock className="w-3 h-3 mr-1" />
+                              Janela ≤12h
+                            </Badge>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                          <div>
+                            <span className="text-gray-500">Unidade:</span>
+                            <p className="font-medium">{paciente.unidade_saude}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Idade/Sexo:</span>
+                            <p className="font-medium">{paciente.idade} anos • {paciente.sexo}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Classificação:</span>
+                            <p className="font-medium">
+                              {paciente.triagem_medica?.tipo_sca === "SCACESST" && "SCACESST"}
+                              {paciente.triagem_medica?.tipo_sca === "SCASESST_COM_TROPONINA" && "SCASESST c/ Troponina"}
+                              {paciente.triagem_medica?.tipo_sca === "SCASESST_SEM_TROPONINA" && "SCASESST s/ Troponina"}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Status:</span>
+                            <p className="font-medium">{paciente.status}</p>
+                          </div>
+                        </div>
+
+                        {paciente.janelaTerapeutica && (
+                          <div className="mt-2">
+                            <Badge variant="outline" className={
+                              paciente.janelaTerapeutica.dentroJanela 
+                                ? "text-green-700 border-green-300" 
+                                : "text-red-700 border-red-300"
+                            }>
+                              {paciente.janelaTerapeutica.horas.toFixed(1)}h desde início dos sintomas
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => navigate(createPageUrl("NovaTriagem") + `?id=${paciente.id}`)}
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        Visualizar
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
