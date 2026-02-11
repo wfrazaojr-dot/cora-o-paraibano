@@ -55,19 +55,14 @@ export default function Layout({ children, currentPageName }) {
           icon: Activity,
         },
         {
-          title: "Painel de Regulação",
-          url: createPageUrl("Dashboard"),
-          icon: Activity,
-        },
-        {
-          title: "Novo Paciente",
-          url: createPageUrl("NovaTriagem"),
-          icon: Plus,
-        },
-        {
           title: "Painel Assistencial",
           url: createPageUrl("Historico"),
           icon: History,
+        },
+        {
+          title: "Painel de Regulação",
+          url: createPageUrl("Dashboard"),
+          icon: Activity,
         },
         {
           title: "Indicadores",
