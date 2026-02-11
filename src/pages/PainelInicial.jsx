@@ -1,7 +1,7 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Building2, Heart, Radio, Truck, Activity } from "lucide-react";
+import { Building2, Heart, Radio, Truck, Activity, Shield } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 const perfis = [
@@ -39,6 +39,13 @@ const perfis = [
     descricao: "Unidades de Hemodinâmica - Recebimento e tratamento de pacientes",
     icon: Activity,
     cor: "bg-red-600 hover:bg-red-700"
+  },
+  {
+    id: "admin",
+    titulo: "ADMINISTRADOR",
+    descricao: "Acesso administrativo completo - Gestão e configuração do sistema",
+    icon: Shield,
+    cor: "bg-gray-800 hover:bg-gray-900"
   }
 ];
 
