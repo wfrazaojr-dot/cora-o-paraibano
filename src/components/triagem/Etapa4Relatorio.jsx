@@ -386,6 +386,32 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         {/* ECG */}
         <div className="mb-4">
           <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">ECG</h2>
+          
+          {/* Imagens do ECG */}
+          {dadosPaciente.triagem_medica?.ecg_files?.length > 0 && (
+            <div className="mb-3">
+              <p className="font-semibold text-xs mb-2">Imagens do ECG:</p>
+              <div className="grid grid-cols-1 gap-2">
+                {dadosPaciente.triagem_medica.ecg_files.map((fileUrl, index) => (
+                  <div key={index} className="border border-gray-300 rounded overflow-hidden">
+                    {!fileUrl.toLowerCase().endsWith('.pdf') ? (
+                      <img
+                        src={fileUrl}
+                        alt={`ECG ${index + 1}`}
+                        className="w-full h-auto object-contain bg-gray-50"
+                        crossOrigin="anonymous"
+                      />
+                    ) : (
+                      <div className="p-2 bg-gray-100 text-xs text-center">
+                        ECG {index + 1} (PDF) - Visualizar arquivo separadamente
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
           {dadosPaciente.triagem_medica?.alteracoes_ecg?.length > 0 && (
             <div className="text-xs mb-2">
               <p className="font-semibold mb-1">Alterações:</p>
