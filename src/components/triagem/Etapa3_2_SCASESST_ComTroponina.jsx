@@ -29,7 +29,12 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
     prescricao_medicamentos: dadosPaciente.avaliacao_clinica?.prescricao_medicamentos || [],
     exames_solicitados: dadosPaciente.avaliacao_clinica?.exames_solicitados || [],
     resultados_exames_mnm: dadosPaciente.avaliacao_clinica?.resultados_exames_mnm || [],
-    resultados_exames: dadosPaciente.avaliacao_clinica?.resultados_exames || {}
+    resultados_exames: dadosPaciente.avaliacao_clinica?.resultados_exames || {},
+    observacoes_exames: dadosPaciente.avaliacao_clinica?.observacoes_exames || {
+      exames_nao_realizados: false,
+      exames_nao_liberados: false,
+      outros: ""
+    }
   });
 
   const [novoMedicamento, setNovoMedicamento] = useState({ medicamento: "", dose: "", via: "" });
@@ -474,6 +479,53 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-teal-300">
+            <Label className="text-base font-semibold text-teal-900 mb-4 block">Observações</Label>
+            <div className="space-y-3 bg-white p-4 rounded border border-teal-200">
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  checked={dados.observacoes_exames.exames_nao_realizados}
+                  onCheckedChange={(checked) => setDados(prev => ({
+                    ...prev,
+                    observacoes_exames: {
+                      ...prev.observacoes_exames,
+                      exames_nao_realizados: checked
+                    }
+                  }))}
+                />
+                <Label className="cursor-pointer">Exames não Realizados</Label>
+              </div>
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  checked={dados.observacoes_exames.exames_nao_liberados}
+                  onCheckedChange={(checked) => setDados(prev => ({
+                    ...prev,
+                    observacoes_exames: {
+                      ...prev.observacoes_exames,
+                      exames_nao_liberados: checked
+                    }
+                  }))}
+                />
+                <Label className="cursor-pointer">Exames Não Liberados até o Momento</Label>
+              </div>
+              <div className="space-y-2">
+                <Label>Outros:</Label>
+                <Textarea
+                  value={dados.observacoes_exames.outros}
+                  onChange={(e) => setDados(prev => ({
+                    ...prev,
+                    observacoes_exames: {
+                      ...prev.observacoes_exames,
+                      outros: e.target.value
+                    }
+                  }))}
+                  placeholder="Descreva outras observações..."
+                  rows={2}
+                />
+              </div>
+            </div>
           </div>
         </div>
       )}
