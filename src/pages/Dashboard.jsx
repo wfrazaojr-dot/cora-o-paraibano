@@ -340,15 +340,10 @@ export default function Dashboard() {
                               <Button 
                                 variant="outline" 
                                 size="sm"
-                                onClick={() => {
-                                  if (paciente.parecer_asscardio_url) {
-                                    window.open(paciente.parecer_asscardio_url, '_blank');
-                                  } else {
-                                    alert('Parecer ASSCARDIO ainda não foi gerado');
-                                  }
-                                }}
+                                onClick={() => navigate(createPageUrl("NovaTriagem") + `?id=${paciente.id}&modoLeitura=true`)}
                               >
-                                ASSCARDIO
+                                <Eye className="w-4 h-4 mr-1" />
+                                Visualizar
                               </Button>
                             </>
                           )}
