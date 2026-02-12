@@ -30,6 +30,16 @@ export default function Layout({ children, currentPageName }) {
     queryFn: () => base44.auth.me(),
   });
 
+  // Redirecionar para PainelInicial se não tiver equipe definida
+  useEffect(() => {
+    if (!user) return;
+    
+    // Só redireciona se não está no PainelInicial e não tem equipe
+    if (!user.equipe && currentPageName !== "PainelInicial") {
+      navigate(createPageUrl("PainelInicial"), { replace: true });
+    }
+  }, [user?.equipe, currentPageName, navigate]);
+
 
 
   const getNavigationItems = () => {
