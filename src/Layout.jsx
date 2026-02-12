@@ -40,6 +40,12 @@ export default function Layout({ children, currentPageName }) {
     // Se não tem equipe definida, vai para PainelInicial
     if (!user.equipe) {
       navigate(createPageUrl("PainelInicial"));
+      return;
+    }
+
+    // Redirecionar ASSCARDIO e CERH para Dashboard após login
+    if ((user.equipe === 'asscardio' || user.equipe === 'cerh') && currentPageName === "PainelInicial") {
+      navigate(createPageUrl("Dashboard"));
     }
   }, [user, currentPageName, navigate]);
 
