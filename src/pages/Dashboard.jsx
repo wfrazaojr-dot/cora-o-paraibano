@@ -19,10 +19,10 @@ export default function Dashboard() {
     queryFn: () => base44.auth.me(),
   });
 
-  // Redirecionar Unidade de Saúde
+  // Redirecionar Unidade de Saúde para Painel Inicial
   React.useEffect(() => {
     if (user?.equipe === 'unidade_saude' && user?.role !== 'admin') {
-      navigate(createPageUrl("Historico"));
+      navigate(createPageUrl("PainelInicial"));
     }
   }, [user, navigate]);
 
