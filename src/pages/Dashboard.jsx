@@ -326,95 +326,113 @@ export default function Dashboard() {
 
                       <div className="flex flex-col gap-2">
                         <div className="flex gap-2 flex-wrap">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => navigate(createPageUrl("NovaTriagem") + `?id=${paciente.id}&etapa=5`)}
-                          >
-                            Cardiologia
-                          </Button>
-                          
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => {
-                              if (paciente.parecer_asscardio_url) {
-                                window.open(paciente.parecer_asscardio_url, '_blank');
-                              } else {
-                                alert('Parecer ASSCARDIO ainda não foi gerado');
-                              }
-                            }}
-                          >
-                            ASSCARDIO
-                          </Button>
+                          {/* Botões para ASSCARDIO */}
+                          {(user?.equipe === 'asscardio' || user?.role === 'admin') && (
+                            <>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => navigate(createPageUrl("NovaTriagem") + `?id=${paciente.id}&etapa=5`)}
+                              >
+                                Cardiologia
+                              </Button>
+                              
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => {
+                                  if (paciente.parecer_asscardio_url) {
+                                    window.open(paciente.parecer_asscardio_url, '_blank');
+                                  } else {
+                                    alert('Parecer ASSCARDIO ainda não foi gerado');
+                                  }
+                                }}
+                              >
+                                ASSCARDIO
+                              </Button>
+                            </>
+                          )}
 
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => navigate(createPageUrl("NovaTriagem") + `?id=${paciente.id}&etapa=6`)}
-                          >
-                            Regulação
-                          </Button>
-                          
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => {
-                              if (paciente.parecer_cerh_url) {
-                                window.open(paciente.parecer_cerh_url, '_blank');
-                              } else {
-                                alert('Parecer CERH ainda não foi gerado');
-                              }
-                            }}
-                          >
-                            CERH
-                          </Button>
-                        </div>
+                          {/* Botões para CERH */}
+                          {(user?.equipe === 'cerh' || user?.role === 'admin') && (
+                            <>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => navigate(createPageUrl("NovaTriagem") + `?id=${paciente.id}&etapa=6`)}
+                              >
+                                Regulação
+                              </Button>
+                              
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => {
+                                  if (paciente.parecer_cerh_url) {
+                                    window.open(paciente.parecer_cerh_url, '_blank');
+                                  } else {
+                                    alert('Parecer CERH ainda não foi gerado');
+                                  }
+                                }}
+                              >
+                                CERH
+                              </Button>
+                            </>
+                          )}
 
-                        <div className="flex gap-2 flex-wrap">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => navigate(createPageUrl("NovaTriagem") + `?id=${paciente.id}&etapa=7`)}
-                          >
-                            Transporte
-                          </Button>
-                          
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => {
-                              if (paciente.parecer_transporte_url) {
-                                window.open(paciente.parecer_transporte_url, '_blank');
-                              } else {
-                                alert('Parecer Transporte ainda não foi gerado');
-                              }
-                            }}
-                          >
-                            View Transporte
-                          </Button>
+                          {/* Botões para TRANSPORTE */}
+                          {(user?.equipe === 'transporte' || user?.role === 'admin') && (
+                            <>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => navigate(createPageUrl("NovaTriagem") + `?id=${paciente.id}&etapa=7`)}
+                              >
+                                Transporte
+                              </Button>
+                              
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => {
+                                  if (paciente.parecer_transporte_url) {
+                                    window.open(paciente.parecer_transporte_url, '_blank');
+                                  } else {
+                                    alert('Parecer Transporte ainda não foi gerado');
+                                  }
+                                }}
+                              >
+                                View Transporte
+                              </Button>
+                            </>
+                          )}
 
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => navigate(createPageUrl("NovaTriagem") + `?id=${paciente.id}&etapa=8`)}
-                          >
-                            Cardiohemodinâmica
-                          </Button>
-                          
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => {
-                              if (paciente.parecer_hemodinamica_url) {
-                                window.open(paciente.parecer_hemodinamica_url, '_blank');
-                              } else {
-                                alert('Parecer Hemodinâmica ainda não foi gerado');
-                              }
-                            }}
-                          >
-                            Hemodinâmica
-                          </Button>
+                          {/* Botões para HEMODINÂMICA */}
+                          {(user?.equipe === 'hemodinamica' || user?.role === 'admin') && (
+                            <>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => navigate(createPageUrl("NovaTriagem") + `?id=${paciente.id}&etapa=8`)}
+                              >
+                                Cardiohemodinâmica
+                              </Button>
+                              
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => {
+                                  if (paciente.parecer_hemodinamica_url) {
+                                    window.open(paciente.parecer_hemodinamica_url, '_blank');
+                                  } else {
+                                    alert('Parecer Hemodinâmica ainda não foi gerado');
+                                  }
+                                }}
+                              >
+                                Hemodinâmica
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
