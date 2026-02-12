@@ -34,17 +34,14 @@ export default function Layout({ children, currentPageName }) {
   useEffect(() => {
     if (!user) return;
     
-    // Se já está na página PainelInicial, não redirecionar
-    if (currentPageName === "PainelInicial") return;
-    
-    // Se não tem equipe definida, vai para PainelInicial
-    if (!user.equipe) {
+    // Se não tem equipe definida E não está no PainelInicial, redireciona
+    if (!user.equipe && currentPageName !== "PainelInicial") {
       navigate(createPageUrl("PainelInicial"));
       return;
     }
 
-    // Redirecionar ASSCARDIO e CERH para Dashboard após login
-    if ((user.equipe === 'asscardio' || user.equipe === 'cerh') && currentPageName === "PainelInicial") {
+    // Redirecionar ASSCARDIO e CERH para Dashboard após seleção de equipe
+    if (user.equipe && (user.equipe === 'asscardio' || user.equipe === 'cerh') && currentPageName === "PainelInicial") {
       navigate(createPageUrl("Dashboard"));
     }
   }, [user, currentPageName, navigate]);
