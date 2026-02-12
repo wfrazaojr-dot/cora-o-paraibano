@@ -95,6 +95,11 @@ export default function Layout({ children, currentPageName }) {
     if (equipe === 'unidade_saude') {
       return [
         {
+          title: "Painel Inicial",
+          url: createPageUrl("PainelInicial"),
+          icon: Activity,
+        },
+        {
           title: "Painel Assistencial",
           url: createPageUrl("Historico"),
           icon: History,
@@ -121,6 +126,11 @@ export default function Layout({ children, currentPageName }) {
     if (equipe === 'cerh') {
       return [
         {
+          title: "Painel Inicial",
+          url: createPageUrl("PainelInicial"),
+          icon: Activity,
+        },
+        {
           title: "Painel de Regulação",
           url: createPageUrl("Dashboard"),
           icon: Activity,
@@ -141,6 +151,11 @@ export default function Layout({ children, currentPageName }) {
     // Menu para ASSCARDIO
     if (equipe === 'asscardio') {
       return [
+        {
+          title: "Painel Inicial",
+          url: createPageUrl("PainelInicial"),
+          icon: Activity,
+        },
         {
           title: "Painel de Regulação",
           url: createPageUrl("Dashboard"),
