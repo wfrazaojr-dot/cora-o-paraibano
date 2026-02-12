@@ -20,25 +20,11 @@ export default function Dashboard() {
   });
 
   // Redirecionar Unidade de Saúde
-  if (user?.equipe === 'unidade_saude' && user?.role !== 'admin') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle className="text-red-600">Acesso Negado</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">
-              O Painel de Regulação não está disponível para usuários de Unidade de Saúde.
-            </p>
-            <Button onClick={() => navigate(createPageUrl("Historico"))} className="w-full">
-              Ir para Painel Assistencial
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  React.useEffect(() => {
+    if (user?.equipe === 'unidade_saude' && user?.role !== 'admin') {
+      navigate(createPageUrl("Historico"));
+    }
+  }, [user, navigate]);
 
   const { data: pacientes = [], isLoading } = useQuery({
     queryKey: ['pacientes-regulacao'],
