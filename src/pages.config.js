@@ -67,6 +67,10 @@ import PerfilSelection from './pages/PerfilSelection';
 import ProtocoloEstrategias from './pages/ProtocoloEstrategias';
 import Protocolos from './pages/Protocolos';
 import RecuperarPIN from './pages/RecuperarPIN';
+import ASSCARDIODetalhe from './pages/ASSCARDIODetalhe';
+import CERHDetalhe from './pages/CERHDetalhe';
+import TransporteDetalhe from './pages/TransporteDetalhe';
+import HemodinamicaDetalhe from './pages/HemodinamicaDetalhe';
 import __Layout from './Layout.jsx';
 
 
@@ -91,6 +95,10 @@ export const PAGES = {
     "ProtocoloEstrategias": ProtocoloEstrategias,
     "Protocolos": Protocolos,
     "RecuperarPIN": RecuperarPIN,
+    "ASSCARDIODetalhe": ASSCARDIODetalhe,
+    "CERHDetalhe": CERHDetalhe,
+    "TransporteDetalhe": TransporteDetalhe,
+    "HemodinamicaDetalhe": HemodinamicaDetalhe,
 }
 
 export const pagesConfig = {

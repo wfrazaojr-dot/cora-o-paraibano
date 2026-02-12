@@ -311,7 +311,49 @@ export default function Dashboard() {
                       </div>
 
                       <div className="flex flex-col gap-2">
-                        <p className="text-sm text-gray-500">Aguardando regulação</p>
+                        {(user?.equipe === 'asscardio' || user?.role === 'admin') && (
+                          <Button
+                            size="sm"
+                            onClick={() => navigate(createPageUrl("ASSCARDIODetalhe") + `?id=${paciente.id}`)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            Acessar Caso
+                          </Button>
+                        )}
+
+                        {(user?.equipe === 'cerh' || user?.role === 'admin') && (
+                          <Button
+                            size="sm"
+                            onClick={() => navigate(createPageUrl("CERHDetalhe") + `?id=${paciente.id}`)}
+                            className="bg-indigo-600 hover:bg-indigo-700"
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            Acessar Caso
+                          </Button>
+                        )}
+
+                        {(user?.equipe === 'transporte' || user?.role === 'admin') && (
+                          <Button
+                            size="sm"
+                            onClick={() => navigate(createPageUrl("TransporteDetalhe") + `?id=${paciente.id}`)}
+                            className="bg-yellow-600 hover:bg-yellow-700"
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            Acessar Caso
+                          </Button>
+                        )}
+
+                        {(user?.equipe === 'hemodinamica' || user?.role === 'admin') && (
+                          <Button
+                            size="sm"
+                            onClick={() => navigate(createPageUrl("HemodinamicaDetalhe") + `?id=${paciente.id}`)}
+                            className="bg-pink-600 hover:bg-pink-700"
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            Acessar Caso
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
