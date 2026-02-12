@@ -83,6 +83,49 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
     setGerandoPDF(false);
   };
 
+  const gerarEUploadPDF = async () => {
+    if (!relatorioRef.current) return null;
+
+    try {
+      const canvas = await html2canvas(relatorioRef.current, {
+        scale: 2,
+        logging: false,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+
+      const pdfBlob = pdf.output('blob');
+      const pdfFile = new File([pdfBlob], `Relatorio_${dadosPaciente.nome_completo?.replace(/ /g, "_")}_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`, { type: 'application/pdf' });
+
+      const uploadResult = await base44.integrations.Core.UploadFile({ file: pdfFile });
+      return uploadResult.file_url;
+    } catch (error) {
+      console.error("Erro ao gerar e fazer upload do PDF:", error);
+      throw error;
+    }
+  };
+
   const handleFinalizar = async () => {
     if (!medico.nome || !medico.crm || !medico.celular) {
       alert("Por favor, preencha o nome, CRM e celular do médico");
@@ -93,7 +136,10 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
       return;
     }
 
+    setGerandoPDF(true);
     try {
+      const pdfUrl = await gerarEUploadPDF();
+      
       await updatePacienteMutation.mutateAsync({
         medico_nome: medico.nome,
         medico_crm: medico.crm,
@@ -101,6 +147,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         tempo_deslocamento_minutos: confirmacaoHemodinamica ? 60 : 120,
         usa_disponivel_menos_90min: confirmacaoHemodinamica,
         status: "Aguardando Assessoria",
+        relatorio_triagem_url: pdfUrl,
       });
       alert("Atendimento finalizado com sucesso!");
       navigate(createPageUrl("Dashboard"));
@@ -108,6 +155,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
       console.error("Erro ao finalizar atendimento:", error);
       alert("Erro ao finalizar atendimento. Tente novamente.");
     }
+    setGerandoPDF(false);
   };
 
   return (
@@ -573,10 +621,10 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         <Button
           onClick={handleFinalizar}
           className="bg-green-600 hover:bg-green-700"
-          disabled={!medico.nome || !medico.crm || !medico.celular || confirmacaoHemodinamica === null}
+          disabled={!medico.nome || !medico.crm || !medico.celular || confirmacaoHemodinamica === null || gerandoPDF}
         >
           <CheckCircle className="w-4 h-4 mr-2" />
-          Finalizar Atendimento
+          {gerandoPDF ? "Finalizando..." : "Finalizar Atendimento"}
         </Button>
       </div>
     </div>

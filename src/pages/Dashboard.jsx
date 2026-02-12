@@ -340,7 +340,13 @@ export default function Dashboard() {
                               <Button 
                                 variant="outline" 
                                 size="sm"
-                                onClick={() => navigate(createPageUrl("NovaTriagem") + `?id=${paciente.id}&modoLeitura=true`)}
+                                onClick={() => {
+                                  if (paciente.relatorio_triagem_url) {
+                                    window.open(paciente.relatorio_triagem_url, '_blank');
+                                  } else {
+                                    alert('Relatório de triagem ainda não foi gerado. A Unidade de Saúde precisa finalizar a Etapa 4.');
+                                  }
+                                }}
                               >
                                 <Eye className="w-4 h-4 mr-1" />
                                 Visualizar
