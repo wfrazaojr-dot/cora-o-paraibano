@@ -39,11 +39,6 @@ export default function Layout({ children, currentPageName }) {
       navigate(createPageUrl("PainelInicial"));
       return;
     }
-
-    // Redirecionar ASSCARDIO e CERH para Dashboard após seleção de equipe
-    if (user.equipe && (user.equipe === 'asscardio' || user.equipe === 'cerh') && currentPageName === "PainelInicial") {
-      navigate(createPageUrl("Dashboard"));
-    }
   }, [user, currentPageName, navigate]);
 
 

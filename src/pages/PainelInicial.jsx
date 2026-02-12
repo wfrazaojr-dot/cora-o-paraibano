@@ -7,6 +7,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 const perfis = [
   {
@@ -64,6 +66,7 @@ const perfis = [
 ];
 
 export default function PainelInicial() {
+  const navigate = useNavigate();
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
@@ -72,6 +75,23 @@ export default function PainelInicial() {
   const [perfilSelecionado, setPerfilSelecionado] = useState(null);
   const [senhaDigitada, setSenhaDigitada] = useState("");
   const [erroSenha, setErroSenha] = useState(false);
+
+  const getPaginaDestino = (perfilId) => {
+    switch(perfilId) {
+      case "unidade_saude":
+        return "Historico";
+      case "asscardio":
+      case "cerh":
+        return "Dashboard";
+      case "transporte":
+      case "hemodinamica":
+        return "Dashboard";
+      case "admin":
+        return "Dashboard";
+      default:
+        return "Dashboard";
+    }
+  };
 
   const handleSelecionarPerfil = async (perfilId) => {
     const perfil = perfis.find(p => p.id === perfilId);
@@ -82,14 +102,14 @@ export default function PainelInicial() {
       setErroSenha(false);
     } else {
       await base44.auth.updateMe({ equipe: perfilId });
-      window.location.reload();
+      navigate(createPageUrl(getPaginaDestino(perfilId)));
     }
   };
 
   const handleConfirmarSenha = async () => {
     if (senhaDigitada === perfilSelecionado.senha) {
       await base44.auth.updateMe({ equipe: perfilSelecionado.id });
-      window.location.reload();
+      navigate(createPageUrl(getPaginaDestino(perfilSelecionado.id)));
     } else {
       setErroSenha(true);
     }
