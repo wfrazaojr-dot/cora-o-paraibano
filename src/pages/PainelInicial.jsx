@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Building2, Heart, Radio, Truck, Activity, Shield } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 const perfis = [
   {
@@ -10,42 +14,52 @@ const perfis = [
     titulo: "UNIDADES DE SAÚDE",
     descricao: "Acesso para profissionais das Unidades de Saúde - Triagem e atendimento de pacientes",
     icon: Building2,
-    cor: "bg-blue-600 hover:bg-blue-700"
+    cor: "bg-blue-600 hover:bg-blue-700",
+    requerSenha: false
   },
   {
     id: "asscardio",
     titulo: "ASSCARDIO",
     descricao: "Assessoria Cardiológica - Suporte especializado e pareceres técnicos",
     icon: Heart,
-    cor: "bg-green-600 hover:bg-green-700"
+    cor: "bg-green-600 hover:bg-green-700",
+    requerSenha: true,
+    senha: "pbsaude2023"
   },
   {
     id: "cerh",
     titulo: "CERH",
     descricao: "Central Estadual de Regulação em Hemodinâmica - Regulação e encaminhamento",
     icon: Radio,
-    cor: "bg-purple-600 hover:bg-purple-700"
+    cor: "bg-purple-600 hover:bg-purple-700",
+    requerSenha: true,
+    senha: "sespb2023"
   },
   {
     id: "transporte",
     titulo: "TRANSPORTE",
     descricao: "Gestão e coordenação de transporte de pacientes",
     icon: Truck,
-    cor: "bg-orange-600 hover:bg-orange-700"
+    cor: "bg-orange-600 hover:bg-orange-700",
+    requerSenha: true,
+    senha: "aph2023"
   },
   {
     id: "hemodinamica",
     titulo: "HEMODINÂMICA",
     descricao: "Unidades de Hemodinâmica - Recebimento e tratamento de pacientes",
     icon: Activity,
-    cor: "bg-red-600 hover:bg-red-700"
+    cor: "bg-red-600 hover:bg-red-700",
+    requerSenha: true,
+    senha: "pbsaude2024"
   },
   {
     id: "admin",
     titulo: "ADMINISTRADOR",
     descricao: "Acesso administrativo completo - Gestão e configuração do sistema",
     icon: Shield,
-    cor: "bg-gray-800 hover:bg-gray-900"
+    cor: "bg-gray-800 hover:bg-gray-900",
+    requerSenha: false
   }
 ];
 
@@ -55,9 +69,30 @@ export default function PainelInicial() {
     queryFn: () => base44.auth.me(),
   });
 
+  const [perfilSelecionado, setPerfilSelecionado] = useState(null);
+  const [senhaDigitada, setSenhaDigitada] = useState("");
+  const [erroSenha, setErroSenha] = useState(false);
+
   const handleSelecionarPerfil = async (perfilId) => {
-    await base44.auth.updateMe({ equipe: perfilId });
-    window.location.reload();
+    const perfil = perfis.find(p => p.id === perfilId);
+    
+    if (perfil.requerSenha) {
+      setPerfilSelecionado(perfil);
+      setSenhaDigitada("");
+      setErroSenha(false);
+    } else {
+      await base44.auth.updateMe({ equipe: perfilId });
+      window.location.reload();
+    }
+  };
+
+  const handleConfirmarSenha = async () => {
+    if (senhaDigitada === perfilSelecionado.senha) {
+      await base44.auth.updateMe({ equipe: perfilSelecionado.id });
+      window.location.reload();
+    } else {
+      setErroSenha(true);
+    }
   };
 
   return (
@@ -116,6 +151,47 @@ export default function PainelInicial() {
           )}
         </div>
       </div>
+
+      {/* Dialog de autenticação por senha */}
+      <Dialog open={!!perfilSelecionado} onOpenChange={() => setPerfilSelecionado(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Autenticação - {perfilSelecionado?.titulo}</DialogTitle>
+            <DialogDescription>
+              Digite a senha de acesso para {perfilSelecionado?.titulo}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="senha">Senha</Label>
+              <Input
+                id="senha"
+                type="password"
+                value={senhaDigitada}
+                onChange={(e) => {
+                  setSenhaDigitada(e.target.value);
+                  setErroSenha(false);
+                }}
+                onKeyPress={(e) => e.key === 'Enter' && handleConfirmarSenha()}
+                placeholder="Digite a senha"
+              />
+              {erroSenha && (
+                <p className="text-sm text-red-600 mt-2">
+                  Senha incorreta. Caso tenha esquecido, contate o administrador.
+                </p>
+              )}
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setPerfilSelecionado(null)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleConfirmarSenha}>
+                Confirmar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
