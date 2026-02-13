@@ -39,32 +39,32 @@ export default function TempoDor({ dataHoraInicioSintomas, className = "" }) {
   return (
     <div className="space-y-3">
       {/* Principal - Tempo de Dor */}
-      <div className={`border-2 rounded-lg p-4 ${
+      <div className={`border-2 rounded-lg p-2.5 ${
         foraJanela ? 'bg-red-50 border-red-300' : 'bg-yellow-50 border-yellow-300'
       } ${className}`}>
-        <div className="flex items-center gap-3">
-          <Clock className={`w-6 h-6 flex-shrink-0 ${
+        <div className="flex items-center gap-2">
+          <Clock className={`w-5 h-5 flex-shrink-0 ${
             foraJanela ? 'text-red-600' : 'text-yellow-600'
           }`} />
           <div className="flex-1">
-            <p className={`text-sm font-semibold ${
+            <p className={`text-xs font-semibold ${
               foraJanela ? 'text-red-900' : 'text-yellow-900'
             }`}>
-              TEMPO DE DOR (INDICADOR PRINCIPAL)
+              TEMPO DE DOR
             </p>
-            <p className={`text-3xl font-bold ${
+            <p className={`text-2xl font-bold ${
               foraJanela ? 'text-red-700' : 'text-yellow-700'
             }`}>
               {horas}h {minutos}min
             </p>
-            <p className="text-xs text-gray-600 mt-1">
-              Início: {format(dataInicio, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+            <p className="text-xs text-gray-600 mt-0.5">
+              Início: {format(dataInicio, "dd/MM 'às' HH:mm", { locale: ptBR })}
             </p>
             {foraJanela && (
-              <div className="mt-2 flex items-center gap-2 text-red-700">
-                <AlertCircle className="w-4 h-4" />
+              <div className="mt-1 flex items-center gap-1 text-red-700">
+                <AlertCircle className="w-3 h-3" />
                 <p className="text-xs font-bold">
-                  ⚠️ FORA DA JANELA TERAPÊUTICA (mais de 12 horas)
+                  ⚠️ FORA DA JANELA (&gt;12h)
                 </p>
               </div>
             )}
@@ -73,11 +73,11 @@ export default function TempoDor({ dataHoraInicioSintomas, className = "" }) {
       </div>
 
       {/* Janela Máxima IAM */}
-      <div className={`border-2 rounded-lg p-3 ${
+      <div className={`border-2 rounded-lg p-2 ${
         !foraJanela ? 'bg-purple-50 border-purple-300' : 'bg-red-50 border-red-300'
       }`}>
         <div className="flex items-start gap-2">
-          <Clock className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
+          <Clock className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
             !foraJanela ? 'text-purple-600' : 'text-red-600'
           }`} />
           <div className="flex-1 min-w-0">
@@ -91,11 +91,11 @@ export default function TempoDor({ dataHoraInicioSintomas, className = "" }) {
             }`}>
               {formatarTempo(tempoRestanteJanela)}
             </p>
-            <p className="text-xs text-gray-600 mt-0.5">Meta: 12 horas</p>
-            <p className={`text-xs font-medium mt-1 ${
+            <p className="text-xs text-gray-600 mt-0.5">Meta: 12h</p>
+            <p className={`text-xs font-medium mt-0.5 ${
               !foraJanela ? 'text-purple-700' : 'text-red-700'
             }`}>
-              {!foraJanela ? '✓ Dentro da janela' : '✗ Fora da janela'}
+              {!foraJanela ? '✓ Dentro' : '✗ Fora'}
             </p>
           </div>
         </div>

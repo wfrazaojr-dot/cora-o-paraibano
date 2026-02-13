@@ -29,27 +29,27 @@ export default function TempoPortaBalao({ dataHoraInicio }) {
   const dentroMeta = minutos < metaMinutos;
 
   return (
-    <div className={`border-2 rounded-lg p-4 ${
+    <div className={`border-2 rounded-lg p-2.5 ${
       dentroMeta ? 'bg-blue-50 border-blue-300' : 'bg-red-50 border-red-300'
     }`}>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {dentroMeta ? (
-          <Clock className="w-6 h-6 text-blue-600" />
+          <Clock className="w-5 h-5 text-blue-600" />
         ) : (
-          <AlertCircle className="w-6 h-6 text-red-600" />
+          <AlertCircle className="w-5 h-5 text-red-600" />
         )}
         <div className="flex-1">
-          <p className={`text-sm font-semibold ${
+          <p className={`text-xs font-semibold ${
             dentroMeta ? 'text-blue-900' : 'text-red-900'
           }`}>
-            ⏱️ FMC-to-device (Unidade x Hemodinâmica) (Meta: 120 minutos)
+            ⏱️ FMC-to-device (Meta: 120 min)
           </p>
-          <p className={`text-3xl font-bold ${
+          <p className={`text-2xl font-bold ${
             dentroMeta ? 'text-blue-700' : 'text-red-700'
           }`}>
             {String(minutos).padStart(2, '0')}:{String(segundos).padStart(2, '0')}
           </p>
-          <p className={`text-xs font-medium mt-1 ${
+          <p className={`text-xs font-medium mt-0.5 ${
             dentroMeta ? 'text-blue-700' : 'text-red-700'
           }`}>
             {dentroMeta 

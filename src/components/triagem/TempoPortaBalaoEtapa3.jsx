@@ -28,30 +28,30 @@ export default function TempoPortaBalaoEtapa3({ dataHoraChegada }) {
   const dentroMeta = minutos < metaMinutos;
 
   return (
-    <div className={`border-2 rounded-lg p-4 ${
+    <div className={`border-2 rounded-lg p-2.5 ${
       dentroMeta ? 'bg-blue-50 border-blue-300' : 'bg-orange-50 border-orange-300'
     }`}>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {dentroMeta ? (
-          <Heart className="w-6 h-6 text-blue-600 flex-shrink-0" />
+          <Heart className="w-5 h-5 text-blue-600 flex-shrink-0" />
         ) : (
-          <AlertCircle className="w-6 h-6 text-orange-600 flex-shrink-0" />
+          <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0" />
         )}
         <div className="flex-1">
-          <p className={`text-sm font-semibold ${
+          <p className={`text-xs font-semibold ${
             dentroMeta ? 'text-blue-900' : 'text-orange-900'
           }`}>
-            FMC-to-device (Unidade x Hemodinâmica)
+            FMC-to-device
           </p>
-          <p className={`text-3xl font-bold ${
+          <p className={`text-2xl font-bold ${
             dentroMeta ? 'text-blue-700' : 'text-orange-700'
           }`}>
             {minutos} min {segundos}s
           </p>
-          <p className="text-xs text-gray-600 mt-1">
-            Meta: {metaMinutos} minutos (Angioplastia Primária)
+          <p className="text-xs text-gray-600 mt-0.5">
+            Meta: {metaMinutos} min
           </p>
-          <p className={`text-xs font-medium mt-1 ${
+          <p className={`text-xs font-medium mt-0.5 ${
             dentroMeta ? 'text-blue-700' : 'text-orange-700'
           }`}>
             {dentroMeta ? '✓ Dentro da meta' : '⚠️ Fora da meta'}
