@@ -378,11 +378,13 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
                 >
                   <X className="w-4 h-4" />
                 </button>
-                <a
-                  href={fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block relative cursor-pointer"
+                <div 
+                  className="relative cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const newWindow = window.open(fileUrl, '_blank', 'noopener,noreferrer');
+                    if (newWindow) newWindow.opener = null;
+                  }}
                 >
                   {fileUrl.toLowerCase().endsWith('.pdf') ? (
                     <div className="p-4 flex items-center gap-3">
@@ -390,7 +392,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-900">ECG {index + 1} - Clique para visualizar</p>
                         <p className="text-xs text-yellow-600 flex items-center gap-1">
-                          Abrir PDF <ExternalLink className="w-3 h-3" />
+                          Abrir em nova aba <ExternalLink className="w-3 h-3" />
                         </p>
                       </div>
                     </div>
@@ -406,7 +408,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
                       </div>
                     </>
                   )}
-                </a>
+                </div>
               </div>
             ))}
           </div>
