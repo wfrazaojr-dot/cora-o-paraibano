@@ -21,6 +21,8 @@ export default function HemodinamicaDetalhe() {
 
   const [formData, setFormData] = useState({
     procedimento_realizado: "",
+    icp_realizada: false,
+    reperfusao_efetiva: false,
     intercorrencias: "",
     desfecho: "Sucesso",
     observacoes: ""
@@ -212,6 +214,40 @@ export default function HemodinamicaDetalhe() {
                       rows={3}
                     />
                   </div>
+
+                  <div>
+                    <Label>ICP Realizada?</Label>
+                    <Select 
+                      value={formData.icp_realizada ? "sim" : "nao"} 
+                      onValueChange={(value) => setFormData({...formData, icp_realizada: value === "sim"})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="sim">Sim</SelectItem>
+                        <SelectItem value="nao">Não</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {formData.icp_realizada && (
+                    <div>
+                      <Label>Reperfusão Efetiva?</Label>
+                      <Select 
+                        value={formData.reperfusao_efetiva ? "sim" : "nao"} 
+                        onValueChange={(value) => setFormData({...formData, reperfusao_efetiva: value === "sim"})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="sim">Sim</SelectItem>
+                          <SelectItem value="nao">Não</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
 
                   <div>
                     <Label>Desfecho</Label>

@@ -150,6 +150,25 @@ export default function Indicadores() {
     };
   }, [pacientesFiltrados]);
 
+  // 7. Taxa de Reperfusão Efetiva
+  const taxaReperfusaoEfetiva = useMemo(() => {
+    const icpRealizadas = pacientesFiltrados.filter(p => 
+      p.hemodinamica?.icp_realizada === true
+    );
+    
+    if (icpRealizadas.length === 0) return { percentual: 0, efetivas: 0, total: 0 };
+    
+    const efetivas = icpRealizadas.filter(p => 
+      p.hemodinamica?.reperfusao_efetiva === true
+    ).length;
+    
+    return {
+      percentual: Math.round((efetivas / icpRealizadas.length) * 100),
+      efetivas,
+      total: icpRealizadas.length
+    };
+  }, [pacientesFiltrados]);
+
   // Distribuição por classificação de risco
   const distribuicaoRisco = useMemo(() => {
     const cores = ["Vermelha", "Laranja", "Amarela", "Verde", "Azul"];
@@ -396,6 +415,39 @@ export default function Indicadores() {
               </div>
             </CardContent>
           </Card>
+
+          <Card className="shadow-md border-l-4 border-l-pink-500">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <Activity className="w-4 h-4" />
+                Taxa Reperfusão Efetiva
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-3xl font-bold text-gray-900">{taxaReperfusaoEfetiva.percentual}%</p>
+                <p className="text-xs text-gray-600">
+                  {taxaReperfusaoEfetiva.efetivas} de {taxaReperfusaoEfetiva.total} ICPs
+                </p>
+                <p className="text-xs text-gray-500">Meta: &gt;90% de reperfusão efetiva</p>
+                {taxaReperfusaoEfetiva.total > 0 && (
+                  <div className="flex items-center gap-2 text-xs">
+                    {taxaReperfusaoEfetiva.percentual >= 90 ? (
+                      <>
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-green-600 font-medium">✓ Meta atingida</span>
+                      </>
+                    ) : (
+                      <>
+                        <AlertTriangle className="w-4 h-4 text-orange-600" />
+                        <span className="text-orange-600 font-medium">⚠ Abaixo da meta</span>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Gráficos */}
@@ -543,6 +595,18 @@ export default function Indicadores() {
                       </span>
                     </td>
                   </tr>
+                  <tr className="border-b hover:bg-gray-50">
+                    <td className="p-3">Taxa de Reperfusão Efetiva</td>
+                    <td className="text-center p-3 font-medium">{taxaReperfusaoEfetiva.percentual}%</td>
+                    <td className="text-center p-3">&gt; 90%</td>
+                    <td className="text-center p-3">
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                        taxaReperfusaoEfetiva.percentual >= 90 ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
+                      }`}>
+                        {taxaReperfusaoEfetiva.percentual >= 90 ? '✓ Cumprida' : '⚠ Não cumprida'}
+                      </span>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -563,6 +627,7 @@ export default function Indicadores() {
               <p><strong>• Triagem → ECG (≤10min):</strong> Meta SBC 2025 para suspeita de SCA</p>
               <p><strong>• Taxa de Alta Complexidade:</strong> % de casos vermelhos/laranjas</p>
               <p><strong>• Taxa de Resolução:</strong> % de casos com desfecho definido</p>
+              <p><strong>• Taxa de Reperfusão Efetiva:</strong> % de ICPs com reperfusão efetiva (meta &gt;90%)</p>
             </div>
           </CardContent>
         </Card>
