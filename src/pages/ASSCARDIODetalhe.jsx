@@ -30,8 +30,7 @@ export default function ASSCARDIODetalhe() {
     idade: "",
     sexo: "",
     hora_chegada: "",
-    unidade: "",
-    troponina: "normal"
+    unidade: ""
   });
 
   // Bloco 0 - Clínica
@@ -107,8 +106,7 @@ export default function ASSCARDIODetalhe() {
         idade: paciente.idade?.toString() || "",
         sexo: paciente.sexo || "",
         hora_chegada: paciente.data_hora_chegada || "",
-        unidade: paciente.unidade_saude || "",
-        troponina: "normal"
+        unidade: paciente.unidade_saude || ""
       });
     }
   }, [paciente]);
@@ -230,19 +228,6 @@ export default function ASSCARDIODetalhe() {
               <div>
                 <Label>Unidade</Label>
                 <Input placeholder="SAMU/UPA/PS" value={dadosPaciente.unidade} onChange={(e) => setDadosPaciente({...dadosPaciente, unidade: e.target.value})} />
-              </div>
-              <div>
-                <Label>Troponina</Label>
-                <Select value={dadosPaciente.troponina} onValueChange={(v) => setDadosPaciente({...dadosPaciente, troponina: v})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="normal">Normal</SelectItem>
-                    <SelectItem value="1-3x">1-3x</SelectItem>
-                    <SelectItem value=">3x">&gt;3x</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
           </CardContent>
@@ -411,11 +396,11 @@ export default function ASSCARDIODetalhe() {
                   <RadioGroup value={ecgSupra.tem_supra} onValueChange={(v) => setEcgSupra({...ecgSupra, tem_supra: v})}>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="sim" id="supra_sim" />
-                      <Label htmlFor="supra_sim" className="text-lg">☑ SIM</Label>
+                      <Label htmlFor="supra_sim" className="text-lg">SIM</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="nao" id="supra_nao" />
-                      <Label htmlFor="supra_nao" className="text-lg">☐ NÃO</Label>
+                      <Label htmlFor="supra_nao" className="text-lg">NÃO</Label>
                     </div>
                   </RadioGroup>
                   {ecgSupra.tem_supra === "sim" && (
@@ -501,12 +486,13 @@ export default function ASSCARDIODetalhe() {
           </Collapsible>
         )}
 
-        {/* 5. HEART SCORE */}
-        <Card className="mb-4 border-2 border-purple-200 bg-purple-50">
-          <CardHeader className="bg-purple-100">
-            <CardTitle className="text-purple-900">🧮 HEART SCORE (Auto-cálculo)</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4 space-y-3">
+        {/* 5. HEART SCORE - Opcional quando tem supra */}
+        {(ecgSupra.tem_supra === "nao" || ecgSupra.tem_supra === "") && (
+          <Card className="mb-4 border-2 border-purple-200 bg-purple-50">
+            <CardHeader className="bg-purple-100">
+              <CardTitle className="text-purple-900">🧮 HEART SCORE (Auto-cálculo)</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-3">
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <Label>H - História</Label>
@@ -586,6 +572,7 @@ export default function ASSCARDIODetalhe() {
             </div>
           </CardContent>
         </Card>
+        )}
 
         {/* 6. BOTÃO ENFERMEIRO */}
         {!enfermeiroFinalizado && (
