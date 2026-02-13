@@ -40,8 +40,8 @@ export default function Historico() {
   const [dataFim, setDataFim] = useState("");
 
   const verificarProfissional = (url) => {
-    // Admin tem acesso direto sem verificação de profissional
-    if (user?.role === 'admin') {
+    // Admin e Unidade de Saúde têm acesso direto sem verificação de profissional
+    if (user?.role === 'admin' || user?.equipe === 'unidade_saude') {
       return true;
     }
     
