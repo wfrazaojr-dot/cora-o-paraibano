@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, ArrowRight, Activity, FileText, Upload, X, ExternalLink } from "lucide-react";
+import { ArrowLeft, ArrowRight, Activity, FileText, Upload, X, ExternalLink, AlertTriangle } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { format, differenceInMinutes } from "date-fns";
 
