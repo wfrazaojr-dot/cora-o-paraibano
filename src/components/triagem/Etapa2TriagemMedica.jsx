@@ -375,33 +375,30 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
                 >
                   <X className="w-4 h-4" />
                 </button>
-                {fileUrl.toLowerCase().endsWith('.pdf') ? (
-                  <div className="p-4 flex items-center gap-3">
-                    <FileText className="w-8 h-8 text-yellow-600" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">ECG {index + 1}</p>
-                      <a
-                        href={fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-yellow-600 hover:underline flex items-center gap-1"
-                      >
-                        Visualizar PDF <ExternalLink className="w-3 h-3" />
-                      </a>
+                <div className="relative cursor-pointer" onClick={() => window.open(fileUrl, '_blank')}>
+                  {fileUrl.toLowerCase().endsWith('.pdf') ? (
+                    <div className="p-4 flex items-center gap-3">
+                      <FileText className="w-8 h-8 text-yellow-600" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">ECG {index + 1} - Clique para visualizar</p>
+                        <p className="text-xs text-yellow-600 flex items-center gap-1">
+                          Abrir PDF <ExternalLink className="w-3 h-3" />
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="relative cursor-pointer" onClick={() => window.open(fileUrl, '_blank')}>
-                    <img
-                      src={fileUrl}
-                      alt={`ECG ${index + 1}`}
-                      className="w-full h-48 object-contain bg-gray-50"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all flex items-center justify-center">
-                      <ExternalLink className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                  </div>
-                )}
+                  ) : (
+                    <>
+                      <img
+                        src={fileUrl}
+                        alt={`ECG ${index + 1}`}
+                        className="w-full h-48 object-contain bg-gray-50"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all flex items-center justify-center">
+                        <ExternalLink className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             ))}
           </div>
