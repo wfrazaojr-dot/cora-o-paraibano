@@ -324,6 +324,18 @@ export default function Dashboard() {
                       </div>
 
                       <div className="flex flex-col gap-2">
+                        {paciente.relatorio_triagem_url && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open(paciente.relatorio_triagem_url, '_blank')}
+                            className="border-green-600 text-green-700 hover:bg-green-50"
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            Visualizar Relatório
+                          </Button>
+                        )}
+
                         {(user?.equipe === 'asscardio' || user?.role === 'admin') && (
                           <Button
                             size="sm"
