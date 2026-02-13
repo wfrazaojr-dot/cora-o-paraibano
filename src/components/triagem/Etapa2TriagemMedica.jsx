@@ -369,13 +369,21 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
             {dados.ecg_files.map((fileUrl, index) => (
               <div key={index} className="border-2 border-yellow-200 rounded-lg overflow-hidden bg-white relative group">
                 <button
-                  onClick={() => removerECG(index)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removerECG(index);
+                  }}
                   className="absolute top-2 right-2 z-10 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
                   title="Remover ECG"
                 >
                   <X className="w-4 h-4" />
                 </button>
-                <div className="relative cursor-pointer" onClick={() => window.open(fileUrl, '_blank')}>
+                <a
+                  href={fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block relative cursor-pointer"
+                >
                   {fileUrl.toLowerCase().endsWith('.pdf') ? (
                     <div className="p-4 flex items-center gap-3">
                       <FileText className="w-8 h-8 text-yellow-600" />
@@ -398,7 +406,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
                       </div>
                     </>
                   )}
-                </div>
+                </a>
               </div>
             ))}
           </div>
