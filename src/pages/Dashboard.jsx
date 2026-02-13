@@ -27,8 +27,21 @@ export default function Dashboard() {
   }, [user, navigate]);
 
   const { data: pacientes = [], isLoading } = useQuery({
-    queryKey: ['pacientes-regulacao'],
-    queryFn: () => base44.entities.Paciente.list("-created_date"),
+    queryKey: ['pacientes-regulacao', user?.email],
+    queryFn: async () => {
+      // Admin vê todos
+      if (user?.role === 'admin') {
+        return base44.entities.Paciente.list("-created_date");
+      }
+      
+      // Unidade de saúde vê apenas seus pacientes
+      if (user?.equipe === 'unidade_saude') {
+        return base44.entities.Paciente.filter({ created_by: user.email }, "-created_date");
+      }
+      
+      // CERH, ASSCARDIO, TRANSPORTE, HEMODINÂMICA veem todos
+      return base44.entities.Paciente.list("-created_date");
+    },
     enabled: !!user,
     initialData: [],
   });
