@@ -41,7 +41,7 @@ export default function TempoPortaBalaoEtapa3({ dataHoraChegada }) {
           <p className={`text-sm font-semibold ${
             dentroMeta ? 'text-blue-900' : 'text-orange-900'
           }`}>
-            Tempo Porta-Balão
+            FMC-to-device (Unidade x Hemodinâmica)
           </p>
           <p className={`text-3xl font-bold ${
             dentroMeta ? 'text-blue-700' : 'text-orange-700'

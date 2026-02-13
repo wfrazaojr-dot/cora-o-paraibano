@@ -42,7 +42,7 @@ export default function TempoPortaBalao({ dataHoraInicio }) {
           <p className={`text-sm font-semibold ${
             dentroMeta ? 'text-blue-900' : 'text-red-900'
           }`}>
-            ⏱️ Tempo Porta-Balão (Meta: 120 minutos)
+            ⏱️ FMC-to-device (Unidade x Hemodinâmica) (Meta: 120 minutos)
           </p>
           <p className={`text-3xl font-bold ${
             dentroMeta ? 'text-blue-700' : 'text-red-700'
