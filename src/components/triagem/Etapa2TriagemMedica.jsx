@@ -4,9 +4,10 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, ArrowRight, Activity, FileText, Upload, X, ExternalLink, AlertTriangle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Activity, Upload, AlertTriangle } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { format, differenceInMinutes } from "date-fns";
+import VisualizadorECG from "./VisualizadorECG";
 
 export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnterior, modoLeitura = false, permitirNavegacao = false }) {
   const [uploadingECG, setUploadingECG] = useState(false);
@@ -367,49 +368,12 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
         {dados.ecg_files.length > 0 ? (
           <div className="grid md:grid-cols-2 gap-4">
             {dados.ecg_files.map((fileUrl, index) => (
-              <div key={index} className="border-2 border-yellow-200 rounded-lg overflow-hidden bg-white relative group">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removerECG(index);
-                  }}
-                  className="absolute top-2 right-2 z-10 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
-                  title="Remover ECG"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-                <div 
-                  className="relative cursor-pointer"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const newWindow = window.open(fileUrl, '_blank', 'noopener,noreferrer');
-                    if (newWindow) newWindow.opener = null;
-                  }}
-                >
-                  {fileUrl.toLowerCase().endsWith('.pdf') ? (
-                    <div className="p-4 flex items-center gap-3">
-                      <FileText className="w-8 h-8 text-yellow-600" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">ECG {index + 1} - Clique para visualizar</p>
-                        <p className="text-xs text-yellow-600 flex items-center gap-1">
-                          Abrir em nova aba <ExternalLink className="w-3 h-3" />
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <img
-                        src={fileUrl}
-                        alt={`ECG ${index + 1}`}
-                        className="w-full h-48 object-contain bg-gray-50"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all flex items-center justify-center">
-                        <ExternalLink className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
+              <VisualizadorECG 
+                key={index}
+                fileUrl={fileUrl}
+                index={index}
+                onRemover={removerECG}
+              />
             ))}
           </div>
         ) : (
