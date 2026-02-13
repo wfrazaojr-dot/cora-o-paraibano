@@ -48,11 +48,13 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
     setGerandoPDF(true);
     try {
       const canvas = await html2canvas(relatorioRef.current, {
-        scale: 2,
+        scale: 1.8,
         logging: false,
         useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff'
+        allowTaint: false,
+        backgroundColor: '#ffffff',
+        imageTimeout: 15000,
+        removeContainer: true
       });
 
       const imgData = canvas.toDataURL("image/png");
@@ -88,11 +90,13 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
 
     try {
       const canvas = await html2canvas(relatorioRef.current, {
-        scale: 2,
+        scale: 1.8,
         logging: false,
         useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff'
+        allowTaint: false,
+        backgroundColor: '#ffffff',
+        imageTimeout: 15000,
+        removeContainer: true
       });
 
       const imgData = canvas.toDataURL("image/png");
@@ -279,37 +283,40 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
       {/* Relatório Visual */}
       <div 
         ref={relatorioRef} 
-        className="bg-white border-2 border-gray-300 rounded-lg p-8 shadow-lg"
-        style={{ minHeight: "800px" }}
+        className="bg-white border-2 border-gray-300 rounded-lg p-4 shadow-lg"
+        style={{ maxWidth: "210mm" }}
       >
         {/* Cabeçalho com logos */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between gap-4 w-full mb-6">
+        <div className="mb-4">
+          <div className="flex items-center justify-between gap-3 w-full mb-3">
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" 
               alt="Secretaria de Estado da Saúde" 
-              className="h-16 md:h-20 w-auto object-contain"
+              className="h-12 w-auto object-contain"
+              crossOrigin="anonymous"
             />
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" 
               alt="Coração Paraibano" 
-              className="h-16 md:h-20 w-auto object-contain"
+              className="h-12 w-auto object-contain"
+              crossOrigin="anonymous"
             />
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png" 
               alt="PBSAÚDE" 
-              className="h-16 md:h-20 w-auto object-contain"
+              className="h-12 w-auto object-contain"
+              crossOrigin="anonymous"
             />
           </div>
-          <div className="text-center pb-4 border-b-4 border-red-600">
-            <div className="flex items-center justify-center gap-3 mb-3">
-              <Heart className="w-10 h-10 text-red-600" />
-              <h1 className="text-3xl font-bold text-red-600">RELATÓRIO DE ATENDIMENTO</h1>
+          <div className="text-center pb-2 border-b-2 border-red-600">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <Heart className="w-6 h-6 text-red-600" />
+              <h1 className="text-xl font-bold text-red-600">RELATÓRIO DE ATENDIMENTO</h1>
             </div>
-            <p className="text-lg font-semibold text-gray-700">Dor Torácica - Síndrome Coronariana Aguda</p>
+            <p className="text-sm font-semibold text-gray-700">Dor Torácica - Síndrome Coronariana Aguda</p>
             {dadosPaciente.unidade_saude && (
-              <div className="mt-4 bg-blue-100 border-2 border-blue-500 rounded-lg p-3">
-                <p className="text-blue-900 font-bold text-lg">{dadosPaciente.unidade_saude}</p>
+              <div className="mt-2 bg-blue-100 border border-blue-500 rounded p-1">
+                <p className="text-blue-900 font-bold text-sm">{dadosPaciente.unidade_saude}</p>
               </div>
             )}
           </div>
@@ -317,10 +324,10 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
 
         {/* Tempo Restante de Janela Terapêutica */}
         {tempoDorMinutos !== null && (
-          <div className="mb-8 bg-red-50 border-4 border-red-500 rounded-lg p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Activity className="w-8 h-8 text-red-600" />
-              <h2 className="text-2xl font-bold text-red-900">TEMPO RESTANTE DE JANELA TERAPÊUTICA</h2>
+          <div className="mb-3 bg-red-50 border-2 border-red-500 rounded p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Activity className="w-5 h-5 text-red-600" />
+              <h2 className="text-base font-bold text-red-900">TEMPO RESTANTE DE JANELA TERAPÊUTICA</h2>
             </div>
             <div className="text-center">
               {(() => {
@@ -332,25 +339,25 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
 
                 return (
                   <>
-                    <p className={`text-5xl font-bold mb-4 ${foraJanela ? 'text-red-700' : 'text-red-600'}`}>
+                    <p className={`text-3xl font-bold mb-2 ${foraJanela ? 'text-red-700' : 'text-red-600'}`}>
                       {foraJanela && '-'}{tempoRestanteHoras}h {tempoRestanteMin}min
                     </p>
-                    <div className="text-sm text-gray-700 space-y-1 mb-4">
+                    <div className="text-xs text-gray-700 space-y-0.5 mb-2">
                       <p><strong>Tempo de Dor:</strong> {tempoDorHoras}h {tempoDorMin}min</p>
-                      <p><strong>Início dos sintomas:</strong> {format(new Date(dadosPaciente.data_hora_inicio_sintomas), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
-                      <p><strong>Relatório gerado em:</strong> {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+                      <p><strong>Início:</strong> {format(new Date(dadosPaciente.data_hora_inicio_sintomas), "dd/MM/yy HH:mm", { locale: ptBR })}</p>
+                      <p><strong>Gerado:</strong> {format(new Date(), "dd/MM/yy HH:mm", { locale: ptBR })}</p>
                     </div>
                     {foraJanela ? (
-                      <div className="mt-4 bg-red-200 border-2 border-red-700 rounded p-3">
-                        <p className="font-bold text-red-900">⚠️ FORA DA JANELA TERAPÊUTICA (mais de 12 horas)</p>
+                      <div className="mt-2 bg-red-200 border border-red-700 rounded p-1">
+                        <p className="font-bold text-red-900 text-xs">⚠️ FORA DA JANELA (>12h)</p>
                       </div>
                     ) : tempoRestanteMinutos < 60 ? (
-                      <div className="mt-4 bg-yellow-200 border-2 border-yellow-700 rounded p-3">
-                        <p className="font-bold text-yellow-900">⚠️ JANELA TERAPÊUTICA SE ENCERRANDO (menos de 1 hora restante)</p>
+                      <div className="mt-2 bg-yellow-200 border border-yellow-700 rounded p-1">
+                        <p className="font-bold text-yellow-900 text-xs">⚠️ ENCERRANDO (<1h)</p>
                       </div>
                     ) : (
-                      <div className="mt-4 bg-green-200 border-2 border-green-700 rounded p-3">
-                        <p className="font-bold text-green-900">✓ Dentro da janela terapêutica</p>
+                      <div className="mt-2 bg-green-200 border border-green-700 rounded p-1">
+                        <p className="font-bold text-green-900 text-xs">✓ Dentro da janela</p>
                       </div>
                     )}
                   </>
@@ -360,30 +367,26 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
 
             {/* Tempo Porta-Agulha */}
             {dadosPaciente.data_hora_inicio_triagem && (
-              <div className="mt-6 pt-6 border-t-2 border-red-400">
-                <h3 className="text-xl font-bold text-red-900 mb-3">TEMPO PORTA-AGULHA</h3>
+              <div className="mt-2 pt-2 border-t border-red-400">
+                <h3 className="text-sm font-bold text-red-900 mb-1">TEMPO PORTA-AGULHA</h3>
                 {(() => {
                   const metaMinutos = 30;
                   const tempoPortaAgulhaMinutos = differenceInMinutes(new Date(), new Date(dadosPaciente.data_hora_inicio_triagem));
                   const tempoRestantePortaAgulha = metaMinutos - tempoPortaAgulhaMinutos;
                   const foraMetaPortaAgulha = tempoRestantePortaAgulha < 0;
                   const minutosPortaAgulha = Math.floor(Math.abs(tempoPortaAgulhaMinutos));
-                  const segundosPortaAgulha = Math.floor((Math.abs(tempoPortaAgulhaMinutos) - minutosPortaAgulha) * 60);
 
                   return (
-                    <div className={`rounded-lg p-4 border-2 ${foraMetaPortaAgulha ? 'bg-red-100 border-red-600' : 'bg-green-100 border-green-600'}`}>
+                    <div className={`rounded p-2 border ${foraMetaPortaAgulha ? 'bg-red-100 border-red-600' : 'bg-green-100 border-green-600'}`}>
                       <div className="text-center">
-                        <p className={`text-3xl font-bold mb-2 ${foraMetaPortaAgulha ? 'text-red-700' : 'text-green-700'}`}>
+                        <p className={`text-2xl font-bold mb-1 ${foraMetaPortaAgulha ? 'text-red-700' : 'text-green-700'}`}>
                           {minutosPortaAgulha} min
                         </p>
-                        <p className="text-sm font-semibold mb-2">
-                          {foraMetaPortaAgulha ? '⚠️ Tempo Excedido' : '✓ Tempo Restante: ' + Math.abs(tempoRestantePortaAgulha) + ' min'}
-                        </p>
-                        <p className="text-xs text-gray-700 mb-1">
-                          Meta: até {metaMinutos} minutos desde o início da triagem
+                        <p className="text-xs font-semibold mb-1">
+                          {foraMetaPortaAgulha ? '⚠️ Excedido' : '✓ Restante: ' + Math.abs(tempoRestantePortaAgulha) + ' min'}
                         </p>
                         <p className="text-xs text-gray-600">
-                          <strong>Triagem Médica Cardiológica realizada em:</strong> {format(new Date(dadosPaciente.data_hora_inicio_triagem), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                          Meta: {metaMinutos}min | Triagem: {format(new Date(dadosPaciente.data_hora_inicio_triagem), "dd/MM/yy HH:mm", { locale: ptBR })}
                         </p>
                       </div>
                     </div>
