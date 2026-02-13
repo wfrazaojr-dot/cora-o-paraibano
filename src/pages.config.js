@@ -47,13 +47,16 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import ASSCARDIODetalhe from './pages/ASSCARDIODetalhe';
 import AcessoProfissional from './pages/AcessoProfissional';
 import Administracao from './pages/Administracao';
+import CERHDetalhe from './pages/CERHDetalhe';
 import CadastroProfissional from './pages/CadastroProfissional';
 import Cardiologia from './pages/Cardiologia';
 import CentralSES from './pages/CentralSES';
 import CoracaoParaibano from './pages/CoracaoParaibano';
 import Dashboard from './pages/Dashboard';
+import HemodinamicaDetalhe from './pages/HemodinamicaDetalhe';
 import Historico from './pages/Historico';
 import HistoricoUnidades from './pages/HistoricoUnidades';
 import Home from './pages/Home';
@@ -67,21 +70,21 @@ import PerfilSelection from './pages/PerfilSelection';
 import ProtocoloEstrategias from './pages/ProtocoloEstrategias';
 import Protocolos from './pages/Protocolos';
 import RecuperarPIN from './pages/RecuperarPIN';
-import ASSCARDIODetalhe from './pages/ASSCARDIODetalhe';
-import CERHDetalhe from './pages/CERHDetalhe';
 import TransporteDetalhe from './pages/TransporteDetalhe';
-import HemodinamicaDetalhe from './pages/HemodinamicaDetalhe';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "ASSCARDIODetalhe": ASSCARDIODetalhe,
     "AcessoProfissional": AcessoProfissional,
     "Administracao": Administracao,
+    "CERHDetalhe": CERHDetalhe,
     "CadastroProfissional": CadastroProfissional,
     "Cardiologia": Cardiologia,
     "CentralSES": CentralSES,
     "CoracaoParaibano": CoracaoParaibano,
     "Dashboard": Dashboard,
+    "HemodinamicaDetalhe": HemodinamicaDetalhe,
     "Historico": Historico,
     "HistoricoUnidades": HistoricoUnidades,
     "Home": Home,
@@ -95,10 +98,7 @@ export const PAGES = {
     "ProtocoloEstrategias": ProtocoloEstrategias,
     "Protocolos": Protocolos,
     "RecuperarPIN": RecuperarPIN,
-    "ASSCARDIODetalhe": ASSCARDIODetalhe,
-    "CERHDetalhe": CERHDetalhe,
     "TransporteDetalhe": TransporteDetalhe,
-    "HemodinamicaDetalhe": HemodinamicaDetalhe,
 }
 
 export const pagesConfig = {
