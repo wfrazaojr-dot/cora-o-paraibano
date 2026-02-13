@@ -2,15 +2,11 @@ import React from "react";
 import { FileText, ExternalLink, X } from "lucide-react";
 
 export default function VisualizadorECG({ fileUrl, index, onRemover }) {
-  const handleVisualizarECG = () => {
-    // Força abertura em nova aba
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleVisualizarECG = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Abre diretamente em nova aba
+    window.open(fileUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
