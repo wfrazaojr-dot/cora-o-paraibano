@@ -349,11 +349,11 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
                     </div>
                     {foraJanela ? (
                       <div className="mt-2 bg-red-200 border border-red-700 rounded p-1">
-                        <p className="font-bold text-red-900 text-xs">⚠️ FORA DA JANELA (>12h)</p>
+                        <p className="font-bold text-red-900 text-xs">⚠️ FORA DA JANELA (&gt;12h)</p>
                       </div>
                     ) : tempoRestanteMinutos < 60 ? (
                       <div className="mt-2 bg-yellow-200 border border-yellow-700 rounded p-1">
-                        <p className="font-bold text-yellow-900 text-xs">⚠️ ENCERRANDO (<1h)</p>
+                        <p className="font-bold text-yellow-900 text-xs">⚠️ ENCERRANDO (&lt;1h)</p>
                       </div>
                     ) : (
                       <div className="mt-2 bg-green-200 border border-green-700 rounded p-1">
