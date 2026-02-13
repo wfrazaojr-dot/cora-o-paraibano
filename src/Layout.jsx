@@ -105,11 +105,6 @@ export default function Layout({ children, currentPageName }) {
           icon: History,
         },
         {
-          title: "Histórico Unidades",
-          url: createPageUrl("HistoricoUnidades"),
-          icon: History,
-        },
-        {
           title: "Protocolos",
           url: createPageUrl("Protocolos"),
           icon: BookOpen,
