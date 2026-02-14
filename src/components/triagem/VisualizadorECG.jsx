@@ -2,12 +2,6 @@ import React from "react";
 import { FileText, ZoomIn, X } from "lucide-react";
 
 export default function VisualizadorECG({ fileUrl, index, onRemover }) {
-  const handleAmpliarECG = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    window.open(fileUrl, '_blank', 'noopener,noreferrer');
-  };
-
   return (
     <div className="border-2 border-yellow-200 rounded-lg overflow-hidden bg-white relative group">
       <button
@@ -37,13 +31,16 @@ export default function VisualizadorECG({ fileUrl, index, onRemover }) {
           </div>
         )}
         
-        <button
-          onClick={handleAmpliarECG}
-          className="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 shadow-lg transition-all z-10"
+        <a
+          href={fileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 shadow-lg transition-all z-10 inline-flex items-center justify-center"
           title="Ampliar em nova guia"
+          onClick={(e) => e.stopPropagation()}
         >
           <ZoomIn className="w-4 h-4" />
-        </button>
+        </a>
       </div>
     </div>
   );
