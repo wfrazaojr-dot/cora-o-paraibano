@@ -22,13 +22,8 @@ export default function CERHDetalhe() {
   const [formData, setFormData] = useState({
     medico_regulador_nome: "",
     medico_regulador_crm: "",
-    enfermeiro_regulador_nome: "",
-    enfermeiro_regulador_coren: "",
     unidade_destino: "",
-    vagas_disponiveis: 0,
-    observacoes_regulacao: "",
-    parecer_medico_regulador: "",
-    parecer_enfermeiro_regulador: ""
+    observacoes_regulacao: ""
   });
 
   const { data: paciente, isLoading } = useQuery({
@@ -173,60 +168,12 @@ export default function CERHDetalhe() {
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Enfermeiro Regulador</Label>
-                    <Input
-                      value={formData.enfermeiro_regulador_nome}
-                      onChange={(e) => setFormData({...formData, enfermeiro_regulador_nome: e.target.value})}
-                      placeholder="Nome completo"
-                    />
-                  </div>
-                  <div>
-                    <Label>COREN</Label>
-                    <Input
-                      value={formData.enfermeiro_regulador_coren}
-                      onChange={(e) => setFormData({...formData, enfermeiro_regulador_coren: e.target.value})}
-                      placeholder="COREN"
-                    />
-                  </div>
-                </div>
-
                 <div>
                   <Label>Unidade de Destino</Label>
                   <Input
                     value={formData.unidade_destino}
                     onChange={(e) => setFormData({...formData, unidade_destino: e.target.value})}
                     placeholder="Hospital de destino"
-                  />
-                </div>
-
-                <div>
-                  <Label>Vagas Disponíveis</Label>
-                  <Input
-                    type="number"
-                    value={formData.vagas_disponiveis}
-                    onChange={(e) => setFormData({...formData, vagas_disponiveis: parseInt(e.target.value) || 0})}
-                  />
-                </div>
-
-                <div>
-                  <Label>Parecer do Médico Regulador</Label>
-                  <Textarea
-                    value={formData.parecer_medico_regulador}
-                    onChange={(e) => setFormData({...formData, parecer_medico_regulador: e.target.value})}
-                    placeholder="Parecer médico..."
-                    rows={4}
-                  />
-                </div>
-
-                <div>
-                  <Label>Parecer do Enfermeiro Regulador</Label>
-                  <Textarea
-                    value={formData.parecer_enfermeiro_regulador}
-                    onChange={(e) => setFormData({...formData, parecer_enfermeiro_regulador: e.target.value})}
-                    placeholder="Parecer de enfermagem..."
-                    rows={3}
                   />
                 </div>
 
