@@ -11,10 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Heart, ChevronDown, ChevronUp, MessageCircle } from "lucide-react";
+import { ArrowLeft, Heart, ChevronDown, ChevronUp } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import ChatPaciente from "@/components/chat/ChatPaciente";
 
 export default function ASSCARDIODetalhe() {
   const navigate = useNavigate();
@@ -93,8 +91,6 @@ export default function ASSCARDIODetalhe() {
     diagnostico_estrategia: "",
     parecer_cardiologista: ""
   });
-
-  const [chatAberto, setChatAberto] = useState(false);
 
   const { data: paciente, isLoading } = useQuery({
     queryKey: ['paciente', pacienteId],
@@ -663,22 +659,6 @@ export default function ASSCARDIODetalhe() {
             </CardContent>
           </Card>
         )}
-
-        {/* Botão Flutuante de Chat */}
-        <Button
-          onClick={() => setChatAberto(true)}
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700 z-50"
-          size="icon"
-        >
-          <MessageCircle className="w-6 h-6" />
-        </Button>
-
-        {/* Modal de Chat */}
-        <Dialog open={chatAberto} onOpenChange={setChatAberto}>
-          <DialogContent className="max-w-2xl p-0">
-            <ChatPaciente pacienteId={pacienteId} onClose={() => setChatAberto(false)} />
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );

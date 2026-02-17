@@ -7,13 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Search, ExternalLink, RefreshCw, Filter, Plus, MessageCircle } from "lucide-react";
+import { Search, ExternalLink, RefreshCw, Filter, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import ChatPaciente from "@/components/chat/ChatPaciente";
 
 const corClassificacao = {
   "Vermelha": "bg-red-100 text-red-800 border-red-300",
@@ -40,8 +38,6 @@ export default function Historico() {
   const [filtroUnidade, setFiltroUnidade] = useState("todas");
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
-  const [chatAberto, setChatAberto] = useState(false);
-  const [pacienteIdChat, setPacienteIdChat] = useState(null);
 
   const verificarProfissional = (url) => {
     // Admin e Unidade de Saúde têm acesso direto sem verificação de profissional
@@ -418,18 +414,6 @@ export default function Historico() {
                           <RefreshCw className="w-4 h-4 mr-2" />
                           Retriagem
                         </Button>
-                        <Button 
-                          onClick={() => {
-                            setPacienteIdChat(paciente.id);
-                            setChatAberto(true);
-                          }}
-                          variant="outline" 
-                          size="sm"
-                          className="bg-green-50 hover:bg-green-100"
-                        >
-                          <MessageCircle className="w-4 h-4 mr-2" />
-                          Chat
-                        </Button>
                       </div>
                     </div>
                   </div>
@@ -438,21 +422,6 @@ export default function Historico() {
             )}
           </CardContent>
         </Card>
-
-        {/* Modal de Chat */}
-        <Dialog open={chatAberto} onOpenChange={setChatAberto}>
-          <DialogContent className="max-w-2xl p-0">
-            {pacienteIdChat && (
-              <ChatPaciente 
-                pacienteId={pacienteIdChat} 
-                onClose={() => {
-                  setChatAberto(false);
-                  setPacienteIdChat(null);
-                }} 
-              />
-            )}
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );

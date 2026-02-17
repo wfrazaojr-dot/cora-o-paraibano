@@ -8,12 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Radio, FileText, Save, Heart, MessageCircle } from "lucide-react";
+import { ArrowLeft, Radio, FileText, Save, Heart } from "lucide-react";
 import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import ChatPaciente from "@/components/chat/ChatPaciente";
 
 export default function CERHDetalhe() {
   const navigate = useNavigate();
@@ -27,8 +25,6 @@ export default function CERHDetalhe() {
     unidade_destino: "",
     observacoes_regulacao: ""
   });
-
-  const [chatAberto, setChatAberto] = useState(false);
 
   const { data: paciente, isLoading } = useQuery({
     queryKey: ['paciente', pacienteId],
@@ -203,22 +199,6 @@ export default function CERHDetalhe() {
             </Card>
           </div>
         </div>
-
-        {/* Botão Flutuante de Chat */}
-        <Button
-          onClick={() => setChatAberto(true)}
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700 z-50"
-          size="icon"
-        >
-          <MessageCircle className="w-6 h-6" />
-        </Button>
-
-        {/* Modal de Chat */}
-        <Dialog open={chatAberto} onOpenChange={setChatAberto}>
-          <DialogContent className="max-w-2xl p-0">
-            <ChatPaciente pacienteId={pacienteId} onClose={() => setChatAberto(false)} />
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );
