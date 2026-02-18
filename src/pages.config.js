@@ -71,6 +71,7 @@ import ProtocoloEstrategias from './pages/ProtocoloEstrategias';
 import Protocolos from './pages/Protocolos';
 import RecuperarPIN from './pages/RecuperarPIN';
 import TransporteDetalhe from './pages/TransporteDetalhe';
+import FormularioVaga from './pages/FormularioVaga';
 import __Layout from './Layout.jsx';
 
 
@@ -99,6 +100,7 @@ export const PAGES = {
     "Protocolos": Protocolos,
     "RecuperarPIN": RecuperarPIN,
     "TransporteDetalhe": TransporteDetalhe,
+    "FormularioVaga": FormularioVaga,
 }
 
 export const pagesConfig = {
