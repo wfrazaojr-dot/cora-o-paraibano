@@ -124,6 +124,8 @@ export default function ASSCARDIODetalhe() {
   };
 
   const gerarRelatorioASSCARDIO = () => {
+    if (!paciente) return "";
+    
     const data = new Date().toLocaleDateString('pt-BR');
     const hora = new Date().toLocaleTimeString('pt-BR');
     const heartTotal = calcularHeartTotal();
@@ -241,6 +243,10 @@ export default function ASSCARDIODetalhe() {
 
   if (isLoading) {
     return <div className="p-8">Carregando...</div>;
+  }
+
+  if (!paciente) {
+    return <div className="p-8">Paciente não encontrado</div>;
   }
 
   const heartTotal = calcularHeartTotal();
