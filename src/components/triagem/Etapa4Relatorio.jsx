@@ -77,7 +77,15 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         heightLeft -= pdfHeight;
       }
 
-      pdf.save(`Relatorio_${dadosPaciente.nome_completo?.replace(/ /g, "_")}_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`);
+      const pdfBlob = pdf.output('blob');
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Relatorio_${dadosPaciente.nome_completo?.replace(/ /g, "_")}_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
       alert("Erro ao gerar PDF. Tente novamente.");
