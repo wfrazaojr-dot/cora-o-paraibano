@@ -1,17 +1,18 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Users, Stethoscope, FileText, Activity, AlertTriangle } from "lucide-react";
+import { BookOpen, Users, Stethoscope, FileText, Activity, AlertTriangle, Radio, Heart, Truck, Building2 } from "lucide-react";
 
 export default function Manual() {
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Manual do Usuário</h1>
-          <p className="text-gray-600">Guia completo para uso do Sistema de Triagem de Dor Torácica</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Manual do Sistema Coração Paraibano</h1>
+          <p className="text-gray-600">Guia completo de uso do sistema integrado de regulação cardiológica</p>
         </div>
 
         <div className="space-y-6">
+          {/* Visão Geral */}
           <Card className="shadow-md">
             <CardHeader className="bg-blue-50 border-b">
               <CardTitle className="flex items-center gap-2">
@@ -22,140 +23,268 @@ export default function Manual() {
             <CardContent className="p-6">
               <div className="space-y-3 text-sm text-gray-700">
                 <p>
-                  O Sistema Integrado de Triagem de Dor Torácica foi desenvolvido para auxiliar enfermeiros e médicos 
-                  em unidades de pronto atendimento e hospitais de emergência no processo de triagem, classificação de 
-                  risco e atendimento de pacientes com dor torácica.
+                  O <strong>Sistema Coração Paraibano</strong> é uma plataforma integrada de regulação cardiológica desenvolvida para 
+                  otimizar o fluxo de pacientes com síndromes coronarianas agudas (SCA) no estado da Paraíba.
                 </p>
                 <p>
-                  O sistema segue as diretrizes da Sociedade Brasileira de Cardiologia (2025) e utiliza o Sistema 
-                  Manchester Adaptado de Classificação de Risco, garantindo um atendimento padronizado e eficiente.
+                  O sistema conecta <strong>Unidades de Saúde</strong>, <strong>Assessoria de Cardiologia (ASSCARDIO)</strong>, 
+                  <strong>Central Estadual de Regulação Hospitalar (CERH)</strong>, <strong>Transporte</strong> e 
+                  <strong>Serviços de Hemodinâmica</strong>, garantindo atendimento rápido e eficiente aos pacientes críticos.
                 </p>
               </div>
             </CardContent>
           </Card>
 
+          {/* Perfis de Usuário */}
           <Card className="shadow-md">
             <CardHeader className="bg-green-50 border-b">
               <CardTitle className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-green-600" />
-                Perfis de Usuário
+                Perfis de Usuário e Equipes
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="space-y-4 text-sm">
+                <div className="border-l-4 border-yellow-500 pl-4">
+                  <h4 className="font-semibold mb-2">🏥 Unidades de Saúde</h4>
+                  <p className="text-gray-700 mb-2">
+                    Médicos e enfermeiros das unidades de pronto atendimento e hospitais que realizam o primeiro atendimento.
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                    <li>Cadastro de novos pacientes com suspeita de SCA</li>
+                    <li>Triagem de enfermagem e médica (Etapas 1-4)</li>
+                    <li>Geração de relatório de triagem</li>
+                    <li>Envio de Formulário/Vaga para SES</li>
+                    <li>Acesso ao histórico de seus pacientes</li>
+                  </ul>
+                </div>
+
+                <div className="border-l-4 border-green-500 pl-4">
+                  <h4 className="font-semibold mb-2">❤️ ASSCARDIO (Assessoria de Cardiologia)</h4>
+                  <p className="text-gray-700 mb-2">
+                    Cardiologistas que avaliam remotamente os casos enviados pelas unidades de saúde.
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                    <li>Visualização de relatórios de triagem das unidades</li>
+                    <li>Análise de ECGs e exames complementares</li>
+                    <li>Parecer cardiológico com diagnóstico e conduta</li>
+                    <li>Indicação ou não de hemodinâmica</li>
+                    <li>Classificação de urgência (Emergência/Urgente/Eletivo)</li>
+                    <li>Geração de relatório ASSCARDIO</li>
+                  </ul>
+                </div>
+
+                <div className="border-l-4 border-indigo-500 pl-4">
+                  <h4 className="font-semibold mb-2">📡 CERH (Central de Regulação)</h4>
+                  <p className="text-gray-700 mb-2">
+                    Médicos reguladores que definem unidade de destino e coordenam transferências.
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                    <li>Visualização de pareceres ASSCARDIO</li>
+                    <li>Definição de conduta inicial e final</li>
+                    <li>Busca de vaga em unidade de destino</li>
+                    <li>Emissão de senha SES para internação</li>
+                    <li>Acionamento de alerta para Unidade enviar Formulário/Vaga</li>
+                    <li>Geração de relatório de regulação</li>
+                  </ul>
+                </div>
+
+                <div className="border-l-4 border-red-500 pl-4">
+                  <h4 className="font-semibold mb-2">👨‍⚕️ Administrador</h4>
+                  <p className="text-gray-700 mb-2">
+                    Acesso completo a todas as funcionalidades do sistema.
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                    <li>Visualização de todos os painéis e indicadores</li>
+                    <li>Gestão de usuários e profissionais</li>
+                    <li>Configuração de notificações</li>
+                    <li>Acesso total ao histórico de todos os pacientes</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Fluxo Completo */}
+          <Card className="shadow-md">
+            <CardHeader className="bg-red-50 border-b">
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-red-600" />
+                Fluxo Completo de Atendimento
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="space-y-6">
+                <div className="border-l-4 border-yellow-500 pl-4">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Building2 className="w-5 h-5" />
+                    1️⃣ Triagem na Unidade de Saúde (Etapas 1-4)
+                  </h4>
+                  <div className="space-y-3 text-sm text-gray-700">
+                    <div>
+                      <p className="font-semibold">Etapa 1: Dados do Paciente</p>
+                      <ul className="list-disc pl-5 mt-1">
+                        <li>Nome completo, idade, sexo, unidade de saúde</li>
+                        <li>Data/hora de chegada e início dos sintomas</li>
+                        <li>Uso de inibidor de fosfodiesterase (pacientes masculinos)</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Etapa 2: Triagem Médica Cardiológica</p>
+                      <ul className="list-disc pl-5 mt-1">
+                        <li>Médico e CRM responsável</li>
+                        <li>Sinais vitais completos (PA ambos os braços, FC, FR, TAX, SpO2)</li>
+                        <li>Glicemia capilar e comorbidades (DM, DPOC)</li>
+                        <li>Upload de ECG (até 3 arquivos)</li>
+                        <li>Seleção de alterações do ECG</li>
+                        <li>Classificação do tipo de SCA (SCACESST, SCASESST c/ ou s/ Troponina)</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Etapa 3: Avaliação Clínica</p>
+                      <ul className="list-disc pl-5 mt-1">
+                        <li>Antecedentes clínicos</li>
+                        <li>Quadro atual e hipótese diagnóstica</li>
+                        <li>Cálculo do HEART Score (história, ECG, idade, fatores de risco, troponina)</li>
+                        <li>Prescrição de medicamentos</li>
+                        <li>Solicitação de exames</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Etapa 4: Relatório de Triagem</p>
+                      <ul className="list-disc pl-5 mt-1">
+                        <li>Revisão de todos os dados coletados</li>
+                        <li>Identificação do médico responsável</li>
+                        <li>Confirmação de disponibilidade de hemodinâmica na USA</li>
+                        <li>Geração e upload de relatório em PDF</li>
+                        <li>⚠️ Alerta importante: ENVIAR FORMULÁRIO/VAGA após triagem</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-l-4 border-green-500 pl-4">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Heart className="w-5 h-5" />
+                    2️⃣ Avaliação ASSCARDIO
+                  </h4>
+                  <div className="space-y-2 text-sm text-gray-700">
+                    <p>O cardiologista da ASSCARDIO:</p>
+                    <ul className="list-disc pl-5">
+                      <li>Visualiza o relatório de triagem da unidade</li>
+                      <li>Analisa ECGs e dados clínicos</li>
+                      <li>Emite parecer técnico com diagnóstico</li>
+                      <li>Define conduta (hemodinâmica, tratamento clínico, etc)</li>
+                      <li>Classifica urgência (Emergência/Urgente/Eletivo)</li>
+                      <li>Gera relatório ASSCARDIO</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="border-l-4 border-indigo-500 pl-4">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Radio className="w-5 h-5" />
+                    3️⃣ Regulação CERH
+                  </h4>
+                  <div className="space-y-2 text-sm text-gray-700">
+                    <p>O médico regulador da CERH:</p>
+                    <ul className="list-disc pl-5">
+                      <li>Visualiza relatórios da Unidade e da ASSCARDIO</li>
+                      <li>Define conduta inicial (ex: aguardar troponina, repetir ECG)</li>
+                      <li>Define conduta final</li>
+                      <li>Identifica unidade de destino</li>
+                      <li>Emite senha SES para internação</li>
+                      <li>Ao confirmar regulação: sistema envia alerta para Unidade enviar Formulário/Vaga</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="border-l-4 border-orange-500 pl-4">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    4️⃣ Formulário/Vaga (SES)
+                  </h4>
+                  <div className="space-y-2 text-sm text-gray-700">
+                    <p>A Unidade de Saúde preenche e envia:</p>
+                    <ul className="list-disc pl-5">
+                      <li>Dados pessoais completos do paciente (RG, CPF, CNS, endereço)</li>
+                      <li>Especialidade solicitada (UTI Cardio, Hemodinâmica, Outra)</li>
+                      <li>Dados clínicos detalhados (exame físico, sinais vitais, gasometria)</li>
+                      <li>Comorbidades e medicações de uso contínuo</li>
+                      <li>Conduta atual (VMI, sedação, drogas vasoativas)</li>
+                      <li>Anexar até 4 documentos (PDF, GIF, JPEG)</li>
+                      <li>Baixar formulário em PDF</li>
+                      <li>Enviar para SES por e-mail</li>
+                    </ul>
+                    <p className="font-semibold text-yellow-900 mt-2">
+                      ⚠️ Este formulário acelera a autorização de vaga pela SES
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Painéis do Sistema */}
+          <Card className="shadow-md">
+            <CardHeader className="bg-purple-50 border-b">
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-purple-600" />
+                Painéis do Sistema
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <div className="space-y-4 text-sm">
                 <div>
-                  <h4 className="font-semibold mb-2">Enfermeiro de Triagem</h4>
-                  <p className="text-gray-700">
-                    Responsável pelas etapas 1 a 4: cadastro do paciente, triagem cardiológica, registro de dados 
-                    vitais e ECG, e classificação de risco pelo Sistema Manchester Adaptado.
-                  </p>
+                  <h4 className="font-semibold mb-2">🏠 Painel Inicial</h4>
+                  <ul className="list-disc pl-5 text-gray-700">
+                    <li>Seleção de equipe ao fazer primeiro acesso (Unidade, CERH, ASSCARDIO)</li>
+                    <li>Resumo das funcionalidades disponíveis por perfil</li>
+                  </ul>
                 </div>
+
                 <div>
-                  <h4 className="font-semibold mb-2">Médico Assistencial</h4>
-                  <p className="text-gray-700">
-                    Responsável pelas etapas 5 a 8: avaliação clínica, prescrição medicamentosa, solicitação de 
-                    exames e geração do relatório para a Central de Regulação.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-md">
-            <CardHeader className="bg-red-50 border-b">
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-red-600" />
-                Fluxo de Atendimento - 8 Etapas
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-6">
-                <div className="border-l-4 border-l-blue-500 pl-4">
-                  <h4 className="font-semibold mb-2">Etapa 1: Dados do Paciente</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
-                    <li>Clique em "Nova Triagem" no menu lateral</li>
-                    <li>O sistema registra automaticamente data e hora atual</li>
-                    <li>Preencha: nome completo, idade, sexo, prontuário</li>
-                    <li>Ajuste data/hora de chegada se necessário</li>
-                    <li>Registre data e hora do início dos sintomas</li>
+                  <h4 className="font-semibold mb-2">📋 Painel Assistencial (Histórico)</h4>
+                  <p className="text-gray-700 mb-2">Para Unidades de Saúde e Administradores:</p>
+                  <ul className="list-disc pl-5 text-gray-700">
+                    <li>Lista de todos os pacientes cadastrados</li>
+                    <li>Busca por nome do paciente</li>
+                    <li>Filtros por unidade, status, data</li>
+                    <li>Visualização de tempos de atendimento</li>
+                    <li>🚨 Alerta visual "ENVIE FORMULÁRIO/VAGA" para pacientes regulados</li>
+                    <li>Botão direto para acessar Formulário/Vaga</li>
+                    <li>Botão "Ver Detalhes" e "Retriagem"</li>
                   </ul>
                 </div>
 
-                <div className="border-l-4 border-l-red-500 pl-4">
-                  <h4 className="font-semibold mb-2">Etapa 2: Triagem Cardiológica</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
-                    <li>Responda às 6 perguntas com SIM ou NÃO</li>
-                    <li>Se qualquer resposta for SIM: alerta de PROVÁVEL IAM aparece</li>
-                    <li>⚠️ Meta: Realizar ECG em até 10 minutos após o alerta</li>
+                <div>
+                  <h4 className="font-semibold mb-2">🔴 Painel de Regulação (Dashboard)</h4>
+                  <p className="text-gray-700 mb-2">Para CERH, ASSCARDIO e Administradores:</p>
+                  <ul className="list-disc pl-5 text-gray-700">
+                    <li>Cards com estatísticas: Prioridade 0, 1, 2</li>
+                    <li>Pacientes dentro da janela terapêutica (≤12h)</li>
+                    <li>Aguardando ASSCARDIO, CERH, Transporte, Hemodinâmica</li>
+                    <li>Lista de pacientes ordenados por prioridade</li>
+                    <li>Filtros clicáveis nos cards</li>
+                    <li>Botões de acesso rápido por equipe</li>
                   </ul>
                 </div>
 
-                <div className="border-l-4 border-l-green-500 pl-4">
-                  <h4 className="font-semibold mb-2">Etapa 3: Dados Vitais e ECG</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
-                    <li>Registre pressão arterial (ambos os braços), FC, FR, temperatura, SpO2</li>
-                    <li>Informe se paciente tem diabetes ou DPOC</li>
-                    <li>Registre glicemia capilar (sistema calcula valores aceitáveis)</li>
-                    <li>Anexe até 3 arquivos de ECG (PDF, PNG ou JPEG)</li>
-                    <li>Sistema calcula tempo triagem-ECG automaticamente</li>
-                    <li>Inteligência artificial analisa o ECG e fornece interpretação</li>
-                  </ul>
-                </div>
-
-                <div className="border-l-4 border-l-orange-500 pl-4">
-                  <h4 className="font-semibold mb-2">Etapa 4: Classificação de Risco</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
-                    <li>Selecione discriminadores identificados (Sistema Manchester Adaptado)</li>
-                    <li>Sistema calcula automaticamente a cor de classificação</li>
-                    <li>Cores: Vermelha (imediato), Laranja (10 min), Amarela (60 min), Verde (120 min), Azul (240 min)</li>
-                    <li>Se houve alerta de IAM, classificação mínima é Laranja</li>
-                  </ul>
-                </div>
-
-                <div className="border-l-4 border-l-purple-500 pl-4">
-                  <h4 className="font-semibold mb-2">Etapa 5: Avaliação Médica</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
-                    <li>Médico registra antecedentes clínicos do paciente</li>
-                    <li>Descreve quadro clínico atual</li>
-                    <li>Lista hipóteses diagnósticas (diagnósticos diferenciais)</li>
-                    <li>Registra diagnóstico confirmado ou principal</li>
-                    <li>Adiciona observações relevantes</li>
-                  </ul>
-                </div>
-
-                <div className="border-l-4 border-l-pink-500 pl-4">
-                  <h4 className="font-semibold mb-2">Etapa 6: Prescrição Medicamentosa</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
-                    <li>Selecione medicamentos comuns ou adicione personalizados</li>
-                    <li>Protocolo SCA: DAPT, betabloqueadores, IECA/BRA, estatinas</li>
-                    <li>Registre dose, via de administração</li>
-                    <li>Marque como "administrado" após aplicação</li>
-                  </ul>
-                </div>
-
-                <div className="border-l-4 border-l-teal-500 pl-4">
-                  <h4 className="font-semibold mb-2">Etapa 7: Solicitação de Exames</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
-                    <li>Selecione exames do protocolo (troponina, hemograma, etc.)</li>
-                    <li>Adicione exames personalizados se necessário</li>
-                    <li>Sistema registra todos os exames solicitados</li>
-                  </ul>
-                </div>
-
-                <div className="border-l-4 border-l-indigo-500 pl-4">
-                  <h4 className="font-semibold mb-2">Etapa 8: Relatório e Regulação</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
-                    <li>Revise o checklist de conclusão</li>
-                    <li>Sistema mostra tempo total do atendimento</li>
-                    <li>Baixe relatório em formato TXT</li>
-                    <li>Envie relatório por email para Central de Regulação</li>
-                    <li>Finalize o atendimento</li>
+                <div>
+                  <h4 className="font-semibold mb-2">📊 Indicadores</h4>
+                  <p className="text-gray-700 mb-2">Apenas Administradores:</p>
+                  <ul className="list-disc pl-5 text-gray-700">
+                    <li>Métricas gerais do sistema</li>
+                    <li>Desempenho por unidade</li>
+                    <li>Tempos médios de atendimento</li>
+                    <li>Taxa de cumprimento de metas</li>
                   </ul>
                 </div>
               </div>
             </CardContent>
           </Card>
 
+          {/* Metas Críticas */}
           <Card className="shadow-md">
             <CardHeader className="bg-yellow-50 border-b">
               <CardTitle className="flex items-center gap-2">
@@ -166,68 +295,155 @@ export default function Manual() {
             <CardContent className="p-6">
               <div className="space-y-3 text-sm">
                 <div className="p-3 bg-red-50 rounded border border-red-200">
-                  <p className="font-semibold text-red-900">ECG em até 10 minutos</p>
-                  <p className="text-red-800">
-                    Desde o início da triagem até o carregamento do ECG no sistema
-                  </p>
+                  <p className="font-semibold text-red-900">⏱️ Triagem ≤ 4 minutos</p>
+                  <p className="text-red-800">Do início até conclusão da triagem de enfermagem</p>
+                </div>
+                <div className="p-3 bg-red-50 rounded border border-red-200">
+                  <p className="font-semibold text-red-900">⏱️ ECG IAM ≤ 10 minutos</p>
+                  <p className="text-red-800">Em casos suspeitos de IAM com ECG</p>
                 </div>
                 <div className="p-3 bg-orange-50 rounded border border-orange-200">
-                  <p className="font-semibold text-orange-900">Avaliação médica em até 30 minutos</p>
-                  <p className="text-orange-800">
-                    Desde a triagem até a avaliação médica completa (casos que necessitam regulação)
-                  </p>
+                  <p className="font-semibold text-orange-900">⏱️ Espera ≤ 15 minutos</p>
+                  <p className="text-orange-800">Da triagem até início do atendimento médico</p>
+                </div>
+                <div className="p-3 bg-orange-50 rounded border border-orange-200">
+                  <p className="font-semibold text-orange-900">⏱️ Triagem clínica ≤ 20 minutos</p>
+                  <p className="text-orange-800">Tempo total da avaliação médica inicial</p>
+                </div>
+                <div className="p-3 bg-green-50 rounded border border-green-200">
+                  <p className="font-semibold text-green-900">⏱️ Janela terapêutica ≤ 12 horas</p>
+                  <p className="text-green-800">Do início dos sintomas até reperfusão (ICP/fibrinólise)</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
+          {/* Chat Interno */}
           <Card className="shadow-md">
-            <CardHeader className="bg-purple-50 border-b">
+            <CardHeader className="bg-teal-50 border-b">
               <CardTitle className="flex items-center gap-2">
-                <Stethoscope className="w-5 h-5 text-purple-600" />
-                Funcionalidades Adicionais
+                <FileText className="w-5 h-5 text-teal-600" />
+                Chat Interno por Paciente
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="space-y-2 text-sm text-gray-700">
+                <p>
+                  Cada paciente possui um chat interno exclusivo para comunicação entre as equipes:
+                </p>
+                <ul className="list-disc pl-5">
+                  <li>Unidade de Saúde pode enviar dúvidas ou informações adicionais</li>
+                  <li>ASSCARDIO pode solicitar exames complementares ou esclarecimentos</li>
+                  <li>CERH pode informar sobre disponibilidade de vagas</li>
+                  <li>Todas as mensagens ficam registradas no prontuário do paciente</li>
+                  <li>Identificação automática da equipe que enviou a mensagem</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recursos Especiais */}
+          <Card className="shadow-md">
+            <CardHeader className="bg-indigo-50 border-b">
+              <CardTitle className="flex items-center gap-2">
+                <Stethoscope className="w-5 h-5 text-indigo-600" />
+                Recursos Especiais
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <div className="space-y-4 text-sm text-gray-700">
                 <div>
-                  <h4 className="font-semibold mb-2">Painel Inicial (Dashboard)</h4>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li>Visualização de pacientes em atendimento em tempo real</li>
-                    <li>Estatísticas do dia: total de atendimentos, casos críticos</li>
-                    <li>Alertas de pacientes fora do tempo esperado</li>
-                    <li>Gráfico de classificação de risco</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold mb-2">Histórico de Atendimentos</h4>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li>Consulta de todos os pacientes atendidos</li>
-                    <li>Busca por nome, prontuário ou classificação</li>
-                    <li>Visualização de tempos de atendimento</li>
-                    <li>Acesso rápido aos detalhes de cada caso</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold mb-2">Análise de ECG por IA</h4>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li>Detecção automática de alterações no traçado</li>
-                    <li>Identificação de síndromes específicas (Wellens, Winter, etc.)</li>
+                  <h4 className="font-semibold mb-2">🤖 Análise de ECG por Inteligência Artificial</h4>
+                  <ul className="list-disc pl-5">
+                    <li>Análise automática de imagens de ECG</li>
+                    <li>Identificação de padrões de SCACESST</li>
+                    <li>Detecção de síndromes (Wellens, Wellen, Winter, De Winter)</li>
                     <li>Diferenciação de bloqueios de ramo</li>
-                    <li>Alertas para padrões que parecem IAM mas não são</li>
+                    <li>Alertas para imitadores de IAM</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2">📈 Cálculo Automático do HEART Score</h4>
+                  <ul className="list-disc pl-5">
+                    <li>Pontuação automática baseada em 5 critérios</li>
+                    <li>Interpretação de risco (baixo 0-3, intermediário 4-6, alto 7-10)</li>
+                    <li>Auxílio na decisão de internação ou alta</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2">⏱️ Cálculo Automático de Tempos</h4>
+                  <ul className="list-disc pl-5">
+                    <li>Tempo de dor (início dos sintomas até atendimento)</li>
+                    <li>Tempo triagem-ECG</li>
+                    <li>Tempo porta-balão (quando aplicável)</li>
+                    <li>Tempo total de atendimento</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2">🔔 Sistema de Notificações</h4>
+                  <ul className="list-disc pl-5">
+                    <li>Alertas para novos pacientes</li>
+                    <li>Notificações de pacientes com IAM-ECG</li>
+                    <li>Avisos de prioridade vermelha</li>
+                    <li>Alertas de HEART Score alto</li>
+                    <li>Configurável por unidade ou global</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2">🔐 Autenticação de Profissionais</h4>
+                  <ul className="list-disc pl-5">
+                    <li>PIN de 4 dígitos para profissionais</li>
+                    <li>Registro automático de quem preencheu cada etapa</li>
+                    <li>Rastreabilidade completa do atendimento</li>
                   </ul>
                 </div>
               </div>
             </CardContent>
           </Card>
 
+          {/* Navegação do Sistema */}
+          <Card className="shadow-md">
+            <CardHeader className="bg-gray-50 border-b">
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5" />
+                Navegação do Sistema
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="space-y-3 text-sm text-gray-700">
+                <p className="font-semibold">Menu lateral contém:</p>
+                <ul className="list-disc pl-5">
+                  <li><strong>Painel Inicial:</strong> Tela de boas-vindas e seleção de equipe</li>
+                  <li><strong>Painel Assistencial:</strong> Histórico de pacientes (Unidades de Saúde)</li>
+                  <li><strong>Painel de Regulação:</strong> Dashboard de casos (CERH/ASSCARDIO)</li>
+                  <li><strong>Indicadores:</strong> Métricas e estatísticas (Administradores)</li>
+                  <li><strong>Protocolos:</strong> Guias clínicos e fluxogramas</li>
+                  <li><strong>Estratégias e Condutas:</strong> Protocolos de medicamentos</li>
+                  <li><strong>Manual:</strong> Esta página de ajuda</li>
+                  <li><strong>Formulário/Vaga:</strong> Solicitação de vaga SES</li>
+                  <li><strong>Administração:</strong> Gestão de usuários e configurações</li>
+                </ul>
+                
+                <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
+                  <p className="font-semibold text-blue-900">💡 Metas de Qualidade</p>
+                  <p className="text-blue-800 text-xs mt-1">
+                    O menu lateral exibe as metas de tempo que devem ser seguidas pela equipe
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Suporte */}
           <Card className="shadow-md border-l-4 border-l-gray-500">
             <CardHeader className="bg-gray-50">
               <CardTitle className="flex items-center gap-2">
                 <FileText className="w-5 h-5" />
-                Suporte e Informações
+                Desenvolvimento e Suporte
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
@@ -235,14 +451,22 @@ export default function Manual() {
                 <p>
                   <strong>Sistema desenvolvido por:</strong><br />
                   Walber Alves Frazão Júnior<br />
-                  Enfermeiro Emergencista (COREN 110.238)<br />
+                  Enfermeiro Emergencista (COREN 110.238)
+                </p>
+                <p className="text-xs text-gray-600">
                   Pós-graduado em Cardiologia e Hemodinâmica (FACULDADE INVECTUS)<br />
                   Pós-graduado em Neurologia (INSTITUTO ENSINAR BRASIL)<br />
                   Pós-graduado em Auditoria em Serviços de Saúde (FACULDADE UNINA)<br />
                   Pós-graduado em Urgência e Emergência (UNIFAN)
                 </p>
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-xs text-gray-600">
+                    <strong>Secretaria de Estado de Saúde da Paraíba</strong><br />
+                    Programa Coração Paraibano
+                  </p>
+                </div>
                 <p className="mt-4 pt-4 border-t text-xs text-gray-600">
-                  © 2025 Sistema de Triagem de Dor Torácica - Todos os direitos reservados<br />
+                  © 2025-2026 Sistema Coração Paraibano - Todos os direitos reservados<br />
                   O uso, cópia ou venda não autorizados são proibidos
                 </p>
               </div>
