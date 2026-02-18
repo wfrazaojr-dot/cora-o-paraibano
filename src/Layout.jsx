@@ -120,6 +120,11 @@ export default function Layout({ children, currentPageName }) {
           url: createPageUrl("ProtocoloEstrategias"),
           icon: FileText,
         },
+        {
+          title: "Formulário/Vaga",
+          url: createPageUrl("FormularioVaga"),
+          icon: FileText,
+        },
       ];
     }
 
@@ -142,6 +147,11 @@ export default function Layout({ children, currentPageName }) {
           url: createPageUrl("Manual"),
           icon: FileText,
         },
+        {
+          title: "Formulário/Vaga",
+          url: createPageUrl("FormularioVaga"),
+          icon: FileText,
+        },
       ];
     }
 
@@ -162,6 +172,11 @@ export default function Layout({ children, currentPageName }) {
         {
           title: "Manual",
           url: createPageUrl("Manual"),
+          icon: FileText,
+        },
+        {
+          title: "Formulário/Vaga",
+          url: createPageUrl("FormularioVaga"),
           icon: FileText,
         },
       ];
