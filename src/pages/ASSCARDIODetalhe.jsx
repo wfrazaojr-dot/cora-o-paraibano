@@ -205,7 +205,8 @@ export default function ASSCARDIODetalhe() {
       
       // Criar um arquivo blob e fazer upload
       const blob = new Blob([relatorioTexto], { type: 'text/plain; charset=utf-8' });
-      const nomeArquivo = `Relatorio_ASSCARDIO_${paciente.nome_completo.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`;
+      const nomePaciente = (paciente?.nome_completo || 'Paciente').replace(/\s+/g, '_');
+      const nomeArquivo = `Relatorio_ASSCARDIO_${nomePaciente}_${new Date().toISOString().split('T')[0]}.txt`;
       const file = new File([blob], nomeArquivo, { type: 'text/plain' });
       
       // Upload do arquivo
