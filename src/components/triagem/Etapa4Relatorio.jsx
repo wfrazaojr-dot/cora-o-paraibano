@@ -178,8 +178,8 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
             className="h-16 md:h-20 w-auto object-contain"
           />
           <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png" 
-            alt="PBSAÚDE" 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg" 
+            alt="Complexo Regulador" 
             className="h-16 md:h-20 w-auto object-contain"
           />
         </div>
@@ -302,8 +302,8 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
               crossOrigin="anonymous"
             />
             <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png" 
-              alt="PBSAÚDE" 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg" 
+              alt="Complexo Regulador" 
               className="h-12 w-auto object-contain"
               crossOrigin="anonymous"
             />
