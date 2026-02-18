@@ -636,6 +636,22 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
           {gerandoPDF ? "Finalizando..." : "Finalizar Atendimento"}
         </Button>
       </div>
+
+      {/* Alerta FORMULÁRIO/VAGA */}
+      <div className="mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-6 shadow-lg">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="w-6 h-6 text-yellow-600 mt-1 flex-shrink-0" />
+          <div>
+            <h3 className="text-lg font-bold text-yellow-900 mb-2">⚠️ ALERTA IMPORTANTE</h3>
+            <p className="text-yellow-900 font-semibold leading-relaxed">
+              PARA ACELERAR O PROCESSO DE AUTORIZAÇÃO DE VAGA, ACESSE NO PAINEL DE NAVEGAÇÃO O ITEM 
+              <span className="font-bold text-yellow-950"> FORMULÁRIO/VAGA</span>, PREENCHA, ADICIONE OS DOCUMENTOS DO PACIENTE, 
+              ENVIE E AGUARDE E-MAIL DA SES COM A ATUALIZAÇÃO DO CASO E/OU SENHA PARA INTERNAÇÃO.
+            </p>
+            <p className="text-yellow-800 font-bold mt-3 text-center">🙏 A SES AGRADECE!</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
