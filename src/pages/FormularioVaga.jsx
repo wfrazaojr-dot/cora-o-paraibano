@@ -324,9 +324,32 @@ Solicitante: ${user?.full_name} (${user?.email})
 
         {/* Formulário para PDF */}
         <div ref={formRef} className="bg-white p-8 rounded-lg shadow-lg mb-6">
-          <div className="text-center mb-6">
-            <h2 className="text-lg font-bold">FORMULÁRIO SOLICITAÇÃO DE VAGA</h2>
-            <p className="text-sm mt-2">Data da Solicitação: {new Date(formData.data_solicitacao).toLocaleDateString('pt-BR')}</p>
+          {/* Cabeçalho com as 3 logos */}
+          <div className="mb-6 pb-4 border-b-2 border-gray-300">
+            <div className="flex items-center justify-between gap-4 w-full mb-3">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" 
+                alt="Secretaria de Estado da Saúde" 
+                className="h-12 md:h-16 w-auto object-contain"
+                crossOrigin="anonymous"
+              />
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" 
+                alt="Coração Paraibano" 
+                className="h-12 md:h-16 w-auto object-contain"
+                crossOrigin="anonymous"
+              />
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg" 
+                alt="Complexo Regulador" 
+                className="h-12 md:h-16 w-auto object-contain"
+                crossOrigin="anonymous"
+              />
+            </div>
+            <div className="text-center">
+              <h2 className="text-lg font-bold">FORMULÁRIO DE SOLICITAÇÃO DE VAGA</h2>
+              <p className="text-sm mt-2">Data da Solicitação: {new Date(formData.data_solicitacao).toLocaleDateString('pt-BR')}</p>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
