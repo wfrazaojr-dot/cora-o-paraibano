@@ -39,6 +39,21 @@ export default function Historico() {
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
 
+  const verificarAcessoPaciente = (paciente) => {
+    // Admin tem acesso a tudo
+    if (user?.role === 'admin') {
+      return true;
+    }
+    
+    // Unidade de saúde só acessa pacientes que criou
+    if (user?.equipe === 'unidade_saude') {
+      return paciente.created_by === user.email;
+    }
+    
+    // CERH e ASSCARDIO têm acesso a todos
+    return true;
+  };
+
   const verificarProfissional = (url) => {
     // Admin e Unidade de Saúde têm acesso direto sem verificação de profissional
     if (user?.role === 'admin' || user?.equipe === 'unidade_saude') {
@@ -55,6 +70,12 @@ export default function Historico() {
   };
 
   const handleVerDetalhes = (pacienteId) => {
+    const paciente = pacientes.find(p => p.id === pacienteId);
+    if (!verificarAcessoPaciente(paciente)) {
+      alert("Você não tem permissão para acessar este paciente.");
+      return;
+    }
+    
     const url = `${createPageUrl("NovaTriagem")}?id=${pacienteId}`;
     if (verificarProfissional(url)) {
       navigate(url);
@@ -62,6 +83,12 @@ export default function Historico() {
   };
 
   const handleRetriagem = (pacienteId) => {
+    const paciente = pacientes.find(p => p.id === pacienteId);
+    if (!verificarAcessoPaciente(paciente)) {
+      alert("Você não tem permissão para acessar este paciente.");
+      return;
+    }
+    
     const url = `${createPageUrl("NovaTriagem")}?id=${pacienteId}&retriagem=true`;
     if (verificarProfissional(url)) {
       navigate(url);
@@ -83,9 +110,9 @@ export default function Historico() {
         return base44.entities.Paciente.list("-created_date");
       }
 
-      // Usuário de unidade de saúde: vê apenas pacientes da sua unidade
+      // Usuário de unidade de saúde: vê apenas pacientes criados por ele
       if (equipe === 'unidade_saude') {
-        return base44.entities.Paciente.filter({ unidade_saude: user?.unidade_saude }, "-created_date");
+        return base44.entities.Paciente.filter({ created_by: user.email }, "-created_date");
       }
 
       // CERH e ASSCARDIO: veem todos (consolidado)
