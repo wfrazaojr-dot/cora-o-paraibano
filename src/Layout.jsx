@@ -101,6 +101,11 @@ export default function Layout({ children, currentPageName }) {
       return [
         ...menuBase,
         {
+          title: "Painel Assistencial",
+          url: createPageUrl("Historico"),
+          icon: History,
+        },
+        {
           title: "Protocolos",
           url: createPageUrl("Protocolos"),
           icon: BookOpen,
