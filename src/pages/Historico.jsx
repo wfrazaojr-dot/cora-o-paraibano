@@ -358,9 +358,16 @@ export default function Historico() {
                   <div key={paciente.id} className="p-6 hover:bg-gray-50 transition-colors">
                     <div className="flex flex-col md:flex-row justify-between gap-4">
                       <div className="flex-1">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <h3 className="font-semibold text-lg text-gray-900">{paciente.nome_completo}</h3>
+                       {paciente.alerta_formulario_vaga && (
+                         <div className="mb-3 bg-yellow-100 border-l-4 border-yellow-500 p-3 rounded">
+                           <p className="text-sm font-bold text-yellow-900 flex items-center gap-2">
+                             🚨 ENVIE FORMULÁRIO/VAGA
+                           </p>
+                         </div>
+                       )}
+                       <div className="flex items-start justify-between mb-2">
+                         <div>
+                           <h3 className="font-semibold text-lg text-gray-900">{paciente.nome_completo}</h3>
                             <p className="text-sm text-gray-600">
                               {paciente.idade} anos • {paciente.sexo} • Pront. {paciente.prontuario}
                             </p>
@@ -424,6 +431,15 @@ export default function Historico() {
                       </div>
 
                       <div className="flex items-center gap-2">
+                        {paciente.alerta_formulario_vaga && (
+                          <Button
+                            size="sm"
+                            onClick={() => navigate(createPageUrl("FormularioVaga") + `?id=${paciente.id}`)}
+                            className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                          >
+                            📋 ENVIAR FORMULÁRIO/VAGA
+                          </Button>
+                        )}
                         <Button 
                           onClick={() => handleVerDetalhes(paciente.id)}
                           variant="outline" 
