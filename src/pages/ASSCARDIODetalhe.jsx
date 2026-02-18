@@ -13,6 +13,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Heart, ChevronDown, ChevronUp } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import DadosPaciente from "@/components/regulacao/DadosPaciente";
+import LinhaTempo from "@/components/regulacao/LinhaTempo";
 
 export default function ASSCARDIODetalhe() {
   const navigate = useNavigate();
@@ -23,15 +25,6 @@ export default function ASSCARDIODetalhe() {
   const [bloco0Open, setBloco0Open] = useState(true);
   const [bloco1Open, setBloco1Open] = useState(true);
   const [bloco2Open, setBloco2Open] = useState(false);
-
-  // Estado Enfermeiro - Dados Paciente
-  const [dadosPaciente, setDadosPaciente] = useState({
-    nome: "",
-    idade: "",
-    sexo: "",
-    hora_chegada: "",
-    unidade: ""
-  });
 
   // Bloco 0 - Clínica
   const [clinica, setClinica] = useState({
@@ -98,19 +91,6 @@ export default function ASSCARDIODetalhe() {
     enabled: !!pacienteId
   });
 
-  // Carregar dados do paciente
-  useEffect(() => {
-    if (paciente) {
-      setDadosPaciente({
-        nome: paciente.nome_completo || "",
-        idade: paciente.idade?.toString() || "",
-        sexo: paciente.sexo || "",
-        hora_chegada: paciente.data_hora_chegada || "",
-        unidade: paciente.unidade_saude || ""
-      });
-    }
-  }, [paciente]);
-
   // Calcular HEART Score total
   const calcularHeartTotal = () => {
     return heartScore.historia + heartScore.ecg + heartScore.idade + heartScore.risco + heartScore.troponina;
@@ -147,7 +127,6 @@ export default function ASSCARDIODetalhe() {
       await base44.entities.Paciente.update(pacienteId, {
         assessoria_cardiologia: {
           data_hora: new Date().toISOString(),
-          dados_paciente: dadosPaciente,
           clinica: clinica,
           ecg_supra: ecgSupra,
           ecg_sem_supra: ecgSemSupra,
@@ -178,7 +157,7 @@ export default function ASSCARDIODetalhe() {
 
   return (
     <div className="p-4 md:p-8 bg-gradient-to-br from-blue-50 to-green-50 min-h-screen">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 flex items-center gap-4">
           <Button variant="outline" onClick={() => navigate(createPageUrl("Dashboard"))}>
@@ -194,44 +173,15 @@ export default function ASSCARDIODetalhe() {
           </div>
         </div>
 
-        {/* 1. DADOS PACIENTE */}
-        <Card className="mb-4 border-2 border-blue-200">
-          <CardHeader className="bg-blue-100">
-            <CardTitle className="text-blue-900">📋 DADOS DO PACIENTE (Enfermeiro)</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="grid md:grid-cols-3 gap-4">
-              <div>
-                <Label>Nome</Label>
-                <Input value={dadosPaciente.nome} onChange={(e) => setDadosPaciente({...dadosPaciente, nome: e.target.value})} />
-              </div>
-              <div>
-                <Label>Idade</Label>
-                <Input value={dadosPaciente.idade} onChange={(e) => setDadosPaciente({...dadosPaciente, idade: e.target.value})} />
-              </div>
-              <div>
-                <Label>Sexo</Label>
-                <Select value={dadosPaciente.sexo} onValueChange={(v) => setDadosPaciente({...dadosPaciente, sexo: v})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Masculino">Masculino</SelectItem>
-                    <SelectItem value="Feminino">Feminino</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Hora Chegada (Relatório Etapa 4)</Label>
-                <Input value={paciente?.data_hora_chegada ? new Date(paciente.data_hora_chegada).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}) : ''} disabled />
-              </div>
-              <div>
-                <Label>Unidade</Label>
-                <Input placeholder="SAMU/UPA/PS" value={dadosPaciente.unidade} onChange={(e) => setDadosPaciente({...dadosPaciente, unidade: e.target.value})} />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Coluna Esquerda */}
+          <div className="lg:col-span-1 space-y-6">
+            <DadosPaciente paciente={paciente} />
+            <LinhaTempo paciente={paciente} />
+          </div>
+
+          {/* Coluna Direita - Formulário */}
+          <div className="lg:col-span-2 space-y-4">
 
         {/* 2. BLOCO 0 - CLÍNICA */}
         <Collapsible open={bloco0Open} onOpenChange={setBloco0Open}>
@@ -646,6 +596,8 @@ export default function ASSCARDIODetalhe() {
             </CardContent>
           </Card>
         )}
+          </div>
+        </div>
       </div>
     </div>
   );
