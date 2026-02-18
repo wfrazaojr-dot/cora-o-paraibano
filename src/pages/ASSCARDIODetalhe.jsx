@@ -222,8 +222,8 @@ export default function ASSCARDIODetalhe() {
                 </Select>
               </div>
               <div>
-                <Label>Hora Chegada</Label>
-                <Input type="time" value={dadosPaciente.hora_chegada} onChange={(e) => setDadosPaciente({...dadosPaciente, hora_chegada: e.target.value})} />
+                <Label>Hora Chegada (Relatório Etapa 4)</Label>
+                <Input value={paciente?.data_hora_chegada ? new Date(paciente.data_hora_chegada).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}) : ''} disabled />
               </div>
               <div>
                 <Label>Unidade</Label>
@@ -550,19 +550,6 @@ export default function ASSCARDIODetalhe() {
                 </Select>
               </div>
 
-              <div>
-                <Label>T - Troponina</Label>
-                <Select value={heartScore.troponina.toString()} onValueChange={(v) => setHeartScore({...heartScore, troponina: parseInt(v)})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0">0 - Normal</SelectItem>
-                    <SelectItem value="1">1 - 1-3x</SelectItem>
-                    <SelectItem value="2">2 - &gt;3x</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
 
             <div className="bg-purple-200 p-4 rounded-lg text-center">
