@@ -128,8 +128,8 @@ export default function CERHDetalhe() {
                       Urgência: {paciente.assessoria_cardiologia.urgencia}
                     </Badge>
                   )}
-                  {paciente.relatorio_asscardio_url && (
-                    <div className="mt-4">
+                  <div className="mt-4">
+                    {paciente.relatorio_asscardio_url ? (
                       <Button
                         onClick={() => window.open(paciente.relatorio_asscardio_url, '_blank')}
                         className="w-full bg-red-600 hover:bg-red-700"
@@ -137,8 +137,16 @@ export default function CERHDetalhe() {
                         <FileText className="w-4 h-4 mr-2" />
                         Abrir Parecer Completo ASSCARDIO
                       </Button>
-                    </div>
-                  )}
+                    ) : (
+                      <Button
+                        onClick={() => navigate(createPageUrl("ASSCARDIODetalhe") + "?id=" + pacienteId)}
+                        className="w-full bg-red-600 hover:bg-red-700"
+                      >
+                        <Heart className="w-4 h-4 mr-2" />
+                        Ver Detalhes do Parecer ASSCARDIO
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             )}
