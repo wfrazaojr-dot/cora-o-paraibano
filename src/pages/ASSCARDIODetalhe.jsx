@@ -15,6 +15,7 @@ import { ArrowLeft, Heart, ChevronDown, ChevronUp } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
+import ChatInterno from "@/components/ChatInterno";
 
 export default function ASSCARDIODetalhe() {
   const navigate = useNavigate();
@@ -178,6 +179,7 @@ export default function ASSCARDIODetalhe() {
           <div className="lg:col-span-1 space-y-6">
             <DadosPaciente paciente={paciente} />
             <LinhaTempo paciente={paciente} />
+            <ChatInterno pacienteId={pacienteId} />
           </div>
 
           {/* Coluna Direita - Formulário */}

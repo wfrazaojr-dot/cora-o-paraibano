@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
 import { Badge } from "@/components/ui/badge";
+import ChatInterno from "@/components/ChatInterno";
 
 export default function CERHDetalhe() {
   const navigate = useNavigate();
@@ -87,6 +88,7 @@ export default function CERHDetalhe() {
           <div className="lg:col-span-1 space-y-6">
             <DadosPaciente paciente={paciente} />
             <LinhaTempo paciente={paciente} />
+            <ChatInterno pacienteId={pacienteId} />
           </div>
 
           {/* Coluna Direita */}
