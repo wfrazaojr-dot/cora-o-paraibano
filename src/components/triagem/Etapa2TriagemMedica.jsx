@@ -16,15 +16,10 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
     medico_crm: dadosPaciente.triagem_medica?.medico_crm || "",
     pa_braco_esquerdo: dadosPaciente.triagem_medica?.pa_braco_esquerdo || "",
     pa_braco_direito: dadosPaciente.triagem_medica?.pa_braco_direito || "",
-    pa_sistolica: dadosPaciente.triagem_medica?.pa_sistolica || "",
-    pa_diastolica: dadosPaciente.triagem_medica?.pa_diastolica || "",
-    diferenca_pa_mse_msd: dadosPaciente.triagem_medica?.diferenca_pa_mse_msd || "",
     frequencia_cardiaca: dadosPaciente.triagem_medica?.frequencia_cardiaca || "",
     frequencia_respiratoria: dadosPaciente.triagem_medica?.frequencia_respiratoria || "",
     temperatura: dadosPaciente.triagem_medica?.temperatura || "",
     spo2: dadosPaciente.triagem_medica?.spo2 || "",
-    uso_oxigenio: dadosPaciente.triagem_medica?.uso_oxigenio || false,
-    litros_oxigenio: dadosPaciente.triagem_medica?.litros_oxigenio || "",
     diabetes: dadosPaciente.triagem_medica?.diabetes || false,
     dpoc: dadosPaciente.triagem_medica?.dpoc || false,
     glicemia_capilar: dadosPaciente.triagem_medica?.glicemia_capilar || "",
@@ -98,7 +93,6 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
     const dadosTriagem = {
       triagem_medica: {
         ...dados,
-        litros_oxigenio: dados.uso_oxigenio && dados.litros_oxigenio ? parseFloat(dados.litros_oxigenio) : undefined,
         data_hora_inicio: dadosPaciente.data_hora_chegada
       }
     };
@@ -122,7 +116,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
         
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <Label>Pressão Arterial Braço Esquerdo (mmHg) *</Label>
+            <Label>PA Braço Esquerdo (mmHg) *</Label>
             <Input
               type="text"
               value={dados.pa_braco_esquerdo}
@@ -133,7 +127,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
           </div>
 
           <div>
-            <Label>Pressão Arterial Braço Direito (mmHg) *</Label>
+            <Label>PA Braço Direito (mmHg) *</Label>
             <Input
               type="text"
               value={dados.pa_braco_direito}
@@ -143,47 +137,8 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
             />
           </div>
 
-          <div className="md:col-span-2">
-            <Label className="mb-3 block">Há diferença maior que 15 mmHg entre PA em MSE X MSD? *</Label>
-            <div className="flex gap-4">
-              <div className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="diferenca_pa"
-                  value="Sim"
-                  checked={dados.diferenca_pa_mse_msd === "Sim"}
-                  onChange={(e) => setDados(prev => ({...prev, diferenca_pa_mse_msd: e.target.value}))}
-                  className="w-4 h-4"
-                  required
-                />
-                <Label>Sim</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="diferenca_pa"
-                  value="Não"
-                  checked={dados.diferenca_pa_mse_msd === "Não"}
-                  onChange={(e) => setDados(prev => ({...prev, diferenca_pa_mse_msd: e.target.value}))}
-                  className="w-4 h-4"
-                  required
-                />
-                <Label>Não</Label>
-              </div>
-            </div>
-            
-            {dados.diferenca_pa_mse_msd === "Sim" && (
-              <Alert className="mt-3 bg-red-100 border-red-400">
-                <AlertTriangle className="h-5 w-5 text-red-700" />
-                <AlertDescription className="text-red-800 font-bold text-lg">
-                  ⚠️ DESCARTAR DAA (Dissecção Aguda de Aorta)
-                </AlertDescription>
-              </Alert>
-            )}
-          </div>
-
           <div>
-            <Label>Frequência Cardíaca (bpm) *</Label>
+            <Label>FC - Frequência Cardíaca (bpm) *</Label>
             <Input
               type="number"
               value={dados.frequencia_cardiaca}
@@ -193,7 +148,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
           </div>
 
           <div>
-            <Label>Frequência Respiratória (irpm) *</Label>
+            <Label>FR - Frequência Respiratória (irpm) *</Label>
             <Input
               type="number"
               value={dados.frequencia_respiratoria}
@@ -213,17 +168,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
             />
           </div>
 
-          <div className="md:col-span-2">
-            <div className="flex items-center gap-4">
-              <Checkbox
-                checked={dados.dpoc}
-                onCheckedChange={(checked) => setDados(prev => ({...prev, dpoc: checked}))}
-              />
-              <Label>DPOC</Label>
-            </div>
-          </div>
-
-          <div className="md:col-span-2">
+          <div>
             <Label>SpO2 (%) *</Label>
             <Input
               type="number"
@@ -231,57 +176,9 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
               onChange={(e) => setDados(prev => ({...prev, spo2: parseInt(e.target.value) || ""}))}
               required
             />
-            {dados.spo2 && (
-              <Alert className={`mt-2 ${
-                dados.dpoc 
-                  ? (dados.spo2 >= 88 && dados.spo2 <= 92 ? 'bg-green-50 border-green-300' : 'bg-orange-50 border-orange-300')
-                  : (dados.spo2 >= 92 && dados.spo2 <= 96 ? 'bg-green-50 border-green-300' : 'bg-orange-50 border-orange-300')
-              }`}>
-                <AlertDescription className={
-                  dados.dpoc 
-                    ? (dados.spo2 >= 88 && dados.spo2 <= 92 ? 'text-green-800' : 'text-orange-800')
-                    : (dados.spo2 >= 92 && dados.spo2 <= 96 ? 'text-green-800' : 'text-orange-800')
-                }>
-                  <strong>SpO2 Alvo {dados.dpoc ? 'DPOC' : ''}:</strong> {dados.dpoc ? '88% a 92%' : '92% a 96%'}
-                </AlertDescription>
-              </Alert>
-            )}
           </div>
 
-          <div className="md:col-span-2">
-            <div className="flex items-center gap-4 mb-2">
-              <Checkbox
-                checked={dados.uso_oxigenio}
-                onCheckedChange={(checked) => setDados(prev => ({...prev, uso_oxigenio: checked}))}
-              />
-              <Label>Em uso de oxigênio?</Label>
-            </div>
-            
-            {dados.uso_oxigenio && (
-              <div className="ml-8">
-                <Label>Litros de O2 por minuto (L/min) *</Label>
-                <Input
-                  type="number"
-                  value={dados.litros_oxigenio}
-                  onChange={(e) => setDados(prev => ({...prev, litros_oxigenio: parseFloat(e.target.value) || ""}))}
-                  placeholder="Ex: 2"
-                  required={dados.uso_oxigenio}
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="md:col-span-2">
-            <div className="flex items-center gap-4">
-              <Checkbox
-                checked={dados.diabetes}
-                onCheckedChange={(checked) => setDados(prev => ({...prev, diabetes: checked}))}
-              />
-              <Label>Diabetes</Label>
-            </div>
-          </div>
-
-          <div className="md:col-span-2">
+          <div>
             <Label>Glicemia Capilar (mg/dL) *</Label>
             <Input
               type="number"
@@ -289,56 +186,25 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
               onChange={(e) => setDados(prev => ({...prev, glicemia_capilar: parseInt(e.target.value) || ""}))}
               required
             />
-            {dados.glicemia_capilar && (
-              <div className="mt-2 space-y-1">
-                {dados.diabetes ? (
-                  <>
-                    <Alert className={`${
-                      (dados.glicemia_capilar < 70 || dados.glicemia_capilar > 400) 
-                        ? 'bg-red-100 border-red-400' 
-                        : (dados.glicemia_capilar >= 80 && dados.glicemia_capilar <= 200)
-                        ? 'bg-green-50 border-green-300'
-                        : 'bg-orange-50 border-orange-300'
-                    }`}>
-                      <AlertDescription className={
-                        (dados.glicemia_capilar < 70 || dados.glicemia_capilar > 400) 
-                          ? 'text-red-800 font-bold' 
-                          : (dados.glicemia_capilar >= 80 && dados.glicemia_capilar <= 200)
-                          ? 'text-green-800'
-                          : 'text-orange-800'
-                      }>
-                        {(dados.glicemia_capilar < 70 || dados.glicemia_capilar > 400) && (
-                          <>⚠️ <strong>Valores críticos:</strong> &lt; 70 ou &gt; 400 mg/dL (requer correção imediata)</>
-                        )}
-                        {(dados.glicemia_capilar >= 70 && dados.glicemia_capilar <= 400) && (
-                          <><strong>Meta de glicemia:</strong> 80 a 200 mg/dL</>
-                        )}
-                      </AlertDescription>
-                    </Alert>
-                  </>
-                ) : (
-                  <>
-                    <Alert className={`${
-                      (dados.glicemia_capilar < 70 || dados.glicemia_capilar > 200) 
-                        ? 'bg-red-100 border-red-400' 
-                        : 'bg-green-50 border-green-300'
-                    }`}>
-                      <AlertDescription className={
-                        (dados.glicemia_capilar < 70 || dados.glicemia_capilar > 200) 
-                          ? 'text-red-800 font-bold' 
-                          : 'text-green-800'
-                      }>
-                        {(dados.glicemia_capilar < 70 || dados.glicemia_capilar > 200) ? (
-                          <>⚠️ <strong>Valores críticos:</strong> &lt; 70 ou &gt; 200 mg/dL</>
-                        ) : (
-                          <><strong>Valores aceitáveis:</strong> 70 a 200 mg/dL</>
-                        )}
-                      </AlertDescription>
-                    </Alert>
-                  </>
-                )}
+          </div>
+
+          <div className="md:col-span-2">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  checked={dados.diabetes}
+                  onCheckedChange={(checked) => setDados(prev => ({...prev, diabetes: checked}))}
+                />
+                <Label>Diabetes</Label>
               </div>
-            )}
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  checked={dados.dpoc}
+                  onCheckedChange={(checked) => setDados(prev => ({...prev, dpoc: checked}))}
+                />
+                <Label>DPOC</Label>
+              </div>
+            </div>
           </div>
         </div>
       </div>
