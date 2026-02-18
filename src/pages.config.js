@@ -56,6 +56,7 @@ import Cardiologia from './pages/Cardiologia';
 import CentralSES from './pages/CentralSES';
 import CoracaoParaibano from './pages/CoracaoParaibano';
 import Dashboard from './pages/Dashboard';
+import FormularioVaga from './pages/FormularioVaga';
 import HemodinamicaDetalhe from './pages/HemodinamicaDetalhe';
 import Historico from './pages/Historico';
 import HistoricoUnidades from './pages/HistoricoUnidades';
@@ -71,7 +72,6 @@ import ProtocoloEstrategias from './pages/ProtocoloEstrategias';
 import Protocolos from './pages/Protocolos';
 import RecuperarPIN from './pages/RecuperarPIN';
 import TransporteDetalhe from './pages/TransporteDetalhe';
-import FormularioVaga from './pages/FormularioVaga';
 import __Layout from './Layout.jsx';
 
 
@@ -85,6 +85,7 @@ export const PAGES = {
     "CentralSES": CentralSES,
     "CoracaoParaibano": CoracaoParaibano,
     "Dashboard": Dashboard,
+    "FormularioVaga": FormularioVaga,
     "HemodinamicaDetalhe": HemodinamicaDetalhe,
     "Historico": Historico,
     "HistoricoUnidades": HistoricoUnidades,
@@ -100,7 +101,6 @@ export const PAGES = {
     "Protocolos": Protocolos,
     "RecuperarPIN": RecuperarPIN,
     "TransporteDetalhe": TransporteDetalhe,
-    "FormularioVaga": FormularioVaga,
 }
 
 export const pagesConfig = {

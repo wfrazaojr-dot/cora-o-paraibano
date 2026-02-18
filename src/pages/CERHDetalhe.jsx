@@ -47,12 +47,13 @@ export default function CERHDetalhe() {
           ...formData,
           data_hora: new Date().toISOString()
         },
-        status: "Aguardando Transporte"
+        status: "Aguardando Transporte",
+        alerta_formulario_vaga: true
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['paciente', pacienteId]);
-      alert("Regulação CERH registrada com sucesso!");
+      alert("Regulação CERH registrada com sucesso! A Unidade de Saúde foi notificada para enviar o formulário/vaga.");
       navigate(createPageUrl("Dashboard"));
     }
   });
