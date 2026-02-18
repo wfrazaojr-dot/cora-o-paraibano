@@ -123,8 +123,93 @@ export default function ASSCARDIODetalhe() {
     alert("Pré-parecer gerado! Aguardando avaliação médica.");
   };
 
+  const gerarRelatorioASSCARDIO = () => {
+    const data = new Date().toLocaleDateString('pt-BR');
+    const hora = new Date().toLocaleTimeString('pt-BR');
+    const heartTotal = calcularHeartTotal();
+    const heartInterpretacao = getHeartInterpretacao(heartTotal);
+
+    let relatorio = `RELATÓRIO ASSESSORIA CARDIOLÓGICA - ASSCARDIO\n`;
+    relatorio += `Data: ${data} às ${hora}\n`;
+    relatorio += `\n===========================================\n\n`;
+    
+    relatorio += `DADOS DO PACIENTE:\n`;
+    relatorio += `Nome: ${paciente.nome_completo}\n`;
+    relatorio += `Idade: ${paciente.idade} anos | Sexo: ${paciente.sexo}\n`;
+    relatorio += `Unidade de Origem: ${paciente.unidade_saude || 'Não Informada'}\n\n`;
+
+    relatorio += `AVALIAÇÃO DE ENFERMAGEM (PRÉ-PARECER):\n`;
+    relatorio += `${preParecer}\n\n`;
+
+    relatorio += `DADOS CLÍNICOS:\n`;
+    relatorio += `- Dor Típica: ${clinica.dor_tipica ? 'Sim' : 'Não'}\n`;
+    relatorio += `- Sudorese: ${clinica.sudorese ? 'Sim' : 'Não'}\n`;
+    relatorio += `- HAS: ${clinica.has ? 'Sim' : 'Não'}\n`;
+    relatorio += `- DM: ${clinica.dm ? 'Sim' : 'Não'}\n`;
+    relatorio += `- Tabagismo: ${clinica.tabagismo ? 'Sim' : 'Não'}\n`;
+    relatorio += `- Dislipidemia: ${clinica.dislipidemia ? 'Sim' : 'Não'}\n\n`;
+
+    relatorio += `ACHADOS DO ECG (SUPRA ST):\n`;
+    relatorio += `- Tem Supra ST: ${ecgSupra.tem_supra === 'sim' ? 'Sim' : 'Não'}\n`;
+    if (ecgSupra.tem_supra === 'sim') {
+      relatorio += `  Parede: ${ecgSupra.parede_supra}\n`;
+    }
+    relatorio += `- Parede Inferior: D2=${ecgSupra.d2?'Sim':'Não'}, D3=${ecgSupra.d3?'Sim':'Não'}, aVF=${ecgSupra.avf?'Sim':'Não'}\n`;
+    relatorio += `- Recíprocos Inferior: D1/aVL=${ecgSupra.reciproco_d1_avl?'Sim':'Não'}, V1-V3=${ecgSupra.reciproco_v1_v3?'Sim':'Não'}\n`;
+    relatorio += `- Parede Anterior: V1=${ecgSupra.v1?'Sim':'Não'}, V2=${ecgSupra.v2?'Sim':'Não'}, V3=${ecgSupra.v3?'Sim':'Não'}, V4=${ecgSupra.v4?'Sim':'Não'}\n`;
+    relatorio += `- Recíprocos Anterior: D2/D3/aVF=${ecgSupra.reciproco_d2_d3_avf?'Sim':'Não'}\n`;
+    relatorio += `- Parede Lateral: D1=${ecgSupra.d1?'Sim':'Não'}, aVL=${ecgSupra.avl?'Sim':'Não'}, V5=${ecgSupra.v5?'Sim':'Não'}, V6=${ecgSupra.v6?'Sim':'Não'}\n`;
+    relatorio += `- Outros: T Hiperaguda=${ecgSupra.t_hiperaguda?'Sim':'Não'}, V7-V9=${ecgSupra.v7_v9?'Sim':'Não'}, V3R/V4R=${ecgSupra.v3r_v4r?'Sim':'Não'}\n\n`;
+
+    if (ecgSupra.tem_supra === 'nao') {
+      relatorio += `ACHADOS DO ECG (SEM SUPRA ST):\n`;
+      relatorio += `- Infra ST ≥0.5mm: ${ecgSemSupra.infra_st ? 'Sim' : 'Não'}\n`;
+      relatorio += `- T invertida: ${ecgSemSupra.t_invertida ? 'Sim' : 'Não'}\n`;
+      relatorio += `- Q nova: ${ecgSemSupra.q_nova ? 'Sim' : 'Não'}\n`;
+      relatorio += `- Wellens: ${ecgSemSupra.wellens ? 'Sim' : 'Não'}\n`;
+      relatorio += `- Infra difusa+aVR: ${ecgSemSupra.infra_difusa_avr ? 'Sim' : 'Não'}\n`;
+      relatorio += `- Probabilidade: ${ecgSemSupra.probabilidade}\n\n`;
+    }
+
+    relatorio += `HEART SCORE:\n`;
+    relatorio += `- História: ${heartScore.historia} pontos\n`;
+    relatorio += `- ECG: ${heartScore.ecg} pontos\n`;
+    relatorio += `- Idade: ${heartScore.idade} pontos\n`;
+    relatorio += `- Fatores de Risco: ${heartScore.risco} pontos\n`;
+    relatorio += `- TOTAL: ${heartTotal} pontos - ${heartInterpretacao}\n\n`;
+
+    relatorio += `AVALIAÇÃO DO CARDIOLOGISTA:\n`;
+    relatorio += `- Triagem de enfermagem confirmada: ${medicoData.confirma_triagem ? 'Sim' : 'Não'}\n`;
+    
+    const estrategias = {
+      "1": "1- IAM supra ST → Estratégia 1: transferência imediata",
+      "2": "2- SCA sem supra MUITO alto risco → Estratégia 1: transferência imediata",
+      "3": "3- IAM sem supra/alto risco → Estratégia 2: invasiva ≤24h",
+      "4": "4- SCA intermediário → Estratégia 3: invasiva ≤72h"
+    };
+    relatorio += `- Diagnóstico + Estratégia: ${estrategias[medicoData.diagnostico_estrategia] || 'Não definido'}\n\n`;
+    relatorio += `PARECER DO CARDIOLOGISTA:\n${medicoData.parecer_cardiologista}\n\n`;
+
+    relatorio += `===========================================\n`;
+    relatorio += `Relatório gerado automaticamente pelo Sistema Coração Paraibano\n`;
+
+    return relatorio;
+  };
+
   const salvarLaudoMedico = useMutation({
     mutationFn: async () => {
+      // Gerar o relatório como texto
+      const relatorioTexto = gerarRelatorioASSCARDIO();
+      
+      // Criar um arquivo blob e fazer upload
+      const blob = new Blob([relatorioTexto], { type: 'text/plain; charset=utf-8' });
+      const nomeArquivo = `Relatorio_ASSCARDIO_${paciente.nome_completo.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`;
+      const file = new File([blob], nomeArquivo, { type: 'text/plain' });
+      
+      // Upload do arquivo
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: file });
+
+      // Salvar dados da assessoria + URL do relatório
       await base44.entities.Paciente.update(pacienteId, {
         assessoria_cardiologia: {
           data_hora: new Date().toISOString(),
@@ -140,13 +225,17 @@ export default function ASSCARDIODetalhe() {
           diagnostico_estrategia: medicoData.diagnostico_estrategia,
           parecer_cardiologista: medicoData.parecer_cardiologista
         },
+        relatorio_asscardio_url: file_url,
         status: "Aguardando Regulação"
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['paciente', pacienteId]);
-      alert("Laudo finalizado com sucesso!");
+      alert("Laudo finalizado com sucesso! Relatório disponível para o CERH.");
       navigate(createPageUrl("Dashboard"));
+    },
+    onError: (error) => {
+      alert("Erro ao salvar laudo: " + error.message);
     }
   });
 
