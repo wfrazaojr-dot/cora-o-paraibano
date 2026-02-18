@@ -80,7 +80,7 @@ export default function DadosPaciente({ paciente }) {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {paciente.triagem_medica.pa_braco_esquerdo && (
                 <div className="bg-gray-50 p-2 rounded">
-                  <p className="text-xs text-gray-500">PA MSE</p>
+                  <p className="text-xs text-gray-500">PA (PAS/PAD)</p>
                   <p className="font-medium">{paciente.triagem_medica.pa_braco_esquerdo}</p>
                 </div>
               )}
