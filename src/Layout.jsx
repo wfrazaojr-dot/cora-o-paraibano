@@ -43,14 +43,19 @@ export default function Layout({ children, currentPageName }) {
 
 
   const getNavigationItems = () => {
+    // Menu padrão com Painel Inicial (sempre disponível para todos)
+    const menuBase = [
+      {
+        title: "Painel Inicial",
+        url: createPageUrl("PainelInicial"),
+        icon: Activity,
+      },
+    ];
+
     // Menu para Admin (acesso pleno) - Verificação prioritária
     if (user?.role === 'admin') {
       return [
-        {
-          title: "Painel Inicial",
-          url: createPageUrl("PainelInicial"),
-          icon: Activity,
-        },
+        ...menuBase,
         {
           title: "Painel Assistencial",
           url: createPageUrl("Historico"),
@@ -94,11 +99,7 @@ export default function Layout({ children, currentPageName }) {
     // Menu para Unidades de Saúde
     if (equipe === 'unidade_saude') {
       return [
-        {
-          title: "Painel Inicial",
-          url: createPageUrl("PainelInicial"),
-          icon: Activity,
-        },
+        ...menuBase,
         {
           title: "Painel Assistencial",
           url: createPageUrl("Historico"),
@@ -120,11 +121,7 @@ export default function Layout({ children, currentPageName }) {
     // Menu para CERH
     if (equipe === 'cerh') {
       return [
-        {
-          title: "Painel Inicial",
-          url: createPageUrl("PainelInicial"),
-          icon: Activity,
-        },
+        ...menuBase,
         {
           title: "Painel de Regulação",
           url: createPageUrl("Dashboard"),
@@ -146,11 +143,7 @@ export default function Layout({ children, currentPageName }) {
     // Menu para ASSCARDIO
     if (equipe === 'asscardio') {
       return [
-        {
-          title: "Painel Inicial",
-          url: createPageUrl("PainelInicial"),
-          icon: Activity,
-        },
+        ...menuBase,
         {
           title: "Painel de Regulação",
           url: createPageUrl("Dashboard"),
@@ -169,7 +162,8 @@ export default function Layout({ children, currentPageName }) {
       ];
     }
 
-    return [];
+    // Retorna menu base para qualquer outro perfil
+    return menuBase;
   };
 
   const navigationItems = getNavigationItems();
