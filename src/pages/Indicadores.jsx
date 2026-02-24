@@ -357,7 +357,7 @@ export default function Indicadores() {
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
                 <Activity className="w-4 h-4" />
-                Triagem → ECG
+                Porta-ECG
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -462,7 +462,7 @@ export default function Indicadores() {
                   { name: "Triagem", tempo: tempoTriagem.media, meta: 4 },
                   { name: "Espera", tempo: tempoEspera.media, meta: 15 },
                   { name: "Triagem Clínica", tempo: tempoTriagemClinica.media, meta: 20 },
-                  { name: "Triagem → ECG", tempo: tempoTriagemEcg.media, meta: 10 }
+                  { name: "Porta-ECG", tempo: tempoTriagemEcg.media, meta: 10 }
                 ]}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" angle={-15} textAnchor="end" height={80} />
@@ -564,7 +564,7 @@ export default function Indicadores() {
                     </td>
                   </tr>
                   <tr className="border-b hover:bg-gray-50">
-                    <td className="p-3">Triagem → ECG (IAM)</td>
+                    <td className="p-3">Porta-ECG (IAM)</td>
                     <td className="text-center p-3 font-medium">{tempoTriagemEcg.media} min</td>
                     <td className="text-center p-3">≤ 10 min</td>
                     <td className="text-center p-3">
@@ -624,7 +624,7 @@ export default function Indicadores() {
               <p><strong>• Tempo de Triagem (≤4min):</strong> Início rápido do atendimento</p>
               <p><strong>• Tempo de Espera (≤15min):</strong> Da triagem até avaliação médica</p>
               <p><strong>• Triagem Clínica (≤20min):</strong> Processo completo de enfermagem</p>
-              <p><strong>• Triagem → ECG (≤10min):</strong> Meta SBC 2025 para suspeita de SCA</p>
+              <p><strong>• Porta-ECG (≤10min):</strong> Meta SBC 2025 para suspeita de SCA</p>
               <p><strong>• Taxa de Alta Complexidade:</strong> % de casos vermelhos/laranjas</p>
               <p><strong>• Taxa de Resolução:</strong> % de casos com desfecho definido</p>
               <p><strong>• Taxa de Reperfusão Efetiva:</strong> % de ICPs com reperfusão efetiva (meta &gt;90%)</p>
