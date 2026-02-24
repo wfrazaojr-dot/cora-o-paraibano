@@ -65,6 +65,21 @@ export default function HemodinamicaDetalhe() {
     }
   });
 
+  const iniciarICP = useMutation({
+    mutationFn: async () => {
+      await base44.entities.Paciente.update(pacienteId, {
+        hemodinamica: {
+          ...paciente.hemodinamica,
+          data_hora_inicio_icp: new Date().toISOString()
+        }
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['paciente', pacienteId]);
+      alert("Início da ICP registrado!");
+    }
+  });
+
   const finalizarCaso = useMutation({
     mutationFn: async () => {
       const dataHoraFim = new Date();
@@ -170,6 +185,16 @@ export default function HemodinamicaDetalhe() {
                   </Button>
                 )}
 
+                {paciente.hemodinamica?.data_hora_inicio_procedimento && !paciente.hemodinamica?.data_hora_inicio_icp && (
+                  <Button
+                    onClick={() => iniciarICP.mutate()}
+                    disabled={iniciarICP.isPending}
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                  >
+                    {iniciarICP.isPending ? "Registrando..." : "Hora do Início da ICP"}
+                  </Button>
+                )}
+
                 {paciente.hemodinamica?.data_hora_chegada && (
                   <div className="pt-3 border-t">
                     <Badge className="bg-green-600">
@@ -182,6 +207,14 @@ export default function HemodinamicaDetalhe() {
                   <div className="pt-2">
                     <Badge className="bg-pink-600">
                       Início: {new Date(paciente.hemodinamica.data_hora_inicio_procedimento).toLocaleString('pt-BR')}
+                    </Badge>
+                  </div>
+                )}
+
+                {paciente.hemodinamica?.data_hora_inicio_icp && (
+                  <div className="pt-2">
+                    <Badge className="bg-purple-600">
+                      Início ICP: {new Date(paciente.hemodinamica.data_hora_inicio_icp).toLocaleString('pt-BR')}
                     </Badge>
                   </div>
                 )}
