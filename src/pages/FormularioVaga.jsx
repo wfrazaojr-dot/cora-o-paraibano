@@ -704,6 +704,9 @@ Solicitante: ${user?.full_name} (${user?.email})
                       <SelectItem value="ENFERMARIA">ENFERMARIA</SelectItem>
                       <SelectItem value="UTI">UTI</SelectItem>
                       <SelectItem value="AVALIAÇÃO E CONDUTA">AVALIAÇÃO E CONDUTA</SelectItem>
+                      <SelectItem value="HEMODINÂMICA">HEMODINÂMICA</SelectItem>
+                      <SelectItem value="UTI CARDIO">UTI CARDIO</SelectItem>
+                      <SelectItem value="OUTRO">OUTRO</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
