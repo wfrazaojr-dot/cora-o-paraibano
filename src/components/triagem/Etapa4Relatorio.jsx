@@ -348,7 +348,6 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
             dadosPaciente.triagem_medica?.tipo_sca === 'SCACESST' ? 'bg-red-50 border-red-500' : 'bg-yellow-50 border-yellow-500'
           }`}>
             <p className="text-xs"><span className="font-semibold">SCA:</span> {dadosPaciente.triagem_medica?.tipo_sca || "-"}</p>
-            <p className="text-xs"><span className="font-semibold">Prioridade:</span> {dadosPaciente.triagem_medica?.tipo_sca === 'SCACESST' ? 'Vermelha' : (dadosPaciente.classificacao_prioridade || "-")}</p>
           </div>
         </div>
 
