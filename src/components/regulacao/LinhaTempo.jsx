@@ -18,15 +18,7 @@ export default function LinhaTempo({ paciente }) {
     });
   }
 
-  if (paciente.triagem_enfermagem?.data_hora_classificacao_risco) {
-    eventos.push({
-      tipo: "Classificação de Risco",
-      dataHora: paciente.triagem_enfermagem.data_hora_classificacao_risco,
-      icone: Activity,
-      cor: "text-orange-600",
-      detalhe: `Classificação: ${paciente.triagem_enfermagem.classificacao_risco}`
-    });
-  }
+
 
   if (paciente.triagem_enfermagem?.data_hora_ecg) {
     eventos.push({
