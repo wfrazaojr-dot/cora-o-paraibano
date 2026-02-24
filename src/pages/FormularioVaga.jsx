@@ -138,6 +138,22 @@ export default function FormularioVaga() {
     return idade.toString();
   };
 
+  const formatarCPF = (valor) => {
+    const numeros = valor.replace(/\D/g, '');
+    if (numeros.length <= 3) return numeros;
+    if (numeros.length <= 6) return `${numeros.slice(0, 3)}.${numeros.slice(3)}`;
+    if (numeros.length <= 9) return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6)}`;
+    return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6, 9)}-${numeros.slice(9, 11)}`;
+  };
+
+  const formatarTelefone = (valor) => {
+    const numeros = valor.replace(/\D/g, '');
+    if (numeros.length <= 2) return numeros;
+    if (numeros.length <= 7) return `${numeros.slice(0, 2)} ${numeros.slice(2)}`;
+    if (numeros.length <= 11) return `${numeros.slice(0, 2)} ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
+    return `${numeros.slice(0, 2)} ${numeros.slice(2, 7)}-${numeros.slice(7, 11)}`;
+  };
+
   const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
@@ -428,7 +444,7 @@ Solicitante: ${user?.full_name} (${user?.email})
                 </div>
                 <div>
                   <Label>CPF nº</Label>
-                  <Input value={formData.cpf} onChange={(e) => setFormData({...formData, cpf: e.target.value})} />
+                  <Input value={formData.cpf} onChange={(e) => setFormData({...formData, cpf: formatarCPF(e.target.value)})} maxLength={14} />
                 </div>
                 <div>
                   <Label>CNS nº</Label>
@@ -440,7 +456,7 @@ Solicitante: ${user?.full_name} (${user?.email})
                 </div>
                 <div className="md:col-span-2">
                   <Label>Telefone de Contato do Responsável</Label>
-                  <Input value={formData.telefone_responsavel} onChange={(e) => setFormData({...formData, telefone_responsavel: e.target.value})} />
+                  <Input value={formData.telefone_responsavel} onChange={(e) => setFormData({...formData, telefone_responsavel: formatarTelefone(e.target.value)})} maxLength={14} placeholder="83 98877-3344" />
                 </div>
               </div>
             </div>
