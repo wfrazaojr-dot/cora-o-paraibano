@@ -363,6 +363,7 @@ Solicitante: ${user?.full_name} (${user?.email})
                 <SelectContent>
                   <SelectItem value="UTI CARDIO">UTI CARDIO</SelectItem>
                   <SelectItem value="HEMODINÂMICA">HEMODINÂMICA</SelectItem>
+                  <SelectItem value="CARDIOLOGIA">CARDIOLOGIA</SelectItem>
                   <SelectItem value="OUTRA">OUTRA</SelectItem>
                 </SelectContent>
               </Select>
