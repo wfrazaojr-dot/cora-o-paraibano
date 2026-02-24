@@ -753,6 +753,53 @@ Solicitante: ${user?.full_name} (${user?.email})
             <div>
               <h3 className="text-base font-bold mb-3 border-b pb-2">DOCUMENTOS DO PACIENTE (máx. 4 arquivos)</h3>
               
+              {/* Área de Upload */}
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors mb-4">
+                <input
+                  type="file"
+                  id="file-upload"
+                  multiple
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  accept=".pdf,.jpg,.jpeg,.gif,.png"
+                  disabled={formData.documentos.length >= 4}
+                />
+                <label htmlFor="file-upload" className={`cursor-pointer ${formData.documentos.length >= 4 ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <FileUp className="w-12 h-12 mx-auto text-gray-400 mb-3" />
+                  <p className="text-sm text-gray-600 mb-1">
+                    {formData.documentos.length >= 4 ? 'Limite de 4 arquivos atingido' : 'Clique para adicionar documentos'}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    PDF, GIF, JPEG (múltiplos arquivos permitidos)
+                  </p>
+                </label>
+              </div>
+
+              {formData.documentos.length > 0 && (
+                <div className="mb-4 space-y-2">
+                  {formData.documentos.map((doc, idx) => (
+                    <div key={idx} className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3">
+                      <span className="text-sm text-green-900 font-medium truncate flex-1">{doc.nome || `Documento ${idx + 1}`}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removerDocumento(idx)}
+                        className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {uploadingFiles && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center mb-4">
+                  <p className="text-blue-700">Enviando arquivos...</p>
+                </div>
+              )}
+              
               {/* Visualização das imagens dos documentos para o PDF */}
               {formData.documentos.length > 0 && (
                 <div className="mb-4 space-y-3">
@@ -815,55 +862,7 @@ Solicitante: ${user?.full_name} (${user?.email})
           </form>
         </div>
 
-        {/* Área de Upload - Fora do formRef para não aparecer no PDF */}
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <h3 className="text-base font-bold mb-3">Upload de Documentos (máx. 4 arquivos)</h3>
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
-            <input
-              type="file"
-              id="file-upload"
-              multiple
-              onChange={handleFileUpload}
-              className="hidden"
-              accept=".pdf,.jpg,.jpeg,.gif,.png"
-              disabled={formData.documentos.length >= 4}
-            />
-            <label htmlFor="file-upload" className={`cursor-pointer ${formData.documentos.length >= 4 ? 'opacity-50 cursor-not-allowed' : ''}`}>
-              <FileUp className="w-12 h-12 mx-auto text-gray-400 mb-3" />
-              <p className="text-sm text-gray-600 mb-1">
-                {formData.documentos.length >= 4 ? 'Limite de 4 arquivos atingido' : 'Clique para adicionar documentos'}
-              </p>
-              <p className="text-xs text-gray-500">
-                PDF, GIF, JPEG (múltiplos arquivos permitidos)
-              </p>
-            </label>
-          </div>
 
-          {formData.documentos.length > 0 && (
-            <div className="mt-4 space-y-2">
-              {formData.documentos.map((doc, idx) => (
-                <div key={idx} className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3">
-                  <span className="text-sm text-green-900 font-medium truncate flex-1">{doc.nome || `Documento ${idx + 1}`}</span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removerDocumento(idx)}
-                    className="text-red-600 hover:text-red-800 hover:bg-red-50"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {uploadingFiles && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center mt-4">
-              <p className="text-blue-700">Enviando arquivos...</p>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );
