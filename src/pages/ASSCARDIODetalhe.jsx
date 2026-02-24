@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -16,12 +16,17 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
 import ChatInterno from "@/components/ChatInterno";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export default function ASSCARDIODetalhe() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const urlParams = new URLSearchParams(window.location.search);
   const pacienteId = urlParams.get('id');
+  const relatorioRef = useRef(null);
 
   const [bloco0Open, setBloco0Open] = useState(true);
   const [bloco1Open, setBloco1Open] = useState(true);
@@ -123,94 +128,57 @@ export default function ASSCARDIODetalhe() {
     alert("Pré-parecer gerado! Aguardando avaliação médica.");
   };
 
-  const gerarRelatorioASSCARDIO = () => {
-    if (!paciente) return "";
-    
-    const data = new Date().toLocaleDateString('pt-BR');
-    const hora = new Date().toLocaleTimeString('pt-BR');
-    const heartTotal = calcularHeartTotal();
-    const heartInterpretacao = getHeartInterpretacao(heartTotal);
+  const gerarRelatorioPDF = async () => {
+    if (!relatorioRef.current) return null;
 
-    let relatorio = `RELATÓRIO ASSESSORIA CARDIOLÓGICA - ASSCARDIO\n`;
-    relatorio += `Data: ${data} às ${hora}\n`;
-    relatorio += `\n===========================================\n\n`;
-    
-    relatorio += `DADOS DO PACIENTE:\n`;
-    relatorio += `Nome: ${paciente.nome_completo}\n`;
-    relatorio += `Idade: ${paciente.idade} anos | Sexo: ${paciente.sexo}\n`;
-    relatorio += `Unidade de Origem: ${paciente.unidade_saude || 'Não Informada'}\n\n`;
+    try {
+      const canvas = await html2canvas(relatorioRef.current, {
+        scale: 1.8,
+        logging: false,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: '#ffffff',
+        imageTimeout: 15000,
+        removeContainer: true
+      });
 
-    relatorio += `AVALIAÇÃO DE ENFERMAGEM (PRÉ-PARECER):\n`;
-    relatorio += `${preParecer}\n\n`;
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
 
-    relatorio += `DADOS CLÍNICOS:\n`;
-    relatorio += `- Dor Típica: ${clinica.dor_tipica ? 'Sim' : 'Não'}\n`;
-    relatorio += `- Sudorese: ${clinica.sudorese ? 'Sim' : 'Não'}\n`;
-    relatorio += `- HAS: ${clinica.has ? 'Sim' : 'Não'}\n`;
-    relatorio += `- DM: ${clinica.dm ? 'Sim' : 'Não'}\n`;
-    relatorio += `- Tabagismo: ${clinica.tabagismo ? 'Sim' : 'Não'}\n`;
-    relatorio += `- Dislipidemia: ${clinica.dislipidemia ? 'Sim' : 'Não'}\n\n`;
+      let heightLeft = imgHeight;
+      let position = 0;
 
-    relatorio += `ACHADOS DO ECG (SUPRA ST):\n`;
-    relatorio += `- Tem Supra ST: ${ecgSupra.tem_supra === 'sim' ? 'Sim' : 'Não'}\n`;
-    if (ecgSupra.tem_supra === 'sim') {
-      relatorio += `  Parede: ${ecgSupra.parede_supra}\n`;
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+
+      const pdfBlob = pdf.output('blob');
+      const nomePaciente = (paciente?.nome_completo || 'Paciente').replace(/\s+/g, '_');
+      const nomeArquivo = `Relatorio_ASSCARDIO_${nomePaciente}_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`;
+      const pdfFile = new File([pdfBlob], nomeArquivo, { type: 'application/pdf' });
+
+      const uploadResult = await base44.integrations.Core.UploadFile({ file: pdfFile });
+      return uploadResult.file_url;
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      throw error;
     }
-    relatorio += `- Parede Inferior: D2=${ecgSupra.d2?'Sim':'Não'}, D3=${ecgSupra.d3?'Sim':'Não'}, aVF=${ecgSupra.avf?'Sim':'Não'}\n`;
-    relatorio += `- Recíprocos Inferior: D1/aVL=${ecgSupra.reciproco_d1_avl?'Sim':'Não'}, V1-V3=${ecgSupra.reciproco_v1_v3?'Sim':'Não'}\n`;
-    relatorio += `- Parede Anterior: V1=${ecgSupra.v1?'Sim':'Não'}, V2=${ecgSupra.v2?'Sim':'Não'}, V3=${ecgSupra.v3?'Sim':'Não'}, V4=${ecgSupra.v4?'Sim':'Não'}\n`;
-    relatorio += `- Recíprocos Anterior: D2/D3/aVF=${ecgSupra.reciproco_d2_d3_avf?'Sim':'Não'}\n`;
-    relatorio += `- Parede Lateral: D1=${ecgSupra.d1?'Sim':'Não'}, aVL=${ecgSupra.avl?'Sim':'Não'}, V5=${ecgSupra.v5?'Sim':'Não'}, V6=${ecgSupra.v6?'Sim':'Não'}\n`;
-    relatorio += `- Outros: T Hiperaguda=${ecgSupra.t_hiperaguda?'Sim':'Não'}, V7-V9=${ecgSupra.v7_v9?'Sim':'Não'}, V3R/V4R=${ecgSupra.v3r_v4r?'Sim':'Não'}\n\n`;
-
-    if (ecgSupra.tem_supra === 'nao') {
-      relatorio += `ACHADOS DO ECG (SEM SUPRA ST):\n`;
-      relatorio += `- Infra ST ≥0.5mm: ${ecgSemSupra.infra_st ? 'Sim' : 'Não'}\n`;
-      relatorio += `- T invertida: ${ecgSemSupra.t_invertida ? 'Sim' : 'Não'}\n`;
-      relatorio += `- Q nova: ${ecgSemSupra.q_nova ? 'Sim' : 'Não'}\n`;
-      relatorio += `- Wellens: ${ecgSemSupra.wellens ? 'Sim' : 'Não'}\n`;
-      relatorio += `- Infra difusa+aVR: ${ecgSemSupra.infra_difusa_avr ? 'Sim' : 'Não'}\n`;
-      relatorio += `- Probabilidade: ${ecgSemSupra.probabilidade}\n\n`;
-    }
-
-    relatorio += `HEART SCORE:\n`;
-    relatorio += `- História: ${heartScore.historia} pontos\n`;
-    relatorio += `- ECG: ${heartScore.ecg} pontos\n`;
-    relatorio += `- Idade: ${heartScore.idade} pontos\n`;
-    relatorio += `- Fatores de Risco: ${heartScore.risco} pontos\n`;
-    relatorio += `- TOTAL: ${heartTotal} pontos - ${heartInterpretacao}\n\n`;
-
-    relatorio += `AVALIAÇÃO DO CARDIOLOGISTA:\n`;
-    relatorio += `- Triagem de enfermagem confirmada: ${medicoData.confirma_triagem ? 'Sim' : 'Não'}\n`;
-    
-    const estrategias = {
-      "1": "1- IAM supra ST → Estratégia 1: transferência imediata",
-      "2": "2- SCA sem supra MUITO alto risco → Estratégia 1: transferência imediata",
-      "3": "3- IAM sem supra/alto risco → Estratégia 2: invasiva ≤24h",
-      "4": "4- SCA intermediário → Estratégia 3: invasiva ≤72h"
-    };
-    relatorio += `- Diagnóstico + Estratégia: ${estrategias[medicoData.diagnostico_estrategia] || 'Não definido'}\n\n`;
-    relatorio += `PARECER DO CARDIOLOGISTA:\n${medicoData.parecer_cardiologista}\n\n`;
-
-    relatorio += `===========================================\n`;
-    relatorio += `Relatório gerado automaticamente pelo Sistema Coração Paraibano\n`;
-
-    return relatorio;
   };
 
   const salvarLaudoMedico = useMutation({
     mutationFn: async () => {
-      // Gerar o relatório como texto
-      const relatorioTexto = gerarRelatorioASSCARDIO();
-      
-      // Criar um arquivo blob e fazer upload
-      const blob = new Blob([relatorioTexto], { type: 'text/plain; charset=utf-8' });
-      const nomePaciente = (paciente?.nome_completo || 'Paciente').replace(/\s+/g, '_');
-      const nomeArquivo = `Relatorio_ASSCARDIO_${nomePaciente}_${new Date().toISOString().split('T')[0]}.txt`;
-      const file = new File([blob], nomeArquivo, { type: 'text/plain' });
-      
-      // Upload do arquivo
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: file });
+      // Gerar o relatório como PDF
+      const file_url = await gerarRelatorioPDF();
 
       // Salvar dados da assessoria + URL do relatório
       await base44.entities.Paciente.update(pacienteId, {
@@ -280,6 +248,148 @@ export default function ASSCARDIODetalhe() {
 
           {/* Coluna Direita - Formulário */}
           <div className="lg:col-span-2 space-y-4">
+
+            {/* Relatório Visual (Oculto) */}
+            <div style={{ position: 'absolute', left: '-9999px' }}>
+              <div 
+                ref={relatorioRef} 
+                className="bg-white p-8"
+                style={{ width: '210mm', minHeight: '297mm' }}
+              >
+                {/* Cabeçalho com logos */}
+                <div className="mb-6 pb-4 border-b-2 border-gray-300">
+                  <div className="flex items-center justify-between gap-4 w-full mb-3">
+                    <img 
+                      src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" 
+                      alt="Secretaria de Estado da Saúde" 
+                      className="h-12 w-auto object-contain"
+                      crossOrigin="anonymous"
+                    />
+                    <img 
+                      src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" 
+                      alt="Coração Paraibano" 
+                      className="h-12 w-auto object-contain"
+                      crossOrigin="anonymous"
+                    />
+                    <img 
+                      src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg" 
+                      alt="Complexo Regulador" 
+                      className="h-12 w-auto object-contain"
+                      crossOrigin="anonymous"
+                    />
+                  </div>
+                  <div className="text-center">
+                    <h1 className="text-xl font-bold text-red-600 flex items-center justify-center gap-2">
+                      <Heart className="w-6 h-6" />
+                      RELATÓRIO ASSESSORIA CARDIOLÓGICA - ASSCARDIO
+                    </h1>
+                    <p className="text-sm text-gray-700 mt-2">
+                      Data: {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Dados do Paciente */}
+                <div className="mb-4">
+                  <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">DADOS DO PACIENTE</h2>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div><span className="font-semibold">Nome:</span> {paciente?.nome_completo}</div>
+                    <div><span className="font-semibold">Idade:</span> {paciente?.idade} anos</div>
+                    <div><span className="font-semibold">Sexo:</span> {paciente?.sexo}</div>
+                    <div><span className="font-semibold">Unidade:</span> {paciente?.unidade_saude || 'Não Informada'}</div>
+                  </div>
+                </div>
+
+                {/* Pré-Parecer */}
+                <div className="mb-4">
+                  <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">AVALIAÇÃO DE ENFERMAGEM (PRÉ-PARECER)</h2>
+                  <p className="text-sm font-bold text-blue-900">{preParecer}</p>
+                </div>
+
+                {/* Dados Clínicos */}
+                <div className="mb-4">
+                  <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">DADOS CLÍNICOS</h2>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div>• Dor Típica: {clinica.dor_tipica ? 'Sim' : 'Não'}</div>
+                    <div>• Sudorese: {clinica.sudorese ? 'Sim' : 'Não'}</div>
+                    <div>• HAS: {clinica.has ? 'Sim' : 'Não'}</div>
+                    <div>• DM: {clinica.dm ? 'Sim' : 'Não'}</div>
+                    <div>• Tabagismo: {clinica.tabagismo ? 'Sim' : 'Não'}</div>
+                    <div>• Dislipidemia: {clinica.dislipidemia ? 'Sim' : 'Não'}</div>
+                  </div>
+                </div>
+
+                {/* ECG Supra ST */}
+                <div className="mb-4">
+                  <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">ACHADOS DO ECG (SUPRA ST)</h2>
+                  <div className="text-xs space-y-1">
+                    <p><strong>Tem Supra ST:</strong> {ecgSupra.tem_supra === 'sim' ? 'Sim' : 'Não'}</p>
+                    {ecgSupra.tem_supra === 'sim' && <p><strong>Parede:</strong> {ecgSupra.parede_supra}</p>}
+                    <p><strong>Parede Inferior:</strong> D2={ecgSupra.d2?'Sim':'Não'}, D3={ecgSupra.d3?'Sim':'Não'}, aVF={ecgSupra.avf?'Sim':'Não'}</p>
+                    <p><strong>Recíprocos Inferior:</strong> D1/aVL={ecgSupra.reciproco_d1_avl?'Sim':'Não'}, V1-V3={ecgSupra.reciproco_v1_v3?'Sim':'Não'}</p>
+                    <p><strong>Parede Anterior:</strong> V1={ecgSupra.v1?'Sim':'Não'}, V2={ecgSupra.v2?'Sim':'Não'}, V3={ecgSupra.v3?'Sim':'Não'}, V4={ecgSupra.v4?'Sim':'Não'}</p>
+                    <p><strong>Recíprocos Anterior:</strong> D2/D3/aVF={ecgSupra.reciproco_d2_d3_avf?'Sim':'Não'}</p>
+                    <p><strong>Parede Lateral:</strong> D1={ecgSupra.d1?'Sim':'Não'}, aVL={ecgSupra.avl?'Sim':'Não'}, V5={ecgSupra.v5?'Sim':'Não'}, V6={ecgSupra.v6?'Sim':'Não'}</p>
+                    <p><strong>Outros:</strong> T Hiperaguda={ecgSupra.t_hiperaguda?'Sim':'Não'}, V7-V9={ecgSupra.v7_v9?'Sim':'Não'}, V3R/V4R={ecgSupra.v3r_v4r?'Sim':'Não'}</p>
+                  </div>
+                </div>
+
+                {/* ECG Sem Supra */}
+                {ecgSupra.tem_supra === 'nao' && (
+                  <div className="mb-4">
+                    <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">ACHADOS DO ECG (SEM SUPRA ST)</h2>
+                    <div className="text-xs space-y-1">
+                      <p>• Infra ST ≥0.5mm: {ecgSemSupra.infra_st ? 'Sim' : 'Não'}</p>
+                      <p>• T invertida: {ecgSemSupra.t_invertida ? 'Sim' : 'Não'}</p>
+                      <p>• Q nova: {ecgSemSupra.q_nova ? 'Sim' : 'Não'}</p>
+                      <p>• Wellens: {ecgSemSupra.wellens ? 'Sim' : 'Não'}</p>
+                      <p>• Infra difusa+aVR: {ecgSemSupra.infra_difusa_avr ? 'Sim' : 'Não'}</p>
+                      <p><strong>Probabilidade:</strong> {ecgSemSupra.probabilidade}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* HEART Score */}
+                <div className="mb-4">
+                  <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">HEART SCORE</h2>
+                  <div className="text-xs space-y-1">
+                    <p>• História: {heartScore.historia} pontos</p>
+                    <p>• ECG: {heartScore.ecg} pontos</p>
+                    <p>• Idade: {heartScore.idade} pontos</p>
+                    <p>• Fatores de Risco: {heartScore.risco} pontos</p>
+                    <p className="font-bold text-base mt-2">TOTAL: {calcularHeartTotal()} pontos - {getHeartInterpretacao(calcularHeartTotal())}</p>
+                  </div>
+                </div>
+
+                {/* Avaliação do Cardiologista */}
+                <div className="mb-4">
+                  <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">AVALIAÇÃO DO CARDIOLOGISTA</h2>
+                  <div className="text-xs space-y-2">
+                    <p><strong>Triagem de enfermagem confirmada:</strong> {medicoData.confirma_triagem ? 'Sim' : 'Não'}</p>
+                    <p><strong>Diagnóstico + Estratégia:</strong> {(() => {
+                      const estrategias = {
+                        "1": "1- IAM supra ST → Estratégia 1: transferência imediata",
+                        "2": "2- SCA sem supra MUITO alto risco → Estratégia 1: transferência imediata",
+                        "3": "3- IAM sem supra/alto risco → Estratégia 2: invasiva ≤24h",
+                        "4": "4- SCA intermediário → Estratégia 3: invasiva ≤72h"
+                      };
+                      return estrategias[medicoData.diagnostico_estrategia] || 'Não definido';
+                    })()}</p>
+                    <div className="mt-3">
+                      <p className="font-semibold mb-1">PARECER DO CARDIOLOGISTA:</p>
+                      <p className="whitespace-pre-wrap">{medicoData.parecer_cardiologista}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rodapé */}
+                <div className="mt-8 pt-4 border-t-2 border-gray-300 text-xs text-gray-600">
+                  <p className="font-semibold">Sistema de Triagem de Dor Torácica</p>
+                  <p>Autor: Walber Alves Frazão Júnior - COREN 110.238</p>
+                  <p>Gerado em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm:ss", { locale: ptBR })}</p>
+                </div>
+              </div>
+            </div>
 
         {/* 2. BLOCO 0 - CLÍNICA */}
         <Collapsible open={bloco0Open} onOpenChange={setBloco0Open}>
