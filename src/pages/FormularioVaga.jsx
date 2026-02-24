@@ -126,6 +126,18 @@ export default function FormularioVaga() {
     }
   });
 
+  const calcularIdade = (dataNascimento) => {
+    if (!dataNascimento) return "";
+    const hoje = new Date();
+    const nascimento = new Date(dataNascimento);
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const mes = hoje.getMonth() - nascimento.getMonth();
+    if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+      idade--;
+    }
+    return idade.toString();
+  };
+
   const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
@@ -379,7 +391,10 @@ Solicitante: ${user?.full_name} (${user?.email})
                 </div>
                 <div>
                   <Label>Data de Nascimento</Label>
-                  <Input type="date" value={formData.data_nascimento} onChange={(e) => setFormData({...formData, data_nascimento: e.target.value})} />
+                  <Input type="date" value={formData.data_nascimento} onChange={(e) => {
+                    const novaData = e.target.value;
+                    setFormData({...formData, data_nascimento: novaData, idade: calcularIdade(novaData)});
+                  }} />
                 </div>
                 <div>
                   <Label>Idade *</Label>
