@@ -52,11 +52,14 @@ export default function Indicadores() {
 
 
 
-  // 4. Tempo triagem → ECG (≤10min)
-  const tempoTriagemEcg = useMemo(() => {
+  // 1. Porta-ECG (≤10min) - Classificação de Risco até ECG
+  const portaEcg = useMemo(() => {
     const tempos = pacientesFiltrados
-      .filter(p => p.tempo_triagem_ecg_minutos !== undefined && p.tempo_triagem_ecg_minutos !== null)
-      .map(p => p.tempo_triagem_ecg_minutos);
+      .filter(p => p.triagem_enfermagem?.data_hora_classificacao_risco && p.triagem_enfermagem?.data_hora_ecg)
+      .map(p => differenceInMinutes(
+        new Date(p.triagem_enfermagem.data_hora_ecg), 
+        new Date(p.triagem_enfermagem.data_hora_classificacao_risco)
+      ));
     
     if (tempos.length === 0) return { media: 0, min: 0, max: 0, dentroMeta: 0, foraMeta: 0 };
     
@@ -66,6 +69,132 @@ export default function Indicadores() {
       max: Math.max(...tempos),
       dentroMeta: tempos.filter(t => t <= 10).length,
       foraMeta: tempos.filter(t => t > 10).length
+    };
+  }, [pacientesFiltrados]);
+
+  // 2. Porta Decisão (≤20min) - Início Triagem até envio relatório etapa 4
+  const portaDecisao = useMemo(() => {
+    const tempos = pacientesFiltrados
+      .filter(p => p.data_hora_inicio_triagem && p.relatorio_triagem_url)
+      .map(p => {
+        const etapa4 = p.historico_etapas?.find(e => e.etapa === 4);
+        if (!etapa4?.data_hora) return null;
+        return differenceInMinutes(new Date(etapa4.data_hora), new Date(p.data_hora_inicio_triagem));
+      })
+      .filter(t => t !== null);
+    
+    if (tempos.length === 0) return { media: 0, min: 0, max: 0, dentroMeta: 0, foraMeta: 0 };
+    
+    return {
+      media: Math.round(tempos.reduce((a, b) => a + b, 0) / tempos.length),
+      min: Math.min(...tempos),
+      max: Math.max(...tempos),
+      dentroMeta: tempos.filter(t => t <= 20).length,
+      foraMeta: tempos.filter(t => t > 20).length
+    };
+  }, [pacientesFiltrados]);
+
+  // 3. Regulação (≤15min) - Envio relatório etapa 4 até regulação CERH
+  const regulacao = useMemo(() => {
+    const tempos = pacientesFiltrados
+      .filter(p => p.regulacao_central?.data_hora)
+      .map(p => {
+        const etapa4 = p.historico_etapas?.find(e => e.etapa === 4);
+        if (!etapa4?.data_hora) return null;
+        return differenceInMinutes(new Date(p.regulacao_central.data_hora), new Date(etapa4.data_hora));
+      })
+      .filter(t => t !== null);
+    
+    if (tempos.length === 0) return { media: 0, min: 0, max: 0, dentroMeta: 0, foraMeta: 0 };
+    
+    return {
+      media: Math.round(tempos.reduce((a, b) => a + b, 0) / tempos.length),
+      min: Math.min(...tempos),
+      max: Math.max(...tempos),
+      dentroMeta: tempos.filter(t => t <= 15).length,
+      foraMeta: tempos.filter(t => t > 15).length
+    };
+  }, [pacientesFiltrados]);
+
+  // 4. Porta-Telecardio (≤15min) - Envio relatório etapa 4 até parecer cardiologista
+  const portaTelecardio = useMemo(() => {
+    const tempos = pacientesFiltrados
+      .filter(p => p.assessoria_cardiologia?.data_hora)
+      .map(p => {
+        const etapa4 = p.historico_etapas?.find(e => e.etapa === 4);
+        if (!etapa4?.data_hora) return null;
+        return differenceInMinutes(new Date(p.assessoria_cardiologia.data_hora), new Date(etapa4.data_hora));
+      })
+      .filter(t => t !== null);
+    
+    if (tempos.length === 0) return { media: 0, min: 0, max: 0, dentroMeta: 0, foraMeta: 0 };
+    
+    return {
+      media: Math.round(tempos.reduce((a, b) => a + b, 0) / tempos.length),
+      min: Math.min(...tempos),
+      max: Math.max(...tempos),
+      dentroMeta: tempos.filter(t => t <= 15).length,
+      foraMeta: tempos.filter(t => t > 15).length
+    };
+  }, [pacientesFiltrados]);
+
+  // 5. Transporte (≤90min) - Início transporte até destino
+  const transporte = useMemo(() => {
+    const tempos = pacientesFiltrados
+      .filter(p => p.transporte?.data_hora_inicio && p.transporte?.data_hora_chegada_destino)
+      .map(p => differenceInMinutes(
+        new Date(p.transporte.data_hora_chegada_destino), 
+        new Date(p.transporte.data_hora_inicio)
+      ));
+    
+    if (tempos.length === 0) return { media: 0, min: 0, max: 0, dentroMeta: 0, foraMeta: 0 };
+    
+    return {
+      media: Math.round(tempos.reduce((a, b) => a + b, 0) / tempos.length),
+      min: Math.min(...tempos),
+      max: Math.max(...tempos),
+      dentroMeta: tempos.filter(t => t <= 90).length,
+      foraMeta: tempos.filter(t => t > 90).length
+    };
+  }, [pacientesFiltrados]);
+
+  // 6. ICP-Hemodinâmica (≤15min) - Chegada até início ICP
+  const icpHemodinamica = useMemo(() => {
+    const tempos = pacientesFiltrados
+      .filter(p => p.hemodinamica?.data_hora_chegada && p.hemodinamica?.data_hora_inicio_procedimento)
+      .map(p => differenceInMinutes(
+        new Date(p.hemodinamica.data_hora_inicio_procedimento), 
+        new Date(p.hemodinamica.data_hora_chegada)
+      ));
+    
+    if (tempos.length === 0) return { media: 0, min: 0, max: 0, dentroMeta: 0, foraMeta: 0 };
+    
+    return {
+      media: Math.round(tempos.reduce((a, b) => a + b, 0) / tempos.length),
+      min: Math.min(...tempos),
+      max: Math.max(...tempos),
+      dentroMeta: tempos.filter(t => t <= 15).length,
+      foraMeta: tempos.filter(t => t > 15).length
+    };
+  }, [pacientesFiltrados]);
+
+  // 7. FMC-to-device (≤120min) - Início triagem até chegada hemodinâmica
+  const fmcToDevice = useMemo(() => {
+    const tempos = pacientesFiltrados
+      .filter(p => p.data_hora_inicio_triagem && p.hemodinamica?.data_hora_chegada)
+      .map(p => differenceInMinutes(
+        new Date(p.hemodinamica.data_hora_chegada), 
+        new Date(p.data_hora_inicio_triagem)
+      ));
+    
+    if (tempos.length === 0) return { media: 0, min: 0, max: 0, dentroMeta: 0, foraMeta: 0 };
+    
+    return {
+      media: Math.round(tempos.reduce((a, b) => a + b, 0) / tempos.length),
+      min: Math.min(...tempos),
+      max: Math.max(...tempos),
+      dentroMeta: tempos.filter(t => t <= 120).length,
+      foraMeta: tempos.filter(t => t > 120).length
     };
   }, [pacientesFiltrados]);
 
@@ -173,7 +302,7 @@ export default function Indicadores() {
         </Card>
 
         {/* Cards de Indicadores */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
           <Card className="shadow-md border-l-4 border-l-red-500">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
@@ -183,18 +312,180 @@ export default function Indicadores() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <p className="text-3xl font-bold text-gray-900">{tempoTriagemEcg.media} min</p>
+                <p className="text-3xl font-bold text-gray-900">{portaEcg.media} min</p>
                 <p className="text-xs text-gray-600">
-                  Mín: {tempoTriagemEcg.min} | Máx: {tempoTriagemEcg.max}
+                  Mín: {portaEcg.min} | Máx: {portaEcg.max}
                 </p>
                 <div className="flex items-center gap-2 text-xs">
                   <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span>{tempoTriagemEcg.dentroMeta} dentro da meta (≤10min)</span>
+                  <span>{portaEcg.dentroMeta} dentro da meta (≤10min)</span>
                 </div>
-                {tempoTriagemEcg.foraMeta > 0 && (
+                {portaEcg.foraMeta > 0 && (
                   <div className="flex items-center gap-2 text-xs text-red-600">
                     <AlertTriangle className="w-4 h-4" />
-                    <span>{tempoTriagemEcg.foraMeta} fora da meta</span>
+                    <span>{portaEcg.foraMeta} fora da meta</span>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-md border-l-4 border-l-blue-500">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                Porta Decisão
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-3xl font-bold text-gray-900">{portaDecisao.media} min</p>
+                <p className="text-xs text-gray-600">
+                  Mín: {portaDecisao.min} | Máx: {portaDecisao.max}
+                </p>
+                <div className="flex items-center gap-2 text-xs">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span>{portaDecisao.dentroMeta} dentro da meta (≤20min)</span>
+                </div>
+                {portaDecisao.foraMeta > 0 && (
+                  <div className="flex items-center gap-2 text-xs text-orange-600">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>{portaDecisao.foraMeta} fora da meta</span>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-md border-l-4 border-l-purple-500">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <Target className="w-4 h-4" />
+                Regulação
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-3xl font-bold text-gray-900">{regulacao.media} min</p>
+                <p className="text-xs text-gray-600">
+                  Mín: {regulacao.min} | Máx: {regulacao.max}
+                </p>
+                <div className="flex items-center gap-2 text-xs">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span>{regulacao.dentroMeta} dentro da meta (≤15min)</span>
+                </div>
+                {regulacao.foraMeta > 0 && (
+                  <div className="flex items-center gap-2 text-xs text-orange-600">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>{regulacao.foraMeta} fora da meta</span>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-md border-l-4 border-l-green-500">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <Activity className="w-4 h-4" />
+                Porta-Telecardio
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-3xl font-bold text-gray-900">{portaTelecardio.media} min</p>
+                <p className="text-xs text-gray-600">
+                  Mín: {portaTelecardio.min} | Máx: {portaTelecardio.max}
+                </p>
+                <div className="flex items-center gap-2 text-xs">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span>{portaTelecardio.dentroMeta} dentro da meta (≤15min)</span>
+                </div>
+                {portaTelecardio.foraMeta > 0 && (
+                  <div className="flex items-center gap-2 text-xs text-orange-600">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>{portaTelecardio.foraMeta} fora da meta</span>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-md border-l-4 border-l-yellow-500">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4" />
+                Transporte
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-3xl font-bold text-gray-900">{transporte.media} min</p>
+                <p className="text-xs text-gray-600">
+                  Mín: {transporte.min} | Máx: {transporte.max}
+                </p>
+                <div className="flex items-center gap-2 text-xs">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span>{transporte.dentroMeta} dentro da meta (≤90min)</span>
+                </div>
+                {transporte.foraMeta > 0 && (
+                  <div className="flex items-center gap-2 text-xs text-orange-600">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>{transporte.foraMeta} fora da meta</span>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-md border-l-4 border-l-pink-500">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <Activity className="w-4 h-4" />
+                ICP-Hemodinâmica
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-3xl font-bold text-gray-900">{icpHemodinamica.media} min</p>
+                <p className="text-xs text-gray-600">
+                  Mín: {icpHemodinamica.min} | Máx: {icpHemodinamica.max}
+                </p>
+                <div className="flex items-center gap-2 text-xs">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span>{icpHemodinamica.dentroMeta} dentro da meta (≤15min)</span>
+                </div>
+                {icpHemodinamica.foraMeta > 0 && (
+                  <div className="flex items-center gap-2 text-xs text-orange-600">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>{icpHemodinamica.foraMeta} fora da meta</span>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-md border-l-4 border-l-indigo-500">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <Target className="w-4 h-4" />
+                FMC-to-device
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-3xl font-bold text-gray-900">{fmcToDevice.media} min</p>
+                <p className="text-xs text-gray-600">
+                  Mín: {fmcToDevice.min} | Máx: {fmcToDevice.max}
+                </p>
+                <div className="flex items-center gap-2 text-xs">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span>{fmcToDevice.dentroMeta} dentro da meta (≤120min)</span>
+                </div>
+                {fmcToDevice.foraMeta > 0 && (
+                  <div className="flex items-center gap-2 text-xs text-red-600">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>{fmcToDevice.foraMeta} fora da meta</span>
                   </div>
                 )}
               </div>
@@ -256,14 +547,86 @@ export default function Indicadores() {
                 </thead>
                 <tbody>
                   <tr className="border-b hover:bg-gray-50">
-                    <td className="p-3">Porta-ECG (IAM)</td>
-                    <td className="text-center p-3 font-medium">{tempoTriagemEcg.media} min</td>
+                    <td className="p-3">Porta-ECG</td>
+                    <td className="text-center p-3 font-medium">{portaEcg.media} min</td>
                     <td className="text-center p-3">≤ 10 min</td>
                     <td className="text-center p-3">
                       <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                        tempoTriagemEcg.media <= 10 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        portaEcg.media <= 10 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
-                        {tempoTriagemEcg.media <= 10 ? '✓ Cumprida' : '✗ Não cumprida'}
+                        {portaEcg.media <= 10 ? '✓ Cumprida' : '✗ Não cumprida'}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr className="border-b hover:bg-gray-50">
+                    <td className="p-3">Porta Decisão</td>
+                    <td className="text-center p-3 font-medium">{portaDecisao.media} min</td>
+                    <td className="text-center p-3">≤ 20 min</td>
+                    <td className="text-center p-3">
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                        portaDecisao.media <= 20 ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
+                      }`}>
+                        {portaDecisao.media <= 20 ? '✓ Cumprida' : '⚠ Não cumprida'}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr className="border-b hover:bg-gray-50">
+                    <td className="p-3">Regulação</td>
+                    <td className="text-center p-3 font-medium">{regulacao.media} min</td>
+                    <td className="text-center p-3">≤ 15 min</td>
+                    <td className="text-center p-3">
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                        regulacao.media <= 15 ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
+                      }`}>
+                        {regulacao.media <= 15 ? '✓ Cumprida' : '⚠ Não cumprida'}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr className="border-b hover:bg-gray-50">
+                    <td className="p-3">Porta-Telecardio</td>
+                    <td className="text-center p-3 font-medium">{portaTelecardio.media} min</td>
+                    <td className="text-center p-3">≤ 15 min</td>
+                    <td className="text-center p-3">
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                        portaTelecardio.media <= 15 ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
+                      }`}>
+                        {portaTelecardio.media <= 15 ? '✓ Cumprida' : '⚠ Não cumprida'}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr className="border-b hover:bg-gray-50">
+                    <td className="p-3">Transporte</td>
+                    <td className="text-center p-3 font-medium">{transporte.media} min</td>
+                    <td className="text-center p-3">≤ 90 min</td>
+                    <td className="text-center p-3">
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                        transporte.media <= 90 ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
+                      }`}>
+                        {transporte.media <= 90 ? '✓ Cumprida' : '⚠ Não cumprida'}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr className="border-b hover:bg-gray-50">
+                    <td className="p-3">ICP-Hemodinâmica</td>
+                    <td className="text-center p-3 font-medium">{icpHemodinamica.media} min</td>
+                    <td className="text-center p-3">≤ 15 min</td>
+                    <td className="text-center p-3">
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                        icpHemodinamica.media <= 15 ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
+                      }`}>
+                        {icpHemodinamica.media <= 15 ? '✓ Cumprida' : '⚠ Não cumprida'}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr className="border-b hover:bg-gray-50">
+                    <td className="p-3">FMC-to-device</td>
+                    <td className="text-center p-3 font-medium">{fmcToDevice.media} min</td>
+                    <td className="text-center p-3">≤ 120 min</td>
+                    <td className="text-center p-3">
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                        fmcToDevice.media <= 120 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {fmcToDevice.media <= 120 ? '✓ Cumprida' : '✗ Não cumprida'}
                       </span>
                     </td>
                   </tr>
@@ -281,7 +644,13 @@ export default function Indicadores() {
               Metas de Qualidade Estabelecidas
             </h3>
             <div className="space-y-2 text-sm text-gray-700">
-              <p><strong>• Porta-ECG (≤10min):</strong> Meta SBC 2025 para suspeita de SCA</p>
+              <p><strong>• Porta-ECG (≤10min):</strong> Classificação de Risco até realização do ECG</p>
+              <p><strong>• Porta Decisão (≤20min):</strong> Início da triagem até envio do relatório (Etapa 4)</p>
+              <p><strong>• Regulação (≤15min):</strong> Envio do relatório até regulação da vaga pelo CERH</p>
+              <p><strong>• Porta-Telecardio (≤15min):</strong> Envio do relatório até parecer do cardiologista</p>
+              <p><strong>• Transporte (≤90min):</strong> Início do transporte até chegada ao destino</p>
+              <p><strong>• ICP-Hemodinâmica (≤15min):</strong> Chegada na hemodinâmica até início da ICP</p>
+              <p><strong>• FMC-to-device (≤120min):</strong> Início da triagem até chegada na hemodinâmica</p>
             </div>
           </CardContent>
         </Card>
