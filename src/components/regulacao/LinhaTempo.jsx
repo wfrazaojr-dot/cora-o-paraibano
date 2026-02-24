@@ -11,7 +11,7 @@ export default function LinhaTempo({ paciente }) {
   // Adicionar eventos da linha do tempo
   if (paciente.data_hora_inicio_triagem) {
     eventos.push({
-      tipo: "Triagem Iniciada",
+      tipo: "Triagem Médica Iniciada",
       dataHora: paciente.data_hora_inicio_triagem,
       icone: Activity,
       cor: "text-blue-600"
