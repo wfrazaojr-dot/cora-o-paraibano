@@ -355,7 +355,16 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         <div className="mb-4">
           <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">SINAIS VITAIS</h2>
           <div className="grid grid-cols-4 gap-2 text-xs">
-            <div><span className="font-semibold">PA:</span> {dadosPaciente.triagem_medica?.pa_braco_esquerdo || dadosPaciente.triagem_medica?.pa_braco_direito || "-"}</div>
+            {(() => {
+              const pa = dadosPaciente.triagem_medica?.pa_braco_esquerdo || dadosPaciente.triagem_medica?.pa_braco_direito || "";
+              const [pas, pad] = pa.split('/');
+              return (
+                <div>
+                  <span className="font-semibold">PAS:</span> {pas || "-"} mm Hg
+                  {pad && <><br /><span className="font-semibold">PAD:</span> {pad} mm Hg</>}
+                </div>
+              );
+            })()}
             <div><span className="font-semibold">FC:</span> {dadosPaciente.triagem_medica?.frequencia_cardiaca || "-"}</div>
             <div><span className="font-semibold">FR:</span> {dadosPaciente.triagem_medica?.frequencia_respiratoria || "-"}</div>
             <div><span className="font-semibold">Temp:</span> {dadosPaciente.triagem_medica?.temperatura || "-"}°C</div>
