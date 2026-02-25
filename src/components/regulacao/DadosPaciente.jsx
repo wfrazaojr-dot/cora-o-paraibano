@@ -78,18 +78,27 @@ export default function DadosPaciente({ paciente }) {
           <div className="mt-6 pt-6 border-t">
             <h4 className="font-semibold mb-3">Sinais Vitais</h4>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              {paciente.triagem_medica.pa_braco_esquerdo && (
-                <div className="bg-gray-50 p-2 rounded">
-                  <p className="text-xs text-gray-500">PAS</p>
-                  <p className="font-medium">{paciente.triagem_medica.pa_braco_esquerdo}</p>
-                </div>
-              )}
-              {paciente.triagem_medica.pa_braco_direito && (
-                <div className="bg-gray-50 p-2 rounded">
-                  <p className="text-xs text-gray-500">PAD</p>
-                  <p className="font-medium">{paciente.triagem_medica.pa_braco_direito}</p>
-                </div>
-              )}
+              {(() => {
+                const pa = paciente.triagem_medica.pa_braco_esquerdo || paciente.triagem_medica.pa_braco_direito || "";
+                const [pas, pad] = pa.split('/');
+                if (pas) {
+                  return (
+                    <>
+                      <div className="bg-gray-50 p-2 rounded">
+                        <p className="text-xs text-gray-500">PAS</p>
+                        <p className="font-medium">{pas} mm Hg</p>
+                      </div>
+                      {pad && (
+                        <div className="bg-gray-50 p-2 rounded">
+                          <p className="text-xs text-gray-500">PAD</p>
+                          <p className="font-medium">{pad} mm Hg</p>
+                        </div>
+                      )}
+                    </>
+                  );
+                }
+                return null;
+              })()}
               {paciente.triagem_medica.frequencia_cardiaca && (
                 <div className="bg-gray-50 p-2 rounded">
                   <p className="text-xs text-gray-500">FC</p>
