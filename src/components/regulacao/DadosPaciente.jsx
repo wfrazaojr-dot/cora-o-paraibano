@@ -83,7 +83,9 @@ export default function DadosPaciente({ paciente }) {
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               {(() => {
                 const pa = paciente.triagem_medica.pa_braco_esquerdo || paciente.triagem_medica.pa_braco_direito || "";
-                const [pas, pad] = pa.split('/');
+                const parts = pa.split('/');
+                const pas = parts[0]?.trim();
+                const pad = parts[1]?.trim();
                 if (pas) {
                   return (
                     <>
