@@ -331,6 +331,13 @@ export default function Administracao() {
     });
   };
 
+  const handleSalvarMacrorregiao = async (userId, macrorregiao) => {
+    await atualizarUsuarioMutation.mutateAsync({
+      userId,
+      dados: { macrorregiao: macrorregiao === "nenhuma" ? null : macrorregiao }
+    });
+  };
+
   const handleToggleAtivo = async (userId, ativoAtual) => {
     const confirmacao = window.confirm(
       ativoAtual 
