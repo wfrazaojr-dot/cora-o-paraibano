@@ -389,10 +389,7 @@ Solicitante: ${user?.full_name} (${user?.email})
                   <SelectValue placeholder="Selecione a especialidade" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="UTI CARDIO">UTI CARDIO</SelectItem>
-                  <SelectItem value="HEMODINÂMICA">HEMODINÂMICA</SelectItem>
                   <SelectItem value="CARDIOLOGIA">CARDIOLOGIA</SelectItem>
-                  <SelectItem value="OUTRA">OUTRA</SelectItem>
                 </SelectContent>
               </Select>
             </div>
