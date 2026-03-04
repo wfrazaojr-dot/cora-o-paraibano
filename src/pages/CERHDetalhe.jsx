@@ -504,84 +504,23 @@ export default function CERHDetalhe() {
               </CardContent>
             </Card>
 
-            {/* Relatório CERH */}
-            {paciente.regulacao_central && (
+            {/* Relatório CERH PDF */}
+            {paciente.relatorio_cerh_url && (
               <Card className="border-indigo-200">
                 <CardHeader className="bg-indigo-50">
-                  <CardTitle className="flex items-center justify-between">
-                    <span>Relatório CERH</span>
-                    <Button
-                      onClick={() => {
-                        const relatorio = gerarRelatorioCERH();
-                        const blob = new Blob([relatorio], { type: 'text/plain' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `Relatorio_CERH_${paciente.nome_completo}_${new Date().toISOString().split('T')[0]}.txt`;
-                        a.click();
-                      }}
-                      variant="outline"
-                      size="sm"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Baixar Relatório
-                    </Button>
+                  <CardTitle className="flex items-center gap-2 text-indigo-700">
+                    <FileText className="w-5 h-5" />
+                    Relatório CERH
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4">
-                  <div className="space-y-3 bg-gray-50 p-4 rounded-lg font-mono text-sm">
-                    <div>
-                      <p className="font-bold text-indigo-900">RELATÓRIO CERH - CENTRAL DE REGULAÇÃO</p>
-                      <p className="text-xs text-gray-600">
-                        Data: {new Date().toLocaleDateString('pt-BR')} às {new Date().toLocaleTimeString('pt-BR')}
-                      </p>
-                    </div>
-                    <div className="border-t pt-3">
-                      <p className="font-semibold">DADOS DO PACIENTE:</p>
-                      <p>Nome: {paciente.nome_completo}</p>
-                      <p>Idade: {paciente.idade} anos | Sexo: {paciente.sexo}</p>
-                      <p>Unidade de Origem: {paciente.unidade_saude}</p>
-                    </div>
-                    {paciente.regulacao_central.conduta_inicial?.length > 0 && (
-                      <div className="border-t pt-3">
-                        <p className="font-semibold">CONDUTA INICIAL:</p>
-                        {paciente.regulacao_central.conduta_inicial.map((conduta, idx) => (
-                          <p key={idx}>• {conduta}</p>
-                        ))}
-                        {paciente.regulacao_central.conduta_inicial_outros && (
-                          <p>• Outros: {paciente.regulacao_central.conduta_inicial_outros}</p>
-                        )}
-                      </div>
-                    )}
-                    {paciente.regulacao_central.conduta_final && (
-                      <div className="border-t pt-3">
-                        <p className="font-semibold">CONDUTA FINAL:</p>
-                        <p>{paciente.regulacao_central.conduta_final}</p>
-                      </div>
-                    )}
-                    {paciente.regulacao_central.unidade_destino && (
-                      <div className="border-t pt-3">
-                        <p className="font-semibold">UNIDADE DE DESTINO:</p>
-                        <p>{paciente.regulacao_central.unidade_destino}</p>
-                      </div>
-                    )}
-                    {paciente.regulacao_central.observacoes_regulacao && (
-                      <div className="border-t pt-3">
-                        <p className="font-semibold">OBSERVAÇÕES:</p>
-                        <p>{paciente.regulacao_central.observacoes_regulacao}</p>
-                      </div>
-                    )}
-                    <div className="border-t pt-3">
-                      <p className="font-semibold">REGULAÇÃO REALIZADA POR:</p>
-                      <p>Médico Regulador: {paciente.regulacao_central.medico_regulador_nome} - CRM {paciente.regulacao_central.medico_regulador_crm}</p>
-                      {paciente.regulacao_central.enfermeiro_nome && (
-                        <p>Enfermeiro: {paciente.regulacao_central.enfermeiro_nome} - COREN {paciente.regulacao_central.enfermeiro_coren}</p>
-                      )}
-                      {paciente.regulacao_central.senha_ses && (
-                        <p>Senha SES nº: {paciente.regulacao_central.senha_ses}</p>
-                      )}
-                    </div>
-                  </div>
+                <CardContent>
+                  <Button
+                    onClick={() => window.open(paciente.relatorio_cerh_url, '_blank')}
+                    className="w-full bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Baixar Relatório PDF
+                  </Button>
                 </CardContent>
               </Card>
             )}
