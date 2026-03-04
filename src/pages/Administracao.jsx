@@ -1222,19 +1222,26 @@ export default function Administracao() {
                             {isEditando && (
                               <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-200 space-y-4">
                                 <div>
-                                  <Label className="text-sm font-semibold mb-2 block">Selecione a nova função:</Label>
+                                  <Label className="text-sm font-semibold mb-2 block">Selecione a nova função (perfil de acesso):</Label>
                                   <div className="grid grid-cols-2 gap-2">
-                                    {Object.entries(ROLES_INFO).filter(([key]) => key !== 'admin').map(([roleKey, roleData]) => (
+                                    {[
+                                      { key: "unidade_saude", label: "UNIDADE DE SAÚDE" },
+                                      { key: "asscardio", label: "ASSCARDIO" },
+                                      { key: "cerh", label: "CERH" },
+                                      { key: "transporte", label: "TRANSPORTE" },
+                                      { key: "hemodinamica", label: "HEMODINÂMICA" },
+                                      { key: "medical_staff", label: "EQUIPE MÉDICA" },
+                                      { key: "viewer", label: "VISUALIZADOR" },
+                                    ].map(({ key, label }) => (
                                       <Button
-                                        key={roleKey}
-                                        onClick={() => handleSalvarRole(usuario.id, roleKey)}
+                                        key={key}
+                                        onClick={() => handleSalvarRole(usuario.id, key)}
                                         size="sm"
-                                        variant={getRoleEffetiva(usuario) === roleKey ? "default" : "outline"}
+                                        variant={getRoleEffetiva(usuario) === key || usuario.equipe === key ? "default" : "outline"}
                                         className="text-xs justify-start"
                                         disabled={atualizarUsuarioMutation.isPending}
                                       >
-                                        <roleData.icon className="w-3 h-3 mr-2" />
-                                        {roleData.label}
+                                        {label}
                                       </Button>
                                     ))}
                                   </div>
@@ -1258,6 +1265,7 @@ export default function Administracao() {
                                       </Button>
                                     ))}
                                   </div>
+                                  <p className="text-xs text-gray-500 mt-1">* A macrorregião é definida automaticamente no login, mas pode ser ajustada aqui.</p>
                                 </div>
                                 <Button
                                   onClick={() => setUsuarioEditando(null)}
