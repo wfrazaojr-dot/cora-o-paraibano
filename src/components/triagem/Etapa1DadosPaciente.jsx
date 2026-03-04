@@ -187,18 +187,20 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="idade">Idade *</Label>
+          <Label htmlFor="data_nascimento">Data de Nascimento *</Label>
           <Input
-            id="idade"
-            type="number"
-            value={dados.idade}
-            onChange={(e) => setDados(prev => ({...prev, idade: parseInt(e.target.value) || ""}))}
-            placeholder="Digite a idade"
+            id="data_nascimento"
+            type="date"
+            value={dados.data_nascimento}
+            onChange={(e) => setDados(prev => ({...prev, data_nascimento: e.target.value}))}
             required
-            min="0"
-            max="150"
             disabled={modoLeitura}
           />
+          {dados.data_nascimento && calcularIdade(dados.data_nascimento) !== null && (
+            <p className="text-sm text-blue-700 font-medium">
+              Idade: {calcularIdade(dados.data_nascimento)} anos
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
