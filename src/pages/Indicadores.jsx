@@ -49,9 +49,12 @@ export default function Indicadores() {
     return pacientes.filter(p => {
       if (!p.data_hora_chegada) return false;
       const dataChegada = new Date(p.data_hora_chegada);
-      return isWithinInterval(dataChegada, { start: inicioMes, end: fimMes });
+      if (!isWithinInterval(dataChegada, { start: inicioMes, end: fimMes })) return false;
+      if (macrorregiao !== "todas" && p.macrorregiao !== macrorregiao) return false;
+      if (tipoScaFiltro !== "todos" && p.triagem_medica?.tipo_sca !== tipoScaFiltro) return false;
+      return true;
     });
-  }, [pacientes, anoSelecionado, mesSelecionado]);
+  }, [pacientes, anoSelecionado, mesSelecionado, macrorregiao, tipoScaFiltro]);
 
 
 
