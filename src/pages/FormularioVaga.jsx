@@ -538,8 +538,8 @@ Solicitante: ${user?.full_name} (${user?.email})
               </div>
             </div>
 
-            {/* Admissão Médica */}
-            <div>
+            {/* ADMISSÃO MÉDICA REMOVIDA */}
+            {false && <div>
               <h3 className="text-base font-bold mb-3 border-b pb-2">ADMISSÃO MÉDICA</h3>
               <div className="space-y-4">
                 <div>
