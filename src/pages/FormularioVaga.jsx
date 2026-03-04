@@ -338,68 +338,6 @@ Solicitante: ${user?.full_name} (${user?.email})
               </div>
             </div>
 
-            {/* Dados Clínicos */}
-            <div>
-              <h3 className="text-base font-bold mb-3 border-b pb-2">DADOS CLÍNICOS</h3>
-              <div className="space-y-4">
-                <div>
-                  <Label>Hipótese Diagnóstica</Label>
-                  <Textarea value={formData.hipotese_diagnostica} onChange={(e) => setFormData({...formData, hipotese_diagnostica: e.target.value})} rows={2} />
-                </div>
-                <div>
-                  <Label>Alergia</Label>
-                  <div className="space-y-2">
-                    <Select value={formData.alergia} onValueChange={(v) => setFormData({...formData, alergia: v})}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Nega">Nega</SelectItem>
-                        <SelectItem value="Sim">Alérgico a:</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {formData.alergia === "Sim" && (
-                      <Input placeholder="Descrever alergias" value={formData.alergia_descricao} onChange={(e) => setFormData({...formData, alergia_descricao: e.target.value})} />
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <Label>Medicações de Uso Contínuo</Label>
-                  <div className="space-y-2">
-                    <Select value={formData.medicacoes_uso_continuo} onValueChange={(v) => setFormData({...formData, medicacoes_uso_continuo: v})}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="NÃO SABE INFORMAR">NÃO SABE INFORMAR</SelectItem>
-                        <SelectItem value="Sim">Medicamentos:</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {formData.medicacoes_uso_continuo === "Sim" && (
-                      <Textarea placeholder="Listar medicamentos" value={formData.medicacoes_descricao} onChange={(e) => setFormData({...formData, medicacoes_descricao: e.target.value})} rows={2} />
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <Label>Comorbidades</Label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {['HAS', 'DM Tipo I', 'DM Tipo II'].map(comorb => (
-                      <div key={comorb} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={comorb}
-                          checked={formData.comorbidades.includes(comorb)}
-                          onCheckedChange={(checked) => {
-                            const newComorbidades = checked
-                              ? [...formData.comorbidades, comorb]
-                              : formData.comorbidades.filter(c => c !== comorb);
-                            setFormData({...formData, comorbidades: newComorbidades});
-                          }}
-                        />
-                        <Label htmlFor={comorb} className="font-normal cursor-pointer">{comorb}</Label>
-                      </div>
-                    ))}
-                  </div>
-                  <Input placeholder="Outras comorbidades" className="mt-2" value={formData.comorbidades_outras} onChange={(e) => setFormData({...formData, comorbidades_outras: e.target.value})} />
-                </div>
-              </div>
-            </div>
-
             {/* Solicitação */}
             <div>
               <h3 className="text-base font-bold mb-3 border-b pb-2">SOLICITA</h3>
