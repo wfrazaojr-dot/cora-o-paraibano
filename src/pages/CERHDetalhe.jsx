@@ -241,6 +241,41 @@ export default function CERHDetalhe() {
 
           {/* Coluna Direita */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Card de Agendamento de ICP */}
+            {paciente.hemodinamica?.data_hora_agendamento_icp && (
+              <Card className="border-blue-300 bg-blue-50">
+                <CardHeader className="bg-blue-100">
+                  <CardTitle className="flex items-center gap-2 text-blue-800">
+                    📅 Agendamento de ICP
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 mt-4">
+                  <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
+                    <p className="text-sm font-semibold text-blue-900">Data e Hora Agendada:</p>
+                    <p className="text-lg font-bold text-blue-600">{format(new Date(paciente.hemodinamica.data_hora_agendamento_icp), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+                  </div>
+                  {paciente.hemodinamica?.tipo_icp && (
+                    <div>
+                      <p className="text-sm font-semibold text-blue-900">Tipo de ICP:</p>
+                      <Badge className="mt-1">
+                        {paciente.hemodinamica.tipo_icp === 'imediata' && 'Imediata'}
+                        {paciente.hemodinamica.tipo_icp === 'ate_24h' && 'Até 24 horas'}
+                        {paciente.hemodinamica.tipo_icp === 'ate_72h' && 'Até 72 horas'}
+                      </Badge>
+                    </div>
+                  )}
+                  {paciente.hemodinamica?.comparecimento_paciente && (
+                    <div>
+                      <p className="text-sm font-semibold text-blue-900">Comparecimento:</p>
+                      <Badge variant={paciente.hemodinamica.comparecimento_paciente === 'compareceu' ? 'default' : 'destructive'} className="mt-1">
+                        {paciente.hemodinamica.comparecimento_paciente === 'compareceu' ? '✅ Compareceu' : '❌ Não Compareceu'}
+                      </Badge>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
             {/* Parecer ASSCARDIO */}
             {paciente.assessoria_cardiologia?.parecer_cardiologista && (
               <Card className="border-red-200 bg-red-50">
