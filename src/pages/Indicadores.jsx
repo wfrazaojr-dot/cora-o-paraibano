@@ -22,6 +22,8 @@ export default function Indicadores() {
   
   const [anoSelecionado, setAnoSelecionado] = useState(anoAtual);
   const [mesSelecionado, setMesSelecionado] = useState(mesAtual);
+  const [macrorregiao, setMacrorregiao] = useState("todas");
+  const [tipoScaFiltro, setTipoScaFiltro] = useState("todos");
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
