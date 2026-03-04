@@ -25,7 +25,10 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
     glicemia_capilar: dadosPaciente.triagem_medica?.glicemia_capilar || "",
     ecg_files: dadosPaciente.triagem_medica?.ecg_files || [],
     alteracoes_ecg: dadosPaciente.triagem_medica?.alteracoes_ecg || [],
-    tipo_sca: dadosPaciente.triagem_medica?.tipo_sca || ""
+    tipo_sca: dadosPaciente.triagem_medica?.tipo_sca || "",
+    fatores_risco: dadosPaciente.triagem_medica?.fatores_risco || [],
+    historia_clinica: dadosPaciente.triagem_medica?.historia_clinica || "",
+    ecg_classificacao: dadosPaciente.triagem_medica?.ecg_classificacao || ""
   });
 
 
