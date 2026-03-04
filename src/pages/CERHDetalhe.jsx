@@ -24,6 +24,7 @@ export default function CERHDetalhe() {
   const queryClient = useQueryClient();
   const urlParams = new URLSearchParams(window.location.search);
   const pacienteId = urlParams.get('id');
+  const relatorioRef = useRef(null);
 
   const [formData, setFormData] = useState({
     medico_regulador_nome: "",
