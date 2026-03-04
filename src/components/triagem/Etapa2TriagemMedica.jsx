@@ -119,7 +119,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
         
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <Label>PA Braço Esquerdo (mmHg) *</Label>
+            <Label>PAS *</Label>
             <Input
               type="text"
               value={dados.pa_braco_esquerdo}
@@ -130,7 +130,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
           </div>
 
           <div>
-            <Label>PA Braço Direito (mmHg) *</Label>
+            <Label>PAD *</Label>
             <Input
               type="text"
               value={dados.pa_braco_direito}
