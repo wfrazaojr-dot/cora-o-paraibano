@@ -352,10 +352,14 @@ Solicitante: ${user?.full_name} (${user?.email})
             <div>
               <h3 className="text-base font-bold mb-3 border-b pb-2">DADOS DA UNIDADE</h3>
               {paciente ? (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 grid md:grid-cols-2 gap-3">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 grid md:grid-cols-3 gap-3">
                   <div>
                     <span className="text-xs text-blue-600 font-semibold uppercase">Unidade Solicitante</span>
                     <p className="font-bold text-gray-900">{paciente.unidade_saude || '—'}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-blue-600 font-semibold uppercase">Macrorregião de Saúde</span>
+                    <p className="font-bold text-gray-900">{paciente.macrorregiao || '—'}</p>
                   </div>
                   <div>
                     <span className="text-xs text-blue-600 font-semibold uppercase">Data e Horário da Admissão</span>
