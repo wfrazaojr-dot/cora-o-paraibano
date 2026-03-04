@@ -323,8 +323,11 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
             </div>
             <p className="text-sm font-semibold text-gray-700">Dor Torácica - Síndrome Coronariana Aguda</p>
             {dadosPaciente.unidade_saude && (
-              <div className="mt-2 bg-blue-100 border border-blue-500 rounded p-1">
+              <div className="mt-2 bg-blue-100 border border-blue-500 rounded p-1 flex items-center justify-between gap-2">
                 <p className="text-blue-900 font-bold text-sm">{dadosPaciente.unidade_saude}</p>
+                {dadosPaciente.macrorregiao && (
+                  <span className="bg-teal-600 text-white text-xs font-bold px-2 py-0.5 rounded">{dadosPaciente.macrorregiao}</span>
+                )}
               </div>
             )}
           </div>
