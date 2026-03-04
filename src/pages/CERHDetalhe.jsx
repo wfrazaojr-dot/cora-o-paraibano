@@ -121,6 +121,100 @@ export default function CERHDetalhe() {
 
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
+
+      {/* Template oculto para geração do PDF */}
+      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+        <div ref={relatorioRef} className="bg-white p-8" style={{ width: '210mm', minHeight: '297mm' }}>
+          {/* Cabeçalho com logos */}
+          <div className="mb-6 pb-4 border-b-2 border-gray-300">
+            <div className="flex items-center justify-between gap-4 w-full mb-3">
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" alt="SES" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" alt="Coração Paraibano" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg" alt="Complexo Regulador" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
+            </div>
+            <div className="text-center">
+              <h1 className="text-xl font-bold text-indigo-700">RELATÓRIO CERH - CENTRAL DE REGULAÇÃO</h1>
+              <p className="text-sm text-gray-600 mt-1">Data: {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+            </div>
+          </div>
+
+          {/* Dados do Paciente */}
+          <div className="mb-4">
+            <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">DADOS DO PACIENTE</h2>
+            <div className="grid grid-cols-2 gap-1 text-xs">
+              <div><span className="font-semibold">Nome:</span> {paciente?.nome_completo}</div>
+              <div><span className="font-semibold">Idade:</span> {paciente?.idade} anos | <span className="font-semibold">Sexo:</span> {paciente?.sexo}</div>
+              <div><span className="font-semibold">Unidade de Origem:</span> {paciente?.unidade_saude}</div>
+              <div><span className="font-semibold">Macrorregiâo:</span> {paciente?.macrorregiao}</div>
+            </div>
+          </div>
+
+          {/* Conduta Inicial */}
+          {formData.conduta_inicial?.length > 0 && (
+            <div className="mb-4">
+              <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">CONDUTA INICIAL</h2>
+              <div className="text-xs space-y-1">
+                {formData.conduta_inicial.map((c, i) => <p key={i}>• {c}</p>)}
+                {formData.conduta_inicial_outros && <p>• Outros: {formData.conduta_inicial_outros}</p>}
+              </div>
+            </div>
+          )}
+
+          {/* Conduta Final */}
+          {formData.conduta_final && (
+            <div className="mb-4">
+              <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">CONDUTA FINAL</h2>
+              <p className="text-xs whitespace-pre-wrap">{formData.conduta_final}</p>
+            </div>
+          )}
+
+          {/* Unidade de Destino */}
+          {formData.unidade_destino && (
+            <div className="mb-4">
+              <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">UNIDADE DE DESTINO</h2>
+              <p className="text-xs font-semibold">{formData.unidade_destino}</p>
+            </div>
+          )}
+
+          {/* Observações */}
+          {formData.observacoes_regulacao && (
+            <div className="mb-4">
+              <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">OBSERVAÇÕES</h2>
+              <p className="text-xs whitespace-pre-wrap">{formData.observacoes_regulacao}</p>
+            </div>
+          )}
+
+          {/* Parecer ASSCARDIO resumido */}
+          {paciente?.assessoria_cardiologia?.parecer_cardiologista && (
+            <div className="mb-4">
+              <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">PARECER ASSCARDIO</h2>
+              <div className="text-xs space-y-1">
+                <p><span className="font-semibold">Cardiologista:</span> {paciente.assessoria_cardiologia.cardiologista_nome} - CRM {paciente.assessoria_cardiologia.cardiologista_crm}</p>
+                {paciente.assessoria_cardiologia.diagnostico && <p><span className="font-semibold">Diagnóstico:</span> {paciente.assessoria_cardiologia.diagnostico}</p>}
+                {paciente.assessoria_cardiologia.conduta && <p><span className="font-semibold">Conduta:</span> {paciente.assessoria_cardiologia.conduta}</p>}
+              </div>
+            </div>
+          )}
+
+          {/* Equipe CERH */}
+          <div className="mb-4">
+            <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">EQUIPE CERH</h2>
+            <div className="text-xs space-y-1">
+              <p><span className="font-semibold">Médico Regulador:</span> {formData.medico_regulador_nome} - CRM {formData.medico_regulador_crm}</p>
+              {formData.enfermeiro_nome && <p><span className="font-semibold">Enfermeiro:</span> {formData.enfermeiro_nome} - COREN {formData.enfermeiro_coren}</p>}
+              {formData.senha_ses && <p><span className="font-semibold">Senha SES nº:</span> {formData.senha_ses}</p>}
+            </div>
+          </div>
+
+          {/* Rodapé */}
+          <div className="mt-8 pt-4 border-t-2 border-gray-300 text-xs text-gray-600">
+            <p className="font-semibold">Sistema de Triagem de Dor Torácica - Coração Paraibano</p>
+            <p>Desenvolvedor: Walber Alves Frazão Júnior - COREN 110.238</p>
+            <p>Gerado em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm:ss", { locale: ptBR })}</p>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-6 flex items-center gap-4">
