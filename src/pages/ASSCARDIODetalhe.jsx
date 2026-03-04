@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Heart, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Heart, ChevronDown, ChevronUp, Calendar } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
@@ -284,7 +284,35 @@ export default function ASSCARDIODetalhe() {
           </div>
 
           {/* Coluna Direita - Formulário */}
-          <div className="lg:col-span-2 space-y-4">
+           <div className="lg:col-span-2 space-y-4">
+
+            {/* Card de Agendamento de ICP - Se houver */}
+            {paciente.hemodinamica?.data_hora_agendamento_icp && (
+              <Card className="border-blue-300 bg-blue-50">
+                <CardHeader className="bg-blue-100">
+                  <CardTitle className="flex items-center gap-2 text-blue-800">
+                    <Calendar className="w-5 h-5" />
+                    Agendamento de ICP
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 mt-4">
+                  <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
+                    <p className="text-sm font-semibold text-blue-900">Data e Hora Agendada:</p>
+                    <p className="text-lg font-bold text-blue-600">{format(new Date(paciente.hemodinamica.data_hora_agendamento_icp), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+                  </div>
+                  {paciente.hemodinamica?.tipo_icp && (
+                    <div>
+                      <p className="text-sm font-semibold text-blue-900">Tipo de ICP:</p>
+                      <Badge className="mt-1">
+                        {paciente.hemodinamica.tipo_icp === 'imediata' && 'Imediata'}
+                        {paciente.hemodinamica.tipo_icp === 'ate_24h' && 'Até 24 horas'}
+                        {paciente.hemodinamica.tipo_icp === 'ate_72h' && 'Até 72 horas'}
+                      </Badge>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Relatório Visual (Oculto) */}
             <div style={{ position: 'absolute', left: '-9999px' }}>
