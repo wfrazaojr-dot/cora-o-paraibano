@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,16 +16,14 @@ export default function FormularioVaga() {
   const formRef = useRef(null);
   const urlParams = new URLSearchParams(window.location.search);
   const pacienteId = urlParams.get('id');
-  
+
   const [formData, setFormData] = useState({
     data_solicitacao: new Date().toISOString().split('T')[0],
     especialidade_solicitada: "",
-    // Dados Pessoais
     nome_completo: "",
     data_nascimento: "",
     idade: "",
     sexo: "",
-    data_hora_admissao: "",
     nome_mae: "",
     local_nascimento: "",
     rg: "",
@@ -35,10 +32,8 @@ export default function FormularioVaga() {
     cns: "",
     endereco: "",
     telefone_responsavel: "",
-    // Dados da Unidade
     unidade_solicitante: "",
-    data_admissao: "",
-    // Dados Clínicos
+    data_hora_admissao: "",
     hipotese_diagnostica: "",
     alergia: "Nega",
     alergia_descricao: "",
@@ -46,50 +41,9 @@ export default function FormularioVaga() {
     medicacoes_descricao: "",
     comorbidades: [],
     comorbidades_outras: "",
-    // Admissão Médica
-    data_admissao_medica: "",
-    // Exame Físico
-    acv: "",
-    ar: "",
-    abd: "",
-    extremidades: "",
-    tec: "<3s",
-    neuro: "",
-    pupilas: [],
-    // Sinais Vitais
-    pas: "",
-    pad: "",
-    spo2: "",
-    ventilacao: "AR AMBIENTE",
-    fc: "",
-    hgt: "",
-    tax: "",
-    fr: "",
-    // Gasometria
-    data_gasometria: "",
-    ph: "",
-    pco2: "",
-    po2: "",
-    hco3: "",
-    lact: "",
-    // Conduta
-    febre_ultimos_7dias: "Não",
-    febre_tempo: "",
-    dispneia: "Não",
-    dispneia_data_inicio: "",
-    vmi: "Não",
-    dispositivo_o2: "Não",
-    dispositivo_o2_qual: "",
-    sedado: "Não",
-    nivel_consciencia: "",
-    drogas_sedativas: "",
-    drogas_vasoativas: "Não",
-    drogas_vasoativas_quais: "",
-    // Solicitação
     solicita_leito: "",
     medico_solicitante: "",
     crm_solicitante: "",
-    // Documentos
     documentos: []
   });
 
@@ -107,7 +61,6 @@ export default function FormularioVaga() {
     enabled: !!pacienteId,
     onSuccess: (data) => {
       if (data) {
-        // Preencher dados do paciente automaticamente
         setFormData(prev => ({
           ...prev,
           nome_completo: data.nome_completo || "",
@@ -117,13 +70,6 @@ export default function FormularioVaga() {
           unidade_solicitante: data.unidade_saude || "",
           data_hora_admissao: data.data_hora_chegada || "",
           hipotese_diagnostica: data.avaliacao_clinica?.hipotese_diagnostica || "",
-          pas: data.triagem_medica?.pa_braco_esquerdo?.split('/')[0] || "",
-          pad: data.triagem_medica?.pa_braco_esquerdo?.split('/')[1] || "",
-          fc: data.triagem_medica?.frequencia_cardiaca?.toString() || "",
-          fr: data.triagem_medica?.frequencia_respiratoria?.toString() || "",
-          spo2: data.triagem_medica?.spo2?.toString() || "",
-          tax: data.triagem_medica?.temperatura?.toString() || "",
-          hgt: data.triagem_medica?.glicemia_capilar?.toString() || "",
         }));
       }
     }
@@ -135,52 +81,38 @@ export default function FormularioVaga() {
     const nascimento = new Date(dataNascimento);
     let idade = hoje.getFullYear() - nascimento.getFullYear();
     const mes = hoje.getMonth() - nascimento.getMonth();
-    if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
-      idade--;
-    }
+    if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) idade--;
     return idade.toString();
   };
 
   const formatarCPF = (valor) => {
-    const numeros = valor.replace(/\D/g, '');
-    if (numeros.length <= 3) return numeros;
-    if (numeros.length <= 6) return `${numeros.slice(0, 3)}.${numeros.slice(3)}`;
-    if (numeros.length <= 9) return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6)}`;
-    return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6, 9)}-${numeros.slice(9, 11)}`;
+    const n = valor.replace(/\D/g, '');
+    if (n.length <= 3) return n;
+    if (n.length <= 6) return `${n.slice(0,3)}.${n.slice(3)}`;
+    if (n.length <= 9) return `${n.slice(0,3)}.${n.slice(3,6)}.${n.slice(6)}`;
+    return `${n.slice(0,3)}.${n.slice(3,6)}.${n.slice(6,9)}-${n.slice(9,11)}`;
   };
 
   const formatarTelefone = (valor) => {
-    const numeros = valor.replace(/\D/g, '');
-    if (numeros.length <= 2) return numeros;
-    if (numeros.length <= 7) return `${numeros.slice(0, 2)} ${numeros.slice(2)}`;
-    if (numeros.length <= 11) return `${numeros.slice(0, 2)} ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
-    return `${numeros.slice(0, 2)} ${numeros.slice(2, 7)}-${numeros.slice(7, 11)}`;
+    const n = valor.replace(/\D/g, '');
+    if (n.length <= 2) return n;
+    if (n.length <= 7) return `${n.slice(0,2)} ${n.slice(2)}`;
+    if (n.length <= 11) return `${n.slice(0,2)} ${n.slice(2,7)}-${n.slice(7)}`;
+    return `${n.slice(0,2)} ${n.slice(2,7)}-${n.slice(7,11)}`;
   };
 
   const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
-
-    const totalFiles = formData.documentos.length + files.length;
-    if (totalFiles > 4) {
+    if (formData.documentos.length + files.length > 4) {
       toast.error("Você pode adicionar no máximo 4 arquivos!");
       return;
     }
-
     setUploadingFiles(true);
     try {
-      const uploadPromises = files.map(file => 
-        base44.integrations.Core.UploadFile({ file })
-      );
-      
-      const results = await Promise.all(uploadPromises);
-      const fileUrls = results.map(r => ({url: r.file_url, nome: files[results.indexOf(r)].name}));
-      
-      setFormData(prev => ({
-        ...prev,
-        documentos: [...prev.documentos, ...fileUrls]
-      }));
-      
+      const results = await Promise.all(files.map(file => base44.integrations.Core.UploadFile({ file })));
+      const fileUrls = results.map((r, i) => ({ url: r.file_url, nome: files[i].name }));
+      setFormData(prev => ({ ...prev, documentos: [...prev.documentos, ...fileUrls] }));
       toast.success(`${files.length} arquivo(s) enviado(s) com sucesso!`);
     } catch (error) {
       toast.error("Erro ao enviar arquivos: " + error.message);
@@ -190,35 +122,22 @@ export default function FormularioVaga() {
   };
 
   const removerDocumento = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      documentos: prev.documentos.filter((_, i) => i !== index)
-    }));
+    setFormData(prev => ({ ...prev, documentos: prev.documentos.filter((_, i) => i !== index) }));
     toast.success("Documento removido");
   };
 
   const gerarPDF = async () => {
     if (!formRef.current) return;
-
     setGerandoPDF(true);
     try {
-      const canvas = await html2canvas(formRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-      });
-
+      const canvas = await html2canvas(formRef.current, { scale: 2, useCORS: true, logging: false });
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 0;
-
-      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      const ratio = Math.min(pdfWidth / canvas.width, pdfHeight / canvas.height);
+      const imgX = (pdfWidth - canvas.width * ratio) / 2;
+      pdf.addImage(imgData, 'PNG', imgX, 0, canvas.width * ratio, canvas.height * ratio);
       pdf.save(`Formulario_Vaga_${formData.nome_completo}_${new Date().toISOString().split('T')[0]}.pdf`);
       toast.success("PDF baixado com sucesso!");
     } catch (error) {
@@ -251,45 +170,13 @@ Telefone do Responsável: ${formData.telefone_responsavel}
 
 ===== DADOS DA UNIDADE =====
 Unidade Solicitante: ${formData.unidade_solicitante}
-Data de Admissão: ${formData.data_admissao ? new Date(formData.data_admissao).toLocaleDateString('pt-BR') : ''}
+Data e Horário da Admissão: ${formData.data_hora_admissao ? new Date(formData.data_hora_admissao).toLocaleString('pt-BR') : ''}
 
 ===== DADOS CLÍNICOS =====
 Hipótese Diagnóstica: ${formData.hipotese_diagnostica}
 Alergia: ${formData.alergia === 'Nega' ? 'Nega' : 'Sim - ' + formData.alergia_descricao}
 Medicações de Uso Contínuo: ${formData.medicacoes_uso_continuo === 'NÃO SABE INFORMAR' ? 'NÃO SABE INFORMAR' : formData.medicacoes_descricao}
 Comorbidades: ${formData.comorbidades.join(', ')}${formData.comorbidades_outras ? ', Outras: ' + formData.comorbidades_outras : ''}
-
-===== ADMISSÃO MÉDICA =====
-Data: ${formData.data_admissao_medica ? new Date(formData.data_admissao_medica).toLocaleDateString('pt-BR') : ''}
-
-Exame Físico:
-ACV: ${formData.acv}
-AR: ${formData.ar}
-ABD: ${formData.abd}
-Extremidades: ${formData.extremidades}
-TEC: ${formData.tec}
-Neuro: ${formData.neuro}
-Pupilas: ${formData.pupilas.join(', ')}
-
-Sinais Vitais:
-PAS: ${formData.pas} mmHg | PAD: ${formData.pad} mmHg
-SpO2: ${formData.spo2}% (${formData.ventilacao})
-FC: ${formData.fc} bpm | FR: ${formData.fr} irpm
-HGT: ${formData.hgt} mg/dL | TAX: ${formData.tax}°C
-
-Gasometria Arterial (${formData.data_gasometria ? new Date(formData.data_gasometria).toLocaleDateString('pt-BR') : ''}):
-pH: ${formData.ph} | PCO2: ${formData.pco2} | PO2: ${formData.po2}
-HCO3: ${formData.hco3} | Lactato: ${formData.lact}
-
-===== CONDUTA =====
-Febre nos últimos 7 dias: ${formData.febre_ultimos_7dias}${formData.febre_tempo ? ' - Há ' + formData.febre_tempo : ''}
-Dispneia/Desconforto Respiratório: ${formData.dispneia}${formData.dispneia_data_inicio ? ' - Início: ' + new Date(formData.dispneia_data_inicio).toLocaleDateString('pt-BR') : ''}
-Ventilação Mecânica Invasiva: ${formData.vmi}
-Dispositivo de O2: ${formData.dispositivo_o2}${formData.dispositivo_o2_qual ? ' - ' + formData.dispositivo_o2_qual : ''}
-Sedado: ${formData.sedado}
-Nível de Consciência: ${formData.nivel_consciencia}
-Drogas Sedativas: ${formData.drogas_sedativas}
-Drogas Vasoativas: ${formData.drogas_vasoativas}${formData.drogas_vasoativas_quais ? ' - ' + formData.drogas_vasoativas_quais : ''}
 
 ===== SOLICITAÇÃO =====
 Solicita Leito de: ${formData.solicita_leito}
@@ -303,18 +190,13 @@ Total de Documentos Anexados: ${formData.documentos.length}
 Enviado através do Sistema Coração Paraibano
 Solicitante: ${user?.full_name} (${user?.email})
 `;
-
       await base44.integrations.Core.SendEmail({
         to: user?.email || "ses@saude.pb.gov.br",
         subject: `[FORMULÁRIO/VAGA] ${formData.nome_completo} - ${formData.unidade_solicitante}`,
         body: emailBody
       });
-
-      // Atualizar paciente se vier de um paciente específico
       if (pacienteId && paciente) {
-        await base44.entities.Paciente.update(pacienteId, {
-          alerta_formulario_vaga: false
-        });
+        await base44.entities.Paciente.update(pacienteId, { alerta_formulario_vaga: false });
       }
     },
     onSuccess: () => {
@@ -327,13 +209,11 @@ Solicitante: ${user?.full_name} (${user?.email})
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (!formData.nome_completo || !formData.especialidade_solicitada || 
+    if (!formData.nome_completo || !formData.especialidade_solicitada ||
         !formData.unidade_solicitante || !formData.medico_solicitante) {
       toast.error("Por favor, preencha todos os campos obrigatórios!");
       return;
     }
-
     enviarSolicitacao.mutate();
   };
 
@@ -353,29 +233,13 @@ Solicitante: ${user?.full_name} (${user?.email})
           )}
         </div>
 
-        {/* Formulário para PDF */}
         <div ref={formRef} className="bg-white p-8 rounded-lg shadow-lg mb-6">
-          {/* Cabeçalho com as 3 logos */}
+          {/* Cabeçalho com logos */}
           <div className="mb-6 pb-4 border-b-2 border-gray-300">
             <div className="flex items-center justify-between gap-4 w-full mb-3">
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" 
-                alt="Secretaria de Estado da Saúde" 
-                className="h-12 md:h-16 w-auto object-contain"
-                crossOrigin="anonymous"
-              />
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" 
-                alt="Coração Paraibano" 
-                className="h-12 md:h-16 w-auto object-contain"
-                crossOrigin="anonymous"
-              />
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg" 
-                alt="Complexo Regulador" 
-                className="h-12 md:h-16 w-auto object-contain"
-                crossOrigin="anonymous"
-              />
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" alt="SES" className="h-12 md:h-16 w-auto object-contain" crossOrigin="anonymous" />
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" alt="Coração Paraibano" className="h-12 md:h-16 w-auto object-contain" crossOrigin="anonymous" />
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg" alt="Complexo Regulador" className="h-12 md:h-16 w-auto object-contain" crossOrigin="anonymous" />
             </div>
             <div className="text-center">
               <h2 className="text-lg font-bold">FORMULÁRIO DE SOLICITAÇÃO DE VAGA</h2>
@@ -384,13 +248,11 @@ Solicitante: ${user?.full_name} (${user?.email})
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Especialidade Solicitada */}
+            {/* Especialidade */}
             <div>
               <h3 className="text-base font-bold mb-3 border-b pb-2">ESPECIALIDADE SOLICITADA *</h3>
               <Select value={formData.especialidade_solicitada} onValueChange={(v) => setFormData({...formData, especialidade_solicitada: v})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a especialidade" />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Selecione a especialidade" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="CARDIOLOGIA">CARDIOLOGIA</SelectItem>
                 </SelectContent>
@@ -519,11 +381,11 @@ Solicitante: ${user?.full_name} (${user?.email})
                   <div className="grid grid-cols-2 gap-2 mt-2">
                     {['HAS', 'DM Tipo I', 'DM Tipo II'].map(comorb => (
                       <div key={comorb} className="flex items-center space-x-2">
-                        <Checkbox 
+                        <Checkbox
                           id={comorb}
                           checked={formData.comorbidades.includes(comorb)}
                           onCheckedChange={(checked) => {
-                            const newComorbidades = checked 
+                            const newComorbidades = checked
                               ? [...formData.comorbidades, comorb]
                               : formData.comorbidades.filter(c => c !== comorb);
                             setFormData({...formData, comorbidades: newComorbidades});
@@ -557,8 +419,14 @@ Solicitante: ${user?.full_name} (${user?.email})
                   </Select>
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div><Label>Nome do Médico Solicitante: *</Label><Input value={formData.medico_solicitante} onChange={(e) => setFormData({...formData, medico_solicitante: e.target.value})} required /></div>
-                  <div><Label>CRM: *</Label><Input value={formData.crm_solicitante} onChange={(e) => setFormData({...formData, crm_solicitante: e.target.value})} required /></div>
+                  <div>
+                    <Label>Nome do Médico Solicitante: *</Label>
+                    <Input value={formData.medico_solicitante} onChange={(e) => setFormData({...formData, medico_solicitante: e.target.value})} required />
+                  </div>
+                  <div>
+                    <Label>CRM: *</Label>
+                    <Input value={formData.crm_solicitante} onChange={(e) => setFormData({...formData, crm_solicitante: e.target.value})} required />
+                  </div>
                 </div>
               </div>
             </div>
@@ -566,8 +434,6 @@ Solicitante: ${user?.full_name} (${user?.email})
             {/* Upload de Documentos */}
             <div>
               <h3 className="text-base font-bold mb-3 border-b pb-2">DOCUMENTOS DO PACIENTE (máx. 4 arquivos)</h3>
-              
-              {/* Área de Upload */}
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors mb-4">
                 <input
                   type="file"
@@ -583,9 +449,7 @@ Solicitante: ${user?.full_name} (${user?.email})
                   <p className="text-sm text-gray-600 mb-1">
                     {formData.documentos.length >= 4 ? 'Limite de 4 arquivos atingido' : 'Clique para adicionar documentos'}
                   </p>
-                  <p className="text-xs text-gray-500">
-                    PDF, GIF, JPEG (múltiplos arquivos permitidos)
-                  </p>
+                  <p className="text-xs text-gray-500">PDF, GIF, JPEG (múltiplos arquivos permitidos)</p>
                 </label>
               </div>
 
@@ -594,13 +458,7 @@ Solicitante: ${user?.full_name} (${user?.email})
                   {formData.documentos.map((doc, idx) => (
                     <div key={idx} className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3">
                       <span className="text-sm text-green-900 font-medium truncate flex-1">{doc.nome || `Documento ${idx + 1}`}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removerDocumento(idx)}
-                        className="text-red-600 hover:text-red-800 hover:bg-red-50"
-                      >
+                      <Button type="button" variant="ghost" size="sm" onClick={() => removerDocumento(idx)} className="text-red-600 hover:text-red-800 hover:bg-red-50">
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
@@ -613,20 +471,14 @@ Solicitante: ${user?.full_name} (${user?.email})
                   <p className="text-blue-700">Enviando arquivos...</p>
                 </div>
               )}
-              
-              {/* Visualização das imagens dos documentos para o PDF */}
+
               {formData.documentos.length > 0 && (
                 <div className="mb-4 space-y-3">
                   {formData.documentos.map((doc, idx) => (
                     <div key={idx} className="border border-gray-300 rounded-lg p-2">
                       <p className="text-xs font-semibold mb-2">{doc.nome || `Documento ${idx + 1}`}</p>
                       {!doc.url.toLowerCase().endsWith('.pdf') ? (
-                        <img
-                          src={doc.url}
-                          alt={doc.nome || `Documento ${idx + 1}`}
-                          className="w-full h-auto object-contain bg-gray-50 rounded"
-                          crossOrigin="anonymous"
-                        />
+                        <img src={doc.url} alt={doc.nome || `Documento ${idx + 1}`} className="w-full h-auto object-contain bg-gray-50 rounded" crossOrigin="anonymous" />
                       ) : (
                         <div className="p-4 bg-gray-100 text-xs text-center rounded">
                           📄 Documento PDF anexado - {doc.nome}
@@ -640,21 +492,11 @@ Solicitante: ${user?.full_name} (${user?.email})
 
             {/* Botões de Ação */}
             <div className="flex gap-4 pt-4">
-              <Button
-                type="button"
-                onClick={gerarPDF}
-                disabled={gerandoPDF}
-                variant="outline"
-                className="flex-1"
-              >
+              <Button type="button" onClick={gerarPDF} disabled={gerandoPDF} variant="outline" className="flex-1">
                 <Download className="w-5 h-5 mr-2" />
                 {gerandoPDF ? "Gerando PDF..." : "BAIXAR FORMULÁRIO EM PDF"}
               </Button>
-              <Button
-                type="submit"
-                disabled={enviarSolicitacao.isPending || uploadingFiles}
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
-              >
+              <Button type="submit" disabled={enviarSolicitacao.isPending || uploadingFiles} className="flex-1 bg-blue-600 hover:bg-blue-700">
                 <Send className="w-5 h-5 mr-2" />
                 {enviarSolicitacao.isPending ? "Enviando..." : "FINALIZAR E ENVIAR"}
               </Button>
@@ -667,16 +509,13 @@ Solicitante: ${user?.full_name} (${user?.email})
                 <div>
                   <p className="text-sm font-semibold text-yellow-900">Importante:</p>
                   <p className="text-sm text-yellow-800 mt-1">
-                    Após o envio, aguarde retorno da SES por e-mail com a atualização do caso 
-                    e/ou senha para internação.
+                    Após o envio, aguarde retorno da SES por e-mail com a atualização do caso e/ou senha para internação.
                   </p>
                 </div>
               </div>
             </div>
           </form>
         </div>
-
-
       </div>
     </div>
   );
