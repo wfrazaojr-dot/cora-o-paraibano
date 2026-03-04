@@ -80,6 +80,43 @@ export default function ASSCARDIODetalhe() {
     troponina: 0
   });
 
+  // Pré-preencher HEART Score quando paciente carrega
+  useEffect(() => {
+    if (!paciente) return;
+
+    const triagem = paciente.triagem_medica || {};
+
+    // H - História Clínica
+    let historia = 0;
+    if (triagem.historia_clinica?.includes("Altamente suspeita")) historia = 2;
+    else if (triagem.historia_clinica?.includes("Moderadamente")) historia = 1;
+
+    // E - ECG
+    let ecg = 0;
+    if (triagem.ecg_classificacao?.includes("Depressão significativa")) ecg = 2;
+    else if (triagem.ecg_classificacao?.includes("inespecífica")) ecg = 1;
+
+    // A - Idade
+    const idade = paciente.idade || 0;
+    let pontoIdade = 0;
+    if (idade >= 65) pontoIdade = 2;
+    else if (idade >= 45) pontoIdade = 1;
+
+    // R - Fatores de Risco
+    const qtdFatores = (triagem.fatores_risco || []).length;
+    let risco = 0;
+    if (qtdFatores >= 3) risco = 2;
+    else if (qtdFatores >= 1) risco = 1;
+
+    setHeartScore(prev => ({
+      ...prev,
+      historia,
+      ecg,
+      idade: pontoIdade,
+      risco
+    }));
+  }, [paciente]);
+
   // Pré-parecer (gerado pelo enfermeiro)
   const [preParecer, setPreParecer] = useState("");
   const [enfermeiroFinalizado, setEnfermeiroFinalizado] = useState(false);
