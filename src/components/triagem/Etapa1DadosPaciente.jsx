@@ -9,10 +9,20 @@ import { base44 } from "@/api/base44Client";
 
 
 export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnterior, modoLeitura = false, permitirNavegacao = false }) {
+  const calcularIdade = (dataNasc) => {
+    if (!dataNasc) return null;
+    const hoje = new Date();
+    const nasc = new Date(dataNasc + "T00:00:00");
+    let idade = hoje.getFullYear() - nasc.getFullYear();
+    const m = hoje.getMonth() - nasc.getMonth();
+    if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--;
+    return idade >= 0 ? idade : null;
+  };
+
   const [dados, setDados] = useState({
     unidade_saude: "",
     nome_completo: "",
-    idade: "",
+    data_nascimento: "",
     sexo: "",
     uso_inibidor_fosfodiesterase: null,
     data_atendimento: format(new Date(), "yyyy-MM-dd"),
