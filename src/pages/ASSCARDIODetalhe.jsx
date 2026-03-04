@@ -614,7 +614,7 @@ export default function ASSCARDIODetalhe() {
           </Card>
         </Collapsible>
 
-        {/* 4. BLOCO 2 - SEM SUPRA (apenas se 1E = NÃO) */}
+        {/* 3. BLOCO 2 - SEM SUPRA (apenas se RELATO MÉDICO = NÃO) */}
         {ecgSupra.tem_supra === "nao" && (
           <Collapsible open={bloco2Open} onOpenChange={setBloco2Open}>
             <Card className="mb-4 border-2 border-orange-200">
@@ -627,8 +627,8 @@ export default function ASSCARDIODetalhe() {
                 </CardHeader>
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <CardContent className="pt-4">
-                  <div className="grid md:grid-cols-2 gap-3 mb-4">
+                <CardContent className="pt-4 space-y-4">
+                  <div className="grid md:grid-cols-2 gap-3">
                     <div className="flex items-center space-x-2">
                       <Checkbox id="infra_st" checked={ecgSemSupra.infra_st} onCheckedChange={(c) => setEcgSemSupra({...ecgSemSupra, infra_st: c})} />
                       <Label htmlFor="infra_st" className="text-lg">☐ Infra ST ≥0.5mm</Label>
@@ -648,6 +648,37 @@ export default function ASSCARDIODetalhe() {
                     <div className="flex items-center space-x-2">
                       <Checkbox id="infra_difusa" checked={ecgSemSupra.infra_difusa_avr} onCheckedChange={(c) => setEcgSemSupra({...ecgSemSupra, infra_difusa_avr: c})} />
                       <Label htmlFor="infra_difusa" className="text-lg">☐ Infra difusa+aVR</Label>
+                    </div>
+                  </div>
+
+                  {/* Fatores de Risco */}
+                  <div className="border-t pt-4 mt-4">
+                    <h4 className="font-bold text-green-700 mb-3">🔬 FATORES DE RISCO</h4>
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="dor_tipica" checked={clinica.dor_tipica} onCheckedChange={(c) => setClinica({...clinica, dor_tipica: c})} />
+                        <Label htmlFor="dor_tipica" className="text-lg">☐ Dor típica</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="sudorese" checked={clinica.sudorese} onCheckedChange={(c) => setClinica({...clinica, sudorese: c})} />
+                        <Label htmlFor="sudorese" className="text-lg">☐ Sudorese</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="has" checked={clinica.has} onCheckedChange={(c) => setClinica({...clinica, has: c})} />
+                        <Label htmlFor="has" className="text-lg">☐ HAS</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="dm" checked={clinica.dm} onCheckedChange={(c) => setClinica({...clinica, dm: c})} />
+                        <Label htmlFor="dm" className="text-lg">☐ DM</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="tabagismo" checked={clinica.tabagismo} onCheckedChange={(c) => setClinica({...clinica, tabagismo: c})} />
+                        <Label htmlFor="tabagismo" className="text-lg">☐ Tabagismo</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="dislipidemia" checked={clinica.dislipidemia} onCheckedChange={(c) => setClinica({...clinica, dislipidemia: c})} />
+                        <Label htmlFor="dislipidemia" className="text-lg">☐ Dislipidemia</Label>
+                      </div>
                     </div>
                   </div>
 
