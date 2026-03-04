@@ -120,6 +120,13 @@ export default function LinhaTempo({ paciente }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
+        {macrorregiao && (
+          <div className="mb-3 pb-3 border-b">
+            <span className="inline-block bg-teal-100 text-teal-800 font-bold text-xs px-3 py-1 rounded-full border border-teal-300">
+              📍 {macrorregiao}
+            </span>
+          </div>
+        )}
         <div className="space-y-4">
           {eventos.length === 0 ? (
             <p className="text-sm text-gray-500">Nenhum evento registrado</p>
