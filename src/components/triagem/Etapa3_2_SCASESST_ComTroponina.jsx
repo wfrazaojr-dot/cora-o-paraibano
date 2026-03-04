@@ -683,6 +683,50 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
 
           <div>
             <Label className="text-base font-semibold mb-3 block">TROPONINA *</Label>
+
+            <Alert className="bg-amber-50 border-amber-300 mb-4">
+              <AlertCircle className="h-4 w-4 text-amber-600" />
+              <AlertDescription className="text-amber-800">
+                <p className="font-semibold mb-2">Para pontuar corretamente a troponina:</p>
+                <p className="text-sm">Você precisa informar o Limite Superior da Normalidade (percentil 99) do seu laboratório. A pontuação será baseada em quantas vezes o resultado da troponina do paciente ultrapassa esse limite.</p>
+              </AlertDescription>
+            </Alert>
+
+            <div className="grid md:grid-cols-2 gap-4 mb-4 bg-white p-4 rounded border border-amber-200">
+              <div>
+                <Label className="text-sm font-semibold mb-2 block">Limite Superior da Normalidade (percentil 99) do Laboratório *</Label>
+                <p className="text-xs text-gray-600 mb-2">Ex: 0.04, 0.03, etc.</p>
+                <Input
+                  type="number"
+                  step="0.001"
+                  value={dados.limite_superior_normalidade}
+                  onChange={(e) => setDados(prev => ({...prev, limite_superior_normalidade: e.target.value}))}
+                  placeholder="Digite o limite superior (ex: 0.04)"
+                  required
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-semibold mb-2 block">Valor da Troponina do Paciente *</Label>
+                <p className="text-xs text-gray-600 mb-2">Ex: 0.08, 0.15, etc.</p>
+                <Input
+                  type="number"
+                  step="0.001"
+                  value={dados.valor_troponina_paciente}
+                  onChange={(e) => setDados(prev => ({...prev, valor_troponina_paciente: e.target.value}))}
+                  placeholder="Digite o valor da troponina (ex: 0.08)"
+                  required
+                />
+              </div>
+            </div>
+
+            {dados.limite_superior_normalidade && dados.valor_troponina_paciente && (
+              <div className="bg-blue-50 border border-blue-200 p-3 rounded mb-4">
+                <p className="text-sm font-semibold text-blue-900">
+                  Proporção: {(parseFloat(dados.valor_troponina_paciente) / parseFloat(dados.limite_superior_normalidade)).toFixed(2)}x o limite superior
+                </p>
+              </div>
+            )}
+
             <div className="space-y-2">
               {[
                 { valor: 0, texto: "Normal" },
