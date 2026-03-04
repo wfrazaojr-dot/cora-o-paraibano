@@ -45,19 +45,68 @@ export default function CERHDetalhe() {
     enabled: !!pacienteId
   });
 
+  const gerarRelatorioPDF = async (pacienteData) => {
+    if (!relatorioRef.current) return null;
+    try {
+      const canvas = await html2canvas(relatorioRef.current, {
+        scale: 1.8,
+        logging: false,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: '#ffffff',
+        imageTimeout: 15000,
+        removeContainer: true
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+      heightLeft -= pdfHeight;
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+      const pdfBlob = pdf.output('blob');
+      const nomePaciente = (pacienteData?.nome_completo || 'Paciente').replace(/\s+/g, '_');
+      const nomeArquivo = `Relatorio_CERH_${nomePaciente}_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`;
+      const pdfFile = new File([pdfBlob], nomeArquivo, { type: 'application/pdf' });
+      const uploadResult = await base44.integrations.Core.UploadFile({ file: pdfFile });
+      return uploadResult.file_url;
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      throw error;
+    }
+  };
+
   const salvarRegulacao = useMutation({
     mutationFn: async () => {
+      const regulacaoData = {
+        ...formData,
+        data_hora: new Date().toISOString()
+      };
+      // Primeiro salva os dados para que o ref do relatório seja renderizado
       await base44.entities.Paciente.update(pacienteId, {
-        regulacao_central: {
-          ...formData,
-          data_hora: new Date().toISOString()
-        },
+        regulacao_central: regulacaoData,
         status: "Aguardando Transporte"
       });
+      // Aguarda re-render para capturar o relatório
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const file_url = await gerarRelatorioPDF(paciente);
+      if (file_url) {
+        await base44.entities.Paciente.update(pacienteId, {
+          relatorio_cerh_url: file_url
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['paciente', pacienteId]);
-      alert("Regulação CERH registrada com sucesso! A Unidade de Saúde foi notificada para enviar o formulário/vaga.");
+      alert("Regulação CERH registrada com sucesso! Relatório PDF gerado.");
       navigate(createPageUrl("Dashboard"));
     }
   });
