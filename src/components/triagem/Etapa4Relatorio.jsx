@@ -341,6 +341,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
             <div><span className="font-semibold">Idade:</span> {dadosPaciente.idade} anos</div>
             <div><span className="font-semibold">Sexo:</span> {dadosPaciente.sexo}</div>
             <div><span className="font-semibold">Chegada:</span> {dadosPaciente.data_hora_chegada ? format(new Date(dadosPaciente.data_hora_chegada), "dd/MM/yy HH:mm", { locale: ptBR }) : "-"}</div>
+            {dadosPaciente.macrorregiao && <div><span className="font-semibold">Macrorregião:</span> {dadosPaciente.macrorregiao}</div>}
           </div>
         </div>
 
