@@ -470,8 +470,8 @@ Solicitante: ${user?.full_name} (${user?.email})
                   <Input value={formData.unidade_solicitante} onChange={(e) => setFormData({...formData, unidade_solicitante: e.target.value})} required />
                 </div>
                 <div>
-                  <Label>Data de Admissão</Label>
-                  <Input type="date" value={formData.data_admissao} onChange={(e) => setFormData({...formData, data_admissao: e.target.value})} />
+                  <Label>Data e Horário da Admissão</Label>
+                  <Input type="datetime-local" value={formData.data_hora_admissao} onChange={(e) => setFormData({...formData, data_hora_admissao: e.target.value})} />
                 </div>
               </div>
             </div>
