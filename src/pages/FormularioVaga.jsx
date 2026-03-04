@@ -26,6 +26,7 @@ export default function FormularioVaga() {
     data_nascimento: "",
     idade: "",
     sexo: "",
+    data_hora_admissao: "",
     nome_mae: "",
     local_nascimento: "",
     rg: "",
