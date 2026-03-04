@@ -134,7 +134,13 @@ export default function Dashboard() {
             👤 {user.full_name} • {user.email}
             {user?.equipe === 'cerh' && <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">CERH</span>}
             {user?.equipe === 'asscardio' && <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">ASSCARDIO</span>}
+            {user?.equipe === 'hemodinamica' && <span className="ml-2 px-2 py-1 bg-pink-100 text-pink-800 rounded text-xs font-semibold">HEMODINÂMICA</span>}
+            {user?.equipe === 'transporte' && <span className="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-semibold">TRANSPORTE</span>}
+            {user?.macrorregiao && <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs font-semibold">{user.macrorregiao}</span>}
             {user?.role === 'admin' && <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">ADMINISTRADOR</span>}
+            {['cerh','asscardio','hemodinamica'].includes(user?.equipe) && !user?.macrorregiao && (
+              <span className="ml-2 px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs font-semibold">⚠️ Sem macrorregião definida — exibindo todos</span>
+            )}
           </p>
         </div>
 
