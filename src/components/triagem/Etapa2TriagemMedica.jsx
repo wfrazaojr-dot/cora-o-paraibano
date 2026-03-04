@@ -15,7 +15,6 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
     medico_nome: dadosPaciente.triagem_medica?.medico_nome || "",
     medico_crm: dadosPaciente.triagem_medica?.medico_crm || "",
     pa_braco_esquerdo: dadosPaciente.triagem_medica?.pa_braco_esquerdo || "",
-    pa_braco_direito: dadosPaciente.triagem_medica?.pa_braco_direito || "",
     frequencia_cardiaca: dadosPaciente.triagem_medica?.frequencia_cardiaca || "",
     frequencia_respiratoria: dadosPaciente.triagem_medica?.frequencia_respiratoria || "",
     temperatura: dadosPaciente.triagem_medica?.temperatura || "",
