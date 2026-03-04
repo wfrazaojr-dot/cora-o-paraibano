@@ -459,49 +459,41 @@ export default function ASSCARDIODetalhe() {
               </div>
             </div>
 
-        {/* 2. BLOCO 0 - CLÍNICA */}
-        <Collapsible open={bloco0Open} onOpenChange={setBloco0Open}>
-          <Card className="mb-4 border-2 border-green-200">
-            <CollapsibleTrigger className="w-full">
-              <CardHeader className="bg-green-100 cursor-pointer hover:bg-green-200 transition-colors">
-                <CardTitle className="text-green-900 flex items-center justify-between">
-                  <span>📋 BLOCO 0 - CLÍNICA</span>
-                  {bloco0Open ? <ChevronUp /> : <ChevronDown />}
-                </CardTitle>
-              </CardHeader>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <CardContent className="pt-4">
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="dor_tipica" checked={clinica.dor_tipica} onCheckedChange={(c) => setClinica({...clinica, dor_tipica: c})} />
-                    <Label htmlFor="dor_tipica" className="text-lg">☐ Dor típica</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="sudorese" checked={clinica.sudorese} onCheckedChange={(c) => setClinica({...clinica, sudorese: c})} />
-                    <Label htmlFor="sudorese" className="text-lg">☐ Sudorese</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="has" checked={clinica.has} onCheckedChange={(c) => setClinica({...clinica, has: c})} />
-                    <Label htmlFor="has" className="text-lg">☐ HAS</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="dm" checked={clinica.dm} onCheckedChange={(c) => setClinica({...clinica, dm: c})} />
-                    <Label htmlFor="dm" className="text-lg">☐ DM</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="tabagismo" checked={clinica.tabagismo} onCheckedChange={(c) => setClinica({...clinica, tabagismo: c})} />
-                    <Label htmlFor="tabagismo" className="text-lg">☐ Tabagismo</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="dislipidemia" checked={clinica.dislipidemia} onCheckedChange={(c) => setClinica({...clinica, dislipidemia: c})} />
-                    <Label htmlFor="dislipidemia" className="text-lg">☐ Dislipidemia</Label>
-                  </div>
-                </div>
-              </CardContent>
-            </CollapsibleContent>
-          </Card>
-        </Collapsible>
+        {/* 1. DECISÃO 1E: RELATO MÉDICO DE SUPRA ST? */}
+        <Card className="mb-4 border-2 border-yellow-400 bg-yellow-50">
+          <CardHeader className="bg-yellow-100">
+            <CardTitle className="text-yellow-900">📋 RELATO MÉDICO DE SUPRA ST?</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <RadioGroup value={ecgSupra.tem_supra} onValueChange={(v) => setEcgSupra({...ecgSupra, tem_supra: v})}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="sim" id="supra_sim" />
+                <Label htmlFor="supra_sim" className="text-lg font-semibold">SIM</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="nao" id="supra_nao" />
+                <Label htmlFor="supra_nao" className="text-lg font-semibold">NÃO</Label>
+              </div>
+            </RadioGroup>
+            {ecgSupra.tem_supra === "sim" && (
+              <div className="mt-3">
+                <Label className="font-semibold">Parede:</Label>
+                <Select value={ecgSupra.parede_supra} onValueChange={(v) => setEcgSupra({...ecgSupra, parede_supra: v})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a parede" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Inferior">Inferior</SelectItem>
+                    <SelectItem value="Anterior">Anterior</SelectItem>
+                    <SelectItem value="Lateral">Lateral</SelectItem>
+                    <SelectItem value="Posterior">Posterior</SelectItem>
+                    <SelectItem value="VD">VD (Ventrículo Direito)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* 3. BLOCO 1 - SUPRA ST */}
         <Collapsible open={bloco1Open} onOpenChange={setBloco1Open}>
