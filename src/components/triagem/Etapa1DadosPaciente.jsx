@@ -180,6 +180,28 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
         </p>
       </div>
 
+      <div className="bg-teal-50 border-2 border-teal-300 rounded-lg p-4">
+        <Label className="text-base font-semibold text-teal-900 mb-3 block">
+          Macrorregião de Saúde *
+        </Label>
+        <div className="flex gap-3">
+          {["Macro 1", "Macro 2", "Macro 3"].map((macro) => (
+            <button
+              key={macro}
+              type="button"
+              onClick={() => !modoLeitura && setDados(prev => ({...prev, macrorregiao: macro}))}
+              className={`flex-1 py-3 rounded-lg border-2 font-bold text-sm transition-colors ${
+                dados.macrorregiao === macro
+                  ? "bg-teal-600 border-teal-600 text-white"
+                  : "bg-white border-teal-300 text-teal-700 hover:bg-teal-50"
+              } ${modoLeitura ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}
+            >
+              {macro}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="nome_completo">Nome Completo *</Label>
