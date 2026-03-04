@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +14,10 @@ import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
 import { Badge } from "@/components/ui/badge";
 import ChatInterno from "@/components/ChatInterno";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export default function CERHDetalhe() {
   const navigate = useNavigate();
