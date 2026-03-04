@@ -119,23 +119,31 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
         
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <Label>PAS *</Label>
+            <Label>PAS (Sistólica) *</Label>
             <Input
-              type="text"
-              value={dados.pa_braco_esquerdo}
-              onChange={(e) => setDados(prev => ({...prev, pa_braco_esquerdo: e.target.value}))}
-              placeholder="Ex: 120/80"
+              type="number"
+              value={dados.pa_braco_esquerdo.split('/')[0] || ""}
+              onChange={(e) => {
+                const pas = e.target.value;
+                const pad = dados.pa_braco_esquerdo.split('/')[1] || "";
+                setDados(prev => ({...prev, pa_braco_esquerdo: pad ? `${pas}/${pad}` : pas}));
+              }}
+              placeholder="Ex: 120"
               required
             />
           </div>
 
           <div>
-            <Label>PAD *</Label>
+            <Label>PAD (Diastólica) *</Label>
             <Input
-              type="text"
-              value={dados.pa_braco_direito}
-              onChange={(e) => setDados(prev => ({...prev, pa_braco_direito: e.target.value}))}
-              placeholder=""
+              type="number"
+              value={dados.pa_braco_esquerdo.split('/')[1] || ""}
+              onChange={(e) => {
+                const pad = e.target.value;
+                const pas = dados.pa_braco_esquerdo.split('/')[0] || "";
+                setDados(prev => ({...prev, pa_braco_esquerdo: pas ? `${pas}/${pad}` : pad}));
+              }}
+              placeholder="Ex: 80"
               required
             />
           </div>
