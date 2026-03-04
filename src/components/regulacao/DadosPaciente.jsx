@@ -86,23 +86,22 @@ export default function DadosPaciente({ paciente }) {
                 const parts = pa.split('/');
                 const pas = parts[0]?.trim();
                 const pad = parts[1]?.trim();
-                if (pas) {
-                  return (
-                    <>
+                return (
+                  <>
+                    {pas && (
                       <div className="bg-gray-50 p-2 rounded">
                         <p className="text-xs text-gray-500">PAS</p>
                         <p className="font-medium">{pas} mm Hg</p>
                       </div>
-                      {pad && (
-                        <div className="bg-gray-50 p-2 rounded">
-                          <p className="text-xs text-gray-500">PAD</p>
-                          <p className="font-medium">{pad} mm Hg</p>
-                        </div>
-                      )}
-                    </>
-                  );
-                }
-                return null;
+                    )}
+                    {pad && (
+                      <div className="bg-gray-50 p-2 rounded">
+                        <p className="text-xs text-gray-500">PAD</p>
+                        <p className="font-medium">{pad} mm Hg</p>
+                      </div>
+                    )}
+                  </>
+                );
               })()}
               {paciente.triagem_medica.frequencia_cardiaca && (
                 <div className="bg-gray-50 p-2 rounded">
