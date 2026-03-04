@@ -61,7 +61,7 @@ export default function FormularioVaga() {
     enabled: !!pacienteId,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (paciente) {
       setFormData(prev => ({
         ...prev,
