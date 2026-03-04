@@ -60,9 +60,7 @@ const perfisComMacro = [
     icon: Heart,
     cor: "bg-green-600 hover:bg-green-700",
     macrorregioes: [
-      { macro: "Macro 1", senha: "pbsaude2023" },
-      { macro: "Macro 2", senha: "pbsaude2023.2" },
-      { macro: "Macro 3", senha: "pbsaude2023.3" },
+      { macro: "ASSCARDIO", senha: "pbsaude2023" },
     ]
   },
   {
