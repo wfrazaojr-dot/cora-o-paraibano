@@ -8,6 +8,9 @@ import { ptBR } from "date-fns/locale";
 export default function LinhaTempo({ paciente }) {
   const eventos = [];
 
+  // Macrorregião como primeiro item informativo
+  const macrorregiao = paciente.macrorregiao || null;
+
   // Adicionar eventos da linha do tempo
   if (paciente.data_hora_inicio_triagem) {
     eventos.push({
