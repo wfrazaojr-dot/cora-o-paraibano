@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -7,18 +7,32 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Activity, FileText, Save } from "lucide-react";
+import { ArrowLeft, Activity, FileText, Save, Download, Clock, Calendar, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
 import { Badge } from "@/components/ui/badge";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
+const TIPO_ICP_LABELS = {
+  imediata: "ICP Imediata",
+  ate_24h: "Estratégia 2: Invasiva ≤ 24h",
+  ate_72h: "Estratégia 3: Invasiva ≤ 72h"
+};
 
 export default function HemodinamicaDetalhe() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const relatorioRef = useRef(null);
   const urlParams = new URLSearchParams(window.location.search);
   const pacienteId = urlParams.get('id');
 
+  const [tipoIcpSelecionado, setTipoIcpSelecionado] = useState("");
+  const [agendamento, setAgendamento] = useState({ data: "", hora: "" });
   const [formData, setFormData] = useState({
     procedimento_realizado: "",
     icp_realizada: false,
@@ -27,6 +41,8 @@ export default function HemodinamicaDetalhe() {
     desfecho: "Sucesso",
     observacoes: ""
   });
+  const [comparecimento, setComparecimento] = useState("");
+  const [gerandoPDF, setGerandoPDF] = useState(false);
 
   const { data: paciente, isLoading } = useQuery({
     queryKey: ['paciente', pacienteId],
@@ -34,91 +50,214 @@ export default function HemodinamicaDetalhe() {
     enabled: !!pacienteId
   });
 
+  const tipoIcp = paciente?.hemodinamica?.tipo_icp || tipoIcpSelecionado;
+  const agendamentoSalvo = paciente?.hemodinamica?.data_hora_agendamento_icp;
+
+  const isAgendamentoAtivo = () => {
+    if (!agendamentoSalvo) return false;
+    return new Date() >= new Date(agendamentoSalvo);
+  };
+
+  const podeRegistrarChegada = tipoIcp === "imediata" || isAgendamentoAtivo();
+
+  const gerarPDF = async (pacienteData) => {
+    if (!relatorioRef.current) return null;
+    try {
+      const canvas = await html2canvas(relatorioRef.current, {
+        scale: 1.8, logging: false, useCORS: true, allowTaint: false,
+        backgroundColor: '#ffffff', imageTimeout: 15000
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+      heightLeft -= pdfHeight;
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+      const pdfBlob = pdf.output('blob');
+      const nome = (pacienteData?.nome_completo || 'Paciente').replace(/\s+/g, '_');
+      const arquivo = new File([pdfBlob], `Relatorio_Hemodinamica_${nome}_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`, { type: 'application/pdf' });
+      const result = await base44.integrations.Core.UploadFile({ file: arquivo });
+      return result.file_url;
+    } catch (err) {
+      console.error("Erro PDF:", err);
+      throw err;
+    }
+  };
+
+  const confirmarTipoIcp = useMutation({
+    mutationFn: async () => {
+      const dadosHemo = { ...paciente?.hemodinamica, tipo_icp: tipoIcpSelecionado };
+      if (tipoIcpSelecionado !== "imediata" && agendamento.data && agendamento.hora) {
+        dadosHemo.data_hora_agendamento_icp = new Date(`${agendamento.data}T${agendamento.hora}`).toISOString();
+      }
+      await base44.entities.Paciente.update(pacienteId, { hemodinamica: dadosHemo });
+    },
+    onSuccess: () => queryClient.invalidateQueries(['paciente', pacienteId])
+  });
+
   const registrarChegada = useMutation({
     mutationFn: async () => {
       await base44.entities.Paciente.update(pacienteId, {
-        hemodinamica: {
-          data_hora_chegada: new Date().toISOString()
-        },
+        hemodinamica: { ...paciente.hemodinamica, data_hora_chegada: new Date().toISOString() },
         status: "Aguardando Hemodinâmica"
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['paciente', pacienteId]);
-      alert("Chegada registrada!");
-    }
+    onSuccess: () => { queryClient.invalidateQueries(['paciente', pacienteId]); alert("Chegada registrada!"); }
   });
 
   const iniciarProcedimento = useMutation({
     mutationFn: async () => {
       await base44.entities.Paciente.update(pacienteId, {
-        hemodinamica: {
-          ...paciente.hemodinamica,
-          data_hora_inicio_procedimento: new Date().toISOString()
-        },
+        hemodinamica: { ...paciente.hemodinamica, data_hora_inicio_procedimento: new Date().toISOString() },
         status: "Em Procedimento"
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['paciente', pacienteId]);
-      alert("Procedimento iniciado!");
-    }
+    onSuccess: () => { queryClient.invalidateQueries(['paciente', pacienteId]); alert("Procedimento iniciado!"); }
   });
 
   const iniciarICP = useMutation({
     mutationFn: async () => {
       await base44.entities.Paciente.update(pacienteId, {
-        hemodinamica: {
-          ...paciente.hemodinamica,
-          data_hora_inicio_icp: new Date().toISOString()
-        }
+        hemodinamica: { ...paciente.hemodinamica, data_hora_inicio_icp: new Date().toISOString() }
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['paciente', pacienteId]);
-      alert("Início da ICP registrado!");
-    }
+    onSuccess: () => { queryClient.invalidateQueries(['paciente', pacienteId]); alert("Início da ICP registrado!"); }
+  });
+
+  const registrarComparecimento = useMutation({
+    mutationFn: async () => {
+      await base44.entities.Paciente.update(pacienteId, {
+        hemodinamica: { ...paciente.hemodinamica, comparecimento_paciente: comparecimento }
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries(['paciente', pacienteId])
   });
 
   const finalizarCaso = useMutation({
     mutationFn: async () => {
+      setGerandoPDF(true);
       const dataHoraFim = new Date();
-      const dataHoraInicio = new Date(paciente.hemodinamica.data_hora_inicio_procedimento);
-      const portaBalao = Math.round((dataHoraFim - dataHoraInicio) / 60000);
-
-      await base44.entities.Paciente.update(pacienteId, {
-        hemodinamica: {
-          ...paciente.hemodinamica,
-          ...formData,
-          data_hora_fim_procedimento: dataHoraFim.toISOString(),
-          porta_balao_minutos: portaBalao
-        },
-        status: "Concluído"
-      });
+      const dadosHemo = {
+        ...paciente.hemodinamica,
+        ...formData,
+        data_hora_fim_procedimento: dataHoraFim.toISOString()
+      };
+      if (paciente.hemodinamica?.data_hora_inicio_procedimento) {
+        dadosHemo.porta_balao_minutos = Math.round((dataHoraFim - new Date(paciente.hemodinamica.data_hora_inicio_procedimento)) / 60000);
+      }
+      await base44.entities.Paciente.update(pacienteId, { hemodinamica: dadosHemo, status: "Concluído" });
+      await new Promise(r => setTimeout(r, 600));
+      const file_url = await gerarPDF(paciente);
+      if (file_url) {
+        await base44.entities.Paciente.update(pacienteId, { relatorio_hemodinamica_url: file_url });
+      }
+      setGerandoPDF(false);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['paciente', pacienteId]);
-      alert("Caso finalizado com sucesso!");
+      alert("Caso finalizado! Relatório PDF gerado.");
       navigate(createPageUrl("Dashboard"));
-    }
+    },
+    onError: () => setGerandoPDF(false)
   });
 
-  if (isLoading) {
-    return <div className="p-8">Carregando...</div>;
-  }
+  if (isLoading) return <div className="p-8">Carregando...</div>;
+  if (!paciente) return <div className="p-8">Paciente não encontrado</div>;
 
-  if (!paciente) {
-    return <div className="p-8">Paciente não encontrado</div>;
-  }
+  const tipoIcpDefinido = !!paciente?.hemodinamica?.tipo_icp;
+  const estaEmStandby = tipoIcp && tipoIcp !== "imediata" && agendamentoSalvo && !isAgendamentoAtivo();
 
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
+
+      {/* Template oculto para PDF */}
+      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+        <div ref={relatorioRef} className="bg-white p-8" style={{ width: '210mm', minHeight: '297mm' }}>
+          <div className="mb-6 pb-4 border-b-2 border-gray-300">
+            <div className="flex items-center justify-between gap-4 w-full mb-3">
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" alt="SES" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" alt="Coração Paraibano" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png" alt="PBSAÚDE" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
+            </div>
+            <div className="text-center">
+              <h1 className="text-xl font-bold text-pink-700">RELATÓRIO HEMODINÂMICA</h1>
+              <p className="text-sm text-gray-600 mt-1">Data: {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">DADOS DO PACIENTE</h2>
+            <div className="grid grid-cols-2 gap-1 text-xs">
+              <div><span className="font-semibold">Nome:</span> {paciente?.nome_completo}</div>
+              <div><span className="font-semibold">Idade:</span> {paciente?.idade} anos | <span className="font-semibold">Sexo:</span> {paciente?.sexo}</div>
+              <div><span className="font-semibold">Unidade:</span> {paciente?.unidade_saude}</div>
+              <div><span className="font-semibold">Macrorregiâo:</span> {paciente?.macrorregiao}</div>
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">TIPO DE ICP</h2>
+            <p className="text-sm font-semibold">{TIPO_ICP_LABELS[paciente?.hemodinamica?.tipo_icp] || "-"}</p>
+            {paciente?.hemodinamica?.data_hora_agendamento_icp && (
+              <p className="text-xs text-gray-600 mt-1">Agendamento: {format(new Date(paciente.hemodinamica.data_hora_agendamento_icp), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+            )}
+          </div>
+
+          {paciente?.hemodinamica?.comparecimento_paciente && (
+            <div className="mb-4">
+              <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">COMPARECIMENTO</h2>
+              <p className="text-sm">{paciente.hemodinamica.comparecimento_paciente === "compareceu" ? "✓ Paciente compareceu" : "✗ Paciente não compareceu"}</p>
+            </div>
+          )}
+
+          <div className="mb-4">
+            <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">CONTROLE DE PROCEDIMENTO</h2>
+            <div className="text-xs space-y-1">
+              {paciente?.hemodinamica?.data_hora_chegada && <p><span className="font-semibold">Chegada:</span> {format(new Date(paciente.hemodinamica.data_hora_chegada), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>}
+              {paciente?.hemodinamica?.data_hora_inicio_procedimento && <p><span className="font-semibold">Início Procedimento:</span> {format(new Date(paciente.hemodinamica.data_hora_inicio_procedimento), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>}
+              {paciente?.hemodinamica?.data_hora_inicio_icp && <p><span className="font-semibold">Início ICP:</span> {format(new Date(paciente.hemodinamica.data_hora_inicio_icp), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>}
+            </div>
+          </div>
+
+          {formData.procedimento_realizado && (
+            <div className="mb-4">
+              <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">PROCEDIMENTO REALIZADO</h2>
+              <p className="text-xs whitespace-pre-wrap">{formData.procedimento_realizado}</p>
+            </div>
+          )}
+
+          <div className="mb-4">
+            <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">DESFECHO</h2>
+            <div className="text-xs space-y-1">
+              <p><span className="font-semibold">ICP Realizada:</span> {formData.icp_realizada ? "Sim" : "Não"}</p>
+              {formData.icp_realizada && <p><span className="font-semibold">Reperfusão Efetiva:</span> {formData.reperfusao_efetiva ? "Sim" : "Não"}</p>}
+              <p><span className="font-semibold">Desfecho:</span> {formData.desfecho}</p>
+              {formData.intercorrencias && <p><span className="font-semibold">Intercorrências:</span> {formData.intercorrencias}</p>}
+            </div>
+          </div>
+
+          <div className="mt-8 pt-4 border-t-2 border-gray-300 text-xs text-gray-600">
+            <p className="font-semibold">Sistema de Triagem de Dor Torácica - Coração Paraibano</p>
+            <p>Desenvolvedor: Walber Alves Frazão Júnior - COREN 110.238</p>
+            <p>Gerado em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm:ss", { locale: ptBR })}</p>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-6 flex items-center gap-4">
           <Button variant="outline" onClick={() => navigate(createPageUrl("Dashboard"))}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar
+            <ArrowLeft className="w-4 h-4 mr-2" />Voltar
           </Button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
@@ -130,150 +269,259 @@ export default function HemodinamicaDetalhe() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Coluna Esquerda */}
           <div className="lg:col-span-1 space-y-6">
             <DadosPaciente paciente={paciente} />
             <LinhaTempo paciente={paciente} />
           </div>
 
-          {/* Coluna Direita */}
           <div className="lg:col-span-2 space-y-6">
             {/* Relatório da Unidade */}
             {paciente.relatorio_triagem_url && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <FileText className="w-5 h-5" />
-                    Relatório da Unidade de Saúde
+                    <FileText className="w-5 h-5" />Relatório da Unidade de Saúde
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Button
-                    onClick={() => window.open(paciente.relatorio_triagem_url, '_blank')}
-                    className="w-full"
-                  >
-                    <FileText className="w-4 h-4 mr-2" />
-                    Visualizar Relatório
+                  <Button onClick={() => window.open(paciente.relatorio_triagem_url, '_blank')} className="w-full">
+                    <FileText className="w-4 h-4 mr-2" />Visualizar Relatório
                   </Button>
                 </CardContent>
               </Card>
             )}
 
-            {/* Controles de Etapas */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Controle de Procedimento</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {!paciente.hemodinamica?.data_hora_chegada && (
-                  <Button
-                    onClick={() => registrarChegada.mutate()}
-                    disabled={registrarChegada.isPending}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                  >
-                    {registrarChegada.isPending ? "Registrando..." : "Registrar Chegada"}
-                  </Button>
-                )}
-
-                {paciente.hemodinamica?.data_hora_chegada && !paciente.hemodinamica?.data_hora_inicio_procedimento && (
-                  <Button
-                    onClick={() => iniciarProcedimento.mutate()}
-                    disabled={iniciarProcedimento.isPending}
-                    className="w-full bg-pink-600 hover:bg-pink-700"
-                  >
-                    {iniciarProcedimento.isPending ? "Iniciando..." : "Iniciar Procedimento"}
-                  </Button>
-                )}
-
-                {paciente.hemodinamica?.data_hora_inicio_procedimento && !paciente.hemodinamica?.data_hora_inicio_icp && (
-                  <Button
-                    onClick={() => iniciarICP.mutate()}
-                    disabled={iniciarICP.isPending}
-                    className="w-full bg-purple-600 hover:bg-purple-700"
-                  >
-                    {iniciarICP.isPending ? "Registrando..." : "Hora do Início da ICP"}
-                  </Button>
-                )}
-
-                {paciente.hemodinamica?.data_hora_chegada && (
-                  <div className="pt-3 border-t">
-                    <Badge className="bg-green-600">
-                      Chegada: {new Date(paciente.hemodinamica.data_hora_chegada).toLocaleString('pt-BR')}
-                    </Badge>
+            {/* ETAPA 1: Definir Tipo de ICP */}
+            {!tipoIcpDefinido && (
+              <Card className="border-2 border-pink-300">
+                <CardHeader className="bg-pink-50">
+                  <CardTitle className="flex items-center gap-2 text-pink-800">
+                    <Activity className="w-5 h-5" />
+                    Definição do Tipo de ICP
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-4">
+                  <div>
+                    <Label className="text-base font-semibold">Qual é a estratégia definida?</Label>
+                    <Select value={tipoIcpSelecionado} onValueChange={setTipoIcpSelecionado}>
+                      <SelectTrigger className="mt-2">
+                        <SelectValue placeholder="Selecione..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="imediata">ICP Imediata</SelectItem>
+                        <SelectItem value="ate_24h">Regulado para: Estratégia 2 – Invasiva ≤ 24h</SelectItem>
+                        <SelectItem value="ate_72h">Regulado para: Estratégia 3 – Invasiva ≤ 72h</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                )}
 
-                {paciente.hemodinamica?.data_hora_inicio_procedimento && (
-                  <div className="pt-2">
-                    <Badge className="bg-pink-600">
-                      Início: {new Date(paciente.hemodinamica.data_hora_inicio_procedimento).toLocaleString('pt-BR')}
-                    </Badge>
-                  </div>
-                )}
+                  {tipoIcpSelecionado && tipoIcpSelecionado !== "imediata" && (
+                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg space-y-3">
+                      <div className="flex items-center gap-2 text-yellow-800 font-semibold">
+                        <Calendar className="w-4 h-4" />
+                        Agendamento do Procedimento
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>Data</Label>
+                          <Input type="date" value={agendamento.data} onChange={e => setAgendamento({ ...agendamento, data: e.target.value })} />
+                        </div>
+                        <div>
+                          <Label>Hora</Label>
+                          <Input type="time" value={agendamento.hora} onChange={e => setAgendamento({ ...agendamento, hora: e.target.value })} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-                {paciente.hemodinamica?.data_hora_inicio_icp && (
-                  <div className="pt-2">
-                    <Badge className="bg-purple-600">
-                      Início ICP: {new Date(paciente.hemodinamica.data_hora_inicio_icp).toLocaleString('pt-BR')}
-                    </Badge>
+                  {tipoIcpSelecionado && (
+                    <Button
+                      onClick={() => confirmarTipoIcp.mutate()}
+                      disabled={confirmarTipoIcp.isPending || (tipoIcpSelecionado !== "imediata" && (!agendamento.data || !agendamento.hora))}
+                      className="w-full bg-pink-600 hover:bg-pink-700"
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      {confirmarTipoIcp.isPending ? "Salvando..." : "Confirmar Estratégia"}
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Informação de tipo de ICP já definido */}
+            {tipoIcpDefinido && (
+              <Card className="border-pink-200 bg-pink-50">
+                <CardContent className="pt-4">
+                  <div className="flex items-center gap-3">
+                    <Activity className="w-5 h-5 text-pink-600" />
+                    <div>
+                      <p className="font-semibold text-pink-800">Estratégia Definida</p>
+                      <p className="text-sm text-pink-700">{TIPO_ICP_LABELS[paciente.hemodinamica.tipo_icp]}</p>
+                      {agendamentoSalvo && (
+                        <p className="text-xs text-gray-600 mt-1">
+                          <Calendar className="w-3 h-3 inline mr-1" />
+                          Agendado para: {format(new Date(agendamentoSalvo), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* STANDBY */}
+            {estaEmStandby && (
+              <Card className="border-2 border-yellow-400 bg-yellow-50">
+                <CardContent className="pt-6 pb-6 text-center">
+                  <Clock className="w-12 h-12 text-yellow-500 mx-auto mb-3" />
+                  <h3 className="text-xl font-bold text-yellow-800">Sistema em STANDBY</h3>
+                  <p className="text-yellow-700 mt-2">Aguardando data do agendamento</p>
+                  <p className="text-lg font-semibold text-yellow-900 mt-2">
+                    {format(new Date(agendamentoSalvo), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                  </p>
+                  <p className="text-sm text-yellow-600 mt-3">
+                    Os botões de Registrar Chegada e Iniciar Procedimento serão habilitados na data/hora agendada.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Controle de Procedimento */}
+            {tipoIcpDefinido && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Controle de Procedimento</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {!paciente.hemodinamica?.data_hora_chegada && (
+                    <>
+                      {!podeRegistrarChegada && (
+                        <div className="flex items-center gap-2 text-yellow-700 bg-yellow-50 p-3 rounded-lg text-sm">
+                          <AlertTriangle className="w-4 h-4" />
+                          Botões habilitados somente na data/hora agendada.
+                        </div>
+                      )}
+                      <Button
+                        onClick={() => registrarChegada.mutate()}
+                        disabled={registrarChegada.isPending || !podeRegistrarChegada}
+                        className="w-full bg-blue-600 hover:bg-blue-700"
+                      >
+                        {registrarChegada.isPending ? "Registrando..." : "Registrar Chegada"}
+                      </Button>
+                    </>
+                  )}
+
+                  {paciente.hemodinamica?.data_hora_chegada && !paciente.hemodinamica?.data_hora_inicio_procedimento && (
+                    <Button
+                      onClick={() => iniciarProcedimento.mutate()}
+                      disabled={iniciarProcedimento.isPending}
+                      className="w-full bg-pink-600 hover:bg-pink-700"
+                    >
+                      {iniciarProcedimento.isPending ? "Iniciando..." : "Iniciar Procedimento"}
+                    </Button>
+                  )}
+
+                  {paciente.hemodinamica?.data_hora_inicio_procedimento && !paciente.hemodinamica?.data_hora_inicio_icp && (
+                    <Button
+                      onClick={() => iniciarICP.mutate()}
+                      disabled={iniciarICP.isPending}
+                      className="w-full bg-purple-600 hover:bg-purple-700"
+                    >
+                      {iniciarICP.isPending ? "Registrando..." : "Hora do Início da ICP"}
+                    </Button>
+                  )}
+
+                  {paciente.hemodinamica?.data_hora_chegada && (
+                    <div className="pt-3 border-t space-y-2">
+                      <Badge className="bg-blue-600">Chegada: {new Date(paciente.hemodinamica.data_hora_chegada).toLocaleString('pt-BR')}</Badge>
+                      {paciente.hemodinamica?.data_hora_inicio_procedimento && (
+                        <div><Badge className="bg-pink-600">Início: {new Date(paciente.hemodinamica.data_hora_inicio_procedimento).toLocaleString('pt-BR')}</Badge></div>
+                      )}
+                      {paciente.hemodinamica?.data_hora_inicio_icp && (
+                        <div><Badge className="bg-purple-600">Início ICP: {new Date(paciente.hemodinamica.data_hora_inicio_icp).toLocaleString('pt-BR')}</Badge></div>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Confirmação de Comparecimento (para ICP agendada) */}
+            {tipoIcpDefinido && tipoIcp !== "imediata" && paciente.hemodinamica?.data_hora_inicio_procedimento && !paciente.hemodinamica?.comparecimento_paciente && (
+              <Card className="border-2 border-blue-300">
+                <CardHeader className="bg-blue-50">
+                  <CardTitle className="text-blue-800">Confirmação de Comparecimento</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 pt-4">
+                  <p className="text-sm text-gray-700">O paciente compareceu à Hemodinâmica na data/hora agendada?</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      variant={comparecimento === "compareceu" ? "default" : "outline"}
+                      onClick={() => setComparecimento("compareceu")}
+                      className={comparecimento === "compareceu" ? "bg-green-600 hover:bg-green-700" : "border-green-400 text-green-700"}
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />Compareceu
+                    </Button>
+                    <Button
+                      variant={comparecimento === "nao_compareceu" ? "default" : "outline"}
+                      onClick={() => setComparecimento("nao_compareceu")}
+                      className={comparecimento === "nao_compareceu" ? "bg-red-600 hover:bg-red-700" : "border-red-400 text-red-700"}
+                    >
+                      <XCircle className="w-4 h-4 mr-2" />Não Compareceu
+                    </Button>
+                  </div>
+                  {comparecimento && (
+                    <Button onClick={() => registrarComparecimento.mutate()} disabled={registrarComparecimento.isPending} className="w-full">
+                      <Save className="w-4 h-4 mr-2" />
+                      {registrarComparecimento.isPending ? "Salvando..." : "Confirmar"}
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Comparecimento já registrado */}
+            {paciente.hemodinamica?.comparecimento_paciente && (
+              <Card className={paciente.hemodinamica.comparecimento_paciente === "compareceu" ? "border-green-300 bg-green-50" : "border-red-300 bg-red-50"}>
+                <CardContent className="pt-4 flex items-center gap-3">
+                  {paciente.hemodinamica.comparecimento_paciente === "compareceu"
+                    ? <CheckCircle className="w-6 h-6 text-green-600" />
+                    : <XCircle className="w-6 h-6 text-red-600" />}
+                  <p className={`font-semibold ${paciente.hemodinamica.comparecimento_paciente === "compareceu" ? "text-green-800" : "text-red-800"}`}>
+                    {paciente.hemodinamica.comparecimento_paciente === "compareceu" ? "Paciente compareceu à hemodinâmica" : "Paciente não compareceu à hemodinâmica"}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Formulário de Finalização */}
             {paciente.hemodinamica?.data_hora_inicio_procedimento && !paciente.hemodinamica?.data_hora_fim_procedimento && (
               <Card>
-                <CardHeader>
-                  <CardTitle>Finalização do Caso</CardTitle>
-                </CardHeader>
+                <CardHeader><CardTitle>Finalização do Caso</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                   <div>
                     <Label>Procedimento Realizado</Label>
-                    <Textarea
-                      value={formData.procedimento_realizado}
-                      onChange={(e) => setFormData({...formData, procedimento_realizado: e.target.value})}
-                      placeholder="Descreva o procedimento realizado..."
-                      rows={4}
-                    />
+                    <Textarea value={formData.procedimento_realizado} onChange={(e) => setFormData({...formData, procedimento_realizado: e.target.value})} placeholder="Descreva o procedimento realizado..." rows={4} />
                   </div>
-
                   <div>
                     <Label>Intercorrências</Label>
-                    <Textarea
-                      value={formData.intercorrencias}
-                      onChange={(e) => setFormData({...formData, intercorrencias: e.target.value})}
-                      placeholder="Registre intercorrências durante o procedimento..."
-                      rows={3}
-                    />
+                    <Textarea value={formData.intercorrencias} onChange={(e) => setFormData({...formData, intercorrencias: e.target.value})} placeholder="Registre intercorrências..." rows={3} />
                   </div>
-
                   <div>
                     <Label>ICP Realizada?</Label>
-                    <Select 
-                      value={formData.icp_realizada ? "sim" : "nao"} 
-                      onValueChange={(value) => setFormData({...formData, icp_realizada: value === "sim"})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
+                    <Select value={formData.icp_realizada ? "sim" : "nao"} onValueChange={(v) => setFormData({...formData, icp_realizada: v === "sim"})}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="sim">Sim</SelectItem>
                         <SelectItem value="nao">Não</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-
                   {formData.icp_realizada && (
                     <div>
                       <Label>Reperfusão Efetiva?</Label>
-                      <Select 
-                        value={formData.reperfusao_efetiva ? "sim" : "nao"} 
-                        onValueChange={(value) => setFormData({...formData, reperfusao_efetiva: value === "sim"})}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
+                      <Select value={formData.reperfusao_efetiva ? "sim" : "nao"} onValueChange={(v) => setFormData({...formData, reperfusao_efetiva: v === "sim"})}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="sim">Sim</SelectItem>
                           <SelectItem value="nao">Não</SelectItem>
@@ -281,16 +529,10 @@ export default function HemodinamicaDetalhe() {
                       </Select>
                     </div>
                   )}
-
                   <div>
                     <Label>Desfecho</Label>
-                    <Select 
-                      value={formData.desfecho} 
-                      onValueChange={(value) => setFormData({...formData, desfecho: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
+                    <Select value={formData.desfecho} onValueChange={(v) => setFormData({...formData, desfecho: v})}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Sucesso">Sucesso</SelectItem>
                         <SelectItem value="Complicações">Complicações</SelectItem>
@@ -298,24 +540,29 @@ export default function HemodinamicaDetalhe() {
                       </SelectContent>
                     </Select>
                   </div>
-
                   <div>
                     <Label>Observações</Label>
-                    <Textarea
-                      value={formData.observacoes}
-                      onChange={(e) => setFormData({...formData, observacoes: e.target.value})}
-                      placeholder="Observações adicionais..."
-                      rows={3}
-                    />
+                    <Textarea value={formData.observacoes} onChange={(e) => setFormData({...formData, observacoes: e.target.value})} placeholder="Observações adicionais..." rows={3} />
                   </div>
-
-                  <Button
-                    onClick={() => finalizarCaso.mutate()}
-                    disabled={finalizarCaso.isPending}
-                    className="w-full bg-green-600 hover:bg-green-700"
-                  >
+                  <Button onClick={() => finalizarCaso.mutate()} disabled={finalizarCaso.isPending || gerandoPDF} className="w-full bg-green-600 hover:bg-green-700">
                     <Save className="w-4 h-4 mr-2" />
-                    {finalizarCaso.isPending ? "Finalizando..." : "Finalizar Caso"}
+                    {gerandoPDF ? "Gerando PDF..." : finalizarCaso.isPending ? "Finalizando..." : "Finalizar Caso e Gerar PDF"}
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Relatório PDF */}
+            {paciente.relatorio_hemodinamica_url && (
+              <Card className="border-pink-200">
+                <CardHeader className="bg-pink-50">
+                  <CardTitle className="flex items-center gap-2 text-pink-700">
+                    <FileText className="w-5 h-5" />Relatório Hemodinâmica
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Button onClick={() => window.open(paciente.relatorio_hemodinamica_url, '_blank')} className="w-full bg-pink-600 hover:bg-pink-700">
+                    <Download className="w-4 h-4 mr-2" />Baixar Relatório PDF
                   </Button>
                 </CardContent>
               </Card>
