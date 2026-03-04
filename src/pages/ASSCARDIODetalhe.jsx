@@ -608,37 +608,7 @@ export default function ASSCARDIODetalhe() {
                   </div>
                 </div>
 
-                {/* Decisão 1E */}
-                <div className="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-400">
-                  <Label className="text-lg font-bold text-yellow-900 mb-3 block">Decisão 1E: TEM SUPRA ST?</Label>
-                  <RadioGroup value={ecgSupra.tem_supra} onValueChange={(v) => setEcgSupra({...ecgSupra, tem_supra: v})}>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="sim" id="supra_sim" />
-                      <Label htmlFor="supra_sim" className="text-lg">SIM</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="nao" id="supra_nao" />
-                      <Label htmlFor="supra_nao" className="text-lg">NÃO</Label>
-                    </div>
-                  </RadioGroup>
-                  {ecgSupra.tem_supra === "sim" && (
-                    <div className="mt-3">
-                      <Label>Parede:</Label>
-                      <Select value={ecgSupra.parede_supra} onValueChange={(v) => setEcgSupra({...ecgSupra, parede_supra: v})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione a parede" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Inferior">Inferior</SelectItem>
-                          <SelectItem value="Anterior">Anterior</SelectItem>
-                          <SelectItem value="Lateral">Lateral</SelectItem>
-                          <SelectItem value="Posterior">Posterior</SelectItem>
-                          <SelectItem value="VD">VD (Ventrículo Direito)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                </div>
+
               </CardContent>
             </CollapsibleContent>
           </Card>
