@@ -659,6 +659,74 @@ export default function Indicadores() {
           </CardContent>
         </Card>
 
+        {/* Indicadores de ICP por Tipo e Macrorregião */}
+        <Card className="shadow-md mt-6 border-l-4 border-l-pink-500">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Heart className="w-5 h-5 text-pink-600" />
+              ICP – Distribuição por Tipo e Macrorregião
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* Totais */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-pink-50 rounded-lg p-4 text-center border border-pink-200">
+                <p className="text-xs text-gray-600 font-medium">Total ICP</p>
+                <p className="text-3xl font-bold text-pink-700">{icpPorTipo.totais.total}</p>
+              </div>
+              <div className="bg-red-50 rounded-lg p-4 text-center border border-red-200">
+                <p className="text-xs text-gray-600 font-medium">ICP Imediata</p>
+                <p className="text-3xl font-bold text-red-700">{icpPorTipo.totais.imediata}</p>
+              </div>
+              <div className="bg-orange-50 rounded-lg p-4 text-center border border-orange-200">
+                <p className="text-xs text-gray-600 font-medium">ICP ≤ 24h</p>
+                <p className="text-3xl font-bold text-orange-700">{icpPorTipo.totais.ate_24h}</p>
+              </div>
+              <div className="bg-yellow-50 rounded-lg p-4 text-center border border-yellow-200">
+                <p className="text-xs text-gray-600 font-medium">ICP ≤ 72h</p>
+                <p className="text-3xl font-bold text-yellow-700">{icpPorTipo.totais.ate_72h}</p>
+              </div>
+            </div>
+
+            {/* Comparecimento */}
+            {(icpPorTipo.comparecimento.compareceu > 0 || icpPorTipo.comparecimento.nao_compareceu > 0) && (
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="bg-green-50 rounded-lg p-4 text-center border border-green-200">
+                  <p className="text-xs text-gray-600 font-medium">Compareceram (≤24h/72h)</p>
+                  <p className="text-3xl font-bold text-green-700">{icpPorTipo.comparecimento.compareceu}</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4 text-center border border-gray-200">
+                  <p className="text-xs text-gray-600 font-medium">Não Compareceram</p>
+                  <p className="text-3xl font-bold text-gray-700">{icpPorTipo.comparecimento.nao_compareceu}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Gráfico por Macrorregião */}
+            {icpPorTipo.totais.total > 0 && (
+              <div>
+                <p className="text-sm font-semibold text-gray-700 mb-3">Distribuição por Macrorregião</p>
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={icpPorTipo.porMacro}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="imediata" name="ICP Imediata" fill="#DC2626" />
+                    <Bar dataKey="ate_24h" name="ICP ≤ 24h" fill="#EA580C" />
+                    <Bar dataKey="ate_72h" name="ICP ≤ 72h" fill="#CA8A04" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+
+            {icpPorTipo.totais.total === 0 && (
+              <div className="text-center text-gray-500 py-6">Nenhuma ICP registrada neste período.</div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Nota sobre as Metas */}
         <Card className="shadow-md mt-6 border-l-4 border-l-blue-500">
           <CardContent className="p-6">
