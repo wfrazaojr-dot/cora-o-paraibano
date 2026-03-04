@@ -683,79 +683,100 @@ export default function ASSCARDIODetalhe() {
           </Collapsible>
         )}
 
-        {/* 5. HEART SCORE - Opcional quando tem supra */}
+        {/* 5. HEART SCORE */}
         {(ecgSupra.tem_supra === "nao" || ecgSupra.tem_supra === "") && (
           <Card className="mb-4 border-2 border-purple-200 bg-purple-50">
             <CardHeader className="bg-purple-100">
-              <CardTitle className="text-purple-900">🧮 HEART SCORE (Auto-cálculo)</CardTitle>
+              <CardTitle className="text-purple-900">🧮 HEART SCORE</CardTitle>
             </CardHeader>
-            <CardContent className="pt-4 space-y-3">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <Label>H - História</Label>
-                <Select value={heartScore.historia.toString()} onValueChange={(v) => setHeartScore({...heartScore, historia: parseInt(v)})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0">0 - Baixa</SelectItem>
-                    <SelectItem value="1">1 - Moderada</SelectItem>
-                    <SelectItem value="2">2 - Alta</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label>E - ECG</Label>
-                <Select value={heartScore.ecg.toString()} onValueChange={(v) => setHeartScore({...heartScore, ecg: parseInt(v)})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0">0 - Normal</SelectItem>
-                    <SelectItem value="1">1 - Não específico</SelectItem>
-                    <SelectItem value="2">2 - Supra/Q</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label>A - Idade</Label>
-                <Select value={heartScore.idade.toString()} onValueChange={(v) => setHeartScore({...heartScore, idade: parseInt(v)})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0">0 - &lt;45 anos</SelectItem>
-                    <SelectItem value="1">1 - 45-64 anos</SelectItem>
-                    <SelectItem value="2">2 - ≥65 anos</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label>R - Fatores de Risco</Label>
-                <Select value={heartScore.risco.toString()} onValueChange={(v) => setHeartScore({...heartScore, risco: parseInt(v)})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0">0 - 0 FR</SelectItem>
-                    <SelectItem value="1">1 - 1-2 FR</SelectItem>
-                    <SelectItem value="2">2 - ≥3 FR</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-            </div>
-
-            <div className="bg-purple-200 p-4 rounded-lg text-center">
-              <p className="text-2xl font-bold text-purple-900">
-                TOTAL: {heartTotal} - {getHeartInterpretacao(heartTotal)}
+            <CardContent className="pt-4 space-y-4">
+              <p className="text-sm text-purple-700 bg-purple-100 p-2 rounded">
+                ℹ️ H, E, R e A foram pré-preenchidos com base nos dados da triagem. Revise se necessário e preencha a Troponina.
               </p>
-            </div>
-          </CardContent>
-        </Card>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* H */}
+                <div>
+                  <Label className="font-semibold">H – História Clínica</Label>
+                  <Select value={heartScore.historia.toString()} onValueChange={(v) => setHeartScore({...heartScore, historia: parseInt(v)})}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">0 – Pouco suspeita</SelectItem>
+                      <SelectItem value="1">1 – Moderadamente suspeita</SelectItem>
+                      <SelectItem value="2">2 – Altamente suspeita</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* E */}
+                <div>
+                  <Label className="font-semibold">E – ECG</Label>
+                  <Select value={heartScore.ecg.toString()} onValueChange={(v) => setHeartScore({...heartScore, ecg: parseInt(v)})}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">0 – Normal</SelectItem>
+                      <SelectItem value="1">1 – Alteração inespecífica</SelectItem>
+                      <SelectItem value="2">2 – Depressão significativa do ST</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* A */}
+                <div>
+                  <Label className="font-semibold">A – Idade ({paciente?.idade} anos)</Label>
+                  <Select value={heartScore.idade.toString()} onValueChange={(v) => setHeartScore({...heartScore, idade: parseInt(v)})}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">0 – &lt; 45 anos</SelectItem>
+                      <SelectItem value="1">1 – 45 a 64 anos</SelectItem>
+                      <SelectItem value="2">2 – ≥ 65 anos</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* R */}
+                <div>
+                  <Label className="font-semibold">R – Fatores de Risco ({(paciente?.triagem_medica?.fatores_risco || []).length} fator(es))</Label>
+                  <Select value={heartScore.risco.toString()} onValueChange={(v) => setHeartScore({...heartScore, risco: parseInt(v)})}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">0 – Nenhum fator de risco</SelectItem>
+                      <SelectItem value="1">1 – 1 ou 2 fatores de risco</SelectItem>
+                      <SelectItem value="2">2 – ≥ 3 fatores de risco</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* T */}
+                <div className="md:col-span-2 bg-yellow-50 border-2 border-yellow-400 rounded-lg p-3">
+                  <Label className="font-semibold text-yellow-900">T – Troponina (preencher manualmente)</Label>
+                  <Select value={heartScore.troponina.toString()} onValueChange={(v) => setHeartScore({...heartScore, troponina: parseInt(v)})}>
+                    <SelectTrigger className="mt-2"><SelectValue placeholder="Selecione o resultado da Troponina" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">0 – Normal (abaixo do limite)</SelectItem>
+                      <SelectItem value="1">1 – Entre 1 a 3x o limite normal</SelectItem>
+                      <SelectItem value="2">2 – Maior que 3x o limite normal</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Resultado */}
+              <div className={`p-4 rounded-lg text-center border-2 ${
+                heartTotal <= 3 ? 'bg-green-100 border-green-400 text-green-900' :
+                heartTotal <= 6 ? 'bg-yellow-100 border-yellow-400 text-yellow-900' :
+                'bg-red-100 border-red-400 text-red-900'
+              }`}>
+                <p className="text-3xl font-bold">TOTAL: {heartTotal} pontos</p>
+                <p className="text-xl font-semibold mt-1">{getHeartInterpretacao(heartTotal)}</p>
+                <p className="text-sm mt-2">
+                  {heartTotal <= 3 && "✅ Alta hospitalar segura e acompanhamento ambulatorial."}
+                  {heartTotal >= 4 && heartTotal <= 6 && "⚠️ Observação, monitoramento e exames seriados (troponina)."}
+                  {heartTotal >= 7 && "🚨 Internação imediata e possível intervenção (cateterismo)."}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* 6. BOTÃO ENFERMEIRO */}
