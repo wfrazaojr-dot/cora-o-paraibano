@@ -47,8 +47,7 @@ export default function CERHDetalhe() {
           ...formData,
           data_hora: new Date().toISOString()
         },
-        status: "Aguardando Transporte",
-        alerta_formulario_vaga: true
+        status: "Aguardando Transporte"
       });
     },
     onSuccess: () => {

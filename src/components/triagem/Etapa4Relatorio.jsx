@@ -160,6 +160,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         usa_disponivel_menos_90min: confirmacaoHemodinamica,
         status: "Aguardando Assessoria",
         relatorio_triagem_url: pdfUrl,
+        alerta_formulario_vaga: true,
       });
       alert("Atendimento finalizado com sucesso!");
       navigate(createPageUrl("Dashboard"));
