@@ -301,6 +301,85 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
         </div>
       </div>
 
+      {/* Fatores de Risco */}
+      <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-orange-900 mb-4">Fatores de Risco</h3>
+        <div className="grid md:grid-cols-2 gap-2">
+          {[
+            "Hipertensão",
+            "Diabetes",
+            "Tabagismo atual",
+            "Obesidade",
+            "Colesterol alto",
+            "Histórico familiar de doença coronariana"
+          ].map((fator) => (
+            <div key={fator} className="flex items-center gap-2">
+              <Checkbox
+                checked={dados.fatores_risco.includes(fator)}
+                onCheckedChange={(checked) => setDados(prev => ({
+                  ...prev,
+                  fatores_risco: checked
+                    ? [...prev.fatores_risco, fator]
+                    : prev.fatores_risco.filter(f => f !== fator)
+                }))}
+                disabled={modoLeitura}
+              />
+              <Label className="font-normal">{fator}</Label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* História Clínica */}
+      <div className="bg-teal-50 border border-teal-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-teal-900 mb-4">História Clínica</h3>
+        <div className="space-y-2">
+          {[
+            "Pouco suspeita ou dor claramente muscular ou de outra causa",
+            "Moderadamente suspeita",
+            "Altamente suspeita: dor em aperto, irradiação para o braço, sudorese"
+          ].map((opcao) => (
+            <div key={opcao} className="flex items-center gap-3 p-3 bg-white rounded border-2 hover:border-teal-400 cursor-pointer">
+              <input
+                type="radio"
+                name="historia_clinica"
+                value={opcao}
+                checked={dados.historia_clinica === opcao}
+                onChange={(e) => setDados(prev => ({...prev, historia_clinica: e.target.value}))}
+                disabled={modoLeitura}
+                className="w-5 h-5"
+              />
+              <Label className="cursor-pointer flex-1 font-normal">{opcao}</Label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ECG - Classificação */}
+      <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-indigo-900 mb-4">Eletrocardiograma - ECG</h3>
+        <div className="space-y-2">
+          {[
+            "Normal",
+            "Alteração inespecífica da repolarização",
+            "Depressão significativa do segmento ST"
+          ].map((opcao) => (
+            <div key={opcao} className="flex items-center gap-3 p-3 bg-white rounded border-2 hover:border-indigo-400 cursor-pointer">
+              <input
+                type="radio"
+                name="ecg_classificacao"
+                value={opcao}
+                checked={dados.ecg_classificacao === opcao}
+                onChange={(e) => setDados(prev => ({...prev, ecg_classificacao: e.target.value}))}
+                disabled={modoLeitura}
+                className="w-5 h-5"
+              />
+              <Label className="cursor-pointer flex-1 font-normal">{opcao}</Label>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {modoLeitura && (
         <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6">
           <p className="text-blue-900 font-semibold text-center">
