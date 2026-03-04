@@ -39,6 +39,9 @@ export default function DadosPaciente({ paciente }) {
               Unidade de Origem
             </p>
             <p className="font-medium">{paciente.unidade_saude}</p>
+            {paciente.macrorregiao && (
+              <p className="text-xs text-teal-700 font-semibold mt-0.5">{paciente.macrorregiao}</p>
+            )}
           </div>
 
           <div>
