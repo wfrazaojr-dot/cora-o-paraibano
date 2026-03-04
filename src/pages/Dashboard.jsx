@@ -27,7 +27,7 @@ export default function Dashboard() {
   }, [user, navigate]);
 
   const { data: pacientes = [], isLoading } = useQuery({
-    queryKey: ['pacientes-regulacao', user?.email],
+    queryKey: ['pacientes-regulacao', user?.email, user?.macrorregiao],
     queryFn: async () => {
       // Admin vê todos
       if (user?.role === 'admin') {
@@ -38,8 +38,18 @@ export default function Dashboard() {
       if (user?.equipe === 'unidade_saude') {
         return base44.entities.Paciente.filter({ created_by: user.email }, "-created_date");
       }
+
+      // Transporte vê todos (cobre as 3 macrorregiões)
+      if (user?.equipe === 'transporte') {
+        return base44.entities.Paciente.list("-created_date");
+      }
       
-      // CERH, ASSCARDIO, TRANSPORTE, HEMODINÂMICA veem todos
+      // CERH, ASSCARDIO, HEMODINÂMICA: filtrar por macrorregião se tiver definida
+      if (user?.macrorregiao) {
+        return base44.entities.Paciente.filter({ macrorregiao: user.macrorregiao }, "-created_date");
+      }
+
+      // Sem macrorregião definida, vê todos (fallback)
       return base44.entities.Paciente.list("-created_date");
     },
     enabled: !!user,
