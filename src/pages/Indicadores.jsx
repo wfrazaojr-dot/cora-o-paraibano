@@ -178,6 +178,29 @@ export default function Indicadores() {
     };
   }, [pacientesFiltrados]);
 
+  // Novos indicadores ICP por tipo e macrorregião
+  const icpPorTipo = useMemo(() => {
+    const todos = pacientesFiltrados.filter(p => p.hemodinamica?.tipo_icp);
+    const macrorregioes = ["Macro 1", "Macro 2", "Macro 3"];
+    const totais = {
+      imediata: todos.filter(p => p.hemodinamica.tipo_icp === "imediata").length,
+      ate_24h: todos.filter(p => p.hemodinamica.tipo_icp === "ate_24h").length,
+      ate_72h: todos.filter(p => p.hemodinamica.tipo_icp === "ate_72h").length,
+      total: todos.length
+    };
+    const porMacro = macrorregioes.map(macro => ({
+      name: macro,
+      imediata: todos.filter(p => p.macrorregiao === macro && p.hemodinamica.tipo_icp === "imediata").length,
+      ate_24h: todos.filter(p => p.macrorregiao === macro && p.hemodinamica.tipo_icp === "ate_24h").length,
+      ate_72h: todos.filter(p => p.macrorregiao === macro && p.hemodinamica.tipo_icp === "ate_72h").length,
+    }));
+    const comparecimento = {
+      compareceu: todos.filter(p => p.hemodinamica.comparecimento_paciente === "compareceu").length,
+      nao_compareceu: todos.filter(p => p.hemodinamica.comparecimento_paciente === "nao_compareceu").length,
+    };
+    return { totais, porMacro, comparecimento };
+  }, [pacientesFiltrados]);
+
   // 7. FMC-to-device (≤120min) - Início triagem até chegada hemodinâmica
   const fmcToDevice = useMemo(() => {
     const tempos = pacientesFiltrados
