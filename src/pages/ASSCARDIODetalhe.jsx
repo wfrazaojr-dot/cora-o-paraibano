@@ -349,17 +349,19 @@ export default function ASSCARDIODetalhe() {
                   </div>
                 )}
 
-                {/* HEART Score */}
-                <div className="mb-4">
-                  <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">HEART SCORE</h2>
-                  <div className="text-xs space-y-1">
-                    <p>• História: {heartScore.historia} pontos</p>
-                    <p>• ECG: {heartScore.ecg} pontos</p>
-                    <p>• Idade: {heartScore.idade} pontos</p>
-                    <p>• Fatores de Risco: {heartScore.risco} pontos</p>
-                    <p className="font-bold text-base mt-2">TOTAL: {calcularHeartTotal()} pontos - {getHeartInterpretacao(calcularHeartTotal())}</p>
+                {/* HEART Score - apenas quando NÃO tem supra ST */}
+                {ecgSupra.tem_supra !== 'sim' && (
+                  <div className="mb-4">
+                    <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">HEART SCORE</h2>
+                    <div className="text-xs space-y-1">
+                      <p>• História: {heartScore.historia} pontos</p>
+                      <p>• ECG: {heartScore.ecg} pontos</p>
+                      <p>• Idade: {heartScore.idade} pontos</p>
+                      <p>• Fatores de Risco: {heartScore.risco} pontos</p>
+                      <p className="font-bold text-base mt-2">TOTAL: {calcularHeartTotal()} pontos - {getHeartInterpretacao(calcularHeartTotal())}</p>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Avaliação do Cardiologista */}
                 <div className="mb-4">
