@@ -495,13 +495,13 @@ export default function ASSCARDIODetalhe() {
           </CardContent>
         </Card>
 
-        {/* 3. BLOCO 1 - SUPRA ST */}
+        {/* 2. BLOCO 1 - ACHADOS DO ECG (SUPRA ST) */}
         <Collapsible open={bloco1Open} onOpenChange={setBloco1Open}>
           <Card className="mb-4 border-2 border-blue-200">
             <CollapsibleTrigger className="w-full">
               <CardHeader className="bg-blue-100 cursor-pointer hover:bg-blue-200 transition-colors">
                 <CardTitle className="text-blue-900 flex items-center justify-between">
-                  <span>🔍 BLOCO 1 - SUPRA ST?</span>
+                  <span>🔍 BLOCO 1 - ACHADOS DO ECG (SUPRA ST)</span>
                   {bloco1Open ? <ChevronUp /> : <ChevronDown />}
                 </CardTitle>
               </CardHeader>
