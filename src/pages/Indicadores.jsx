@@ -320,12 +320,49 @@ export default function Indicadores() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="flex-1 min-w-[200px]">
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Macrorregião</label>
+                <Select value={macrorregiao} onValueChange={setMacrorregiao}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todas">Todas</SelectItem>
+                    <SelectItem value="Macro 1">Macro 1</SelectItem>
+                    <SelectItem value="Macro 2">Macro 2</SelectItem>
+                    <SelectItem value="Macro 3">Macro 3</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1 min-w-[200px]">
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Tipo SCA</label>
+                <Select value={tipoScaFiltro} onValueChange={setTipoScaFiltro}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    <SelectItem value="SCACESST">SCACESST</SelectItem>
+                    <SelectItem value="SCASESST_COM_TROPONINA">SCASESST c/ Troponina</SelectItem>
+                    <SelectItem value="SCASESST_SEM_TROPONINA">SCASESST s/ Troponina</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="flex-1 min-w-[200px] flex items-end">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 w-full">
                   <p className="text-sm text-blue-900 font-medium">Total de Atendimentos</p>
                   <p className="text-2xl font-bold text-blue-700">{pacientesFiltrados.length}</p>
                 </div>
               </div>
+            </div>
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <ExportarRelatorio
+                pacientes={pacientesFiltrados}
+                mesSelecionado={mesSelecionado}
+                anoSelecionado={anoSelecionado}
+                macrorregiao={macrorregiao}
+                tipoSca={tipoScaFiltro}
+              />
             </div>
           </CardContent>
         </Card>
