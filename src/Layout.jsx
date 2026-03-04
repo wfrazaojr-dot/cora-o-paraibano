@@ -334,7 +334,7 @@ export default function Layout({ children, currentPageName }) {
           <SidebarFooter className="border-t border-red-200 p-4 bg-gray-50">
             <div className="space-y-2">
               <div className="text-xs">
-                <p className="font-semibold text-gray-900">Autor:</p>
+                <p className="font-semibold text-gray-900">Desenvolvedor:</p>
                 <p className="text-gray-700">Walber Alves Frazão Júnior</p>
                 <p className="text-gray-600">Enfermeiro Emergencista</p>
                 <p className="text-gray-600">COREN 110.238</p>
