@@ -1220,28 +1220,50 @@ export default function Administracao() {
                             )}
 
                             {isEditando && (
-                              <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-200">
-                                <Label className="text-sm font-semibold mb-2 block">Selecione a nova função:</Label>
-                                <div className="grid grid-cols-2 gap-2">
-                                  {Object.entries(ROLES_INFO).filter(([key]) => key !== 'admin').map(([roleKey, roleData]) => (
-                                    <Button
-                                      key={roleKey}
-                                      onClick={() => handleSalvarRole(usuario.id, roleKey)}
-                                      size="sm"
-                                      variant={getRoleEffetiva(usuario) === roleKey ? "default" : "outline"}
-                                      className="text-xs justify-start"
-                                      disabled={atualizarUsuarioMutation.isPending}
-                                    >
-                                      <roleData.icon className="w-3 h-3 mr-2" />
-                                      {roleData.label}
-                                    </Button>
-                                  ))}
+                              <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-200 space-y-4">
+                                <div>
+                                  <Label className="text-sm font-semibold mb-2 block">Selecione a nova função:</Label>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    {Object.entries(ROLES_INFO).filter(([key]) => key !== 'admin').map(([roleKey, roleData]) => (
+                                      <Button
+                                        key={roleKey}
+                                        onClick={() => handleSalvarRole(usuario.id, roleKey)}
+                                        size="sm"
+                                        variant={getRoleEffetiva(usuario) === roleKey ? "default" : "outline"}
+                                        className="text-xs justify-start"
+                                        disabled={atualizarUsuarioMutation.isPending}
+                                      >
+                                        <roleData.icon className="w-3 h-3 mr-2" />
+                                        {roleData.label}
+                                      </Button>
+                                    ))}
+                                  </div>
+                                </div>
+                                <div>
+                                  <Label className="text-sm font-semibold mb-2 block">🗺️ Macrorregião (CERH / ASSCARDIO / HEMODINÂMICA):</Label>
+                                  <div className="flex gap-2 flex-wrap">
+                                    {["nenhuma", "Macro 1", "Macro 2", "Macro 3"].map(macro => (
+                                      <Button
+                                        key={macro}
+                                        onClick={() => handleSalvarMacrorregiao(usuario.id, macro)}
+                                        size="sm"
+                                        variant={
+                                          (macro === "nenhuma" && !usuario.macrorregiao) || usuario.macrorregiao === macro
+                                            ? "default" : "outline"
+                                        }
+                                        className="text-xs"
+                                        disabled={atualizarUsuarioMutation.isPending}
+                                      >
+                                        {macro === "nenhuma" ? "Nenhuma" : macro}
+                                      </Button>
+                                    ))}
+                                  </div>
                                 </div>
                                 <Button
                                   onClick={() => setUsuarioEditando(null)}
                                   size="sm"
                                   variant="ghost"
-                                  className="text-xs mt-2 w-full"
+                                  className="text-xs w-full"
                                 >
                                   Cancelar
                                 </Button>
