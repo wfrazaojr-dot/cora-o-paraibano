@@ -6,7 +6,7 @@ import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Clock, Users, Activity, Eye } from "lucide-react";
+import { AlertTriangle, Clock, Users, Activity, Eye, FileText } from "lucide-react";
 import { format, differenceInHours } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
