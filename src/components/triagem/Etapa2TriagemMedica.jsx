@@ -135,7 +135,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
               type="text"
               value={dados.pa_braco_direito}
               onChange={(e) => setDados(prev => ({...prev, pa_braco_direito: e.target.value}))}
-              placeholder="Ex: 120/80"
+              placeholder=""
               required
             />
           </div>
