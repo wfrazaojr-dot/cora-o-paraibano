@@ -41,7 +41,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
     setDados({
       unidade_saude: dadosPaciente.unidade_saude || "",
       nome_completo: dadosPaciente.nome_completo || "",
-      idade: dadosPaciente.idade || "",
+      data_nascimento: dadosPaciente.data_nascimento || "",
       sexo: dadosPaciente.sexo || "",
       uso_inibidor_fosfodiesterase: dadosPaciente.uso_inibidor_fosfodiesterase ?? null,
       data_atendimento: dadosPaciente.data_hora_chegada ? format(new Date(dadosPaciente.data_hora_chegada), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
