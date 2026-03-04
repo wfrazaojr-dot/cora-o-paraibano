@@ -22,19 +22,40 @@ const ROLES_INFO = {
     icon: Shield,
     permissions: ["Criar/editar/deletar tudo", "Gerenciar usuários", "Limpar histórico", "Ver todos os dados"]
   },
-  medical_staff: {
-    label: "Equipe Médica",
-    description: "Pode fazer avaliação médica, prescrever e solicitar exames",
+  unidade_saude: {
+    label: "Unidade de Saúde",
+    description: "Acesso para profissionais das unidades - triagem e atendimento de pacientes",
     color: "bg-blue-100 text-blue-800 border-blue-300",
-    icon: Stethoscope,
-    permissions: ["Ver triagens", "Avaliação médica", "Prescrever medicamentos", "Solicitar exames", "Gerar relatórios"]
+    icon: Building2,
+    permissions: ["Cadastrar pacientes", "Painel Assistencial", "Protocolos", "Manual", "Formulário/Vaga"]
   },
-  triager: {
-    label: "Triador/Enfermeiro",
-    description: "Pode realizar triagem e classificação de risco",
+  asscardio: {
+    label: "ASSCARDIO",
+    description: "Assessoria Cardiológica - suporte especializado e pareceres técnicos",
     color: "bg-green-100 text-green-800 border-green-300",
+    icon: Stethoscope,
+    permissions: ["Painel de Regulação", "Avaliação cardiológica", "Protocolos", "Manual", "Formulário/Vaga"]
+  },
+  cerh: {
+    label: "CERH",
+    description: "Central Estadual de Regulação em Hemodinâmica - regulação e encaminhamento",
+    color: "bg-purple-100 text-purple-800 border-purple-300",
+    icon: Activity,
+    permissions: ["Painel de Regulação", "Regulação central", "Protocolos", "Manual", "Formulário/Vaga"]
+  },
+  transporte: {
+    label: "Transporte",
+    description: "Gestão e coordenação de transporte de pacientes",
+    color: "bg-orange-100 text-orange-800 border-orange-300",
     icon: ClipboardList,
-    permissions: ["Cadastrar pacientes", "Triagem cardiológica", "Dados vitais e ECG", "Classificação de risco"]
+    permissions: ["Painel de Regulação", "Gestão de transporte"]
+  },
+  hemodinamica: {
+    label: "Hemodinâmica",
+    description: "Unidades de Hemodinâmica - recebimento e tratamento de pacientes",
+    color: "bg-red-100 text-red-800 border-red-300",
+    icon: Activity,
+    permissions: ["Painel de Regulação", "Registro de procedimentos hemodinâmicos"]
   },
   viewer: {
     label: "Visualizador",
