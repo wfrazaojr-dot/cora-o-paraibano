@@ -290,23 +290,59 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
             Exames Solicitados e Resultados
           </h3>
           <div className="space-y-3">
-            {dados.exames_solicitados.map((exame, index) => (
-              <div key={index} className="bg-white p-4 rounded border border-teal-200">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                  <div>
-                    <Label className="text-sm font-semibold text-gray-900">{exame}</Label>
-                  </div>
-                  <div>
+            {dados.exames_solicitados.map((exame, index) => {
+              const isTroponina = [
+                "Troponina US 0h",
+                "Troponina US 1h",
+                "Troponina US 3h",
+                "Troponina Convencional 0h",
+                "Troponina Convencional 3h",
+                "Troponina Convencional 6h",
+                "Troponina Convencional 12h"
+              ].includes(exame);
+
+              return (
+                <div key={index} className="bg-white p-4 rounded border border-teal-200">
+                  <Label className="text-sm font-semibold text-gray-900 mb-3 block">{exame}</Label>
+                  {isTroponina ? (
+                    <div className="space-y-2">
+                      <p className="text-xs text-teal-700 font-medium">Resultado em relação ao limite superior do laboratório:</p>
+                      <RadioGroup
+                        value={dados.resultados_exames[exame] || ""}
+                        onValueChange={(val) => atualizarResultadoExame(exame, val)}
+                        className="space-y-2"
+                      >
+                        <div className="flex items-center gap-2">
+                          <RadioGroupItem value="normal" id={`${exame}-normal`} />
+                          <Label htmlFor={`${exame}-normal`} className="cursor-pointer font-normal text-green-700">
+                            ✅ Normal (abaixo do limite do laboratório) — 0 pontos
+                          </Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <RadioGroupItem value="1_3x" id={`${exame}-1_3x`} />
+                          <Label htmlFor={`${exame}-1_3x`} className="cursor-pointer font-normal text-yellow-700">
+                            ⚠️ Entre 1 a 3 vezes o limite normal — 1 ponto
+                          </Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <RadioGroupItem value="acima_3x" id={`${exame}-acima_3x`} />
+                          <Label htmlFor={`${exame}-acima_3x`} className="cursor-pointer font-normal text-red-700">
+                            🔴 &gt; 3 vezes o limite normal — 2 pontos
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  ) : (
                     <Input
                       placeholder="Resultado do exame..."
                       value={dados.resultados_exames[exame] || ""}
                       onChange={(e) => atualizarResultadoExame(exame, e.target.value)}
                       className="w-full"
                     />
-                  </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="mt-6 pt-6 border-t border-teal-300">
