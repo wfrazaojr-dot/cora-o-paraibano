@@ -301,10 +301,10 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
         </div>
       </div>
 
-        {/* Data e Horários */}
+        {/* Data e Horário da Admissão */}
         <div className="bg-indigo-50 border-2 border-indigo-300 rounded-lg p-4">
         <Label className="text-base font-semibold text-indigo-900 mb-4 block">
-          Data e Horários do Atendimento *
+          Data e Horário da Admissão *
         </Label>
 
         <div className="grid md:grid-cols-2 gap-4">
