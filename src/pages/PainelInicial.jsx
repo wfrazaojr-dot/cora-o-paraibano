@@ -114,7 +114,12 @@ export default function PainelInicial() {
     setMacroSelecionada(null);
     setSenhaDigitada("");
     setErroSenha(false);
-    setEtapa("macro");
+    if (perfil.macrorregioes && perfil.macrorregioes.length === 1) {
+      setMacroSelecionada(perfil.macrorregioes[0]);
+      setEtapa("senha");
+    } else {
+      setEtapa("macro");
+    }
   };
 
   const handleSelecionarMacro = (macroObj) => {
