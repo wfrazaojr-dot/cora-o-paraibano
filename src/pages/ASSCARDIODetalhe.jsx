@@ -29,6 +29,12 @@ export default function ASSCARDIODetalhe() {
   const pacienteId = urlParams.get('id');
   const relatorioRef = useRef(null);
 
+  const { data: paciente, isLoading } = useQuery({
+    queryKey: ['paciente', pacienteId],
+    queryFn: () => base44.entities.Paciente.list().then(list => list.find(p => p.id === pacienteId)),
+    enabled: !!pacienteId
+  });
+
   const [bloco0Open, setBloco0Open] = useState(true);
   const [bloco1Open, setBloco1Open] = useState(true);
   const [bloco2Open, setBloco2Open] = useState(false);
@@ -127,12 +133,6 @@ export default function ASSCARDIODetalhe() {
     confirma_triagem: false,
     diagnostico_estrategia: "",
     parecer_cardiologista: ""
-  });
-
-  const { data: paciente, isLoading } = useQuery({
-    queryKey: ['paciente', pacienteId],
-    queryFn: () => base44.entities.Paciente.list().then(list => list.find(p => p.id === pacienteId)),
-    enabled: !!pacienteId
   });
 
   // Calcular HEART Score total
