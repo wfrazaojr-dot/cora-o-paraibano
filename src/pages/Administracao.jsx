@@ -1191,6 +1191,11 @@ export default function Administracao() {
                                 🏥 Unidade: {usuario.unidade_vinculada}
                               </p>
                             )}
+                            {usuario.macrorregiao && (
+                              <p className="text-xs text-purple-700 font-semibold mb-2">
+                                🗺️ Macrorregião: {usuario.macrorregiao}
+                              </p>
+                            )}
 
                             {!isEditando && usuario.id !== user.id && (
                               <div className="flex gap-2 mt-3">
