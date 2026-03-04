@@ -7,6 +7,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { TrendingUp, Clock, Activity, AlertTriangle, CheckCircle, Target, Heart } from "lucide-react";
 import { format, differenceInMinutes, startOfMonth, endOfMonth, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import ExportarRelatorio from "@/components/indicadores/ExportarRelatorio";
 
 const COLORS = {
   success: "#16A34A",
