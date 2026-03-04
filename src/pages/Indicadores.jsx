@@ -742,6 +742,9 @@ export default function Indicadores() {
               <p><strong>• Transporte (≤90min):</strong> Início do transporte até chegada ao destino</p>
               <p><strong>• ICP-Hemodinâmica (≤15min):</strong> Chegada na hemodinâmica até início da ICP</p>
               <p><strong>• FMC-to-device (≤120min):</strong> Início da triagem até chegada na hemodinâmica</p>
+              <p><strong>• ICP Imediata:</strong> Estratégia 1 – ICP realizada imediatamente (IAMCEST ou alto risco imediato)</p>
+              <p><strong>• ICP ≤ 24h:</strong> Estratégia 2 – Invasiva em até 24 horas (SCASESST alto risco)</p>
+              <p><strong>• ICP ≤ 72h:</strong> Estratégia 3 – Invasiva em até 72 horas (SCASESST risco intermediário)</p>
             </div>
           </CardContent>
         </Card>
