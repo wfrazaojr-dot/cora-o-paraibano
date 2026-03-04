@@ -326,8 +326,8 @@ export default function Dashboard() {
                           </div>
                         </div>
 
-                        {paciente.janelaTerapeutica && (
-                          <div className="mt-2">
+                        <div className="mt-2 space-y-2">
+                          {paciente.janelaTerapeutica && (
                             <Badge variant="outline" className={
                               paciente.janelaTerapeutica.dentroJanela 
                                 ? "text-green-700 border-green-300" 
@@ -335,8 +335,13 @@ export default function Dashboard() {
                             }>
                               {paciente.janelaTerapeutica.horas.toFixed(1)}h desde início dos sintomas
                             </Badge>
-                          </div>
-                        )}
+                          )}
+                          {paciente.hemodinamica?.data_hora_agendamento_icp && (
+                            <Badge className="bg-blue-600 text-white block">
+                              📅 ICP Agendada: {format(new Date(paciente.hemodinamica.data_hora_agendamento_icp), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
 
                       <div className="flex flex-col gap-2">
