@@ -147,7 +147,7 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
       {/* Temporizadores Porta-Agulha e FMC-to-device */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <TempoPortaAgulhaEtapa3 dataHoraInicioTriagem={dadosPaciente.data_hora_inicio_triagem} />
-        <TempoPortaBalaoEtapa3 dataHoraChegada={dadosPaciente.data_hora_chegada} />
+        <TempoPortaBalaoEtapa3 dataHoraInicioTriagem={dadosPaciente.data_hora_inicio_triagem} />
       </div>
 
       {/* Alerta sobre uso de inibidor da fosfodiesterase */}
