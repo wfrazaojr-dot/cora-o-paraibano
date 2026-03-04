@@ -336,6 +336,18 @@ export default function Dashboard() {
                           </Button>
                         )}
 
+                        {(user?.equipe === 'cerh' || user?.role === 'admin') && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => navigate(createPageUrl("FormularioVaga") + `?id=${paciente.id}`)}
+                            className="border-blue-600 text-blue-700 hover:bg-blue-50"
+                          >
+                            <FileText className="w-4 h-4 mr-2" />
+                            Form. de Vaga
+                          </Button>
+                        )}
+
                         {(user?.equipe === 'asscardio' || user?.role === 'admin') && (
                           <Button
                             size="sm"
