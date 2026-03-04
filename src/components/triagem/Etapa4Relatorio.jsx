@@ -644,7 +644,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
           disabled={!medico.nome || !medico.crm || !medico.celular || confirmacaoHemodinamica === null || gerandoPDF}
         >
           <CheckCircle className="w-4 h-4 mr-2" />
-          {gerandoPDF ? "Finalizando..." : "Finalizar Atendimento"}
+          {gerandoPDF ? "Finalizando..." : "Finalizar Relatório"}
         </Button>
       </div>
 
