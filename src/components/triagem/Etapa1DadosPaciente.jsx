@@ -123,6 +123,11 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
     
     const idadeCalculada = calcularIdade(dados.data_nascimento);
 
+    if (!dados.macrorregiao) {
+      alert("Por favor, selecione a Macrorregião de Saúde");
+      return;
+    }
+
     onProxima({
       ...dados,
       idade: idadeCalculada,
