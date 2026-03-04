@@ -241,6 +241,11 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
       return;
     }
 
+    if (!dados.limite_superior_normalidade || !dados.valor_troponina_paciente) {
+      alert("Preencha o Limite Superior da Normalidade e o Valor da Troponina do paciente");
+      return;
+    }
+
     if (dados.heart_score.total === 0) {
       alert("Complete o HEART Score");
       return;
