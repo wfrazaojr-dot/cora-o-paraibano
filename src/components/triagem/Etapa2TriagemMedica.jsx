@@ -188,24 +188,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
             />
           </div>
 
-          <div className="md:col-span-2">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  checked={dados.diabetes}
-                  onCheckedChange={(checked) => setDados(prev => ({...prev, diabetes: checked}))}
-                />
-                <Label>Diabetes</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  checked={dados.dpoc}
-                  onCheckedChange={(checked) => setDados(prev => ({...prev, dpoc: checked}))}
-                />
-                <Label>DPOC</Label>
-              </div>
-            </div>
-          </div>
+
         </div>
       </div>
 
