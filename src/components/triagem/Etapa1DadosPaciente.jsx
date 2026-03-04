@@ -41,6 +41,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
   useEffect(() => {
     setDados({
       unidade_saude: dadosPaciente.unidade_saude || "",
+      macrorregiao: dadosPaciente.macrorregiao || "",
       nome_completo: dadosPaciente.nome_completo || "",
       data_nascimento: dadosPaciente.data_nascimento || "",
       sexo: dadosPaciente.sexo || "",
