@@ -111,9 +111,11 @@ export default function FormularioVaga() {
         setFormData(prev => ({
           ...prev,
           nome_completo: data.nome_completo || "",
+          data_nascimento: data.data_nascimento || "",
           idade: data.idade?.toString() || "",
           sexo: data.sexo || "",
           unidade_solicitante: data.unidade_saude || "",
+          data_hora_admissao: data.data_hora_chegada || "",
           hipotese_diagnostica: data.avaliacao_clinica?.hipotese_diagnostica || "",
           pas: data.triagem_medica?.pa_braco_esquerdo?.split('/')[0] || "",
           pad: data.triagem_medica?.pa_braco_esquerdo?.split('/')[1] || "",
