@@ -119,8 +119,11 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
     const dataEcg = `${dados.data_atendimento}T${dados.hora_ecg}`;
     const dataHoraInicioSintomas = `${dados.data_sintomas}T${dados.hora_sintomas}`;
     
+    const idadeCalculada = calcularIdade(dados.data_nascimento);
+
     onProxima({
       ...dados,
+      idade: idadeCalculada,
       data_hora_chegada: dataChegada,
       data_hora_inicio_sintomas: dataHoraInicioSintomas,
       triagem_enfermagem: {
