@@ -59,21 +59,22 @@ export default function FormularioVaga() {
     queryKey: ['paciente', pacienteId],
     queryFn: () => base44.entities.Paciente.list().then(list => list.find(p => p.id === pacienteId)),
     enabled: !!pacienteId,
-    onSuccess: (data) => {
-      if (data) {
-        setFormData(prev => ({
-          ...prev,
-          nome_completo: data.nome_completo || "",
-          data_nascimento: data.data_nascimento || "",
-          idade: data.idade?.toString() || "",
-          sexo: data.sexo || "",
-          unidade_solicitante: data.unidade_saude || "",
-          data_hora_admissao: data.data_hora_chegada || "",
-          hipotese_diagnostica: data.avaliacao_clinica?.hipotese_diagnostica || "",
-        }));
-      }
-    }
   });
+
+  React.useEffect(() => {
+    if (paciente) {
+      setFormData(prev => ({
+        ...prev,
+        nome_completo: paciente.nome_completo || "",
+        data_nascimento: paciente.data_nascimento || "",
+        idade: paciente.idade?.toString() || "",
+        sexo: paciente.sexo || "",
+        unidade_solicitante: paciente.unidade_saude || "",
+        data_hora_admissao: paciente.data_hora_chegada || "",
+        hipotese_diagnostica: paciente.avaliacao_clinica?.hipotese_diagnostica || "",
+      }));
+    }
+  }, [paciente]);
 
   const calcularIdade = (dataNascimento) => {
     if (!dataNascimento) return "";
