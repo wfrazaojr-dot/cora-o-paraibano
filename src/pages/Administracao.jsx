@@ -1156,8 +1156,11 @@ export default function Administracao() {
                       <SelectContent>
                         <SelectItem value="todos">Todos</SelectItem>
                         <SelectItem value="admin">Administradores</SelectItem>
-                        <SelectItem value="medical_staff">Equipe Médica</SelectItem>
-                        <SelectItem value="triager">Triadores</SelectItem>
+                        <SelectItem value="unidade_saude">Unidade de Saúde</SelectItem>
+                        <SelectItem value="asscardio">ASSCARDIO</SelectItem>
+                        <SelectItem value="cerh">CERH</SelectItem>
+                        <SelectItem value="transporte">Transporte</SelectItem>
+                        <SelectItem value="hemodinamica">Hemodinâmica</SelectItem>
                         <SelectItem value="viewer">Visualizadores</SelectItem>
                       </SelectContent>
                     </Select>
