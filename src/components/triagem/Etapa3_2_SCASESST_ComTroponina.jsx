@@ -16,6 +16,8 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
     antecedentes: dadosPaciente.avaliacao_clinica?.antecedentes || "",
     quadro_atual: dadosPaciente.avaliacao_clinica?.quadro_atual || "",
     hipotese_diagnostica: dadosPaciente.avaliacao_clinica?.hipotese_diagnostica || "",
+    limite_superior_normalidade: dadosPaciente.avaliacao_clinica?.limite_superior_normalidade || "",
+    valor_troponina_paciente: dadosPaciente.avaliacao_clinica?.valor_troponina_paciente || "",
     heart_score: dadosPaciente.avaliacao_clinica?.heart_score || {
       historia_clinica: null,
       ecg: null,
