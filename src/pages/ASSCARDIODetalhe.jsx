@@ -466,6 +466,7 @@ export default function ASSCARDIODetalhe() {
                 <div className="mb-4">
                   <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">AVALIAÇÃO DO CARDIOLOGISTA</h2>
                   <div className="text-xs space-y-2">
+                    {medicoData.cardiologista_nome && <p><strong>Cardiologista:</strong> {medicoData.cardiologista_nome} | CRM: {medicoData.cardiologista_crm}{medicoData.cardiologista_rqe ? ` | RQE: ${medicoData.cardiologista_rqe}` : ''}</p>}
                     <p><strong>Triagem de enfermagem confirmada:</strong> {medicoData.confirma_triagem ? 'Sim' : 'Não'}</p>
                     <p><strong>Diagnóstico + Estratégia:</strong> {(() => {
                       const estrategias = {
