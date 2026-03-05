@@ -633,21 +633,47 @@ export default function ASSCARDIODetalhe() {
           </Collapsible>
         )}
 
-        {/* 3. BLOCO 2 - SEM SUPRA (apenas se RELATO MÉDICO = NÃO) */}
+        {/* 3. BLOCO 2 - SEM SUPRA COM TROPONINA (apenas se RELATO MÉDICO = NÃO) */}
         {ecgSupra.tem_supra === "nao" && (
           <Collapsible open={bloco2Open} onOpenChange={setBloco2Open}>
             <Card className="mb-4 border-2 border-orange-200">
               <CollapsibleTrigger className="w-full">
                 <CardHeader className="bg-orange-100 cursor-pointer hover:bg-orange-200 transition-colors">
                   <CardTitle className="text-orange-900 flex items-center justify-between">
-                    <span>🔍 BLOCO 2 - SEM SUPRA</span>
+                    <span>🔍 BLOCO 2 - SEM SUPRA COM EXAME DE TROPONINA QUANTITATIVA</span>
                     {bloco2Open ? <ChevronUp /> : <ChevronDown />}
                   </CardTitle>
                 </CardHeader>
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <CardContent className="pt-4">
-                  <p className="text-orange-700 text-sm italic">Sem itens para sinalizar.</p>
+                <CardContent className="pt-4 space-y-4">
+                  {/* HEART Score calculado na Avaliação Clínica */}
+                  <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
+                    <Label className="text-base font-bold text-blue-900 block mb-2">📊 RESULTADO HEART SCORE</Label>
+                    <p className="text-xs text-blue-600 mb-3 italic">
+                      Este resultado é calculado na página: Avaliação Clínica - SCASESST com Troponina (Paciente SEM Supra de ST COM exame de Troponina)
+                    </p>
+                    {paciente?.avaliacao_clinica?.heart_score?.total != null ? (
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl font-bold text-blue-900">
+                            {paciente.avaliacao_clinica.heart_score.total} pontos
+                          </span>
+                          <Badge className={
+                            paciente.avaliacao_clinica.heart_score.total <= 3
+                              ? "bg-green-100 text-green-800"
+                              : paciente.avaliacao_clinica.heart_score.total <= 6
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
+                          }>
+                            {paciente.avaliacao_clinica.heart_score.interpretacao || getHeartInterpretacao(paciente.avaliacao_clinica.heart_score.total)}
+                          </Badge>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500 italic">Aguardando cálculo na Avaliação Clínica com Troponina.</p>
+                    )}
+                  </div>
                 </CardContent>
               </CollapsibleContent>
             </Card>
