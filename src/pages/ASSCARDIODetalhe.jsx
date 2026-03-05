@@ -696,8 +696,45 @@ export default function ASSCARDIODetalhe() {
                 </CardHeader>
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <CardContent className="pt-4">
-                  <p className="text-purple-700 text-sm italic">Paciente SEM Supra de ST e SEM exame de Troponina Quantitativa disponível.</p>
+                <CardContent className="pt-4 space-y-4">
+                  {paciente?.avaliacao_clinica?.historia_clinica || paciente?.avaliacao_clinica?.ecg_classificacao || paciente?.avaliacao_clinica?.faixa_etaria || paciente?.avaliacao_clinica?.fatores_risco?.length > 0 ? (
+                    <div className="space-y-4">
+                      {/* História Clínica */}
+                      {paciente.avaliacao_clinica.historia_clinica && (
+                        <div className="bg-white border border-purple-200 rounded-lg p-3">
+                          <Label className="text-sm font-bold text-purple-900 block mb-1">HISTÓRIA CLÍNICA</Label>
+                          <p className="text-purple-800">{paciente.avaliacao_clinica.historia_clinica}</p>
+                        </div>
+                      )}
+                      {/* ECG */}
+                      {paciente.avaliacao_clinica.ecg_classificacao && (
+                        <div className="bg-white border border-purple-200 rounded-lg p-3">
+                          <Label className="text-sm font-bold text-purple-900 block mb-1">ECG</Label>
+                          <p className="text-purple-800">{paciente.avaliacao_clinica.ecg_classificacao}</p>
+                        </div>
+                      )}
+                      {/* Idade */}
+                      {paciente.avaliacao_clinica.faixa_etaria && (
+                        <div className="bg-white border border-purple-200 rounded-lg p-3">
+                          <Label className="text-sm font-bold text-purple-900 block mb-1">IDADE</Label>
+                          <p className="text-purple-800">{paciente.avaliacao_clinica.faixa_etaria}</p>
+                        </div>
+                      )}
+                      {/* Fatores de Risco */}
+                      {paciente.avaliacao_clinica.fatores_risco?.length > 0 && (
+                        <div className="bg-white border border-purple-200 rounded-lg p-3">
+                          <Label className="text-sm font-bold text-purple-900 block mb-2">FATORES DE RISCO PARA DOENÇA CORONARIANA</Label>
+                          <ul className="space-y-1">
+                            {paciente.avaliacao_clinica.fatores_risco.map((fator, i) => (
+                              <li key={i} className="text-purple-800 text-sm">• {fator}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm italic">Aguardando preenchimento na Avaliação Clínica - SCASESST SEM Troponina.</p>
+                  )}
                 </CardContent>
               </CollapsibleContent>
             </Card>
