@@ -121,11 +121,11 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
             <Label>PAS (Sistólica) *</Label>
             <Input
               type="number"
-              value={dados.pa_braco_esquerdo.split('/')[0] || ""}
+              value={dados.pa_braco_esquerdo.split('/')[0]?.trim() || ""}
               onChange={(e) => {
                 const pas = e.target.value;
-                const pad = dados.pa_braco_esquerdo.split('/')[1] || "";
-                setDados(prev => ({...prev, pa_braco_esquerdo: pad ? `${pas}/${pad}` : pas}));
+                const pad = dados.pa_braco_esquerdo.split('/')[1]?.trim() || "";
+                setDados(prev => ({...prev, pa_braco_esquerdo: `${pas}/${pad}`}));
               }}
               placeholder="Ex: 120"
               required
@@ -136,11 +136,11 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
             <Label>PAD (Diastólica) *</Label>
             <Input
               type="number"
-              value={dados.pa_braco_esquerdo.split('/')[1] || ""}
+              value={dados.pa_braco_esquerdo.split('/')[1]?.trim() || ""}
               onChange={(e) => {
                 const pad = e.target.value;
-                const pas = dados.pa_braco_esquerdo.split('/')[0] || "";
-                setDados(prev => ({...prev, pa_braco_esquerdo: pas ? `${pas}/${pad}` : pad}));
+                const pas = dados.pa_braco_esquerdo.split('/')[0]?.trim() || "";
+                setDados(prev => ({...prev, pa_braco_esquerdo: `${pas}/${pad}`}));
               }}
               placeholder="Ex: 80"
               required
