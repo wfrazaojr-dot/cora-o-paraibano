@@ -197,7 +197,14 @@ Solicitante: ${user?.full_name} (${user?.email})
         body: emailBody
       });
       if (pacienteId && paciente) {
-        await base44.entities.Paciente.update(pacienteId, { alerta_formulario_vaga: false });
+        await base44.entities.Paciente.update(pacienteId, {
+          alerta_formulario_vaga: false,
+          formulario_vaga: {
+            ...formData,
+            data_envio: new Date().toISOString(),
+            enviado_por: user?.full_name || user?.email
+          }
+        });
       }
     },
     onSuccess: () => {
