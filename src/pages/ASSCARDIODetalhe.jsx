@@ -38,6 +38,7 @@ export default function ASSCARDIODetalhe() {
   const [bloco0Open, setBloco0Open] = useState(true);
   const [bloco1Open, setBloco1Open] = useState(true);
   const [bloco2Open, setBloco2Open] = useState(false);
+  const [bloco3Open, setBloco3Open] = useState(false);
 
   // Bloco 0 - Clínica
   const [clinica, setClinica] = useState({
