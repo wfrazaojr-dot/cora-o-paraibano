@@ -83,9 +83,9 @@ export default function DadosPaciente({ paciente }) {
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               {(() => {
                 const pa = paciente.triagem_medica.pa_braco_esquerdo || "";
-                const parts = pa.split('/');
-                const pas = parts[0]?.trim();
-                const pad = parts[1]?.trim();
+                const separador = pa.includes('/') ? '/' : pa.includes('x') ? 'x' : null;
+                const pas = separador ? pa.split(separador)[0]?.trim() : pa.trim();
+                const pad = separador ? pa.split(separador)[1]?.trim() : null;
                 return (
                   <>
                     {pas && (
@@ -98,6 +98,12 @@ export default function DadosPaciente({ paciente }) {
                       <div className="bg-gray-50 p-2 rounded">
                         <p className="text-xs text-gray-500">PAD (mm Hg)</p>
                         <p className="font-medium">{pad}</p>
+                      </div>
+                    )}
+                    {!pad && pas && (
+                      <div className="bg-gray-50 p-2 rounded border border-yellow-200">
+                        <p className="text-xs text-gray-500">PAD (mm Hg)</p>
+                        <p className="text-xs text-gray-400 italic">Não informado</p>
                       </div>
                     )}
                   </>
