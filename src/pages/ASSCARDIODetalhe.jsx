@@ -133,7 +133,10 @@ export default function ASSCARDIODetalhe() {
   const [medicoData, setMedicoData] = useState({
     confirma_triagem: false,
     diagnostico_estrategia: "",
-    parecer_cardiologista: ""
+    parecer_cardiologista: "",
+    cardiologista_nome: "",
+    cardiologista_crm: "",
+    cardiologista_rqe: ""
   });
 
   // Calcular HEART Score total
