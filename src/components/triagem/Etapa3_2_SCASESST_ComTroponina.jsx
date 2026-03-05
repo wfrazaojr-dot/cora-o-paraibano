@@ -711,69 +711,82 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
               </AlertDescription>
             </Alert>
 
-            <div className="space-y-4 mb-4 bg-white p-4 rounded border border-amber-200">
-              <div>
-                <Label className="text-sm font-semibold mb-2 block">LSN - Limite Superior da Normalidade (percentil 99) do Laboratório *</Label>
-                <p className="text-xs text-gray-600 mb-2">Ex: 0.04, 0.03, etc.</p>
-                <Input
-                  type="number"
-                  step="0.001"
-                  value={dados.limite_superior_normalidade}
-                  onChange={(e) => setDados(prev => ({...prev, limite_superior_normalidade: e.target.value}))}
-                  placeholder="Digite o limite superior (ex: 0.04)"
-                  required
-                />
-              </div>
+            {(() => {
+              const examesSelecionados = dados.exames_solicitados || [];
+              const isUS = examesSelecionados.includes("Troponina US 0h") || examesSelecionados.includes("Troponina US 1h");
+              const isConvencional = examesSelecionados.includes("Troponina Convencional 0h") || examesSelecionados.includes("Troponina Convencional 3h");
+              const unidade = isConvencional ? "ng/mL" : "ng/L";
+              const tipo1Placeholder = isConvencional ? "Ex: Troponina Convencional 0h" : "Ex: Troponina US 0h";
+              const tipo2Placeholder = isConvencional ? "Ex: Troponina Convencional 3h" : "Ex: Troponina US 1h";
+              const tipo1Label = isConvencional ? "Tipo (ex: Troponina Convencional 0h)" : "Tipo (ex: Troponina US 0h)";
+              const tipo2Label = isConvencional ? "Tipo (ex: Troponina Convencional 3h)" : "Tipo (ex: Troponina US 1h)";
 
-              <div className="border-t pt-4">
-                <Label className="text-sm font-semibold mb-3 block text-blue-800">1ª Medida de Troponina</Label>
-                <div className="grid md:grid-cols-2 gap-3">
+              return (
+                <div className="space-y-4 mb-4 bg-white p-4 rounded border border-amber-200">
                   <div>
-                    <Label className="text-xs mb-1 block">Tipo (ex: Troponina US 0h)</Label>
-                    <Input
-                      value={dados.tipo_troponina_1}
-                      onChange={(e) => setDados(prev => ({...prev, tipo_troponina_1: e.target.value}))}
-                      placeholder="Ex: Troponina US 0h"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs mb-1 block">Valor *</Label>
+                    <Label className="text-sm font-semibold mb-2 block">LSN - Limite Superior da Normalidade (percentil 99) do Laboratório *</Label>
+                    <p className="text-xs text-gray-600 mb-2">Ex: 0.04, 0.03, etc.</p>
                     <Input
                       type="number"
                       step="0.001"
-                      value={dados.valor_troponina_paciente}
-                      onChange={(e) => setDados(prev => ({...prev, valor_troponina_paciente: e.target.value}))}
-                      placeholder="Ex: 0.08"
+                      value={dados.limite_superior_normalidade}
+                      onChange={(e) => setDados(prev => ({...prev, limite_superior_normalidade: e.target.value}))}
+                      placeholder="Digite o limite superior (ex: 0.04)"
                       required
                     />
                   </div>
-                </div>
-              </div>
 
-              <div className="border-t pt-4">
-                <Label className="text-sm font-semibold mb-3 block text-blue-800">2ª Medida de Troponina</Label>
-                <div className="grid md:grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-xs mb-1 block">Tipo (ex: Troponina US 1h)</Label>
-                    <Input
-                      value={dados.tipo_troponina_2}
-                      onChange={(e) => setDados(prev => ({...prev, tipo_troponina_2: e.target.value}))}
-                      placeholder="Ex: Troponina US 1h"
-                    />
+                  <div className="border-t pt-4">
+                    <Label className="text-sm font-semibold mb-3 block text-blue-800">1ª Medida de Troponina</Label>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs mb-1 block">{tipo1Label}</Label>
+                        <Input
+                          value={dados.tipo_troponina_1}
+                          onChange={(e) => setDados(prev => ({...prev, tipo_troponina_1: e.target.value}))}
+                          placeholder={tipo1Placeholder}
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs mb-1 block">Valor * {(isUS || isConvencional) && <span className="text-blue-700 font-semibold">({unidade})</span>}</Label>
+                        <Input
+                          type="number"
+                          step="0.001"
+                          value={dados.valor_troponina_paciente}
+                          onChange={(e) => setDados(prev => ({...prev, valor_troponina_paciente: e.target.value}))}
+                          placeholder={`Ex: 0.08 ${isUS || isConvencional ? unidade : ''}`}
+                          required
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <Label className="text-xs mb-1 block">Valor</Label>
-                    <Input
-                      type="number"
-                      step="0.001"
-                      value={dados.valor_troponina_paciente_2}
-                      onChange={(e) => setDados(prev => ({...prev, valor_troponina_paciente_2: e.target.value}))}
-                      placeholder="Ex: 0.15"
-                    />
+
+                  <div className="border-t pt-4">
+                    <Label className="text-sm font-semibold mb-3 block text-blue-800">2ª Medida de Troponina</Label>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs mb-1 block">{tipo2Label}</Label>
+                        <Input
+                          value={dados.tipo_troponina_2}
+                          onChange={(e) => setDados(prev => ({...prev, tipo_troponina_2: e.target.value}))}
+                          placeholder={tipo2Placeholder}
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs mb-1 block">Valor {(isUS || isConvencional) && <span className="text-blue-700 font-semibold">({unidade})</span>}</Label>
+                        <Input
+                          type="number"
+                          step="0.001"
+                          value={dados.valor_troponina_paciente_2}
+                          onChange={(e) => setDados(prev => ({...prev, valor_troponina_paciente_2: e.target.value}))}
+                          placeholder={`Ex: 0.15 ${isUS || isConvencional ? unidade : ''}`}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              );
+            })()}
 
             {dados.limite_superior_normalidade && dados.valor_troponina_paciente && (
               <div className="bg-blue-50 border border-blue-200 p-3 rounded mb-4">
