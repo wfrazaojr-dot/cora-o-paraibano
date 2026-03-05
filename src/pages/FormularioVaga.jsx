@@ -69,7 +69,7 @@ export default function FormularioVaga() {
         data_nascimento: paciente.data_nascimento || "",
         idade: paciente.idade?.toString() || "",
         sexo: paciente.sexo || "",
-        unidade_solicitante: paciente.unidade_saude || "",
+        unidade_solicitante: paciente.unidade_saude || prev.unidade_solicitante,
         data_hora_admissao: paciente.data_hora_chegada || "",
         hipotese_diagnostica: paciente.avaliacao_clinica?.hipotese_diagnostica || "",
       }));
