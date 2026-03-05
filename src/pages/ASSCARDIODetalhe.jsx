@@ -524,10 +524,113 @@ export default function ASSCARDIODetalhe() {
         {/* 2. BLOCO 1 - ACHADOS DO ECG (SUPRA ST) */}
         {ecgSupra.tem_supra === "sim" && (
           <Collapsible open={bloco1Open} onOpenChange={setBloco1Open}>
-          <Card className="mb-4 border-2 border-blue-200">
-...
-          </Card>
-        </Collapsible>
+            <Card className="mb-4 border-2 border-blue-200">
+              <CollapsibleTrigger className="w-full">
+                <CardHeader className="bg-blue-100 cursor-pointer hover:bg-blue-200 transition-colors">
+                  <CardTitle className="text-blue-900 flex items-center justify-between">
+                    <span>🔍 BLOCO 1 - ACHADOS DO ECG (SUPRA ST)</span>
+                    {bloco1Open ? <ChevronUp /> : <ChevronDown />}
+                  </CardTitle>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent className="pt-4 space-y-4">
+                  <div className="border-l-4 border-red-500 pl-4">
+                    <h4 className="font-bold text-red-700 mb-2">Parede Inferior:</h4>
+                    <div className="grid md:grid-cols-3 gap-3">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="d2" checked={ecgSupra.d2} onCheckedChange={(c) => setEcgSupra({...ecgSupra, d2: c})} />
+                        <Label htmlFor="d2" className="text-lg">☐ D2</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="d3" checked={ecgSupra.d3} onCheckedChange={(c) => setEcgSupra({...ecgSupra, d3: c})} />
+                        <Label htmlFor="d3" className="text-lg">☐ D3</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="avf" checked={ecgSupra.avf} onCheckedChange={(c) => setEcgSupra({...ecgSupra, avf: c})} />
+                        <Label htmlFor="avf" className="text-lg">☐ aVF</Label>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-2">Recíprocos:</p>
+                    <div className="grid md:grid-cols-2 gap-3 mt-1">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="rec_d1_avl" checked={ecgSupra.reciproco_d1_avl} onCheckedChange={(c) => setEcgSupra({...ecgSupra, reciproco_d1_avl: c})} />
+                        <Label htmlFor="rec_d1_avl">☐ D1/aVL</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="rec_v1_v3" checked={ecgSupra.reciproco_v1_v3} onCheckedChange={(c) => setEcgSupra({...ecgSupra, reciproco_v1_v3: c})} />
+                        <Label htmlFor="rec_v1_v3">☐ V1-V3</Label>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="border-l-4 border-orange-500 pl-4">
+                    <h4 className="font-bold text-orange-700 mb-2">Parede Anterior:</h4>
+                    <div className="grid md:grid-cols-4 gap-3">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="v1" checked={ecgSupra.v1} onCheckedChange={(c) => setEcgSupra({...ecgSupra, v1: c})} />
+                        <Label htmlFor="v1" className="text-lg">☐ V1</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="v2" checked={ecgSupra.v2} onCheckedChange={(c) => setEcgSupra({...ecgSupra, v2: c})} />
+                        <Label htmlFor="v2" className="text-lg">☐ V2</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="v3" checked={ecgSupra.v3} onCheckedChange={(c) => setEcgSupra({...ecgSupra, v3: c})} />
+                        <Label htmlFor="v3" className="text-lg">☐ V3</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="v4" checked={ecgSupra.v4} onCheckedChange={(c) => setEcgSupra({...ecgSupra, v4: c})} />
+                        <Label htmlFor="v4" className="text-lg">☐ V4</Label>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-2">Recíprocos:</p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <Checkbox id="rec_d2_d3_avf" checked={ecgSupra.reciproco_d2_d3_avf} onCheckedChange={(c) => setEcgSupra({...ecgSupra, reciproco_d2_d3_avf: c})} />
+                      <Label htmlFor="rec_d2_d3_avf">☐ D2/D3/aVF</Label>
+                    </div>
+                  </div>
+                  <div className="border-l-4 border-green-500 pl-4">
+                    <h4 className="font-bold text-green-700 mb-2">Parede Lateral:</h4>
+                    <div className="grid md:grid-cols-4 gap-3">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="d1" checked={ecgSupra.d1} onCheckedChange={(c) => setEcgSupra({...ecgSupra, d1: c})} />
+                        <Label htmlFor="d1" className="text-lg">☐ D1</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="avl" checked={ecgSupra.avl} onCheckedChange={(c) => setEcgSupra({...ecgSupra, avl: c})} />
+                        <Label htmlFor="avl" className="text-lg">☐ aVL</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="v5" checked={ecgSupra.v5} onCheckedChange={(c) => setEcgSupra({...ecgSupra, v5: c})} />
+                        <Label htmlFor="v5" className="text-lg">☐ V5</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="v6" checked={ecgSupra.v6} onCheckedChange={(c) => setEcgSupra({...ecgSupra, v6: c})} />
+                        <Label htmlFor="v6" className="text-lg">☐ V6</Label>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="border-l-4 border-purple-500 pl-4">
+                    <h4 className="font-bold text-purple-700 mb-2">Outros:</h4>
+                    <div className="grid md:grid-cols-3 gap-3">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="t_hiperaguda" checked={ecgSupra.t_hiperaguda} onCheckedChange={(c) => setEcgSupra({...ecgSupra, t_hiperaguda: c})} />
+                        <Label htmlFor="t_hiperaguda">☐ T hiperaguda</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="v7_v9" checked={ecgSupra.v7_v9} onCheckedChange={(c) => setEcgSupra({...ecgSupra, v7_v9: c})} />
+                        <Label htmlFor="v7_v9">☐ V7-V9</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="v3r_v4r" checked={ecgSupra.v3r_v4r} onCheckedChange={(c) => setEcgSupra({...ecgSupra, v3r_v4r: c})} />
+                        <Label htmlFor="v3r_v4r">☐ V3R/V4R</Label>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
         )}
 
         {/* 3. BLOCO 2 - SEM SUPRA (apenas se RELATO MÉDICO = NÃO) */}
