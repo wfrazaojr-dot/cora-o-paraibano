@@ -788,13 +788,25 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
               );
             })()}
 
-            {dados.limite_superior_normalidade && dados.valor_troponina_paciente && (
-              <div className="bg-blue-50 border border-blue-200 p-3 rounded mb-4">
-                <p className="text-sm font-semibold text-blue-900">
-                  Proporção: {(parseFloat(dados.valor_troponina_paciente) / parseFloat(dados.limite_superior_normalidade)).toFixed(2)}x o limite superior
-                </p>
-              </div>
-            )}
+            {dados.limite_superior_normalidade && dados.valor_troponina_paciente && (() => {
+              const lsn = parseFloat(dados.limite_superior_normalidade);
+              const t1 = parseFloat(dados.valor_troponina_paciente) || 0;
+              const t2 = parseFloat(dados.valor_troponina_paciente_2) || 0;
+              const maiorValor = Math.max(t1, t2);
+              const proporcao = maiorValor / lsn;
+              const usandoMedida = t2 > t1 ? "2ª medida" : "1ª medida";
+              return (
+                <div className="bg-amber-50 border-2 border-amber-400 p-4 rounded mb-4">
+                  <p className="text-sm font-bold text-amber-900 mb-1">📊 Cálculo automático para HEART Score:</p>
+                  <p className="text-sm text-amber-800">
+                    Maior valor: <strong>{maiorValor} ng/L</strong> ({usandoMedida}) ÷ LSN <strong>{lsn}</strong> = <strong>{proporcao.toFixed(3)}x</strong> o limite superior
+                  </p>
+                  <p className="text-xs text-amber-700 mt-1 italic">
+                    {proporcao <= 0 ? "Normal (0 pts)" : proporcao <= 3 ? "1 a 3x → 1 ponto" : "> 3x → 2 pontos"}
+                  </p>
+                </div>
+              );
+            })()}
 
             <div className="space-y-2">
               {[
