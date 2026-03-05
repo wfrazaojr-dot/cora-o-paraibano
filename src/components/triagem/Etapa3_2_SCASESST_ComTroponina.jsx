@@ -494,6 +494,17 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
           <div className="mt-6 pt-6 border-t border-teal-300">
             <Label className="text-base font-semibold text-teal-900 mb-4 block">Observações</Label>
             <div className="space-y-3 bg-white p-4 rounded border border-teal-200">
+              <div className="pb-3 border-b border-gray-200">
+                <Label className="text-sm font-semibold mb-1 block">LSN - Limite Superior da Normalidade (percentil 99) do Laboratório *</Label>
+                <p className="text-xs text-gray-500 mb-2">Ex: 0.04, 0.03, etc.</p>
+                <Input
+                  type="number"
+                  step="0.001"
+                  value={dados.limite_superior_normalidade}
+                  onChange={(e) => setDados(prev => ({...prev, limite_superior_normalidade: e.target.value}))}
+                  placeholder="Digite o limite superior (ex: 0.04)"
+                />
+              </div>
               <div className="flex items-center gap-3">
                 <Checkbox
                   checked={dados.observacoes_exames.exames_nao_realizados}
