@@ -197,13 +197,20 @@ Solicitante: ${user?.full_name} (${user?.email})
         body: emailBody
       });
       if (pacienteId && paciente) {
+        const dadosParaSalvar = {
+          ...formData,
+          nome_completo: formData.nome_completo || paciente.nome_completo,
+          unidade_solicitante: formData.unidade_solicitante || paciente.unidade_saude,
+          data_envio: new Date().toISOString(),
+          enviado_por: user?.full_name || user?.email
+        };
+        // Remove documentos (array com objetos File) para não exceder limite de tamanho
+        delete dadosParaSalvar.documentos;
+        dadosParaSalvar.total_documentos = formData.documentos.length;
+
         await base44.entities.Paciente.update(pacienteId, {
           alerta_formulario_vaga: false,
-          formulario_vaga: {
-            ...formData,
-            data_envio: new Date().toISOString(),
-            enviado_por: user?.full_name || user?.email
-          }
+          formulario_vaga: dadosParaSalvar
         });
       }
     },
