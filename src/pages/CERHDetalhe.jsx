@@ -380,6 +380,35 @@ export default function CERHDetalhe() {
               </Card>
             )}
 
+            {/* Formulário de Solicitação de Vaga */}
+            {paciente.formulario_vaga?.data_envio && (
+              <Card className="border-green-300 bg-green-50">
+                <CardHeader className="bg-green-100">
+                  <CardTitle className="flex items-center gap-2 text-green-800">
+                    <FileText className="w-5 h-5" />
+                    Formulário de Solicitação de Vaga
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 pt-4">
+                  <div className="grid md:grid-cols-2 gap-2 text-sm">
+                    <div><span className="font-semibold text-green-900">Enviado em:</span> {new Date(paciente.formulario_vaga.data_envio).toLocaleString('pt-BR')}</div>
+                    {paciente.formulario_vaga.enviado_por && <div><span className="font-semibold text-green-900">Por:</span> {paciente.formulario_vaga.enviado_por}</div>}
+                    {paciente.formulario_vaga.especialidade_solicitada && <div><span className="font-semibold text-green-900">Especialidade:</span> {paciente.formulario_vaga.especialidade_solicitada}</div>}
+                    {paciente.formulario_vaga.solicita_leito && <div><span className="font-semibold text-green-900">Leito:</span> {paciente.formulario_vaga.solicita_leito}</div>}
+                    {paciente.formulario_vaga.medico_solicitante && <div><span className="font-semibold text-green-900">Médico Solicitante:</span> {paciente.formulario_vaga.medico_solicitante} - CRM {paciente.formulario_vaga.crm_solicitante}</div>}
+                    {paciente.formulario_vaga.hipotese_diagnostica && <div className="md:col-span-2"><span className="font-semibold text-green-900">Hipótese Diagnóstica:</span> {paciente.formulario_vaga.hipotese_diagnostica}</div>}
+                  </div>
+                  <Button
+                    onClick={() => window.open(createPageUrl("FormularioVaga") + "?id=" + pacienteId, '_blank')}
+                    className="w-full bg-green-600 hover:bg-green-700 mt-2"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    Visualizar Formulário de Vaga
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Formulário de Regulação */}
             <Card>
               <CardHeader>
