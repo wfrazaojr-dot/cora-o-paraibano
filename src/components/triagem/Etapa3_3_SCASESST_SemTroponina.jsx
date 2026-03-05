@@ -370,6 +370,93 @@ export default function Etapa3_3_SCASESST_SemTroponina({ dadosPaciente, onProxim
         </div>
       )}
 
+      {/* Avaliação de Risco para ASSCARDIO */}
+      <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-6 space-y-6">
+        <h3 className="text-lg font-bold text-blue-900">📊 Avaliação de Risco (para ASSCARDIO - BLOCO 3)</h3>
+
+        {/* História Clínica */}
+        <div>
+          <Label className="text-base font-semibold text-blue-900 block mb-2">HISTÓRIA CLÍNICA</Label>
+          <RadioGroup value={dados.historia_clinica} onValueChange={(v) => setDados(prev => ({...prev, historia_clinica: v}))}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="Levemente suspeita" id="hist1" />
+              <Label htmlFor="hist1">Levemente suspeita</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="Moderadamente suspeita" id="hist2" />
+              <Label htmlFor="hist2">Moderadamente suspeita</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="Altamente suspeita" id="hist3" />
+              <Label htmlFor="hist3">Altamente suspeita</Label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        {/* ECG */}
+        <div>
+          <Label className="text-base font-semibold text-blue-900 block mb-2">ECG</Label>
+          <RadioGroup value={dados.ecg_classificacao} onValueChange={(v) => setDados(prev => ({...prev, ecg_classificacao: v}))}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="Normal" id="ecg1" />
+              <Label htmlFor="ecg1">Normal</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="Com alterações inespecíficas de repolarização" id="ecg2" />
+              <Label htmlFor="ecg2">Com alterações inespecíficas de repolarização</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="Com depressão ou elevação do ST não explicada por outras causas" id="ecg3" />
+              <Label htmlFor="ecg3">Com depressão ou elevação do ST não explicada por outras causas</Label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        {/* Idade */}
+        <div>
+          <Label className="text-base font-semibold text-blue-900 block mb-2">IDADE</Label>
+          <RadioGroup value={dados.faixa_etaria} onValueChange={(v) => setDados(prev => ({...prev, faixa_etaria: v}))}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="< 45 anos" id="idade1" />
+              <Label htmlFor="idade1">{"< 45 anos"}</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="45–64 anos" id="idade2" />
+              <Label htmlFor="idade2">45–64 anos</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="≥ 65 anos" id="idade3" />
+              <Label htmlFor="idade3">≥ 65 anos</Label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        {/* Fatores de Risco */}
+        <div>
+          <Label className="text-base font-semibold text-blue-900 block mb-2">FATORES DE RISCO PARA DOENÇA CORONARIANA</Label>
+          <div className="space-y-2">
+            {[
+              "Hipercolesterolemia",
+              "Diabetes",
+              "Hipertensão",
+              "Obesidade (IMC > 30 Kg/m²)",
+              "Tabagismo (atual ou interrupção ≤ 3 meses)",
+              "História familiar precoce (com DCV antes dos 65 anos)",
+              "Doença aterosclerótica conhecida (IAM prévio, ICP/CRM, AVC/AIT ou doença arterial periférica)"
+            ].map((fator) => (
+              <div key={fator} className="flex items-center space-x-2">
+                <Checkbox
+                  id={fator}
+                  checked={dados.fatores_risco.includes(fator)}
+                  onCheckedChange={() => toggleFatorRisco(fator)}
+                />
+                <Label htmlFor={fator} className="cursor-pointer">{fator}</Label>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Dados Clínicos */}
       <div className="space-y-4">
         <div>
