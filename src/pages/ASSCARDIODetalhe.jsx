@@ -683,6 +683,27 @@ export default function ASSCARDIODetalhe() {
 
 
 
+        {/* 4. BLOCO 3 - SEM SUPRA SEM TROPONINA (apenas se RELATO MÉDICO = NÃO) */}
+        {ecgSupra.tem_supra === "nao" && (
+          <Collapsible open={bloco3Open} onOpenChange={setBloco3Open}>
+            <Card className="mb-4 border-2 border-purple-200">
+              <CollapsibleTrigger className="w-full">
+                <CardHeader className="bg-purple-100 cursor-pointer hover:bg-purple-200 transition-colors">
+                  <CardTitle className="text-purple-900 flex items-center justify-between">
+                    <span>🔍 BLOCO 3 - SEM SUPRA SEM EXAME DE TROPONINA QUANTITATIVA</span>
+                    {bloco3Open ? <ChevronUp /> : <ChevronDown />}
+                  </CardTitle>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent className="pt-4">
+                  <p className="text-purple-700 text-sm italic">Paciente SEM Supra de ST e SEM exame de Troponina Quantitativa disponível.</p>
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
+        )}
+
         {/* 6. BOTÃO ENFERMEIRO */}
         {!enfermeiroFinalizado && (
           <Card className="mb-4 border-2 border-green-400 bg-green-50">
