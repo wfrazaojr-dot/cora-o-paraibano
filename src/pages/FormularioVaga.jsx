@@ -543,7 +543,7 @@ Solicitante: ${user?.full_name} (${user?.email})
                 <div>
                   <p className="text-sm font-semibold text-yellow-900">Importante:</p>
                   <p className="text-sm text-yellow-800 mt-1">
-                    Após o envio, aguarde retorno da SES por e-mail com a atualização do caso e/ou senha para internação.
+                    Ao clicar em "FINALIZAR E ENVIAR": o formulário PDF será baixado automaticamente e o seu cliente de e-mail será aberto com o endereço da CERH correspondente à macrorregião já preenchido. <strong>Anexe o PDF baixado ao e-mail antes de enviar.</strong> Aguarde retorno da CERH com a atualização do caso e/ou senha para internação.
                   </p>
                 </div>
               </div>
