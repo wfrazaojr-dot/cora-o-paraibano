@@ -808,6 +808,36 @@ export default function ASSCARDIODetalhe() {
                 </RadioGroup>
               </div>
 
+              <div className="grid md:grid-cols-3 gap-3">
+                <div>
+                  <Label className="font-bold">Médico Cardiologista *</Label>
+                  <Input
+                    value={medicoData.cardiologista_nome}
+                    onChange={(e) => setMedicoData({...medicoData, cardiologista_nome: e.target.value})}
+                    placeholder="Nome completo"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label className="font-bold">CRM *</Label>
+                  <Input
+                    value={medicoData.cardiologista_crm}
+                    onChange={(e) => setMedicoData({...medicoData, cardiologista_crm: e.target.value})}
+                    placeholder="Nº do CRM"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label className="font-bold">RQE</Label>
+                  <Input
+                    value={medicoData.cardiologista_rqe}
+                    onChange={(e) => setMedicoData({...medicoData, cardiologista_rqe: e.target.value})}
+                    placeholder="Nº do RQE"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
               <div>
                 <Label className="text-lg font-bold">Parecer do Cardiologista:</Label>
                 <Textarea
