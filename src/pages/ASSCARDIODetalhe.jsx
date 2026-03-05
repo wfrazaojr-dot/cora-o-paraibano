@@ -366,6 +366,32 @@ export default function ASSCARDIODetalhe() {
                   </div>
                 </div>
 
+                {/* Sinais Vitais */}
+                {paciente?.triagem_medica && (
+                  <div className="mb-4">
+                    <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">SINAIS VITAIS</h2>
+                    <div className="grid grid-cols-4 gap-2 text-xs">
+                      {(() => {
+                        const pa = paciente.triagem_medica.pa_braco_esquerdo || "";
+                        const parts = pa.split('/');
+                        const pas = parts[0]?.trim();
+                        const pad = parts[1]?.trim();
+                        return (
+                          <>
+                            {pas && <div><span className="font-semibold">PAS (mm Hg):</span> {pas}</div>}
+                            {pad && <div><span className="font-semibold">PAD (mm Hg):</span> {pad}</div>}
+                          </>
+                        );
+                      })()}
+                      {paciente.triagem_medica.frequencia_cardiaca && <div><span className="font-semibold">FC:</span> {paciente.triagem_medica.frequencia_cardiaca} bpm</div>}
+                      {paciente.triagem_medica.frequencia_respiratoria && <div><span className="font-semibold">FR:</span> {paciente.triagem_medica.frequencia_respiratoria} irpm</div>}
+                      {paciente.triagem_medica.temperatura && <div><span className="font-semibold">Temp:</span> {paciente.triagem_medica.temperatura} °C</div>}
+                      {paciente.triagem_medica.spo2 && <div><span className="font-semibold">SpO2:</span> {paciente.triagem_medica.spo2}%</div>}
+                      {paciente.triagem_medica.glicemia_capilar && <div><span className="font-semibold">Glicemia:</span> {paciente.triagem_medica.glicemia_capilar} mg/dL</div>}
+                    </div>
+                  </div>
+                )}
+
                 {/* Pré-Parecer */}
                 <div className="mb-4">
                   <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">AVALIAÇÃO DE ENFERMAGEM (PRÉ-PARECER)</h2>
