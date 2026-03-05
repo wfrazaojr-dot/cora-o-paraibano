@@ -820,18 +820,11 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
           </div>
 
           {dados.heart_score.total > 0 && (
-            <Alert className={`${
-              dados.heart_score.total <= 3 ? 'bg-green-50 border-green-300' :
-              dados.heart_score.total <= 6 ? 'bg-yellow-50 border-yellow-300' :
-              'bg-red-50 border-red-300'
-            }`}>
-              <AlertDescription>
-                <p className="text-lg font-bold mb-2">
-                  HEART SCORE: {dados.heart_score.total} pontos
-                </p>
-                <p className="text-sm">{dados.heart_score.interpretacao}</p>
-              </AlertDescription>
-            </Alert>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-700 italic">
+                ✅ HEART Score calculado: <strong>{dados.heart_score.total} pontos</strong>. O resultado completo será exibido na página <strong>TRIAGEM ECG - ASSCARDIO</strong> (Bloco 2).
+              </p>
+            </div>
           )}
         </div>
       </div>
