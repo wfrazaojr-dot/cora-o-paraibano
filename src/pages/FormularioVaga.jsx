@@ -217,11 +217,17 @@ Solicitante: ${user?.full_name} (${user?.email})
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.nome_completo || !formData.especialidade_solicitada ||
-        !formData.unidade_solicitante || !formData.medico_solicitante) {
+    const unidade = formData.unidade_solicitante || paciente?.unidade_saude || "";
+    if (!formData.nome_completo || !formData.especialidade_solicitada || !formData.medico_solicitante) {
       toast.error("Por favor, preencha todos os campos obrigatórios!");
       return;
     }
+    // Garante que unidade_solicitante esteja preenchida antes de enviar
+    if (!unidade) {
+      toast.error("Unidade solicitante não identificada!");
+      return;
+    }
+    setFormData(prev => ({ ...prev, unidade_solicitante: unidade }));
     enviarSolicitacao.mutate();
   };
 
