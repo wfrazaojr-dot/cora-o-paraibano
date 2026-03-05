@@ -236,7 +236,10 @@ export default function ASSCARDIODetalhe() {
           },
           pre_parecer: preParecer,
           diagnostico_estrategia: medicoData.diagnostico_estrategia,
-          parecer_cardiologista: medicoData.parecer_cardiologista
+          parecer_cardiologista: medicoData.parecer_cardiologista,
+          cardiologista_nome: medicoData.cardiologista_nome,
+          cardiologista_crm: medicoData.cardiologista_crm,
+          cardiologista_rqe: medicoData.cardiologista_rqe
         },
         relatorio_asscardio_url: file_url,
         status: "Aguardando Regulação"
