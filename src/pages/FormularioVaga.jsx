@@ -69,7 +69,7 @@ export default function FormularioVaga() {
         data_nascimento: paciente.data_nascimento || "",
         idade: paciente.idade?.toString() || "",
         sexo: paciente.sexo || "",
-        unidade_solicitante: paciente.unidade_saude || prev.unidade_solicitante,
+        unidade_solicitante: paciente.unidade_saude || "",
         data_hora_admissao: paciente.data_hora_chegada || "",
         hipotese_diagnostica: paciente.avaliacao_clinica?.hipotese_diagnostica || "",
       }));
@@ -148,42 +148,8 @@ export default function FormularioVaga() {
     }
   };
 
-  const gerarEFazerUploadPDF = async () => {
-    if (!formRef.current) return null;
-    const canvas = await html2canvas(formRef.current, { scale: 2, useCORS: true, logging: false });
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const canvasRatio = canvas.height / canvas.width;
-    const imgWidthMm = pdfWidth;
-    const imgHeightMm = imgWidthMm * canvasRatio;
-    let posY = 0;
-    let remaining = canvas.height;
-    const pageHeightPx = (pdfHeight / pdfWidth) * canvas.width;
-    let pageNum = 0;
-    while (remaining > 0) {
-      if (pageNum > 0) pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, -pageNum * pdfHeight, imgWidthMm, imgHeightMm);
-      remaining -= pageHeightPx;
-      pageNum++;
-    }
-    const pdfBlob = pdf.output('blob');
-    const pdfFile = new File([pdfBlob], `Formulario_Vaga_${formData.nome_completo || 'paciente'}.pdf`, { type: 'application/pdf' });
-    const result = await base44.integrations.Core.UploadFile({ file: pdfFile });
-    return result.file_url;
-  };
-
   const enviarSolicitacao = useMutation({
     mutationFn: async () => {
-      // 1. Gerar PDF e fazer upload
-      toast.info("Gerando PDF do formulário...");
-      const pdfUrl = await gerarEFazerUploadPDF();
-
-      const nomeCompleto = formData.nome_completo || paciente?.nome_completo || "";
-      const unidade = formData.unidade_solicitante || paciente?.unidade_saude || "";
-
-      // 2. Enviar e-mail com link do PDF
       const emailBody = `
 FORMULÁRIO DE SOLICITAÇÃO DE VAGA
 Data da Solicitação: ${new Date(formData.data_solicitacao).toLocaleDateString('pt-BR')}
@@ -191,10 +157,10 @@ Data da Solicitação: ${new Date(formData.data_solicitacao).toLocaleDateString(
 ESPECIALIDADE SOLICITADA: ${formData.especialidade_solicitada}
 
 ===== DADOS PESSOAIS =====
-Nome Completo: ${nomeCompleto}
-Data de Nascimento: ${formData.data_nascimento ? new Date(formData.data_nascimento + 'T12:00:00').toLocaleDateString('pt-BR') : (paciente?.data_nascimento ? new Date(paciente.data_nascimento + 'T12:00:00').toLocaleDateString('pt-BR') : '')}
-Idade: ${formData.idade || paciente?.idade || ''} anos
-Sexo: ${formData.sexo || paciente?.sexo || ''}
+Nome Completo: ${formData.nome_completo}
+Data de Nascimento: ${formData.data_nascimento ? new Date(formData.data_nascimento).toLocaleDateString('pt-BR') : ''}
+Idade: ${formData.idade} anos
+Sexo: ${formData.sexo}
 Nome da Mãe: ${formData.nome_mae}
 Local de Nascimento: ${formData.local_nascimento}
 RG: ${formData.rg} - UF: ${formData.uf_rg}
@@ -204,9 +170,8 @@ Endereço: ${formData.endereco}
 Telefone do Responsável: ${formData.telefone_responsavel}
 
 ===== DADOS DA UNIDADE =====
-Unidade Solicitante: ${unidade}
-Macrorregião: ${paciente?.macrorregiao || ''}
-Data e Horário da Admissão: ${paciente?.data_hora_chegada ? new Date(paciente.data_hora_chegada).toLocaleString('pt-BR') : (formData.data_hora_admissao ? new Date(formData.data_hora_admissao).toLocaleString('pt-BR') : '')}
+Unidade Solicitante: ${formData.unidade_solicitante}
+Data e Horário da Admissão: ${formData.data_hora_admissao ? new Date(formData.data_hora_admissao).toLocaleString('pt-BR') : ''}
 
 ===== DADOS CLÍNICOS =====
 Hipótese Diagnóstica: ${formData.hipotese_diagnostica}
@@ -216,69 +181,34 @@ Comorbidades: ${formData.comorbidades.join(', ')}${formData.comorbidades_outras 
 
 ===== SOLICITAÇÃO =====
 Solicita Leito de: ${formData.solicita_leito}
+
 Médico Solicitante: ${formData.medico_solicitante}
 CRM: ${formData.crm_solicitante}
-Total de Documentos Anexados: ${formData.documentos.length}
 
-${pdfUrl ? `📄 FORMULÁRIO EM PDF: ${pdfUrl}` : ''}
-${formData.documentos.map((d, i) => `📎 Documento ${i+1}: ${d.url}`).join('\n')}
+Total de Documentos Anexados: ${formData.documentos.length}
 
 ---
 Enviado através do Sistema Coração Paraibano
 Solicitante: ${user?.full_name} (${user?.email})
 `;
-
       await base44.integrations.Core.SendEmail({
         to: user?.email || "ses@saude.pb.gov.br",
-        subject: `[FORMULÁRIO/VAGA] ${nomeCompleto} - ${unidade}`,
+        subject: `[FORMULÁRIO/VAGA] ${formData.nome_completo} - ${formData.unidade_solicitante}`,
         body: emailBody
       });
-
-      // 3. Salvar no paciente com URL do PDF
       if (pacienteId && paciente) {
-        const dadosParaSalvar = {
-          especialidade_solicitada: formData.especialidade_solicitada,
-          nome_completo: nomeCompleto,
-          data_nascimento: formData.data_nascimento || paciente.data_nascimento,
-          idade: formData.idade || paciente.idade?.toString(),
-          sexo: formData.sexo || paciente.sexo,
-          nome_mae: formData.nome_mae,
-          local_nascimento: formData.local_nascimento,
-          rg: formData.rg,
-          uf_rg: formData.uf_rg,
-          cpf: formData.cpf,
-          cns: formData.cns,
-          endereco: formData.endereco,
-          telefone_responsavel: formData.telefone_responsavel,
-          unidade_solicitante: unidade,
-          hipotese_diagnostica: formData.hipotese_diagnostica,
-          alergia: formData.alergia,
-          alergia_descricao: formData.alergia_descricao,
-          medicacoes_uso_continuo: formData.medicacoes_uso_continuo,
-          medicacoes_descricao: formData.medicacoes_descricao,
-          comorbidades: formData.comorbidades,
-          comorbidades_outras: formData.comorbidades_outras,
-          solicita_leito: formData.solicita_leito,
-          medico_solicitante: formData.medico_solicitante,
-          crm_solicitante: formData.crm_solicitante,
-          total_documentos: formData.documentos.length,
-          documentos_urls: formData.documentos.map(d => ({ url: d.url, nome: d.nome })),
-          pdf_url: pdfUrl,
-          data_envio: new Date().toISOString(),
-          enviado_por: user?.full_name || user?.email,
-        };
-
         await base44.entities.Paciente.update(pacienteId, {
           alerta_formulario_vaga: false,
-          formulario_vaga: dadosParaSalvar,
-          relatorio_cerh_url: pdfUrl,
+          formulario_vaga: {
+            ...formData,
+            data_envio: new Date().toISOString(),
+            enviado_por: user?.full_name || user?.email
+          }
         });
       }
-
-      return pdfUrl;
     },
-    onSuccess: (pdfUrl) => {
-      toast.success("✅ Formulário enviado ao CERH com sucesso! PDF gerado e salvo.");
+    onSuccess: () => {
+      toast.success("✅ Solicitação enviada com sucesso! Aguarde retorno da SES por e-mail.");
     },
     onError: (error) => {
       toast.error("Erro ao enviar solicitação: " + error.message);
@@ -287,17 +217,11 @@ Solicitante: ${user?.full_name} (${user?.email})
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const unidade = formData.unidade_solicitante || paciente?.unidade_saude || "";
-    if (!formData.nome_completo || !formData.especialidade_solicitada || !formData.medico_solicitante) {
+    if (!formData.nome_completo || !formData.especialidade_solicitada ||
+        !formData.unidade_solicitante || !formData.medico_solicitante) {
       toast.error("Por favor, preencha todos os campos obrigatórios!");
       return;
     }
-    // Garante que unidade_solicitante esteja preenchida antes de enviar
-    if (!unidade) {
-      toast.error("Unidade solicitante não identificada!");
-      return;
-    }
-    setFormData(prev => ({ ...prev, unidade_solicitante: unidade }));
     enviarSolicitacao.mutate();
   };
 
