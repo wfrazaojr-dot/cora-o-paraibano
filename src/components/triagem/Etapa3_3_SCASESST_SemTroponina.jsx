@@ -125,6 +125,15 @@ export default function Etapa3_3_SCASESST_SemTroponina({ dadosPaciente, onProxim
     }));
   };
 
+  const toggleFatorRisco = (fator) => {
+    setDados(prev => ({
+      ...prev,
+      fatores_risco: prev.fatores_risco.includes(fator)
+        ? prev.fatores_risco.filter(f => f !== fator)
+        : [...prev.fatores_risco, fator]
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     
