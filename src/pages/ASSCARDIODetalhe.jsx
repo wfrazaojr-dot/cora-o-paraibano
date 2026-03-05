@@ -640,6 +640,8 @@ export default function ASSCARDIODetalhe() {
           </Card>
         </Collapsible>
 
+        }
+
         {/* 3. BLOCO 2 - SEM SUPRA (apenas se RELATO MÉDICO = NÃO) */}
         {ecgSupra.tem_supra === "nao" && (
           <Collapsible open={bloco2Open} onOpenChange={setBloco2Open}>
