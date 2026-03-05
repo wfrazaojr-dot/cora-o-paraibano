@@ -215,14 +215,61 @@ Solicitante: ${user?.full_name} (${user?.email})
     }
   });
 
-  const handleSubmit = (e) => {
+  const getEmailCERH = () => {
+    const macro = paciente?.macrorregiao || formData.macrorregiao || "";
+    if (macro === "Macro 1") return "cerh.pb@regulacao.com";
+    if (macro === "Macro 2") return "regulacao@saude.pb.gov.br";
+    if (macro === "Macro 3") return "cerhpb3macro@saude.pb.gov.br";
+    return "cerh.pb@regulacao.com"; // padrão Macro 1
+  };
+
+  const abrirEmailCliente = () => {
+    const emailCERH = getEmailCERH();
+    const assunto = encodeURIComponent(`[FORMULÁRIO/VAGA] ${formData.nome_completo} - ${formData.unidade_solicitante || paciente?.unidade_saude || ""}`);
+    const corpo = encodeURIComponent(
+      `Prezados,\n\nSegue em anexo o Formulário de Solicitação de Vaga do paciente ${formData.nome_completo}.\n\nMacrorregião: ${paciente?.macrorregiao || ""}\nUnidade Solicitante: ${formData.unidade_solicitante || paciente?.unidade_saude || ""}\nEspecialidade: ${formData.especialidade_solicitada}\nHipótese Diagnóstica: ${formData.hipotese_diagnostica}\n\nAtenciosamente,\n${user?.full_name || ""}\n${formData.unidade_solicitante || paciente?.unidade_saude || ""}`
+    );
+    window.location.href = `mailto:${emailCERH}?subject=${assunto}&body=${corpo}`;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.nome_completo || !formData.especialidade_solicitada ||
         !formData.unidade_solicitante || !formData.medico_solicitante) {
       toast.error("Por favor, preencha todos os campos obrigatórios!");
       return;
     }
+
+    // 1. Gera e baixa o PDF
+    if (formRef.current) {
+      setGerandoPDF(true);
+      try {
+        const canvas = await html2canvas(formRef.current, { scale: 2, useCORS: true, logging: false });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const ratio = Math.min(pdfWidth / canvas.width, pdfHeight / canvas.height);
+        const imgX = (pdfWidth - canvas.width * ratio) / 2;
+        pdf.addImage(imgData, 'PNG', imgX, 0, canvas.width * ratio, canvas.height * ratio);
+        pdf.save(`Formulario_Vaga_${formData.nome_completo}_${new Date().toISOString().split('T')[0]}.pdf`);
+        toast.success("📄 PDF gerado! Agora anexe-o ao e-mail que será aberto.");
+      } catch (error) {
+        toast.error("Erro ao gerar PDF: " + error.message);
+        setGerandoPDF(false);
+        return;
+      } finally {
+        setGerandoPDF(false);
+      }
+    }
+
+    // 2. Envia dados pelo sistema
     enviarSolicitacao.mutate();
+
+    // 3. Abre cliente de e-mail após pequeno delay para o PDF terminar de baixar
+    setTimeout(() => {
+      abrirEmailCliente();
+    }, 1500);
   };
 
   return (
