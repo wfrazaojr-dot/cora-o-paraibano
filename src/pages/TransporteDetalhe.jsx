@@ -9,10 +9,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Truck, FileText, MapPin, AlertTriangle, Download, CheckCircle, XCircle, Clock } from "lucide-react";
+import { ArrowLeft, Truck, FileText, MapPin, AlertTriangle, Download, CheckCircle, XCircle, Clock, ExternalLink, History, X } from "lucide-react";
 import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -40,6 +41,7 @@ export default function TransporteDetalhe() {
   const urlParams = new URLSearchParams(window.location.search);
   const pacienteId = urlParams.get('id');
 
+  const [showHistoricoModal, setShowHistoricoModal] = useState(false);
   const [formData, setFormData] = useState({
     central_transporte: "",
     tipo_transporte: "USA CORAÇÃO PARAIBANO",
@@ -242,18 +244,30 @@ export default function TransporteDetalhe() {
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-4">
-          <Button variant="outline" onClick={() => navigate(createPageUrl("Dashboard"))}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-              <Truck className="w-8 h-8 text-yellow-600" />
-              TRANSPORTE - Gestão de Deslocamento
-            </h1>
-            <p className="text-gray-600">Coordenação e registro de transporte</p>
+        <div className="mb-6 flex items-center gap-4 justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" onClick={() => navigate(createPageUrl("Dashboard"))}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Voltar
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+                <Truck className="w-8 h-8 text-yellow-600" />
+                TRANSPORTE - Gestão de Deslocamento
+              </h1>
+              <p className="text-gray-600">Coordenação e registro de transporte</p>
+            </div>
           </div>
+          {paciente && (
+            <Button 
+              variant="outline" 
+              onClick={() => navigate(createPageUrl("NovaTriagem") + `?id=${pacienteId}`)}
+              className="border-blue-300 text-blue-700 hover:bg-blue-50"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Ver Paciente
+            </Button>
+          )}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
@@ -265,14 +279,19 @@ export default function TransporteDetalhe() {
             {transporteIniciado && (
               <Card className={`border-2 ${transporteFinalizado ? (paciente.transporte.status_transporte === "Com Intercorrência" ? "border-red-400 bg-red-50" : "border-green-400 bg-green-50") : "border-yellow-400 bg-yellow-50"}`}>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    {transporteFinalizado
-                      ? paciente.transporte.status_transporte === "Com Intercorrência"
-                        ? <><AlertTriangle className="w-4 h-4 text-red-600" /><span className="text-red-700">Transporte c/ Intercorrência</span></>
-                        : <><CheckCircle className="w-4 h-4 text-green-600" /><span className="text-green-700">Transporte Concluído</span></>
-                      : <><Clock className="w-4 h-4 text-yellow-600" /><span className="text-yellow-700">Em Deslocamento</span></>
-                    }
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      {transporteFinalizado
+                        ? paciente.transporte.status_transporte === "Com Intercorrência"
+                          ? <><AlertTriangle className="w-4 h-4 text-red-600" /><span className="text-red-700">Transporte c/ Intercorrência</span></>
+                          : <><CheckCircle className="w-4 h-4 text-green-600" /><span className="text-green-700">Transporte Concluído</span></>
+                        : <><Clock className="w-4 h-4 text-yellow-600" /><span className="text-yellow-700">Em Deslocamento</span></>
+                      }
+                    </CardTitle>
+                    <Badge className={transporteFinalizado ? (paciente.transporte.status_transporte === "Com Intercorrência" ? "bg-red-500" : "bg-green-500") : "bg-yellow-500"}>
+                      {paciente.transporte.status_transporte || "Em Andamento"}
+                    </Badge>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-2 text-xs">
                   <div>
@@ -342,10 +361,25 @@ export default function TransporteDetalhe() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-lg font-bold">{paciente.regulacao_central.unidade_destino}</p>
-                  {paciente.regulacao_central.observacoes_regulacao && (
-                    <p className="text-sm text-indigo-700 mt-2">{paciente.regulacao_central.observacoes_regulacao}</p>
-                  )}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <p className="text-lg font-bold">{paciente.regulacao_central.unidade_destino}</p>
+                      {paciente.regulacao_central.observacoes_regulacao && (
+                        <p className="text-sm text-indigo-700 mt-2">{paciente.regulacao_central.observacoes_regulacao}</p>
+                      )}
+                    </div>
+                    {paciente.regulacao_central.unidade_destino && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => window.open(`https://www.google.com/maps/search/${encodeURIComponent(paciente.regulacao_central.unidade_destino)}`, '_blank')}
+                        className="border-indigo-400 text-indigo-700 hover:bg-indigo-100 flex-shrink-0"
+                      >
+                        <MapPin className="w-3 h-3 mr-1" />
+                        Mapa
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -703,18 +737,17 @@ export default function TransporteDetalhe() {
                     </div>
                   )}
                   {paciente.transporte.historico_intercorrencias?.length > 0 && (
-                    <div className="mt-2">
-                      <p className="text-xs font-semibold text-gray-600 mb-1">HISTÓRICO DE INTERCORRÊNCIAS ({paciente.transporte.historico_intercorrencias.length})</p>
-                      <div className="space-y-2">
-                        {paciente.transporte.historico_intercorrencias.map((item, idx) => (
-                          <div key={idx} className="p-2 bg-gray-50 border border-gray-200 rounded text-xs">
-                            <p className="font-semibold text-gray-700">{new Date(item.data_hora).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</p>
-                            <p><span className="font-semibold">Motivo:</span> {item.motivo}</p>
-                            {item.acoes_tomadas && <p><span className="font-semibold">Ações:</span> {item.acoes_tomadas}</p>}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                   <div className="mt-4 pt-4 border-t border-gray-300">
+                     <Button
+                       size="sm"
+                       variant="outline"
+                       onClick={() => setShowHistoricoModal(true)}
+                       className="w-full border-gray-400 text-gray-700 hover:bg-gray-100"
+                     >
+                       <History className="w-4 h-4 mr-2" />
+                       Ver Histórico de Intercorrências ({paciente.transporte.historico_intercorrencias.length})
+                     </Button>
+                   </div>
                   )}
                   {paciente.relatorio_transporte_url && (
                     <Button
