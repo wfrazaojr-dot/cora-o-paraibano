@@ -543,10 +543,6 @@ Solicitante: ${user?.full_name} (${user?.email})
 
             {/* Botões de Ação */}
             <div className="flex gap-4 pt-4">
-              <Button type="button" onClick={gerarPDF} disabled={gerandoPDF} variant="outline" className="flex-1">
-                <Download className="w-5 h-5 mr-2" />
-                {gerandoPDF ? "Gerando PDF..." : "BAIXAR FORMULÁRIO EM PDF"}
-              </Button>
               <Button type="submit" disabled={enviarSolicitacao.isPending || uploadingFiles} className="flex-1 bg-blue-600 hover:bg-blue-700">
                 <Send className="w-5 h-5 mr-2" />
                 {enviarSolicitacao.isPending ? "Enviando..." : "FINALIZAR E ENVIAR"}
