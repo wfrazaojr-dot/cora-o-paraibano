@@ -288,6 +288,7 @@ export default function ASSCARDIODetalhe() {
           {/* Coluna Esquerda */}
           <div className="lg:col-span-1 space-y-6">
             <DadosPaciente paciente={paciente} />
+            <MonitorTransporte paciente={paciente} />
             <LinhaTempo paciente={paciente} />
             <ChatInterno pacienteId={pacienteId} />
           </div>
