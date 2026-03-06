@@ -257,10 +257,10 @@ Solicitante: ${user?.full_name} (${user?.email})
 
   const getEmailCERH = () => {
     const macro = paciente?.macrorregiao || formData.macrorregiao || "";
-    if (macro === "Macro 1") return "cerh.pb@regulacao.com";
+    if (macro === "Macro 1") return "cerh.pb@regulacaopb.com";
     if (macro === "Macro 2") return "regulacao@saude.pb.gov.br";
     if (macro === "Macro 3") return "cerhpb3macro@saude.pb.gov.br";
-    return "cerh.pb@regulacao.com"; // padrão Macro 1
+    return "cerh.pb@regulacaopb.com"; // padrão Macro 1
   };
 
   const abrirEmailCliente = () => {
