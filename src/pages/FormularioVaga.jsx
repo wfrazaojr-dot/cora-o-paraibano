@@ -665,6 +665,7 @@ Solicitante: ${user?.full_name} (${user?.email})`;
           </form>
         </div>
       </div>
+      </div>
     </div>
   );
 }
