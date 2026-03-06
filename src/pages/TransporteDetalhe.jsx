@@ -220,8 +220,11 @@ export default function TransporteDetalhe() {
                       <SelectItem value="USA SAMU">USA SAMU</SelectItem>
                       <SelectItem value="USA MUNICIPAL">USA MUNICIPAL</SelectItem>
                       <SelectItem value="USB COM MÉDICO">USB COM MÉDICO</SelectItem>
+                      <SelectItem value="USA ASA FIXA GRAME">USA ASA FIXA GRAME</SelectItem>
+                      <SelectItem value="USA ASA ROTATIVA SAMU">USA ASA ROTATIVA SAMU</SelectItem>
+                      <SelectItem value="USA ASA ROTATIVA GRAME">USA ASA ROTATIVA GRAME</SelectItem>
                       <SelectItem value="OUTRO">OUTRO</SelectItem>
-                    </SelectContent>
+                      </SelectContent>
                   </Select>
                 </div>
 
