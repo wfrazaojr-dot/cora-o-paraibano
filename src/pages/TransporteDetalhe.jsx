@@ -763,6 +763,61 @@ export default function TransporteDetalhe() {
             )}
           </div>
         </div>
+
+        {/* Modal de Histórico de Intercorrências */}
+        <Dialog open={showHistoricoModal} onOpenChange={setShowHistoricoModal}>
+          <DialogContent className="max-w-2xl max-h-96 overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-red-700">
+                <History className="w-5 h-5" />
+                Histórico de Intercorrências
+              </DialogTitle>
+            </DialogHeader>
+            {paciente?.transporte?.historico_intercorrencias?.length > 0 ? (
+              <div className="space-y-3">
+                {paciente.transporte.historico_intercorrencias.map((item, idx) => (
+                  <div key={idx} className="p-4 bg-red-50 border-2 border-red-300 rounded-lg">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <p className="font-semibold text-red-900 text-sm">
+                          {new Date(item.data_hora).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
+                        </p>
+                        <Badge className="bg-red-600 mt-1">Intercorrência #{idx + 1}</Badge>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div>
+                        <p className="font-semibold text-red-800">Motivo:</p>
+                        <p className="text-red-700">{item.motivo}</p>
+                      </div>
+                      {item.descricao && (
+                        <div>
+                          <p className="font-semibold text-red-800">Descrição:</p>
+                          <p className="text-red-700 whitespace-pre-wrap">{item.descricao}</p>
+                        </div>
+                      )}
+                      {item.acoes_tomadas && (
+                        <div className="p-3 bg-green-50 border border-green-300 rounded">
+                          <p className="font-semibold text-green-800">Ações Tomadas:</p>
+                          <p className="text-green-800 whitespace-pre-wrap">{item.acoes_tomadas}</p>
+                        </div>
+                      )}
+                      {item.tipo_transporte && (
+                        <div className="text-xs text-gray-600 border-t border-red-200 pt-2 mt-2">
+                          <p><strong>Tipo:</strong> {item.tipo_transporte}</p>
+                          {item.central && <p><strong>Central:</strong> {item.central}</p>}
+                          {item.destino && <p><strong>Destino:</strong> {item.destino}</p>}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-600 text-center py-4">Nenhuma intercorrência registrada.</p>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
