@@ -22,7 +22,7 @@ export default function TransporteDetalhe() {
 
   const [formData, setFormData] = useState({
     central_transporte: "",
-    tipo_transporte: "SAMU",
+    tipo_transporte: "USA CORAÇÃO PARAIBANO",
     intercorrencias: "",
     motivo_nao_finalizado: "",
     status_transporte: "Aguardando"
