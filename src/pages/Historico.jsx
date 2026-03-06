@@ -430,7 +430,7 @@ export default function Historico() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap justify-end">
                         {paciente.alerta_formulario_vaga && (
                           <Button
                             size="sm"
@@ -438,6 +438,15 @@ export default function Historico() {
                             className="bg-yellow-600 hover:bg-yellow-700 text-white"
                           >
                             📋 ENVIAR FORMULÁRIO/VAGA
+                          </Button>
+                        )}
+                        {paciente.relatorio_agendamento_hemo_url && (
+                          <Button
+                            size="sm"
+                            onClick={() => window.open(paciente.relatorio_agendamento_hemo_url, '_blank')}
+                            className="bg-pink-600 hover:bg-pink-700 text-white"
+                          >
+                            📅 AGENDAMENTO HEMO
                           </Button>
                         )}
                         <Button 
