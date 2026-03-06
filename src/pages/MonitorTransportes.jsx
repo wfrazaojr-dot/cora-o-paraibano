@@ -11,6 +11,7 @@ import { differenceInMinutes, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import AlertasTransporte from "@/components/dashboard/AlertasTransporte";
 import CartaoTransporte from "@/components/transporte/CartaoTransporte";
+import HistoricoTransportes from "@/components/transporte/HistoricoTransportes";
 
 const LIMITES_MINUTOS = { 0: 60, 1: 120, 2: 180 };
 
