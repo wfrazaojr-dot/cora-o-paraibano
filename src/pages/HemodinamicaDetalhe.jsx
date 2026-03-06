@@ -316,6 +316,27 @@ export default function HemodinamicaDetalhe() {
               </Card>
             )}
 
+            {/* Parecer ASSCARDIO */}
+            {paciente.relatorio_asscardio_url && (
+              <Card className="border-2 border-red-300 bg-red-50">
+                <CardHeader className="bg-red-100">
+                  <CardTitle className="flex items-center gap-2 text-red-800">
+                    <FileText className="w-5 h-5 text-red-600" />
+                    Parecer Cardiológico - ASSCARDIO
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    onClick={() => window.open(paciente.relatorio_asscardio_url, '_blank')}
+                    className="w-full bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    ABRIR PARECER COMPLETO ASSCARDIO
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
             {/* ETAPA 1: Definir Tipo de ICP */}
             {!tipoIcpDefinido && (
               <Card className="border-2 border-pink-300">
