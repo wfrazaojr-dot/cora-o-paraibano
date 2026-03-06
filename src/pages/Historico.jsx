@@ -441,13 +441,23 @@ export default function Historico() {
                       </div>
 
                       <div className="flex items-center gap-2 flex-wrap justify-end">
-                        {paciente.alerta_formulario_vaga && (
+                        {paciente.alerta_formulario_vaga && !paciente.formulario_vaga?.data_envio && (
                           <Button
                             size="sm"
                             onClick={() => navigate(createPageUrl("FormularioVaga") + `?id=${paciente.id}`)}
                             className="bg-yellow-600 hover:bg-yellow-700 text-white"
                           >
                             📋 ENVIAR FORMULÁRIO/VAGA
+                          </Button>
+                        )}
+                        {paciente.formulario_vaga?.data_envio && (
+                          <Button
+                            size="sm"
+                            onClick={() => navigate(createPageUrl("FormularioVaga") + `?id=${paciente.id}`)}
+                            variant="outline"
+                            className="border-green-500 text-green-700 hover:bg-green-50"
+                          >
+                            📋 Ver/Reenviar Formulário
                           </Button>
                         )}
                         {paciente.relatorio_agendamento_hemo_url && (
