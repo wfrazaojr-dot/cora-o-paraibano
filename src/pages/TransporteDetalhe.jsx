@@ -497,6 +497,21 @@ export default function TransporteDetalhe() {
                         </div>
                       )}
 
+                      <div>
+                        <Label className="text-red-800 font-semibold">Ações Tomadas / Solução Aplicada</Label>
+                        <Textarea
+                          value={formData.acoes_tomadas}
+                          onChange={(e) => setFormData({...formData, acoes_tomadas: e.target.value})}
+                          placeholder="Descreva as ações tomadas pela equipe para resolver ou mitigar a intercorrência..."
+                          rows={3}
+                          className="mt-1 border-red-300"
+                        />
+                      </div>
+
+                      <div className="p-2 bg-orange-50 border border-orange-300 rounded text-xs text-orange-800">
+                        📢 Ao finalizar, a equipe CERH e a unidade de origem serão notificadas automaticamente via chat interno do sistema.
+                      </div>
+
                       <div className="flex gap-2">
                         <Button
                           onClick={() => finalizarComIntercorrencia.mutate()}
