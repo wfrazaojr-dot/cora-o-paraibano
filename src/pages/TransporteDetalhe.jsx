@@ -82,7 +82,7 @@ export default function TransporteDetalhe() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['paciente', pacienteId]);
+      queryClient.invalidateQueries({ queryKey: ['paciente', pacienteId] });
       alert("Transporte iniciado com sucesso!");
     }
   });
@@ -111,7 +111,7 @@ export default function TransporteDetalhe() {
       window.open(resultado.data.file_url, '_blank');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['paciente', pacienteId]);
+      queryClient.invalidateQueries({ queryKey: ['paciente', pacienteId] });
       alert("Transporte concluído! Relatório PDF gerado e aberto.");
       navigate(createPageUrl("Dashboard"));
     },
@@ -192,7 +192,7 @@ export default function TransporteDetalhe() {
       window.open(resultado.data.file_url, '_blank');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['paciente', pacienteId]);
+      queryClient.invalidateQueries({ queryKey: ['paciente', pacienteId] });
       alert("Transporte finalizado com intercorrência! Relatório PDF gerado, histórico salvo e equipes notificadas.");
       navigate(createPageUrl("Dashboard"));
     },
@@ -223,7 +223,7 @@ export default function TransporteDetalhe() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['paciente', pacienteId]);
+      queryClient.invalidateQueries({ queryKey: ['paciente', pacienteId] });
       alert("Intercorrência registrada. Transporte marcado como não iniciado.");
       navigate(createPageUrl("Dashboard"));
     },
