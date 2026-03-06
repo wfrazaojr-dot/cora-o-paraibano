@@ -16,6 +16,7 @@ import { ArrowLeft, Heart, ChevronDown, ChevronUp, Calendar } from "lucide-react
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
+import MonitorTransporte from "@/components/regulacao/MonitorTransporte";
 import ChatInterno from "@/components/ChatInterno";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";

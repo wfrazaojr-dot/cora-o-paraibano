@@ -12,6 +12,7 @@ import { ArrowLeft, Radio, FileText, Save, Heart, Download, AlertTriangle } from
 import { Checkbox } from "@/components/ui/checkbox";
 import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
+import MonitorTransporte from "@/components/regulacao/MonitorTransporte";
 import { Badge } from "@/components/ui/badge";
 import ChatInterno from "@/components/ChatInterno";
 import html2canvas from "html2canvas";

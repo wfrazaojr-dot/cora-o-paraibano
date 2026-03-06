@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Activity, FileText, Save, Download, Clock, Calendar, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
+import MonitorTransporte from "@/components/regulacao/MonitorTransporte";
 import { Badge } from "@/components/ui/badge";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
