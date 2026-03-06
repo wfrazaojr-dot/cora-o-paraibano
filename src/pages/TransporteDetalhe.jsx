@@ -216,10 +216,11 @@ export default function TransporteDetalhe() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="SAMU">SAMU</SelectItem>
-                      <SelectItem value="Ambulância Básica">Ambulância Básica</SelectItem>
-                      <SelectItem value="UTI Móvel">UTI Móvel</SelectItem>
-                      <SelectItem value="Outro">Outro</SelectItem>
+                     <SelectItem value="USA CORAÇÃO PARAIBANO">USA CORAÇÃO PARAIBANO</SelectItem>
+                      <SelectItem value="USA SAMU">USA SAMU</SelectItem>
+                      <SelectItem value="USA MUNICIPAL">USA MUNICIPAL</SelectItem>
+                      <SelectItem value="USB COM MÉDICO">USB COM MÉDICO</SelectItem>
+                      <SelectItem value="OUTRO">OUTRO</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
