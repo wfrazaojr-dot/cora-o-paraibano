@@ -63,16 +63,50 @@ export default function FormularioVaga() {
 
   useEffect(() => {
     if (paciente) {
-      setFormData(prev => ({
-        ...prev,
-        nome_completo: paciente.nome_completo || "",
-        data_nascimento: paciente.data_nascimento || "",
-        idade: paciente.idade?.toString() || "",
-        sexo: paciente.sexo || "",
-        unidade_solicitante: paciente.unidade_saude || "",
-        data_hora_admissao: paciente.data_hora_chegada || "",
-        hipotese_diagnostica: paciente.avaliacao_clinica?.hipotese_diagnostica || "",
-      }));
+      // Se já existe um formulário salvo, carrega todos os dados dele
+      if (paciente.formulario_vaga?.data_envio) {
+        const fv = paciente.formulario_vaga;
+        setFormData(prev => ({
+          ...prev,
+          especialidade_solicitada: fv.especialidade_solicitada || "",
+          nome_completo: fv.nome_completo || paciente.nome_completo || "",
+          data_nascimento: fv.data_nascimento || paciente.data_nascimento || "",
+          idade: fv.idade || paciente.idade?.toString() || "",
+          sexo: fv.sexo || paciente.sexo || "",
+          nome_mae: fv.nome_mae || "",
+          local_nascimento: fv.local_nascimento || "",
+          rg: fv.rg || "",
+          uf_rg: fv.uf_rg || "",
+          cpf: fv.cpf || "",
+          cns: fv.cns || "",
+          endereco: fv.endereco || "",
+          telefone_responsavel: fv.telefone_responsavel || "",
+          unidade_solicitante: fv.unidade_solicitante || paciente.unidade_saude || "",
+          data_hora_admissao: fv.data_hora_admissao || paciente.data_hora_chegada || "",
+          hipotese_diagnostica: fv.hipotese_diagnostica || paciente.avaliacao_clinica?.hipotese_diagnostica || "",
+          alergia: fv.alergia || "Nega",
+          alergia_descricao: fv.alergia_descricao || "",
+          medicacoes_uso_continuo: fv.medicacoes_uso_continuo || "NÃO SABE INFORMAR",
+          medicacoes_descricao: fv.medicacoes_descricao || "",
+          comorbidades: fv.comorbidades || [],
+          comorbidades_outras: fv.comorbidades_outras || "",
+          medico_solicitante: fv.medico_solicitante || "",
+          crm_solicitante: fv.crm_solicitante || "",
+          documentos: fv.documentos || [],
+        }));
+      } else {
+        // Novo formulário: preenche apenas os dados básicos do paciente
+        setFormData(prev => ({
+          ...prev,
+          nome_completo: paciente.nome_completo || "",
+          data_nascimento: paciente.data_nascimento || "",
+          idade: paciente.idade?.toString() || "",
+          sexo: paciente.sexo || "",
+          unidade_solicitante: paciente.unidade_saude || "",
+          data_hora_admissao: paciente.data_hora_chegada || "",
+          hipotese_diagnostica: paciente.avaliacao_clinica?.hipotese_diagnostica || "",
+        }));
+      }
     }
   }, [paciente]);
 
