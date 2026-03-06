@@ -202,6 +202,34 @@ export default function TransporteDetalhe() {
     }
   });
 
+  const registrarIntercorrenciaNaoIniciado = useMutation({
+    mutationFn: async () => {
+      if (!formData.motivo_nao_iniciado) throw new Error("Selecione um motivo.");
+      const motivoFinal = formData.motivo_nao_iniciado === "Outro"
+        ? `Outro: ${formData.motivo_nao_iniciado_detalhado}`
+        : formData.motivo_nao_iniciado;
+
+      await base44.entities.Paciente.update(pacienteId, {
+        transporte: {
+          ...paciente?.transporte,
+          central_transporte: formData.central_transporte,
+          tipo_transporte: formData.tipo_transporte,
+          data_hora_solicitacao: paciente?.transporte?.data_hora_solicitacao || new Date().toISOString(),
+          status_transporte: "Não Iniciado - Intercorrência",
+          motivo_nao_iniciado: motivoFinal,
+          descricao_nao_iniciado: formData.descricao_nao_iniciado || "",
+        },
+        status: "Concluído"
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['paciente', pacienteId]);
+      alert("Intercorrência registrada. Transporte marcado como não iniciado.");
+      navigate(createPageUrl("Dashboard"));
+    },
+    onError: (err) => alert(err.message || "Erro ao registrar.")
+  });
+
   if (isLoading) {
     return <div className="p-8">Carregando...</div>;
   }
