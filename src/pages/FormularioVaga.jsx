@@ -443,13 +443,10 @@ Solicitante: ${user?.full_name} (${user?.email})`;
 
             {/* Especialidade */}
             <div>
-              <h3 className="text-base font-bold mb-3 border-b pb-2 text-blue-900">ESPECIALIDADE SOLICITADA *</h3>
-              <Select value={formData.especialidade_solicitada} onValueChange={(v) => setFormData({...formData, especialidade_solicitada: v})}>
-                <SelectTrigger><SelectValue placeholder="Selecione a especialidade" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="CARDIOLOGIA">CARDIOLOGIA</SelectItem>
-                </SelectContent>
-              </Select>
+              <h3 className="text-base font-bold mb-3 border-b pb-2 text-blue-900">ESPECIALIDADE SOLICITADA</h3>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
+                <p className="font-bold text-blue-900">CARDIOLOGIA</p>
+              </div>
             </div>
 
             {/* Dados Pessoais */}
