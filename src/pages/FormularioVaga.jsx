@@ -461,8 +461,15 @@ Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString(
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm font-bold text-amber-900">📧 Destinatário CERH ({getMacro()}):</p>
+                <p className="text-sm font-bold text-amber-900">📧 Destinatário CERH:</p>
                 <p className="text-base font-bold text-blue-700">{getEmailCERH()}</p>
+                <p className="text-xs text-amber-800 mt-1">
+                  📍 <strong>Macrorregião:</strong>{" "}
+                  {paciente?.macrorregiao === "Macro 1" && <span>Macro 1 — CERH Central (João Pessoa)</span>}
+                  {paciente?.macrorregiao === "Macro 2" && <span>Macro 2 — CERH Campina Grande</span>}
+                  {paciente?.macrorregiao === "Macro 3" && <span>Macro 3 — CERH Patos / Sousa</span>}
+                  {!paciente?.macrorregiao && <span className="text-red-700">Não definida — verifique o cadastro do paciente</span>}
+                </p>
                 <ol className="text-xs text-amber-800 mt-2 space-y-1 list-decimal list-inside">
                   <li>Preencha o formulário abaixo</li>
                   <li>Clique em <strong>"📥 Baixar PDF"</strong> para gerar e salvar o formulário</li>
