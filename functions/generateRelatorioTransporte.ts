@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { pacienteId, intercorrencias, motivo_intercorrencia, status_final } = await req.json();
+    const { pacienteId, intercorrencias, motivo_intercorrencia, acoes_tomadas, status_final } = await req.json();
 
     const pacientes = await base44.asServiceRole.entities.Paciente.list();
     const paciente = pacientes.find(p => p.id === pacienteId);
