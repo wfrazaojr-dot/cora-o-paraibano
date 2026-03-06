@@ -419,13 +419,10 @@ export default function CERHDetalhe() {
                     {paciente.formulario_vaga.medico_solicitante && <div><span className="font-semibold text-green-900">Médico Solicitante:</span> {paciente.formulario_vaga.medico_solicitante} - CRM {paciente.formulario_vaga.crm_solicitante}</div>}
                     {paciente.formulario_vaga.hipotese_diagnostica && <div className="md:col-span-2"><span className="font-semibold text-green-900">Hipótese Diagnóstica:</span> {paciente.formulario_vaga.hipotese_diagnostica}</div>}
                   </div>
-                  <Button
-                    onClick={() => window.open(createPageUrl("FormularioVaga") + "?id=" + pacienteId, '_blank')}
-                    className="w-full bg-green-600 hover:bg-green-700 mt-2"
-                  >
-                    <FileText className="w-4 h-4 mr-2" />
-                    Visualizar Formulário de Vaga
-                  </Button>
+                  <div className="flex items-start gap-3 mt-3 p-3 bg-yellow-50 border border-yellow-400 rounded-lg">
+                    <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm font-semibold text-yellow-800">⚠️ Alerta! Verifique o e-mail enviado desta unidade</p>
+                  </div>
                 </CardContent>
               </Card>
             )}
