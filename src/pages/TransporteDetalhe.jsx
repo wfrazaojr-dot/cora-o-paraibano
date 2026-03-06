@@ -228,6 +228,19 @@ export default function TransporteDetalhe() {
                   </Select>
                 </div>
 
+                {!paciente.transporte?.data_hora_inicio && (
+                  <div>
+                    <Button
+                      onClick={() => iniciarTransporte.mutate()}
+                      disabled={iniciarTransporte.isPending}
+                      className="w-full bg-yellow-600 hover:bg-yellow-700"
+                    >
+                      <Truck className="w-4 h-4 mr-2" />
+                      {iniciarTransporte.isPending ? "Iniciando..." : "Iniciar Transporte"}
+                    </Button>
+                  </div>
+                )}
+
                 <div>
                   <Label>Intercorrências durante o Trajeto</Label>
                   <Textarea
@@ -240,16 +253,7 @@ export default function TransporteDetalhe() {
 
                 <div className="space-y-4">
                   <div className="flex gap-2">
-                    {!paciente.transporte?.data_hora_inicio && (
-                      <Button
-                        onClick={() => iniciarTransporte.mutate()}
-                        disabled={iniciarTransporte.isPending}
-                        className="flex-1 bg-yellow-600 hover:bg-yellow-700"
-                      >
-                        <Truck className="w-4 h-4 mr-2" />
-                        {iniciarTransporte.isPending ? "Iniciando..." : "Iniciar Transporte"}
-                      </Button>
-                    )}
+                    {false && (
 
                     {paciente.transporte?.data_hora_inicio && !paciente.transporte?.data_hora_chegada_destino && (
                       <>
