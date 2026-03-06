@@ -226,6 +226,87 @@ export default function HemodinamicaDetalhe() {
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
 
+      {/* Template oculto - Relatório de Agendamento */}
+      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+        <div ref={agendamentoRelRef} className="bg-white p-8" style={{ width: '210mm', minHeight: '297mm' }}>
+          <div className="mb-6 pb-4 border-b-2 border-gray-300">
+            <div className="flex items-center justify-between gap-4 w-full mb-3">
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" alt="SES" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" alt="Coração Paraibano" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png" alt="PBSAÚDE" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
+            </div>
+            <div className="text-center">
+              <h1 className="text-xl font-bold text-pink-700">RELATÓRIO DE AGENDAMENTO - HEMODINÂMICA</h1>
+              <p className="text-sm text-gray-600 mt-1">Emitido em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">DADOS DO PACIENTE</h2>
+            <div className="grid grid-cols-2 gap-1 text-xs">
+              <div><span className="font-semibold">Nome:</span> {paciente?.nome_completo}</div>
+              <div><span className="font-semibold">Idade:</span> {paciente?.idade} anos | <span className="font-semibold">Sexo:</span> {paciente?.sexo}</div>
+              <div><span className="font-semibold">Unidade de Origem:</span> {paciente?.unidade_saude}</div>
+              <div><span className="font-semibold">Macrorregião:</span> {paciente?.macrorregiao}</div>
+            </div>
+          </div>
+
+          {paciente?.triagem_medica && (
+            <div className="mb-4">
+              <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">SINAIS VITAIS</h2>
+              <div className="grid grid-cols-4 gap-1 text-xs">
+                {(() => {
+                  const pa = paciente.triagem_medica.pa_braco_esquerdo || "";
+                  const parts = pa.split('/');
+                  const pas = parts[0]?.trim();
+                  const pad = parts[1]?.trim();
+                  return (<>
+                    {pas && <div><span className="font-semibold">PAS (mm Hg):</span> {pas}</div>}
+                    {pad && <div><span className="font-semibold">PAD (mm Hg):</span> {pad}</div>}
+                  </>);
+                })()}
+                {paciente.triagem_medica.frequencia_cardiaca && <div><span className="font-semibold">FC:</span> {paciente.triagem_medica.frequencia_cardiaca} bpm</div>}
+                {paciente.triagem_medica.spo2 && <div><span className="font-semibold">SpO2:</span> {paciente.triagem_medica.spo2}%</div>}
+                {paciente.triagem_medica.glicemia_capilar && <div><span className="font-semibold">Glicemia:</span> {paciente.triagem_medica.glicemia_capilar} mg/dL</div>}
+              </div>
+            </div>
+          )}
+
+          <div className="mb-4">
+            <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">CONDUTA DO CARDIOLOGISTA</h2>
+            <div className="text-sm space-y-2 p-3 bg-pink-50 border border-pink-200 rounded">
+              <p><span className="font-semibold">Estratégia Definida:</span> {TIPO_ICP_LABELS[tipoIcpSelecionado] || ""}</p>
+              {agendamento.data && agendamento.hora && (
+                <p><span className="font-semibold">Data/Hora Agendada:</span> {format(new Date(`${agendamento.data}T${agendamento.hora}`), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+              )}
+            </div>
+          </div>
+
+          {paciente?.assessoria_cardiologia && (
+            <div className="mb-4">
+              <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">PARECER ASSCARDIO</h2>
+              <div className="text-xs space-y-1">
+                {paciente.assessoria_cardiologia.cardiologista_nome && (
+                  <p><span className="font-semibold">Cardiologista:</span> {paciente.assessoria_cardiologia.cardiologista_nome} - CRM {paciente.assessoria_cardiologia.cardiologista_crm}{paciente.assessoria_cardiologia.cardiologista_rqe ? ` | RQE: ${paciente.assessoria_cardiologia.cardiologista_rqe}` : ''}</p>
+                )}
+                {paciente.assessoria_cardiologia.diagnostico_estrategia && (
+                  <p><span className="font-semibold">Diagnóstico + Estratégia:</span> {paciente.assessoria_cardiologia.diagnostico_estrategia}</p>
+                )}
+                {paciente.assessoria_cardiologia.parecer_cardiologista && (
+                  <p className="whitespace-pre-wrap"><span className="font-semibold">Parecer:</span> {paciente.assessoria_cardiologia.parecer_cardiologista}</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="mt-8 pt-4 border-t-2 border-gray-300 text-xs text-gray-600">
+            <p className="font-semibold">Sistema de Triagem de Dor Torácica - Coração Paraibano</p>
+            <p>Desenvolvedor: Walber Alves Frazão Júnior - COREN 110.238</p>
+            <p>Gerado em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm:ss", { locale: ptBR })}</p>
+          </div>
+        </div>
+      </div>
+
       {/* Template oculto para PDF */}
       <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
         <div ref={relatorioRef} className="bg-white p-8" style={{ width: '210mm', minHeight: '297mm' }}>
