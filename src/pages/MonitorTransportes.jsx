@@ -85,16 +85,33 @@ export default function MonitorTransportes() {
               </p>
             </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refetch()}
-            disabled={isFetching}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
-            Atualizar
-          </Button>
+          <div className="flex items-center gap-2">
+            {/* Abas */}
+            <div className="flex border rounded-lg overflow-hidden">
+              <button
+                onClick={() => setAba("monitor")}
+                className={`px-4 py-2 text-sm font-medium transition-colors ${aba === "monitor" ? "bg-yellow-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
+              >
+                <Truck className="w-4 h-4 inline mr-1" />
+                Tempo Real
+              </button>
+              <button
+                onClick={() => setAba("historico")}
+                className={`px-4 py-2 text-sm font-medium transition-colors ${aba === "historico" ? "bg-gray-700 text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
+              >
+                <Clock className="w-4 h-4 inline mr-1" />
+                Histórico
+              </button>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetch()}
+              disabled={isFetching}
+            >
+              <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
+            </Button>
+          </div>
         </div>
 
         {/* Alertas */}
