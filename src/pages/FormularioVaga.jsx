@@ -19,7 +19,7 @@ export default function FormularioVaga() {
 
   const [formData, setFormData] = useState({
     data_solicitacao: new Date().toISOString().split('T')[0],
-    especialidade_solicitada: "",
+    especialidade_solicitada: "CARDIOLOGIA",
     nome_completo: "",
     data_nascimento: "",
     idade: "",
