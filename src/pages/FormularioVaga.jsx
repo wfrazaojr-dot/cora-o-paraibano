@@ -437,30 +437,14 @@ Solicitante: ${user?.full_name} (${user?.email})
             {/* Solicitação */}
             <div>
               <h3 className="text-base font-bold mb-3 border-b pb-2">SOLICITA</h3>
-              <div className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label>Leito de: *</Label>
-                  <Select value={formData.solicita_leito} onValueChange={(v) => setFormData({...formData, solicita_leito: v})}>
-                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ENFERMARIA">ENFERMARIA</SelectItem>
-                      <SelectItem value="UTI">UTI</SelectItem>
-                      <SelectItem value="AVALIAÇÃO E CONDUTA">AVALIAÇÃO E CONDUTA</SelectItem>
-                      <SelectItem value="HEMODINÂMICA">HEMODINÂMICA</SelectItem>
-                      <SelectItem value="UTI CARDIO">UTI CARDIO</SelectItem>
-                      <SelectItem value="OUTRO">OUTRO</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Nome do Médico Solicitante: *</Label>
+                  <Input value={formData.medico_solicitante} onChange={(e) => setFormData({...formData, medico_solicitante: e.target.value})} required />
                 </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Nome do Médico Solicitante: *</Label>
-                    <Input value={formData.medico_solicitante} onChange={(e) => setFormData({...formData, medico_solicitante: e.target.value})} required />
-                  </div>
-                  <div>
-                    <Label>CRM: *</Label>
-                    <Input value={formData.crm_solicitante} onChange={(e) => setFormData({...formData, crm_solicitante: e.target.value})} required />
-                  </div>
+                <div>
+                  <Label>CRM: *</Label>
+                  <Input value={formData.crm_solicitante} onChange={(e) => setFormData({...formData, crm_solicitante: e.target.value})} required />
                 </div>
               </div>
             </div>
