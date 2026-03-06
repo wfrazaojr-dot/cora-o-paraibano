@@ -94,6 +94,39 @@ export default function HemodinamicaDetalhe() {
     }
   };
 
+  const gerarPDFAgendamento = async (dadosHemo) => {
+    if (!agendamentoRelRef.current) return null;
+    try {
+      const canvas = await html2canvas(agendamentoRelRef.current, {
+        scale: 1.8, logging: false, useCORS: true, allowTaint: false,
+        backgroundColor: '#ffffff', imageTimeout: 15000
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+      heightLeft -= pdfHeight;
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+      const pdfBlob = pdf.output('blob');
+      const nome = (paciente?.nome_completo || 'Paciente').replace(/\s+/g, '_');
+      const arquivo = new File([pdfBlob], `Agendamento_Hemo_${nome}_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`, { type: 'application/pdf' });
+      const result = await base44.integrations.Core.UploadFile({ file: arquivo });
+      return result.file_url;
+    } catch (err) {
+      console.error("Erro PDF agendamento:", err);
+      throw err;
+    }
+  };
+
   const confirmarTipoIcp = useMutation({
     mutationFn: async () => {
       const dadosHemo = { ...paciente?.hemodinamica, tipo_icp: tipoIcpSelecionado };
@@ -101,8 +134,21 @@ export default function HemodinamicaDetalhe() {
         dadosHemo.data_hora_agendamento_icp = new Date(`${agendamento.data}T${agendamento.hora}`).toISOString();
       }
       await base44.entities.Paciente.update(pacienteId, { hemodinamica: dadosHemo });
+      // Gera PDF do agendamento para estratégias não imediatas
+      if (tipoIcpSelecionado !== "imediata") {
+        await new Promise(r => setTimeout(r, 500));
+        const file_url = await gerarPDFAgendamento(dadosHemo);
+        if (file_url) {
+          await base44.entities.Paciente.update(pacienteId, { relatorio_agendamento_hemo_url: file_url });
+        }
+      }
     },
-    onSuccess: () => queryClient.invalidateQueries(['paciente', pacienteId])
+    onSuccess: () => {
+      queryClient.invalidateQueries(['paciente', pacienteId]);
+      if (tipoIcpSelecionado !== "imediata") {
+        alert("Estratégia confirmada! Relatório de agendamento gerado e disponível na CERH e no Painel Assistencial.");
+      }
+    }
   });
 
   const registrarChegada = useMutation({
