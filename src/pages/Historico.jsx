@@ -358,11 +358,21 @@ export default function Historico() {
                   <div key={paciente.id} className="p-6 hover:bg-gray-50 transition-colors">
                     <div className="flex flex-col md:flex-row justify-between gap-4">
                       <div className="flex-1">
-                       {paciente.alerta_formulario_vaga && (
+                       {paciente.alerta_formulario_vaga && !paciente.formulario_vaga?.data_envio && (
                          <div className="mb-3 bg-yellow-100 border-l-4 border-yellow-500 p-3 rounded">
                            <p className="text-sm font-bold text-yellow-900 flex items-center gap-2">
                              🚨 ENVIE FORMULÁRIO/VAGA
                            </p>
+                         </div>
+                       )}
+                       {paciente.formulario_vaga?.data_envio && (
+                         <div className="mb-3 bg-green-100 border-l-4 border-green-500 p-3 rounded">
+                           <p className="text-sm font-bold text-green-900 flex items-center gap-2">
+                             ✅ FORMULÁRIO DE VAGA ENVIADO em {new Date(paciente.formulario_vaga.data_envio).toLocaleString('pt-BR')}
+                           </p>
+                           {paciente.formulario_vaga.enviado_por && (
+                             <p className="text-xs text-green-700">Por: {paciente.formulario_vaga.enviado_por}</p>
+                           )}
                          </div>
                        )}
                        <div className="flex items-start justify-between mb-2">
