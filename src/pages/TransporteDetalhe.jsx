@@ -24,6 +24,16 @@ const MOTIVOS_INTERCORRENCIA = [
   "Outro"
 ];
 
+const MOTIVOS_NAO_INICIADO = [
+  "Viatura indisponível",
+  "Sem equipe disponível para transporte",
+  "Paciente sem condições clínicas para transporte",
+  "Paciente foi a óbito antes do transporte",
+  "Transporte cancelado pelo médico regulador",
+  "Recusa do paciente ou familiar",
+  "Outro"
+];
+
 export default function TransporteDetalhe() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
