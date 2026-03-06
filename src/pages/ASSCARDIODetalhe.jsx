@@ -473,7 +473,8 @@ export default function ASSCARDIODetalhe() {
                         "1": "1- IAM supra ST → Estratégia 1: transferência imediata",
                         "2": "2- SCA sem supra MUITO alto risco → Estratégia 1: transferência imediata",
                         "3": "3- IAM sem supra/alto risco → Estratégia 2: invasiva ≤24h",
-                        "4": "4- SCA intermediário → Estratégia 3: invasiva ≤72h"
+                        "4": "4- SCA intermediário → Estratégia 3: invasiva ≤72h",
+                        "5": "5- Orientação Cardiológica"
                       };
                       return estrategias[medicoData.diagnostico_estrategia] || 'Não definido';
                     })()}</p>
