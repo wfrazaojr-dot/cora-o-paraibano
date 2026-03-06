@@ -385,7 +385,7 @@ Data de envio: ${new Date().toLocaleString('pt-BR')}
 
       if (pacienteId && paciente) {
         await base44.entities.Paciente.update(pacienteId, {
-          alerta_formulario_vaga: false,
+          alerta_formulario_vaga: true,
           formulario_vaga: {
             ...formData,
             data_envio: new Date().toISOString(),
