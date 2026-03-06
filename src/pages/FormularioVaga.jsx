@@ -556,14 +556,22 @@ Solicitante: ${user?.full_name} (${user?.email})
             </div>
 
             {/* Alerta Informativo */}
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-semibold text-yellow-900">Importante:</p>
-                  <p className="text-sm text-yellow-800 mt-1">
-                    Ao clicar em "FINALIZAR E ENVIAR": o formulário PDF será baixado automaticamente e o seu cliente de e-mail será aberto com o endereço da CERH correspondente à macrorregião já preenchido. <strong>Anexe o PDF baixado ao e-mail antes de enviar.</strong> Aguarde retorno da CERH com a atualização do caso e/ou senha para internação.
-                  </p>
+                <div className="w-full">
+                  <p className="text-sm font-semibold text-yellow-900">Instruções de Envio:</p>
+                  <ol className="text-sm text-yellow-800 mt-2 space-y-1 list-decimal list-inside">
+                    <li>Clique em <strong>"FINALIZAR E ENVIAR"</strong></li>
+                    <li>O formulário em PDF será <strong>baixado automaticamente</strong></li>
+                    <li>Seu cliente de e-mail será aberto automaticamente já com o destinatário preenchido</li>
+                    <li><strong>Anexe o PDF baixado</strong> ao e-mail antes de enviar</li>
+                    <li>Aguarde retorno da CERH com atualização do caso e/ou senha para internação</li>
+                  </ol>
+                  <div className="mt-3 bg-yellow-100 border border-yellow-300 rounded p-2">
+                    <p className="text-xs font-semibold text-yellow-900">📧 E-mail de destino ({paciente?.macrorregiao || "Macrorregião não definida"}):</p>
+                    <p className="text-sm font-bold text-blue-700 mt-1">{getEmailCERH()}</p>
+                  </div>
                 </div>
               </div>
             </div>
