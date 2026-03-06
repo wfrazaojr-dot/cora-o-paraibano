@@ -114,6 +114,13 @@ export default function MonitorTransportes() {
           </div>
         </div>
 
+        {/* Histórico */}
+        {aba === "historico" && (
+          <HistoricoTransportes pacientes={pacientesRaw.map(p => ({ ...p, prioridade: calcularPrioridade(p) }))} />
+        )}
+
+        {aba === "monitor" && <>
+
         {/* Alertas */}
         <AlertasTransporte pacientes={pacientesComPrioridade} />
 
