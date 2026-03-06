@@ -48,6 +48,11 @@ export default function TransporteDetalhe() {
     motivo_detalhado: "",
     acoes_tomadas: "",
     showIntercorrencia: false,
+    // Intercorrência antes de iniciar
+    showIntercorrenciaNaoIniciado: false,
+    motivo_nao_iniciado: "",
+    motivo_nao_iniciado_detalhado: "",
+    descricao_nao_iniciado: "",
   });
   const [gerandoPDF, setGerandoPDF] = useState(false);
 
