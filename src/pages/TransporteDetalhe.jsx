@@ -253,8 +253,6 @@ export default function TransporteDetalhe() {
 
                 <div className="space-y-4">
                   <div className="flex gap-2">
-                    {false && (
-
                     {paciente.transporte?.data_hora_inicio && !paciente.transporte?.data_hora_chegada_destino && (
                       <>
                         <Button
