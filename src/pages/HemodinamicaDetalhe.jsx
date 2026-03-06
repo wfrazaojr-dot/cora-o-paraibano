@@ -231,9 +231,9 @@ export default function HemodinamicaDetalhe() {
         <div ref={agendamentoRelRef} className="bg-white p-8" style={{ width: '210mm', minHeight: '297mm' }}>
           <div className="mb-6 pb-4 border-b-2 border-gray-300">
             <div className="flex items-center justify-between gap-4 w-full mb-3">
-              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" alt="SES" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" alt="Governo da Paraíba" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
               <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" alt="Coração Paraibano" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
-              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png" alt="PBSAÚDE" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg" alt="Complexo Regulador" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
             </div>
             <div className="text-center">
               <h1 className="text-xl font-bold text-pink-700">RELATÓRIO DE AGENDAMENTO - HEMODINÂMICA</h1>
