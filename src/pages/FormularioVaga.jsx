@@ -318,38 +318,68 @@ export default function FormularioVaga() {
     mutationFn: async () => {
       const emailCERH = getEmailCERH();
       const urlFormulario = pdfUrl ? `\n\n🔗 Link do Formulário PDF:\n${pdfUrl}` : "";
+      const statusAtual = paciente?.status || "Aguardando Regulação";
+      const idPaciente = pacienteId || "Sem ID";
+      const classificacaoSCA = paciente?.triagem_medica?.tipo_sca === "SCACESST"
+        ? "SCACESST (PRIORIDADE 0 - CRÍTICO)"
+        : paciente?.triagem_medica?.tipo_sca === "SCASESST_COM_TROPONINA"
+        ? "SCASESST c/ Troponina (Prioridade 1)"
+        : paciente?.triagem_medica?.tipo_sca === "SCASESST_SEM_TROPONINA"
+        ? "SCASESST s/ Troponina (Prioridade 2)"
+        : "Não classificado";
 
-      const emailBody = `FORMULÁRIO DE SOLICITAÇÃO DE VAGA
-Data: ${new Date(formData.data_solicitacao).toLocaleDateString('pt-BR')}
+      const emailBody = `════════════════════════════════════════
+FORMULÁRIO DE SOLICITAÇÃO DE VAGA
+Sistema Coração Paraibano
+════════════════════════════════════════
+Data/Hora: ${new Date().toLocaleString('pt-BR')}
 Macrorregião: ${getMacro()}
+ID do Paciente no Sistema: ${idPaciente}
+Status Atual: ${statusAtual}
 
-ESPECIALIDADE: ${formData.especialidade_solicitada}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 IDENTIFICAÇÃO DO PACIENTE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Nome: ${getNomePaciente()}
+Nascimento: ${formData.data_nascimento ? new Date(formData.data_nascimento + 'T12:00:00').toLocaleDateString('pt-BR') : "Não informado"}
+Idade: ${formData.idade || paciente?.idade || "Não informado"} anos
+Sexo: ${formData.sexo || paciente?.sexo || "Não informado"}
+Nome da Mãe: ${formData.nome_mae || "Não informado"}
+RG: ${formData.rg || "—"} ${formData.uf_rg || ""}  |  CPF: ${formData.cpf || "—"}  |  CNS: ${formData.cns || "—"}
+Endereço: ${formData.endereco || "Não informado"}
+Tel. Responsável: ${formData.telefone_responsavel || "Não informado"}
 
-PACIENTE: ${getNomePaciente()}
-Nascimento: ${formData.data_nascimento ? new Date(formData.data_nascimento + 'T12:00:00').toLocaleDateString('pt-BR') : ""}  |  Idade: ${formData.idade || paciente?.idade || ""} anos  |  Sexo: ${formData.sexo || paciente?.sexo || ""}
-Nome da Mãe: ${formData.nome_mae}
-RG: ${formData.rg} ${formData.uf_rg}  |  CPF: ${formData.cpf}  |  CNS: ${formData.cns}
-Endereço: ${formData.endereco}
-Tel. Responsável: ${formData.telefone_responsavel}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏥 UNIDADE SOLICITANTE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Unidade: ${getUnidade()}
+Admissão: ${formData.data_hora_admissao ? new Date(formData.data_hora_admissao).toLocaleString('pt-BR') : paciente?.data_hora_chegada ? new Date(paciente.data_hora_chegada).toLocaleString('pt-BR') : "Não informado"}
 
-UNIDADE SOLICITANTE: ${getUnidade()}
-Admissão: ${formData.data_hora_admissao ? new Date(formData.data_hora_admissao).toLocaleString('pt-BR') : ""}
-
-HIPÓTESE DIAGNÓSTICA: ${formData.hipotese_diagnostica}
-Alergia: ${formData.alergia === 'Nega' ? 'Nega' : 'Sim - ' + formData.alergia_descricao}
-Medicações: ${formData.medicacoes_uso_continuo === 'NÃO SABE INFORMAR' ? 'NÃO SABE INFORMAR' : formData.medicacoes_descricao}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🩺 INFORMAÇÕES CLÍNICAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Especialidade Solicitada: ${formData.especialidade_solicitada}
+Classificação SCA: ${classificacaoSCA}
+Hipótese Diagnóstica: ${formData.hipotese_diagnostica || "Não informada"}
+Alergia: ${formData.alergia === 'Nega' ? 'Nega' : 'Sim - ' + (formData.alergia_descricao || "")}
+Medicações: ${formData.medicacoes_uso_continuo === 'NÃO SABE INFORMAR' ? 'NÃO SABE INFORMAR' : (formData.medicacoes_descricao || "Não informado")}
 Comorbidades: ${[...formData.comorbidades, formData.comorbidades_outras].filter(Boolean).join(', ') || "Nenhuma"}
 
-SOLICITA LEITO DE: ${formData.solicita_leito}
-Médico Solicitante: ${formData.medico_solicitante}  |  CRM: ${formData.crm_solicitante}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🛏️ SOLICITAÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Leito Solicitado: ${formData.solicita_leito || "Não informado"}
+Médico Solicitante: ${formData.medico_solicitante || "—"}  |  CRM: ${formData.crm_solicitante || "—"}
 ${urlFormulario}
----
+════════════════════════════════════════
 Enviado via Sistema Coração Paraibano
-Solicitante: ${user?.full_name} (${user?.email})`;
+Solicitante: ${user?.full_name} (${user?.email})
+Data de envio: ${new Date().toLocaleString('pt-BR')}
+════════════════════════════════════════`;
 
       await base44.integrations.Core.SendEmail({
         to: emailCERH,
-        subject: `[FORMULÁRIO/VAGA] ${getNomePaciente()} - ${getUnidade()}`,
+        subject: `[VAGA] ${getNomePaciente()} | ${classificacaoSCA.split(" ")[0]} | ${statusAtual} | ${getUnidade()} | ID: ${idPaciente.slice(-8)}`,
         body: emailBody
       });
 
