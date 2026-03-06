@@ -25,7 +25,8 @@ const calcularPrioridade = (p) => {
 
 export default function MonitorTransportes() {
   const navigate = useNavigate();
-  const [filtro, setFiltro] = useState("ativos"); // ativos | concluidos | todos
+  const [aba, setAba] = useState("monitor"); // monitor | historico
+  const [filtro, setFiltro] = useState("ativos");
   const [agora, setAgora] = useState(new Date());
 
   // Atualiza relógio a cada 30s para recalcular tempos
