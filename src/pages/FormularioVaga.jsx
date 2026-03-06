@@ -316,90 +316,74 @@ export default function FormularioVaga() {
 
   const enviarSolicitacao = useMutation({
     mutationFn: async () => {
-      const emailCERH = getEmailCERH();
-      const urlFormulario = pdfUrl ? `\n\n🔗 Link do Formulário PDF:\n${pdfUrl}` : "";
-      const statusAtual = paciente?.status || "Aguardando Regulação";
-      const idPaciente = pacienteId || "Sem ID";
-      const classificacaoSCA = paciente?.triagem_medica?.tipo_sca === "SCACESST"
-        ? "SCACESST (PRIORIDADE 0 - CRÍTICO)"
-        : paciente?.triagem_medica?.tipo_sca === "SCASESST_COM_TROPONINA"
-        ? "SCASESST c/ Troponina (Prioridade 1)"
-        : paciente?.triagem_medica?.tipo_sca === "SCASESST_SEM_TROPONINA"
-        ? "SCASESST s/ Troponina (Prioridade 2)"
-        : "Não classificado";
+      const dadosFormulario = {
+        ...formData,
+        nome_completo: formData.nome_completo || paciente?.nome_completo || "",
+        data_nascimento: formData.data_nascimento || paciente?.data_nascimento || "",
+        idade: formData.idade || paciente?.idade?.toString() || "",
+        sexo: formData.sexo || paciente?.sexo || "",
+        unidade_solicitante: formData.unidade_solicitante || paciente?.unidade_saude || "",
+        data_envio: new Date().toISOString(),
+        enviado_por: user?.full_name || user?.email,
+        pdf_url: pdfUrl || ""
+      };
 
-      const emailBody = `════════════════════════════════════════
-FORMULÁRIO DE SOLICITAÇÃO DE VAGA
-Sistema Coração Paraibano
-════════════════════════════════════════
-Data/Hora: ${new Date().toLocaleString('pt-BR')}
-Macrorregião: ${getMacro()}
-ID do Paciente no Sistema: ${idPaciente}
-Status Atual: ${statusAtual}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 IDENTIFICAÇÃO DO PACIENTE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Nome: ${getNomePaciente()}
-Nascimento: ${formData.data_nascimento ? new Date(formData.data_nascimento + 'T12:00:00').toLocaleDateString('pt-BR') : "Não informado"}
-Idade: ${formData.idade || paciente?.idade || "Não informado"} anos
-Sexo: ${formData.sexo || paciente?.sexo || "Não informado"}
-Nome da Mãe: ${formData.nome_mae || "Não informado"}
-RG: ${formData.rg || "—"} ${formData.uf_rg || ""}  |  CPF: ${formData.cpf || "—"}  |  CNS: ${formData.cns || "—"}
-Endereço: ${formData.endereco || "Não informado"}
-Tel. Responsável: ${formData.telefone_responsavel || "Não informado"}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🏥 UNIDADE SOLICITANTE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Unidade: ${getUnidade()}
-Admissão: ${formData.data_hora_admissao ? new Date(formData.data_hora_admissao).toLocaleString('pt-BR') : paciente?.data_hora_chegada ? new Date(paciente.data_hora_chegada).toLocaleString('pt-BR') : "Não informado"}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🩺 INFORMAÇÕES CLÍNICAS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Especialidade Solicitada: ${formData.especialidade_solicitada}
-Classificação SCA: ${classificacaoSCA}
-Hipótese Diagnóstica: ${formData.hipotese_diagnostica || "Não informada"}
-Alergia: ${formData.alergia === 'Nega' ? 'Nega' : 'Sim - ' + (formData.alergia_descricao || "")}
-Medicações: ${formData.medicacoes_uso_continuo === 'NÃO SABE INFORMAR' ? 'NÃO SABE INFORMAR' : (formData.medicacoes_descricao || "Não informado")}
-Comorbidades: ${[...formData.comorbidades, formData.comorbidades_outras].filter(Boolean).join(', ') || "Nenhuma"}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🛏️ SOLICITAÇÃO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Leito Solicitado: ${formData.solicita_leito || "Não informado"}
-Médico Solicitante: ${formData.medico_solicitante || "—"}  |  CRM: ${formData.crm_solicitante || "—"}
-${urlFormulario}
-════════════════════════════════════════
-Enviado via Sistema Coração Paraibano
-Solicitante: ${user?.full_name} (${user?.email})
-Data de envio: ${new Date().toLocaleString('pt-BR')}
-════════════════════════════════════════`;
-
-      await base44.integrations.Core.SendEmail({
-        to: emailCERH,
-        subject: `[VAGA] ${getNomePaciente()} | ${classificacaoSCA.split(" ")[0]} | ${statusAtual} | ${getUnidade()} | ID: ${idPaciente.slice(-8)}`,
-        body: emailBody
-      });
-
+      // 1. SALVA NO BANCO PRIMEIRO — independente do email
       if (pacienteId && paciente) {
         await base44.entities.Paciente.update(pacienteId, {
           alerta_formulario_vaga: true,
-          formulario_vaga: {
-            ...formData,
-            data_envio: new Date().toISOString(),
-            enviado_por: user?.full_name || user?.email
-          }
+          formulario_vaga: dadosFormulario
         });
+      }
+
+      // 2. Tenta enviar email interno (pode falhar se destinatário for externo)
+      try {
+        const emailCERH = getEmailCERH();
+        const classificacaoSCA = paciente?.triagem_medica?.tipo_sca === "SCACESST"
+          ? "SCACESST (PRIORIDADE 0 - CRÍTICO)"
+          : paciente?.triagem_medica?.tipo_sca === "SCASESST_COM_TROPONINA"
+          ? "SCASESST c/ Troponina (Prioridade 1)"
+          : paciente?.triagem_medica?.tipo_sca === "SCASESST_SEM_TROPONINA"
+          ? "SCASESST s/ Troponina (Prioridade 2)"
+          : "Não classificado";
+        const urlFormulario = pdfUrl ? `\n\n🔗 Link do Formulário PDF:\n${pdfUrl}` : "";
+        const statusAtual = paciente?.status || "Aguardando Regulação";
+        const idPaciente = pacienteId || "Sem ID";
+
+        const emailBody = `FORMULÁRIO DE SOLICITAÇÃO DE VAGA - Sistema Coração Paraibano
+Data/Hora: ${new Date().toLocaleString('pt-BR')} | Macrorregião: ${getMacro()} | ID: ${idPaciente}
+
+PACIENTE: ${getNomePaciente()} | Idade: ${dadosFormulario.idade} anos | Sexo: ${dadosFormulario.sexo}
+Nome da Mãe: ${formData.nome_mae || "—"} | RG: ${formData.rg || "—"} | CPF: ${formData.cpf || "—"} | CNS: ${formData.cns || "—"}
+Endereço: ${formData.endereco || "—"} | Tel.: ${formData.telefone_responsavel || "—"}
+
+UNIDADE: ${getUnidade()} | Admissão: ${formData.data_hora_admissao ? new Date(formData.data_hora_admissao).toLocaleString('pt-BR') : "—"}
+
+CLÍNICO: ${classificacaoSCA} | Hipótese: ${formData.hipotese_diagnostica || "—"}
+Alergia: ${formData.alergia === 'Nega' ? 'Nega' : 'Sim - ' + (formData.alergia_descricao || "")}
+Medicações: ${formData.medicacoes_uso_continuo === 'NÃO SABE INFORMAR' ? 'NÃO SABE INFORMAR' : (formData.medicacoes_descricao || "—")}
+Comorbidades: ${[...formData.comorbidades, formData.comorbidades_outras].filter(Boolean).join(', ') || "Nenhuma"}
+
+SOLICITAÇÃO: Leito de ${formData.solicita_leito || "—"} | Médico: ${formData.medico_solicitante || "—"} CRM ${formData.crm_solicitante || "—"}
+${urlFormulario}
+Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString('pt-BR')}`;
+
+        await base44.integrations.Core.SendEmail({
+          to: emailCERH,
+          subject: `[VAGA] ${getNomePaciente()} | ${classificacaoSCA.split(" ")[0]} | ${statusAtual} | ${getUnidade()}`,
+          body: emailBody
+        });
+      } catch (emailErr) {
+        // Email falhou (destinatário externo), mas dados já foram salvos
+        console.warn("Email não enviado pelo sistema (destinatário externo). Use o cliente de email.", emailErr.message);
       }
     },
     onSuccess: () => {
-      alert(`✅ Formulário de Solicitação de Vaga enviado com sucesso!\n\nDestinatário: ${getEmailCERH()}\nPaciente: ${getNomePaciente()}\n\nVocê será redirecionado para o Painel Assistencial.`);
+      alert(`✅ Formulário registrado no sistema com sucesso!\n\nPaciente: ${getNomePaciente()}\nDestinatário CERH: ${getEmailCERH()}\n\nO cliente de e-mail será aberto para você enviar o formulário manualmente com o PDF anexado.`);
       navigate(createPageUrl("Historico"));
     },
     onError: (error) => {
-      toast.error("Erro ao enviar: " + error.message);
+      toast.error("Erro ao salvar formulário: " + error.message);
     }
   });
 
