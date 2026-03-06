@@ -662,7 +662,8 @@ export default function ASSCARDIODetalhe() {
                       Este resultado é calculado na página: Avaliação Clínica - SCASESST com Troponina (Paciente SEM Supra de ST COM exame de Troponina)
                     </p>
                     {paciente?.avaliacao_clinica?.heart_score?.total != null ? (
-                      <div className="space-y-1">
+                      <div className="space-y-3">
+                        {/* Total + Interpretação */}
                         <div className="flex items-center gap-3">
                           <span className="text-2xl font-bold text-blue-900">
                             {paciente.avaliacao_clinica.heart_score.total} pontos
@@ -674,9 +675,73 @@ export default function ASSCARDIODetalhe() {
                               ? "bg-yellow-100 text-yellow-800"
                               : "bg-red-100 text-red-800"
                           }>
-                            {paciente.avaliacao_clinica.heart_score.interpretacao || getHeartInterpretacao(paciente.avaliacao_clinica.heart_score.total)}
+                            {paciente.avaliacao_clinica.heart_score.interpretacao
+                              ? paciente.avaliacao_clinica.heart_score.interpretacao.split(":")[0]
+                              : getHeartInterpretacao(paciente.avaliacao_clinica.heart_score.total)}
                           </Badge>
                         </div>
+                        {/* Detalhamento por critério */}
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div className="bg-white border border-blue-200 rounded p-2">
+                            <span className="font-semibold text-blue-800">H - História:</span>
+                            <span className="ml-2">
+                              {paciente.avaliacao_clinica.heart_score.historia_clinica === 0 && "Levemente suspeita"}
+                              {paciente.avaliacao_clinica.heart_score.historia_clinica === 1 && "Moderadamente suspeita"}
+                              {paciente.avaliacao_clinica.heart_score.historia_clinica === 2 && "Altamente suspeita"}
+                              <strong className="ml-1 text-blue-900">({paciente.avaliacao_clinica.heart_score.historia_clinica} pt)</strong>
+                            </span>
+                          </div>
+                          <div className="bg-white border border-blue-200 rounded p-2">
+                            <span className="font-semibold text-blue-800">E - ECG:</span>
+                            <span className="ml-2">
+                              {paciente.avaliacao_clinica.heart_score.ecg === 0 && "Normal"}
+                              {paciente.avaliacao_clinica.heart_score.ecg === 1 && "Alterações inespecíficas"}
+                              {paciente.avaliacao_clinica.heart_score.ecg === 2 && "Depressão/elevação ST"}
+                              <strong className="ml-1 text-blue-900">({paciente.avaliacao_clinica.heart_score.ecg} pt)</strong>
+                            </span>
+                          </div>
+                          <div className="bg-white border border-blue-200 rounded p-2">
+                            <span className="font-semibold text-blue-800">A - Idade:</span>
+                            <span className="ml-2">
+                              {paciente.avaliacao_clinica.heart_score.idade === 0 && "< 45 anos"}
+                              {paciente.avaliacao_clinica.heart_score.idade === 1 && "45–64 anos"}
+                              {paciente.avaliacao_clinica.heart_score.idade === 2 && "≥ 65 anos"}
+                              <strong className="ml-1 text-blue-900">({paciente.avaliacao_clinica.heart_score.idade} pt)</strong>
+                            </span>
+                          </div>
+                          <div className="bg-white border border-blue-200 rounded p-2">
+                            <span className="font-semibold text-blue-800">R - Fatores de Risco:</span>
+                            <strong className="ml-1 text-blue-900">({paciente.avaliacao_clinica.heart_score.pontos_fatores_risco} pt)</strong>
+                            {paciente.avaliacao_clinica.heart_score.fatores_risco?.length > 0 && (
+                              <ul className="mt-1 text-xs text-gray-600 list-disc ml-4">
+                                {paciente.avaliacao_clinica.heart_score.fatores_risco.map((f, i) => (
+                                  <li key={i}>{f}</li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                          <div className="bg-white border border-blue-200 rounded p-2">
+                            <span className="font-semibold text-blue-800">T - Troponina:</span>
+                            <span className="ml-2">
+                              {paciente.avaliacao_clinica.heart_score.troponina === 0 && "Normal"}
+                              {paciente.avaliacao_clinica.heart_score.troponina === 1 && "1 a 3× LSN"}
+                              {paciente.avaliacao_clinica.heart_score.troponina === 2 && "> 3× LSN"}
+                              <strong className="ml-1 text-blue-900">({paciente.avaliacao_clinica.heart_score.troponina} pt)</strong>
+                            </span>
+                          </div>
+                        </div>
+                        {/* Interpretação completa */}
+                        {paciente.avaliacao_clinica.heart_score.interpretacao && (
+                          <div className={`p-3 rounded text-sm font-medium ${
+                            paciente.avaliacao_clinica.heart_score.total <= 3
+                              ? "bg-green-50 border border-green-300 text-green-900"
+                              : paciente.avaliacao_clinica.heart_score.total <= 6
+                              ? "bg-yellow-50 border border-yellow-300 text-yellow-900"
+                              : "bg-red-50 border border-red-300 text-red-900"
+                          }`}>
+                            {paciente.avaliacao_clinica.heart_score.interpretacao}
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <p className="text-sm text-gray-500 italic">Aguardando cálculo na Avaliação Clínica com Troponina.</p>
@@ -808,6 +873,10 @@ export default function ASSCARDIODetalhe() {
                   <div className="flex items-center space-x-2 bg-green-100 p-3 rounded">
                     <RadioGroupItem value="4" id="est4" />
                     <Label htmlFor="est4" className="text-base">☐ 4- SCA intermediário → "Estratégia 3: invasiva ≤72h"</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 bg-blue-100 p-3 rounded">
+                    <RadioGroupItem value="5" id="est5" />
+                    <Label htmlFor="est5" className="text-base">☐ 5- Orientação Cardiológica</Label>
                   </div>
                 </RadioGroup>
               </div>
