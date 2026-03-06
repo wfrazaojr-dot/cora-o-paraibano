@@ -141,10 +141,17 @@ Deno.serve(async (req) => {
       doc.rect(20, y - 4, pageWidth - 40, 6, 'F');
       addSectionTitle('⚠ INTERCORRÊNCIA REGISTRADA');
       addKeyValue('Motivo', motivoTexto);
-    }
-
-    if (intercorrenciasTexto) {
-      if (!motivoTexto) addSectionTitle('OBSERVAÇÕES DO TRAJETO');
+      if (intercorrenciasTexto) addKeyValue('Descrição', intercorrenciasTexto);
+      const acoesTexto = acoes_tomadas || paciente.transporte?.acoes_tomadas;
+      if (acoesTexto) {
+        y += 2;
+        doc.setFillColor(220, 255, 220);
+        doc.rect(20, y - 4, pageWidth - 40, 6, 'F');
+        addSectionTitle('AÇÕES TOMADAS / SOLUÇÃO APLICADA');
+        addKeyValue('Ações', acoesTexto);
+      }
+    } else if (intercorrenciasTexto) {
+      addSectionTitle('OBSERVAÇÕES DO TRAJETO');
       addKeyValue('Detalhes', intercorrenciasTexto);
     }
 
