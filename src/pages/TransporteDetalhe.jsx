@@ -422,14 +422,97 @@ export default function TransporteDetalhe() {
                     </Select>
                   </div>
 
-                  <Button
-                    onClick={() => iniciarTransporte.mutate()}
-                    disabled={iniciarTransporte.isPending}
-                    className="w-full bg-yellow-600 hover:bg-yellow-700 text-white text-base py-6"
-                  >
-                    <Truck className="w-5 h-5 mr-2" />
-                    {iniciarTransporte.isPending ? "Iniciando..." : "🚑 INICIAR TRANSPORTE"}
-                  </Button>
+                  {!formData.showIntercorrenciaNaoIniciado && (
+                    <Button
+                      onClick={() => iniciarTransporte.mutate()}
+                      disabled={iniciarTransporte.isPending}
+                      className="w-full bg-yellow-600 hover:bg-yellow-700 text-white text-base py-6"
+                    >
+                      <Truck className="w-5 h-5 mr-2" />
+                      {iniciarTransporte.isPending ? "Iniciando..." : "🚑 INICIAR TRANSPORTE"}
+                    </Button>
+                  )}
+
+                  {!formData.showIntercorrenciaNaoIniciado && (
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-300" /></div>
+                      <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-gray-500">ou</span></div>
+                    </div>
+                  )}
+
+                  {!formData.showIntercorrenciaNaoIniciado && (
+                    <Button
+                      variant="outline"
+                      onClick={() => setFormData({...formData, showIntercorrenciaNaoIniciado: true})}
+                      className="w-full border-red-400 text-red-700 hover:bg-red-50"
+                    >
+                      <AlertTriangle className="w-4 h-4 mr-2" />
+                      Transporte Não Pode Ser Iniciado
+                    </Button>
+                  )}
+
+                  {formData.showIntercorrenciaNaoIniciado && (
+                    <div className="p-4 bg-red-50 border-2 border-red-300 rounded-lg space-y-3">
+                      <div className="flex items-center gap-2 text-red-700 font-semibold">
+                        <AlertTriangle className="w-5 h-5" />
+                        Registrar Impedimento de Transporte
+                      </div>
+                      <div>
+                        <Label className="text-red-800 font-semibold">Motivo *</Label>
+                        <Select
+                          value={formData.motivo_nao_iniciado}
+                          onValueChange={(v) => setFormData({...formData, motivo_nao_iniciado: v})}
+                        >
+                          <SelectTrigger className="mt-1 border-red-300">
+                            <SelectValue placeholder="Selecione o motivo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {MOTIVOS_NAO_INICIADO.map(m => (
+                              <SelectItem key={m} value={m}>{m}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {formData.motivo_nao_iniciado === "Outro" && (
+                        <div>
+                          <Label className="text-red-800">Descreva o motivo</Label>
+                          <Textarea
+                            value={formData.motivo_nao_iniciado_detalhado}
+                            onChange={(e) => setFormData({...formData, motivo_nao_iniciado_detalhado: e.target.value})}
+                            placeholder="Descreva..."
+                            rows={2}
+                            className="mt-1 border-red-300"
+                          />
+                        </div>
+                      )}
+                      <div>
+                        <Label className="text-red-800">Descrição / Observações adicionais</Label>
+                        <Textarea
+                          value={formData.descricao_nao_iniciado}
+                          onChange={(e) => setFormData({...formData, descricao_nao_iniciado: e.target.value})}
+                          placeholder="Descreva detalhes sobre o impedimento..."
+                          rows={3}
+                          className="mt-1 border-red-300"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => registrarIntercorrenciaNaoIniciado.mutate()}
+                          disabled={registrarIntercorrenciaNaoIniciado.isPending || !formData.motivo_nao_iniciado}
+                          className="flex-1 bg-red-600 hover:bg-red-700"
+                        >
+                          <XCircle className="w-4 h-4 mr-2" />
+                          {registrarIntercorrenciaNaoIniciado.isPending ? "Salvando..." : "Registrar Impedimento"}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => setFormData({...formData, showIntercorrenciaNaoIniciado: false, motivo_nao_iniciado: "", motivo_nao_iniciado_detalhado: "", descricao_nao_iniciado: ""})}
+                        >
+                          Cancelar
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
