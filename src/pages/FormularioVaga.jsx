@@ -246,6 +246,9 @@ Solicitante: ${user?.full_name} (${user?.email})
     },
     onSuccess: () => {
       toast.success("✅ Solicitação enviada com sucesso! Aguarde retorno da SES por e-mail.");
+      setTimeout(() => {
+        navigate(createPageUrl("Historico"));
+      }, 2000);
     },
     onError: (error) => {
       toast.error("Erro ao enviar solicitação: " + error.message);
