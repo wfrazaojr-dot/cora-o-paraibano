@@ -267,6 +267,27 @@ export default function CERHDetalhe() {
 
           {/* Coluna Direita */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Relatório de Agendamento Hemodinâmica */}
+            {paciente.relatorio_agendamento_hemo_url && (
+              <Card className="border-2 border-pink-400 bg-pink-50">
+                <CardHeader className="bg-pink-100">
+                  <CardTitle className="flex items-center gap-2 text-pink-800">
+                    <FileText className="w-5 h-5 text-pink-600" />
+                    Relatório de Agendamento - Hemodinâmica
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <Button
+                    onClick={() => window.open(paciente.relatorio_agendamento_hemo_url, '_blank')}
+                    className="w-full bg-pink-600 hover:bg-pink-700 text-white"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    ABRIR RELATÓRIO DE AGENDAMENTO
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Card de Agendamento de ICP */}
             {paciente.hemodinamica?.data_hora_agendamento_icp && (
               <Card className="border-blue-300 bg-blue-50">
