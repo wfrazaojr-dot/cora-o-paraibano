@@ -6,17 +6,14 @@ import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FileUp, Send, Download, X, AlertCircle } from "lucide-react";
+import { FileUp, Send, Download, X, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 export default function FormularioVaga() {
   const navigate = useNavigate();
-  const formRef = useRef(null);
   const urlParams = new URLSearchParams(window.location.search);
   const pacienteId = urlParams.get('id');
 
@@ -52,6 +49,8 @@ export default function FormularioVaga() {
 
   const [uploadingFiles, setUploadingFiles] = useState(false);
   const [gerandoPDF, setGerandoPDF] = useState(false);
+  const [pdfGerado, setPdfGerado] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -66,7 +65,6 @@ export default function FormularioVaga() {
 
   useEffect(() => {
     if (paciente) {
-      // Se já existe um formulário salvo, carrega todos os dados dele
       if (paciente.formulario_vaga?.data_envio) {
         const fv = paciente.formulario_vaga;
         setFormData(prev => ({
@@ -98,7 +96,6 @@ export default function FormularioVaga() {
           documentos: fv.documentos || [],
         }));
       } else {
-        // Novo formulário: preenche apenas os dados básicos do paciente
         setFormData(prev => ({
           ...prev,
           nome_completo: paciente.nome_completo || "",
@@ -147,92 +144,215 @@ export default function FormularioVaga() {
       return;
     }
     setUploadingFiles(true);
-    try {
-      const results = await Promise.all(files.map(file => base44.integrations.Core.UploadFile({ file })));
-      const fileUrls = results.map((r, i) => ({ url: r.file_url, nome: files[i].name }));
-      setFormData(prev => ({ ...prev, documentos: [...prev.documentos, ...fileUrls] }));
-      toast.success(`${files.length} arquivo(s) enviado(s) com sucesso!`);
-    } catch (error) {
-      toast.error("Erro ao enviar arquivos: " + error.message);
-    } finally {
-      setUploadingFiles(false);
-    }
+    const results = await Promise.all(files.map(file => base44.integrations.Core.UploadFile({ file })));
+    const fileUrls = results.map((r, i) => ({ url: r.file_url, nome: files[i].name }));
+    setFormData(prev => ({ ...prev, documentos: [...prev.documentos, ...fileUrls] }));
+    toast.success(`${files.length} arquivo(s) enviado(s) com sucesso!`);
+    setUploadingFiles(false);
   };
 
   const removerDocumento = (index) => {
     setFormData(prev => ({ ...prev, documentos: prev.documentos.filter((_, i) => i !== index) }));
-    toast.success("Documento removido");
   };
 
-  const gerarPDF = async () => {
-    if (!formRef.current) return;
-    setGerandoPDF(true);
-    try {
-      const canvas = await html2canvas(formRef.current, { scale: 2, useCORS: true, logging: false });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const ratio = Math.min(pdfWidth / canvas.width, pdfHeight / canvas.height);
-      const imgX = (pdfWidth - canvas.width * ratio) / 2;
-      pdf.addImage(imgData, 'PNG', imgX, 0, canvas.width * ratio, canvas.height * ratio);
-      pdf.save(`Formulario_Vaga_${formData.nome_completo}_${new Date().toISOString().split('T')[0]}.pdf`);
-      toast.success("PDF baixado com sucesso!");
-    } catch (error) {
-      toast.error("Erro ao gerar PDF: " + error.message);
-    } finally {
-      setGerandoPDF(false);
+  const getEmailCERH = () => {
+    const macro = paciente?.macrorregiao || "";
+    if (macro === "Macro 1") return "cerh.pb@regulacaopb.com";
+    if (macro === "Macro 2") return "regulacao@saude.pb.gov.br";
+    if (macro === "Macro 3") return "cerhpb3macro@saude.pb.gov.br";
+    return "cerh.pb@regulacaopb.com";
+  };
+
+  const getNomePaciente = () => formData.nome_completo || paciente?.nome_completo || "Paciente";
+  const getUnidade = () => formData.unidade_solicitante || paciente?.unidade_saude || "";
+  const getMacro = () => paciente?.macrorregiao || "Não definida";
+
+  // Gera PDF com jsPDF puro (texto estruturado, sem html2canvas)
+  const gerarPDFDoc = () => {
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageW = pdf.internal.pageSize.getWidth();
+    const margin = 15;
+    const contentW = pageW - margin * 2;
+    let y = 20;
+
+    const linha = () => {
+      pdf.setDrawColor(180, 180, 180);
+      pdf.line(margin, y, pageW - margin, y);
+      y += 4;
+    };
+
+    const titulo = (texto) => {
+      pdf.setFillColor(220, 230, 245);
+      pdf.rect(margin, y - 1, contentW, 8, 'F');
+      pdf.setFontSize(10);
+      pdf.setFont(undefined, 'bold');
+      pdf.setTextColor(30, 50, 100);
+      pdf.text(texto, margin + 2, y + 5);
+      pdf.setTextColor(0, 0, 0);
+      y += 11;
+    };
+
+    const campo = (label, valor, col = 0, totalCols = 1) => {
+      const colW = contentW / totalCols;
+      const x = margin + col * colW;
+      pdf.setFontSize(8);
+      pdf.setFont(undefined, 'bold');
+      pdf.text(label + ":", x, y);
+      pdf.setFont(undefined, 'normal');
+      const texto = valor || "—";
+      const lines = pdf.splitTextToSize(texto, colW - 5);
+      pdf.text(lines, x, y + 4);
+      return lines.length * 4 + 6;
+    };
+
+    const addRow = (items) => {
+      let maxH = 0;
+      items.forEach(([label, valor], i) => {
+        const h = campo(label, valor, i, items.length);
+        if (h > maxH) maxH = h;
+      });
+      y += maxH;
+      if (y > 270) { pdf.addPage(); y = 20; }
+    };
+
+    // Cabeçalho
+    pdf.setFontSize(13);
+    pdf.setFont(undefined, 'bold');
+    pdf.setTextColor(30, 50, 100);
+    pdf.text("FORMULÁRIO DE SOLICITAÇÃO DE VAGA", pageW / 2, y, { align: 'center' });
+    y += 6;
+    pdf.setFontSize(9);
+    pdf.setFont(undefined, 'normal');
+    pdf.setTextColor(80, 80, 80);
+    pdf.text("Sistema Coração Paraibano - SES/PB", pageW / 2, y, { align: 'center' });
+    y += 4;
+    pdf.text(`Data da Solicitação: ${new Date(formData.data_solicitacao).toLocaleDateString('pt-BR')}`, pageW / 2, y, { align: 'center' });
+    y += 6;
+    linha();
+
+    // Especialidade
+    titulo("ESPECIALIDADE SOLICITADA");
+    addRow([["Especialidade", formData.especialidade_solicitada]]);
+    y += 2;
+
+    // Dados Pessoais
+    titulo("DADOS PESSOAIS");
+    addRow([["Nome Completo", getNomePaciente()]]);
+    addRow([
+      ["Data de Nascimento", formData.data_nascimento ? new Date(formData.data_nascimento + 'T12:00:00').toLocaleDateString('pt-BR') : paciente?.data_nascimento ? new Date(paciente.data_nascimento + 'T12:00:00').toLocaleDateString('pt-BR') : ""],
+      ["Idade", (formData.idade || paciente?.idade?.toString() || "") + " anos"],
+      ["Sexo", formData.sexo || paciente?.sexo || ""]
+    ]);
+    addRow([["Nome da Mãe", formData.nome_mae], ["Local de Nascimento", formData.local_nascimento]]);
+    addRow([["RG nº", formData.rg], ["UF", formData.uf_rg], ["CPF", formData.cpf]]);
+    addRow([["CNS nº", formData.cns], ["Telefone do Responsável", formData.telefone_responsavel]]);
+    addRow([["Endereço Completo", formData.endereco]]);
+    y += 2;
+
+    // Dados da Unidade
+    titulo("DADOS DA UNIDADE");
+    addRow([
+      ["Unidade Solicitante", getUnidade()],
+      ["Macrorregião", getMacro()]
+    ]);
+    addRow([["Data e Horário da Admissão", formData.data_hora_admissao ? new Date(formData.data_hora_admissao).toLocaleString('pt-BR') : paciente?.data_hora_chegada ? new Date(paciente.data_hora_chegada).toLocaleString('pt-BR') : ""]]);
+    y += 2;
+
+    // Dados Clínicos
+    titulo("DADOS CLÍNICOS");
+    addRow([["Hipótese Diagnóstica", formData.hipotese_diagnostica]]);
+    addRow([
+      ["Alergia", formData.alergia === 'Nega' ? 'Nega' : `Sim: ${formData.alergia_descricao}`],
+      ["Medicações de Uso Contínuo", formData.medicacoes_uso_continuo === 'NÃO SABE INFORMAR' ? 'NÃO SABE INFORMAR' : formData.medicacoes_descricao]
+    ]);
+    addRow([["Comorbidades", [...formData.comorbidades, formData.comorbidades_outras].filter(Boolean).join(', ') || "Nenhuma"]]);
+    y += 2;
+
+    // Solicitação
+    titulo("SOLICITAÇÃO");
+    addRow([["Solicita Leito de", formData.solicita_leito]]);
+    addRow([["Médico Solicitante", formData.medico_solicitante], ["CRM", formData.crm_solicitante]]);
+    y += 2;
+
+    // Documentos
+    titulo("DOCUMENTOS ANEXADOS");
+    if (formData.documentos.length > 0) {
+      formData.documentos.forEach((doc, i) => {
+        addRow([[`Documento ${i + 1}`, doc.nome || doc.url]]);
+      });
+    } else {
+      addRow([["Documentos", "Nenhum documento anexado"]]);
     }
+    y += 4;
+
+    // Rodapé
+    linha();
+    pdf.setFontSize(8);
+    pdf.setTextColor(100, 100, 100);
+    pdf.setFont(undefined, 'italic');
+    pdf.text(`Gerado em: ${new Date().toLocaleString('pt-BR')} | Solicitante: ${user?.full_name || ""} (${user?.email || ""})`, margin, y);
+    pdf.text(`CERH Destinatária (${getMacro()}): ${getEmailCERH()}`, margin, y + 5);
+
+    return pdf;
+  };
+
+  const handleDownloadPDF = async () => {
+    setGerandoPDF(true);
+    const pdf = gerarPDFDoc();
+    const nomeArquivo = `Formulario_Vaga_${getNomePaciente().replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+    
+    // Upload para nuvem e salva URL
+    const pdfBlob = pdf.output('blob');
+    const file = new File([pdfBlob], nomeArquivo, { type: 'application/pdf' });
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setPdfUrl(file_url);
+    setPdfGerado(true);
+
+    // Download local
+    pdf.save(nomeArquivo);
+    toast.success("📄 PDF gerado e baixado com sucesso!");
+    setGerandoPDF(false);
   };
 
   const enviarSolicitacao = useMutation({
     mutationFn: async () => {
-      const emailBody = `
-FORMULÁRIO DE SOLICITAÇÃO DE VAGA
-Data da Solicitação: ${new Date(formData.data_solicitacao).toLocaleDateString('pt-BR')}
+      const emailCERH = getEmailCERH();
+      const urlFormulario = pdfUrl ? `\n\n🔗 Link do Formulário PDF:\n${pdfUrl}` : "";
 
-ESPECIALIDADE SOLICITADA: ${formData.especialidade_solicitada}
+      const emailBody = `FORMULÁRIO DE SOLICITAÇÃO DE VAGA
+Data: ${new Date(formData.data_solicitacao).toLocaleDateString('pt-BR')}
+Macrorregião: ${getMacro()}
 
-===== DADOS PESSOAIS =====
-Nome Completo: ${formData.nome_completo}
-Data de Nascimento: ${formData.data_nascimento ? new Date(formData.data_nascimento).toLocaleDateString('pt-BR') : ''}
-Idade: ${formData.idade} anos
-Sexo: ${formData.sexo}
+ESPECIALIDADE: ${formData.especialidade_solicitada}
+
+PACIENTE: ${getNomePaciente()}
+Nascimento: ${formData.data_nascimento ? new Date(formData.data_nascimento + 'T12:00:00').toLocaleDateString('pt-BR') : ""}  |  Idade: ${formData.idade || paciente?.idade || ""} anos  |  Sexo: ${formData.sexo || paciente?.sexo || ""}
 Nome da Mãe: ${formData.nome_mae}
-Local de Nascimento: ${formData.local_nascimento}
-RG: ${formData.rg} - UF: ${formData.uf_rg}
-CPF: ${formData.cpf}
-CNS: ${formData.cns}
+RG: ${formData.rg} ${formData.uf_rg}  |  CPF: ${formData.cpf}  |  CNS: ${formData.cns}
 Endereço: ${formData.endereco}
-Telefone do Responsável: ${formData.telefone_responsavel}
+Tel. Responsável: ${formData.telefone_responsavel}
 
-===== DADOS DA UNIDADE =====
-Unidade Solicitante: ${formData.unidade_solicitante}
-Data e Horário da Admissão: ${formData.data_hora_admissao ? new Date(formData.data_hora_admissao).toLocaleString('pt-BR') : ''}
+UNIDADE SOLICITANTE: ${getUnidade()}
+Admissão: ${formData.data_hora_admissao ? new Date(formData.data_hora_admissao).toLocaleString('pt-BR') : ""}
 
-===== DADOS CLÍNICOS =====
-Hipótese Diagnóstica: ${formData.hipotese_diagnostica}
+HIPÓTESE DIAGNÓSTICA: ${formData.hipotese_diagnostica}
 Alergia: ${formData.alergia === 'Nega' ? 'Nega' : 'Sim - ' + formData.alergia_descricao}
-Medicações de Uso Contínuo: ${formData.medicacoes_uso_continuo === 'NÃO SABE INFORMAR' ? 'NÃO SABE INFORMAR' : formData.medicacoes_descricao}
-Comorbidades: ${formData.comorbidades.join(', ')}${formData.comorbidades_outras ? ', Outras: ' + formData.comorbidades_outras : ''}
+Medicações: ${formData.medicacoes_uso_continuo === 'NÃO SABE INFORMAR' ? 'NÃO SABE INFORMAR' : formData.medicacoes_descricao}
+Comorbidades: ${[...formData.comorbidades, formData.comorbidades_outras].filter(Boolean).join(', ') || "Nenhuma"}
 
-===== SOLICITAÇÃO =====
-Solicita Leito de: ${formData.solicita_leito}
-
-Médico Solicitante: ${formData.medico_solicitante}
-CRM: ${formData.crm_solicitante}
-
-Total de Documentos Anexados: ${formData.documentos.length}
-
+SOLICITA LEITO DE: ${formData.solicita_leito}
+Médico Solicitante: ${formData.medico_solicitante}  |  CRM: ${formData.crm_solicitante}
+${urlFormulario}
 ---
-Enviado através do Sistema Coração Paraibano
-Solicitante: ${user?.full_name} (${user?.email})
-`;
+Enviado via Sistema Coração Paraibano
+Solicitante: ${user?.full_name} (${user?.email})`;
+
       await base44.integrations.Core.SendEmail({
-        to: user?.email || "ses@saude.pb.gov.br",
-        subject: `[FORMULÁRIO/VAGA] ${formData.nome_completo} - ${formData.unidade_solicitante}`,
+        to: emailCERH,
+        subject: `[FORMULÁRIO/VAGA] ${getNomePaciente()} - ${getUnidade()}`,
         body: emailBody
       });
+
       if (pacienteId && paciente) {
         await base44.entities.Paciente.update(pacienteId, {
           alerta_formulario_vaga: false,
@@ -245,76 +365,49 @@ Solicitante: ${user?.full_name} (${user?.email})
       }
     },
     onSuccess: () => {
-      toast.success("✅ Solicitação enviada com sucesso! Aguarde retorno da SES por e-mail.");
-      setTimeout(() => {
-        navigate(createPageUrl("Historico"));
-      }, 2000);
+      toast.success(`✅ Solicitação enviada com sucesso para ${getEmailCERH()}!`);
+      setTimeout(() => navigate(createPageUrl("Historico")), 2000);
     },
     onError: (error) => {
-      toast.error("Erro ao enviar solicitação: " + error.message);
+      toast.error("Erro ao enviar: " + error.message);
     }
   });
 
-  const getEmailCERH = () => {
-    const macro = paciente?.macrorregiao || formData.macrorregiao || "";
-    if (macro === "Macro 1") return "cerh.pb@regulacaopb.com";
-    if (macro === "Macro 2") return "regulacao@saude.pb.gov.br";
-    if (macro === "Macro 3") return "cerhpb3macro@saude.pb.gov.br";
-    return "cerh.pb@regulacaopb.com"; // padrão Macro 1
-  };
-
   const abrirEmailCliente = () => {
     const emailCERH = getEmailCERH();
-    const assunto = encodeURIComponent(`[FORMULÁRIO/VAGA] ${formData.nome_completo} - ${formData.unidade_solicitante || paciente?.unidade_saude || ""}`);
+    const assunto = encodeURIComponent(`[FORMULÁRIO/VAGA] ${getNomePaciente()} - ${getUnidade()}`);
+    const linkPDF = pdfUrl ? `\n\n🔗 Link do Formulário PDF (para download):\n${pdfUrl}\n` : "\n\n⚠️ Gere e baixe o PDF antes de enviar e o anexe neste e-mail.\n";
     const corpo = encodeURIComponent(
-      `Prezados,\n\nSegue em anexo o Formulário de Solicitação de Vaga do paciente ${formData.nome_completo}.\n\nMacrorregião: ${paciente?.macrorregiao || ""}\nUnidade Solicitante: ${formData.unidade_solicitante || paciente?.unidade_saude || ""}\nEspecialidade: ${formData.especialidade_solicitada}\nHipótese Diagnóstica: ${formData.hipotese_diagnostica}\n\nAtenciosamente,\n${user?.full_name || ""}\n${formData.unidade_solicitante || paciente?.unidade_saude || ""}`
+      `Prezados,\n\nSegue solicitação de vaga do paciente ${getNomePaciente()}.\n\nMacrorregião: ${getMacro()}\nUnidade: ${getUnidade()}\nEspecialidade: ${formData.especialidade_solicitada}\nHipótese Diagnóstica: ${formData.hipotese_diagnostica}${linkPDF}\nAtenciosamente,\n${user?.full_name || ""}\n${getUnidade()}`
     );
-    window.location.href = `mailto:${emailCERH}?subject=${assunto}&body=${corpo}`;
+    window.open(`mailto:${emailCERH}?subject=${assunto}&body=${corpo}`, '_blank');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.nome_completo || !formData.especialidade_solicitada ||
-        !formData.unidade_solicitante || !formData.medico_solicitante) {
-      toast.error("Por favor, preencha todos os campos obrigatórios!");
+    if (!formData.nome_completo && !paciente?.nome_completo) {
+      toast.error("Nome do paciente é obrigatório!");
+      return;
+    }
+    if (!formData.especialidade_solicitada) {
+      toast.error("Selecione a especialidade solicitada!");
+      return;
+    }
+    if (!formData.medico_solicitante || !formData.crm_solicitante) {
+      toast.error("Informe o médico solicitante e CRM!");
       return;
     }
 
-    // 1. Gera e baixa o PDF
-    if (formRef.current) {
-      setGerandoPDF(true);
-      try {
-        const canvas = await html2canvas(formRef.current, { scale: 2, useCORS: true, logging: false });
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const ratio = Math.min(pdfWidth / canvas.width, pdfHeight / canvas.height);
-        const imgX = (pdfWidth - canvas.width * ratio) / 2;
-        pdf.addImage(imgData, 'PNG', imgX, 0, canvas.width * ratio, canvas.height * ratio);
-        pdf.save(`Formulario_Vaga_${formData.nome_completo}_${new Date().toISOString().split('T')[0]}.pdf`);
-        toast.success("📄 PDF gerado! Agora anexe-o ao e-mail que será aberto.");
-      } catch (error) {
-        toast.error("Erro ao gerar PDF: " + error.message);
-        setGerandoPDF(false);
-        return;
-      } finally {
-        setGerandoPDF(false);
-      }
-    }
-
-    // 2. Envia dados pelo sistema
+    // Envia dados pelo sistema
     enviarSolicitacao.mutate();
 
-    // 3. Abre cliente de e-mail após pequeno delay para o PDF terminar de baixar
-    setTimeout(() => {
-      abrirEmailCliente();
-    }, 1500);
+    // Abre cliente de e-mail
+    setTimeout(() => abrirEmailCliente(), 800);
   };
 
   return (
     <div className="p-4 md:p-8 bg-gradient-to-br from-blue-50 to-green-50 min-h-screen">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">
             📋 FORMULÁRIO DE SOLICITAÇÃO DE VAGA
@@ -326,26 +419,30 @@ Solicitante: ${user?.full_name} (${user?.email})
               </p>
             </div>
           )}
-        </div>
-
-        <div ref={formRef} className="bg-white p-8 rounded-lg shadow-lg mb-6">
-          {/* Cabeçalho com logos */}
-          <div className="mb-6 pb-4 border-b-2 border-gray-300">
-            <div className="flex items-center justify-between gap-4 w-full mb-3">
-              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" alt="SES" className="h-12 md:h-16 w-auto object-contain" crossOrigin="anonymous" />
-              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" alt="Coração Paraibano" className="h-12 md:h-16 w-auto object-contain" crossOrigin="anonymous" />
-              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg" alt="Complexo Regulador" className="h-12 md:h-16 w-auto object-contain" crossOrigin="anonymous" />
-            </div>
-            <div className="text-center">
-              <h2 className="text-lg font-bold">FORMULÁRIO DE SOLICITAÇÃO DE VAGA</h2>
-              <p className="text-sm mt-2">Data da Solicitação: {new Date(formData.data_solicitacao).toLocaleDateString('pt-BR')}</p>
+          {/* Alerta com e-mail destino */}
+          <div className="bg-amber-50 border border-amber-300 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-bold text-amber-900">📧 Destinatário CERH ({getMacro()}):</p>
+                <p className="text-base font-bold text-blue-700">{getEmailCERH()}</p>
+                <ol className="text-xs text-amber-800 mt-2 space-y-1 list-decimal list-inside">
+                  <li>Preencha o formulário abaixo</li>
+                  <li>Clique em <strong>"📥 Baixar PDF"</strong> para gerar e salvar o formulário</li>
+                  <li>Clique em <strong>"📨 Finalizar e Enviar"</strong> — o e-mail será aberto com o destinatário já preenchido</li>
+                  <li><strong>Anexe o PDF baixado</strong> ao e-mail antes de enviar</li>
+                </ol>
+              </div>
             </div>
           </div>
+        </div>
 
+        <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
           <form onSubmit={handleSubmit} className="space-y-6">
+
             {/* Especialidade */}
             <div>
-              <h3 className="text-base font-bold mb-3 border-b pb-2">ESPECIALIDADE SOLICITADA *</h3>
+              <h3 className="text-base font-bold mb-3 border-b pb-2 text-blue-900">ESPECIALIDADE SOLICITADA *</h3>
               <Select value={formData.especialidade_solicitada} onValueChange={(v) => setFormData({...formData, especialidade_solicitada: v})}>
                 <SelectTrigger><SelectValue placeholder="Selecione a especialidade" /></SelectTrigger>
                 <SelectContent>
@@ -356,10 +453,10 @@ Solicitante: ${user?.full_name} (${user?.email})
 
             {/* Dados Pessoais */}
             <div>
-              <h3 className="text-base font-bold mb-3 border-b pb-2">DADOS PESSOAIS</h3>
+              <h3 className="text-base font-bold mb-3 border-b pb-2 text-blue-900">DADOS PESSOAIS</h3>
               {paciente && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 grid md:grid-cols-2 gap-3">
-                  <div className="md:col-span-2">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 grid md:grid-cols-3 gap-3">
+                  <div className="md:col-span-3">
                     <span className="text-xs text-blue-600 font-semibold uppercase">Nome Completo</span>
                     <p className="font-bold text-gray-900">{paciente.nome_completo}</p>
                   </div>
@@ -392,11 +489,11 @@ Solicitante: ${user?.full_name} (${user?.email})
                       }} />
                     </div>
                     <div>
-                      <Label>Idade *</Label>
-                      <Input type="number" value={formData.idade} onChange={(e) => setFormData({...formData, idade: e.target.value})} required />
+                      <Label>Idade</Label>
+                      <Input type="number" value={formData.idade} onChange={(e) => setFormData({...formData, idade: e.target.value})} />
                     </div>
                     <div>
-                      <Label>Sexo *</Label>
+                      <Label>Sexo</Label>
                       <Select value={formData.sexo} onValueChange={(v) => setFormData({...formData, sexo: v})}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
@@ -444,7 +541,7 @@ Solicitante: ${user?.full_name} (${user?.email})
 
             {/* Dados da Unidade */}
             <div>
-              <h3 className="text-base font-bold mb-3 border-b pb-2">DADOS DA UNIDADE</h3>
+              <h3 className="text-base font-bold mb-3 border-b pb-2 text-blue-900">DADOS DA UNIDADE</h3>
               {paciente ? (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 grid md:grid-cols-3 gap-3">
                   <div>
@@ -452,7 +549,7 @@ Solicitante: ${user?.full_name} (${user?.email})
                     <p className="font-bold text-gray-900">{paciente.unidade_saude || '—'}</p>
                   </div>
                   <div>
-                    <span className="text-xs text-blue-600 font-semibold uppercase">Macrorregião de Saúde</span>
+                    <span className="text-xs text-blue-600 font-semibold uppercase">Macrorregião</span>
                     <p className="font-bold text-gray-900">{paciente.macrorregiao || '—'}</p>
                   </div>
                   <div>
@@ -474,15 +571,79 @@ Solicitante: ${user?.full_name} (${user?.email})
               )}
             </div>
 
+            {/* Dados Clínicos */}
+            <div>
+              <h3 className="text-base font-bold mb-3 border-b pb-2 text-blue-900">DADOS CLÍNICOS</h3>
+              <div className="space-y-4">
+                <div>
+                  <Label>Hipótese Diagnóstica</Label>
+                  <Input value={formData.hipotese_diagnostica} onChange={(e) => setFormData({...formData, hipotese_diagnostica: e.target.value})} />
+                </div>
+                <div>
+                  <Label>Alergia</Label>
+                  <Select value={formData.alergia} onValueChange={(v) => setFormData({...formData, alergia: v})}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Nega">Nega</SelectItem>
+                      <SelectItem value="Sim">Sim</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formData.alergia === 'Sim' && (
+                    <Input className="mt-2" placeholder="Descreva a alergia" value={formData.alergia_descricao} onChange={(e) => setFormData({...formData, alergia_descricao: e.target.value})} />
+                  )}
+                </div>
+                <div>
+                  <Label>Medicações de Uso Contínuo</Label>
+                  <Select value={formData.medicacoes_uso_continuo} onValueChange={(v) => setFormData({...formData, medicacoes_uso_continuo: v})}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="NÃO SABE INFORMAR">NÃO SABE INFORMAR</SelectItem>
+                      <SelectItem value="Sim">Sim</SelectItem>
+                      <SelectItem value="Não">Não</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formData.medicacoes_uso_continuo === 'Sim' && (
+                    <Input className="mt-2" placeholder="Descreva as medicações" value={formData.medicacoes_descricao} onChange={(e) => setFormData({...formData, medicacoes_descricao: e.target.value})} />
+                  )}
+                </div>
+                <div>
+                  <Label className="mb-2 block">Comorbidades</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {["HAS", "DM", "ICC", "IAM prévio", "AVC prévio", "IRC", "DPOC", "Tabagismo", "Obesidade"].map(c => (
+                      <div key={c} className="flex items-center gap-2">
+                        <Checkbox
+                          id={c}
+                          checked={formData.comorbidades.includes(c)}
+                          onCheckedChange={(checked) => {
+                            setFormData(prev => ({
+                              ...prev,
+                              comorbidades: checked ? [...prev.comorbidades, c] : prev.comorbidades.filter(x => x !== c)
+                            }));
+                          }}
+                        />
+                        <label htmlFor={c} className="text-sm cursor-pointer">{c}</label>
+                      </div>
+                    ))}
+                  </div>
+                  <Input className="mt-2" placeholder="Outras comorbidades" value={formData.comorbidades_outras} onChange={(e) => setFormData({...formData, comorbidades_outras: e.target.value})} />
+                </div>
+              </div>
+            </div>
+
             {/* Solicitação */}
             <div>
+              <h3 className="text-base font-bold mb-3 border-b pb-2 text-blue-900">SOLICITAÇÃO</h3>
               <div className="grid md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <Label>Solicita Leito de</Label>
+                  <Input value={formData.solicita_leito} onChange={(e) => setFormData({...formData, solicita_leito: e.target.value})} placeholder="Ex: UTI Coronariana, Enfermaria de Cardiologia..." />
+                </div>
                 <div>
-                  <Label>Nome do Médico Solicitante: *</Label>
+                  <Label>Nome do Médico Solicitante *</Label>
                   <Input value={formData.medico_solicitante} onChange={(e) => setFormData({...formData, medico_solicitante: e.target.value})} required />
                 </div>
                 <div>
-                  <Label>CRM: *</Label>
+                  <Label>CRM *</Label>
                   <Input value={formData.crm_solicitante} onChange={(e) => setFormData({...formData, crm_solicitante: e.target.value})} required />
                 </div>
               </div>
@@ -490,57 +651,24 @@ Solicitante: ${user?.full_name} (${user?.email})
 
             {/* Upload de Documentos */}
             <div>
-              <h3 className="text-base font-bold mb-3 border-b pb-2">DOCUMENTOS DO PACIENTE (máx. 4 arquivos)</h3>
+              <h3 className="text-base font-bold mb-3 border-b pb-2 text-blue-900">DOCUMENTOS DO PACIENTE (máx. 4 arquivos)</h3>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors mb-4">
-                <input
-                  type="file"
-                  id="file-upload"
-                  multiple
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  accept=".pdf,.jpg,.jpeg,.gif,.png"
-                  disabled={formData.documentos.length >= 4}
-                />
+                <input type="file" id="file-upload" multiple onChange={handleFileUpload} className="hidden" accept=".pdf,.jpg,.jpeg,.gif,.png" disabled={formData.documentos.length >= 4} />
                 <label htmlFor="file-upload" className={`cursor-pointer ${formData.documentos.length >= 4 ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                  <FileUp className="w-12 h-12 mx-auto text-gray-400 mb-3" />
-                  <p className="text-sm text-gray-600 mb-1">
-                    {formData.documentos.length >= 4 ? 'Limite de 4 arquivos atingido' : 'Clique para adicionar documentos'}
-                  </p>
-                  <p className="text-xs text-gray-500">PDF, GIF, JPEG (múltiplos arquivos permitidos)</p>
+                  <FileUp className="w-10 h-10 mx-auto text-gray-400 mb-2" />
+                  <p className="text-sm text-gray-600">{formData.documentos.length >= 4 ? 'Limite atingido' : 'Clique para adicionar documentos'}</p>
+                  <p className="text-xs text-gray-500">PDF, JPG, PNG</p>
                 </label>
               </div>
-
+              {uploadingFiles && <p className="text-blue-600 text-sm text-center mb-2">Enviando arquivos...</p>}
               {formData.documentos.length > 0 && (
-                <div className="mb-4 space-y-2">
+                <div className="space-y-2">
                   {formData.documentos.map((doc, idx) => (
                     <div key={idx} className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3">
                       <span className="text-sm text-green-900 font-medium truncate flex-1">{doc.nome || `Documento ${idx + 1}`}</span>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => removerDocumento(idx)} className="text-red-600 hover:text-red-800 hover:bg-red-50">
+                      <Button type="button" variant="ghost" size="sm" onClick={() => removerDocumento(idx)} className="text-red-600 hover:text-red-800">
                         <X className="w-4 h-4" />
                       </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {uploadingFiles && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center mb-4">
-                  <p className="text-blue-700">Enviando arquivos...</p>
-                </div>
-              )}
-
-              {formData.documentos.length > 0 && (
-                <div className="mb-4 space-y-3">
-                  {formData.documentos.map((doc, idx) => (
-                    <div key={idx} className="border border-gray-300 rounded-lg p-2">
-                      <p className="text-xs font-semibold mb-2">{doc.nome || `Documento ${idx + 1}`}</p>
-                      {!doc.url.toLowerCase().endsWith('.pdf') ? (
-                        <img src={doc.url} alt={doc.nome || `Documento ${idx + 1}`} className="w-full h-auto object-contain bg-gray-50 rounded" crossOrigin="anonymous" />
-                      ) : (
-                        <div className="p-4 bg-gray-100 text-xs text-center rounded">
-                          📄 Documento PDF anexado - {doc.nome}
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -548,33 +676,33 @@ Solicitante: ${user?.full_name} (${user?.email})
             </div>
 
             {/* Botões de Ação */}
-            <div className="flex gap-4 pt-4">
-              <Button type="submit" disabled={enviarSolicitacao.isPending || uploadingFiles} className="flex-1 bg-blue-600 hover:bg-blue-700">
-                <Send className="w-5 h-5 mr-2" />
-                {enviarSolicitacao.isPending ? "Enviando..." : "FINALIZAR E ENVIAR"}
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <Button
+                type="button"
+                onClick={handleDownloadPDF}
+                disabled={gerandoPDF}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+              >
+                {gerandoPDF ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Download className="w-5 h-5 mr-2" />}
+                {gerandoPDF ? "Gerando PDF..." : "📥 Baixar PDF do Formulário"}
+              </Button>
+              <Button
+                type="submit"
+                disabled={enviarSolicitacao.isPending || uploadingFiles}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                {enviarSolicitacao.isPending ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Send className="w-5 h-5 mr-2" />}
+                {enviarSolicitacao.isPending ? "Enviando..." : "📨 Finalizar e Enviar"}
               </Button>
             </div>
 
-            {/* Alerta Informativo */}
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                <div className="w-full">
-                  <p className="text-sm font-semibold text-yellow-900">Instruções de Envio:</p>
-                  <ol className="text-sm text-yellow-800 mt-2 space-y-1 list-decimal list-inside">
-                    <li>Clique em <strong>"FINALIZAR E ENVIAR"</strong></li>
-                    <li>O formulário em PDF será <strong>baixado automaticamente</strong></li>
-                    <li>Seu cliente de e-mail será aberto automaticamente já com o destinatário preenchido</li>
-                    <li><strong>Anexe o PDF baixado</strong> ao e-mail antes de enviar</li>
-                    <li>Aguarde retorno da CERH com atualização do caso e/ou senha para internação</li>
-                  </ol>
-                  <div className="mt-3 bg-yellow-100 border border-yellow-300 rounded p-2">
-                    <p className="text-xs font-semibold text-yellow-900">📧 E-mail de destino ({paciente?.macrorregiao || "Macrorregião não definida"}):</p>
-                    <p className="text-sm font-bold text-blue-700 mt-1">{getEmailCERH()}</p>
-                  </div>
-                </div>
+            {pdfGerado && pdfUrl && (
+              <div className="bg-green-50 border border-green-300 rounded-lg p-3 text-center">
+                <p className="text-sm text-green-800 font-semibold">✅ PDF gerado! Link salvo e incluído no e-mail.</p>
+                <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline break-all">{pdfUrl}</a>
               </div>
-            </div>
+            )}
+
           </form>
         </div>
       </div>

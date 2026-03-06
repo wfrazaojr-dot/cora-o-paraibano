@@ -47,64 +47,14 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import ASSCARDIODetalhe from './pages/ASSCARDIODetalhe';
-import AcessoProfissional from './pages/AcessoProfissional';
-import Administracao from './pages/Administracao';
-import CERHDetalhe from './pages/CERHDetalhe';
-import CadastroProfissional from './pages/CadastroProfissional';
-import Cardiologia from './pages/Cardiologia';
-import CentralSES from './pages/CentralSES';
-import CoracaoParaibano from './pages/CoracaoParaibano';
-import Dashboard from './pages/Dashboard';
 import FormularioVaga from './pages/FormularioVaga';
-import HemodinamicaDetalhe from './pages/HemodinamicaDetalhe';
-import Historico from './pages/Historico';
-import HistoricoUnidades from './pages/HistoricoUnidades';
-import Home from './pages/Home';
-import Indicadores from './pages/Indicadores';
-import Inicio from './pages/Inicio';
-import Manual from './pages/Manual';
-import NovaTriagem from './pages/NovaTriagem';
-import PINLogin from './pages/PINLogin';
-import PainelInicial from './pages/PainelInicial';
-import PerfilSelection from './pages/PerfilSelection';
-import ProtocoloEstrategias from './pages/ProtocoloEstrategias';
-import Protocolos from './pages/Protocolos';
-import RecuperarPIN from './pages/RecuperarPIN';
-import TransporteDetalhe from './pages/TransporteDetalhe';
-import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "ASSCARDIODetalhe": ASSCARDIODetalhe,
-    "AcessoProfissional": AcessoProfissional,
-    "Administracao": Administracao,
-    "CERHDetalhe": CERHDetalhe,
-    "CadastroProfissional": CadastroProfissional,
-    "Cardiologia": Cardiologia,
-    "CentralSES": CentralSES,
-    "CoracaoParaibano": CoracaoParaibano,
-    "Dashboard": Dashboard,
     "FormularioVaga": FormularioVaga,
-    "HemodinamicaDetalhe": HemodinamicaDetalhe,
-    "Historico": Historico,
-    "HistoricoUnidades": HistoricoUnidades,
-    "Home": Home,
-    "Indicadores": Indicadores,
-    "Inicio": Inicio,
-    "Manual": Manual,
-    "NovaTriagem": NovaTriagem,
-    "PINLogin": PINLogin,
-    "PainelInicial": PainelInicial,
-    "PerfilSelection": PerfilSelection,
-    "ProtocoloEstrategias": ProtocoloEstrategias,
-    "Protocolos": Protocolos,
-    "RecuperarPIN": RecuperarPIN,
-    "TransporteDetalhe": TransporteDetalhe,
 }
 
 export const pagesConfig = {
-    mainPage: "Dashboard",
+    mainPage: "FormularioVaga",
     Pages: PAGES,
-    Layout: __Layout,
 };
