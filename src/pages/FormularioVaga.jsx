@@ -173,7 +173,7 @@ export default function FormularioVaga() {
     const pageW = pdf.internal.pageSize.getWidth();
     const margin = 15;
     const contentW = pageW - margin * 2;
-    let y = 20;
+    let y = 10;
 
     const linha = () => {
       pdf.setDrawColor(180, 180, 180);
@@ -215,7 +215,22 @@ export default function FormularioVaga() {
       if (y > 270) { pdf.addPage(); y = 20; }
     };
 
-    // Cabeçalho
+    // Cabeçalho com logomarcas (como imagem base64 via URL)
+    const logoGov = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png";
+    const logoCoracao = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png";
+    const logoComplexo = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg";
+
+    // Tenta adicionar logos (pode falhar em alguns ambientes por CORS, então captura o erro)
+    try {
+      pdf.addImage(logoGov, 'PNG', margin, y, 45, 16);
+      pdf.addImage(logoCoracao, 'PNG', (pageW / 2) - 20, y, 40, 16);
+      pdf.addImage(logoComplexo, 'JPG', pageW - margin - 45, y, 45, 16);
+      y += 20;
+    } catch {
+      y += 4;
+    }
+
+    linha();
     pdf.setFontSize(13);
     pdf.setFont(undefined, 'bold');
     pdf.setTextColor(30, 50, 100);
