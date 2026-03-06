@@ -557,9 +557,37 @@ export default function TransporteDetalhe() {
                     </div>
                   </div>
                   {paciente.transporte.motivo_intercorrencia && (
-                    <div className="p-3 bg-red-100 rounded-lg border border-red-300">
-                      <p className="text-xs font-semibold text-red-800">MOTIVO INTERCORRÊNCIA</p>
-                      <p className="text-red-700">{paciente.transporte.motivo_intercorrencia}</p>
+                    <div className="p-3 bg-red-100 rounded-lg border border-red-300 space-y-2">
+                      <div>
+                        <p className="text-xs font-semibold text-red-800">MOTIVO INTERCORRÊNCIA</p>
+                        <p className="text-red-700">{paciente.transporte.motivo_intercorrencia}</p>
+                      </div>
+                      {paciente.transporte.intercorrencias && (
+                        <div>
+                          <p className="text-xs font-semibold text-red-800">DESCRIÇÃO</p>
+                          <p className="text-red-700 text-sm whitespace-pre-wrap">{paciente.transporte.intercorrencias}</p>
+                        </div>
+                      )}
+                      {paciente.transporte.acoes_tomadas && (
+                        <div className="p-2 bg-green-50 border border-green-300 rounded">
+                          <p className="text-xs font-semibold text-green-800">AÇÕES TOMADAS / SOLUÇÃO</p>
+                          <p className="text-green-800 text-sm whitespace-pre-wrap">{paciente.transporte.acoes_tomadas}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {paciente.transporte.historico_intercorrencias?.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-xs font-semibold text-gray-600 mb-1">HISTÓRICO DE INTERCORRÊNCIAS ({paciente.transporte.historico_intercorrencias.length})</p>
+                      <div className="space-y-2">
+                        {paciente.transporte.historico_intercorrencias.map((item, idx) => (
+                          <div key={idx} className="p-2 bg-gray-50 border border-gray-200 rounded text-xs">
+                            <p className="font-semibold text-gray-700">{new Date(item.data_hora).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</p>
+                            <p><span className="font-semibold">Motivo:</span> {item.motivo}</p>
+                            {item.acoes_tomadas && <p><span className="font-semibold">Ações:</span> {item.acoes_tomadas}</p>}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                   {paciente.relatorio_transporte_url && (
