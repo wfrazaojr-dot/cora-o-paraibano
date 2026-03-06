@@ -224,7 +224,7 @@ export default function FormularioVaga() {
     pdf.setFontSize(9);
     pdf.setFont(undefined, 'normal');
     pdf.setTextColor(80, 80, 80);
-    pdf.text("Sistema Coração Paraibano - SES/PB", pageW / 2, y, { align: 'center' });
+    pdf.text("Governo da Paraíba | Coração Paraibano | Complexo Regulador", pageW / 2, y, { align: 'center' });
     y += 4;
     pdf.text(`Data da Solicitação: ${new Date(formData.data_solicitacao).toLocaleDateString('pt-BR')}`, pageW / 2, y, { align: 'center' });
     y += 6;
