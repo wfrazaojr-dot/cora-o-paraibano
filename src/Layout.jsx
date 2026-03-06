@@ -87,6 +87,11 @@ export default function Layout({ children, currentPageName }) {
           icon: FileText,
         },
         {
+          title: "Monitor Transportes",
+          url: createPageUrl("MonitorTransportes"),
+          icon: Truck,
+        },
+        {
           title: "Administração",
           url: createPageUrl("Administracao"),
           icon: Shield,
