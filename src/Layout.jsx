@@ -101,6 +101,23 @@ export default function Layout({ children, currentPageName }) {
 
     const equipe = user?.equipe || 'unidade_saude';
 
+    // Menu para Transporte
+    if (equipe === 'transporte') {
+      return [
+        ...menuBase,
+        {
+          title: "Monitor Transportes",
+          url: createPageUrl("MonitorTransportes"),
+          icon: Truck,
+        },
+        {
+          title: "Painel de Regulação",
+          url: createPageUrl("Dashboard"),
+          icon: Activity,
+        },
+      ];
+    }
+
     // Menu para Unidades de Saúde
     if (equipe === 'unidade_saude') {
       return [
