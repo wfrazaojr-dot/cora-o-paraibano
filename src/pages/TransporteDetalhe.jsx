@@ -36,6 +36,7 @@ export default function TransporteDetalhe() {
     intercorrencias: "",
     motivo_intercorrencia: "",
     motivo_detalhado: "",
+    acoes_tomadas: "",
     showIntercorrencia: false,
   });
   const [gerandoPDF, setGerandoPDF] = useState(false);
