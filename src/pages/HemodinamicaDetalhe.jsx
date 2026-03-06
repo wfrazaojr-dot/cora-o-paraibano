@@ -31,6 +31,7 @@ export default function HemodinamicaDetalhe() {
   const urlParams = new URLSearchParams(window.location.search);
   const pacienteId = urlParams.get('id');
 
+  const agendamentoRelRef = useRef(null);
   const [tipoIcpSelecionado, setTipoIcpSelecionado] = useState("");
   const [agendamento, setAgendamento] = useState({ data: "", hora: "" });
   const [formData, setFormData] = useState({
