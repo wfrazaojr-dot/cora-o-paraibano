@@ -111,30 +111,74 @@ export default function TransporteDetalhe() {
         ? `Outro: ${formData.motivo_detalhado}`
         : formData.motivo_intercorrencia;
 
+      const dataHoraFim = new Date().toISOString();
+
       const resultado = await base44.functions.invoke('generateRelatorioTransporte', {
         pacienteId,
         intercorrencias: formData.intercorrencias || null,
         motivo_intercorrencia: motivoFinal,
+        acoes_tomadas: formData.acoes_tomadas || null,
         status_final: "Com Intercorrência"
       });
+
+      // Histórico completo da intercorrência
+      const registroIntercorrencia = {
+        data_hora: dataHoraFim,
+        motivo: motivoFinal,
+        descricao: formData.intercorrencias || "",
+        acoes_tomadas: formData.acoes_tomadas || "",
+        relatorio_url: resultado.data.file_url,
+        tipo_transporte: paciente.transporte?.tipo_transporte || "",
+        central: paciente.transporte?.central_transporte || "",
+        destino: paciente.transporte?.unidade_destino || paciente.regulacao_central?.unidade_destino || "",
+        registrado_por: "equipe_transporte"
+      };
+
+      const historicoAnterior = paciente.transporte?.historico_intercorrencias || [];
+
       await base44.entities.Paciente.update(pacienteId, {
         transporte: {
           ...paciente.transporte,
           intercorrencias: formData.intercorrencias || "",
           motivo_intercorrencia: motivoFinal,
-          data_hora_chegada_destino: new Date().toISOString(),
+          acoes_tomadas: formData.acoes_tomadas || "",
+          data_hora_chegada_destino: dataHoraFim,
           status_transporte: "Com Intercorrência",
-          relatorio_transporte_url: resultado.data.file_url
+          relatorio_transporte_url: resultado.data.file_url,
+          historico_intercorrencias: [...historicoAnterior, registroIntercorrencia]
         },
         status: "Concluído",
         relatorio_transporte_url: resultado.data.file_url
       });
+
+      // Notificar via mensagem interna no chat do paciente (CERH e ASSCARDIO monitoram)
+      const msgTexto = `⚠️ INTERCORRÊNCIA NO TRANSPORTE\n\nPaciente: ${paciente.nome_completo}\nMotivo: ${motivoFinal}${formData.intercorrencias ? `\nDescrição: ${formData.intercorrencias}` : ""}${formData.acoes_tomadas ? `\nAções tomadas: ${formData.acoes_tomadas}` : ""}\nData/Hora: ${new Date(dataHoraFim).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}\n\nStatus atualizado para: CONCLUÍDO COM INTERCORRÊNCIA`;
+
+      await base44.entities.Mensagem.create({
+        paciente_id: pacienteId,
+        remetente_nome: "Sistema - Transporte",
+        remetente_email: "sistema@coracaoparaibano",
+        equipe_remetente: "unidade_saude",
+        mensagem: msgTexto,
+        data_hora: dataHoraFim
+      });
+
+      // Notificação por email para CERH (se houver email de regulação)
+      const emailCERH = paciente.regulacao_central?.email_regulador || null;
+      if (emailCERH) {
+        await base44.integrations.Core.SendEmail({
+          to: emailCERH,
+          subject: `⚠️ Intercorrência no Transporte - ${paciente.nome_completo}`,
+          body: `<h2>⚠️ INTERCORRÊNCIA NO TRANSPORTE</h2><p><strong>Paciente:</strong> ${paciente.nome_completo}</p><p><strong>Motivo:</strong> ${motivoFinal}</p>${formData.intercorrencias ? `<p><strong>Descrição:</strong> ${formData.intercorrencias}</p>` : ""}${formData.acoes_tomadas ? `<p><strong>Ações tomadas:</strong> ${formData.acoes_tomadas}</p>` : ""}<p><strong>Data/Hora:</strong> ${new Date(dataHoraFim).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</p><p>Acesse o sistema para mais detalhes.</p>`
+        });
+      }
+
       setGerandoPDF(false);
       window.open(resultado.data.file_url, '_blank');
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['paciente', pacienteId]);
-      alert("Transporte finalizado com intercorrência! Relatório PDF gerado e aberto.");
+      alert("Transporte finalizado com intercorrência! Relatório PDF gerado, histórico salvo e equipes notificadas.");
       navigate(createPageUrl("Dashboard"));
     },
     onError: (err) => {
