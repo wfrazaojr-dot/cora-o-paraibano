@@ -365,8 +365,8 @@ Solicitante: ${user?.full_name} (${user?.email})`;
       }
     },
     onSuccess: () => {
-      toast.success(`✅ Solicitação enviada com sucesso para ${getEmailCERH()}!`);
-      setTimeout(() => navigate(createPageUrl("Historico")), 2000);
+      alert(`✅ Formulário de Solicitação de Vaga enviado com sucesso!\n\nDestinatário: ${getEmailCERH()}\nPaciente: ${getNomePaciente()}\n\nVocê será redirecionado para o Painel Assistencial.`);
+      navigate(createPageUrl("Historico"));
     },
     onError: (error) => {
       toast.error("Erro ao enviar: " + error.message);
