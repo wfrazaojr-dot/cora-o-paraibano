@@ -571,73 +571,10 @@ Solicitante: ${user?.full_name} (${user?.email})`;
               )}
             </div>
 
-            {/* Dados Clínicos */}
-            <div>
-              <h3 className="text-base font-bold mb-3 border-b pb-2 text-blue-900">DADOS CLÍNICOS</h3>
-              <div className="space-y-4">
-                <div>
-                  <Label>Hipótese Diagnóstica</Label>
-                  <Input value={formData.hipotese_diagnostica} onChange={(e) => setFormData({...formData, hipotese_diagnostica: e.target.value})} />
-                </div>
-                <div>
-                  <Label>Alergia</Label>
-                  <Select value={formData.alergia} onValueChange={(v) => setFormData({...formData, alergia: v})}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Nega">Nega</SelectItem>
-                      <SelectItem value="Sim">Sim</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {formData.alergia === 'Sim' && (
-                    <Input className="mt-2" placeholder="Descreva a alergia" value={formData.alergia_descricao} onChange={(e) => setFormData({...formData, alergia_descricao: e.target.value})} />
-                  )}
-                </div>
-                <div>
-                  <Label>Medicações de Uso Contínuo</Label>
-                  <Select value={formData.medicacoes_uso_continuo} onValueChange={(v) => setFormData({...formData, medicacoes_uso_continuo: v})}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="NÃO SABE INFORMAR">NÃO SABE INFORMAR</SelectItem>
-                      <SelectItem value="Sim">Sim</SelectItem>
-                      <SelectItem value="Não">Não</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {formData.medicacoes_uso_continuo === 'Sim' && (
-                    <Input className="mt-2" placeholder="Descreva as medicações" value={formData.medicacoes_descricao} onChange={(e) => setFormData({...formData, medicacoes_descricao: e.target.value})} />
-                  )}
-                </div>
-                <div>
-                  <Label className="mb-2 block">Comorbidades</Label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {["HAS", "DM", "ICC", "IAM prévio", "AVC prévio", "IRC", "DPOC", "Tabagismo", "Obesidade"].map(c => (
-                      <div key={c} className="flex items-center gap-2">
-                        <Checkbox
-                          id={c}
-                          checked={formData.comorbidades.includes(c)}
-                          onCheckedChange={(checked) => {
-                            setFormData(prev => ({
-                              ...prev,
-                              comorbidades: checked ? [...prev.comorbidades, c] : prev.comorbidades.filter(x => x !== c)
-                            }));
-                          }}
-                        />
-                        <label htmlFor={c} className="text-sm cursor-pointer">{c}</label>
-                      </div>
-                    ))}
-                  </div>
-                  <Input className="mt-2" placeholder="Outras comorbidades" value={formData.comorbidades_outras} onChange={(e) => setFormData({...formData, comorbidades_outras: e.target.value})} />
-                </div>
-              </div>
-            </div>
-
             {/* Solicitação */}
             <div>
               <h3 className="text-base font-bold mb-3 border-b pb-2 text-blue-900">SOLICITAÇÃO</h3>
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <Label>Solicita Leito de</Label>
-                  <Input value={formData.solicita_leito} onChange={(e) => setFormData({...formData, solicita_leito: e.target.value})} placeholder="Ex: UTI Coronariana, Enfermaria de Cardiologia..." />
-                </div>
                 <div>
                   <Label>Nome do Médico Solicitante *</Label>
                   <Input value={formData.medico_solicitante} onChange={(e) => setFormData({...formData, medico_solicitante: e.target.value})} required />
