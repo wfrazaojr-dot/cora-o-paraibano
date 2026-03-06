@@ -406,7 +406,29 @@ Solicitante: ${user?.full_name} (${user?.email})`;
   };
 
   return (
-    <div className="p-4 md:p-8 bg-gradient-to-br from-blue-50 to-green-50 min-h-screen">
+    <div className="bg-gradient-to-br from-blue-50 to-green-50 min-h-screen">
+      {/* Cabeçalho com logomarcas */}
+      <div className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
+        <div className="flex items-center justify-center gap-6 md:gap-10 flex-wrap">
+          <img
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png"
+            alt="Secretaria de Estado da Saúde"
+            className="h-12 md:h-16 w-auto object-contain"
+          />
+          <img
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png"
+            alt="Coração Paraibano"
+            className="h-12 md:h-16 w-auto object-contain"
+          />
+          <img
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png"
+            alt="PBSAÚDE"
+            className="h-12 md:h-16 w-auto object-contain"
+          />
+        </div>
+      </div>
+
+      <div className="p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">
