@@ -470,7 +470,6 @@ Solicitante: ${user?.full_name} (${user?.email})
 
             {/* Solicitação */}
             <div>
-              <h3 className="text-base font-bold mb-3 border-b pb-2">SOLICITA</h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <Label>Nome do Médico Solicitante: *</Label>
