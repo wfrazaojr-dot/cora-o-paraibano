@@ -601,14 +601,25 @@ Solicitante: ${user?.full_name} (${user?.email})`;
               {uploadingFiles && <p className="text-blue-600 text-sm text-center mb-2">Enviando arquivos...</p>}
               {formData.documentos.length > 0 && (
                 <div className="space-y-2">
-                  {formData.documentos.map((doc, idx) => (
-                    <div key={idx} className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3">
-                      <span className="text-sm text-green-900 font-medium truncate flex-1">{doc.nome || `Documento ${idx + 1}`}</span>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => removerDocumento(idx)} className="text-red-600 hover:text-red-800">
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
+                  {formData.documentos.map((doc, idx) => {
+                    const isImage = doc.url && /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(doc.url);
+                    return (
+                      <div key={idx} className="bg-green-50 border border-green-200 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm text-green-900 font-medium truncate flex-1">{doc.nome || `Documento ${idx + 1}`}</span>
+                          <Button type="button" variant="ghost" size="sm" onClick={() => removerDocumento(idx)} className="text-red-600 hover:text-red-800 ml-2">
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        {isImage && (
+                          <img src={doc.url} alt={doc.nome || `Documento ${idx + 1}`} className="max-h-48 max-w-full rounded border border-green-300 object-contain" />
+                        )}
+                        {!isImage && doc.url && (
+                          <a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline">Visualizar arquivo</a>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
