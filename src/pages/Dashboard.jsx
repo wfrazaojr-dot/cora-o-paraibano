@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, Clock, Users, Activity, Eye, FileText } from "lucide-react";
 import { format, differenceInHours } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import AlertasTransporte from "@/components/dashboard/AlertasTransporte";
 
 export default function Dashboard() {
   const navigate = useNavigate();
