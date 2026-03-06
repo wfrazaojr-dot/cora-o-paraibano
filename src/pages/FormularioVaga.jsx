@@ -15,6 +15,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 export default function FormularioVaga() {
+  const navigate = useNavigate();
   const formRef = useRef(null);
   const urlParams = new URLSearchParams(window.location.search);
   const pacienteId = urlParams.get('id');
