@@ -107,13 +107,16 @@ export default function NovaTriagem() {
   };
 
   const renderEtapa = () => {
-    const modoLeituraEtapas1e2 = idUrl && !isRetriagem;
+    // Em retriagem: etapa 1 é sempre leitura (dados do paciente não mudam)
+    // Em visualização (idUrl sem retriagem): etapas 1 e 2 são leitura
+    const etapa1Leitura = !!idUrl; // sempre leitura se há paciente existente
+    const etapa2Leitura = idUrl && !isRetriagem;
     
     switch (etapaAtual) {
       case 1:
-        return <Etapa1DadosPaciente dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={modoLeituraEtapas1e2} permitirNavegacao={true} />;
+        return <Etapa1DadosPaciente dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={etapa1Leitura} permitirNavegacao={true} />;
       case 2:
-        return <Etapa2TriagemMedica dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={modoLeituraEtapas1e2} permitirNavegacao={true} />;
+        return <Etapa2TriagemMedica dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={etapa2Leitura} permitirNavegacao={true} />;
       case 3:
         const tipoSca = dadosPaciente.triagem_medica?.tipo_sca;
         if (tipoSca === "SCACESST") {
