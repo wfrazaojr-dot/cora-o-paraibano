@@ -46,6 +46,24 @@ export default function CERHDetalhe() {
     enabled: !!pacienteId
   });
 
+  useEffect(() => {
+    if (paciente?.regulacao_central) {
+      const r = paciente.regulacao_central;
+      setFormData({
+        medico_regulador_nome: r.medico_regulador_nome || "",
+        medico_regulador_crm: r.medico_regulador_crm || "",
+        conduta_inicial: r.conduta_inicial || [],
+        conduta_inicial_outros: r.conduta_inicial_outros || "",
+        conduta_final: r.conduta_final || "",
+        unidade_destino: r.unidade_destino || "",
+        enfermeiro_nome: r.enfermeiro_nome || "",
+        enfermeiro_coren: r.enfermeiro_coren || "",
+        senha_ses: r.senha_ses || "",
+        observacoes_regulacao: r.observacoes_regulacao || ""
+      });
+    }
+  }, [paciente]);
+
   const gerarRelatorioPDF = async (pacienteData) => {
     if (!relatorioRef.current) return null;
     try {
