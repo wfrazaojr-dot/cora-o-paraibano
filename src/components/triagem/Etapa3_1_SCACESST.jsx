@@ -439,6 +439,14 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
         </div>
       </div>
 
+      <InfoTransporte
+        dados={dados.info_transporte}
+        onChange={(campo, valor) => setDados(prev => ({
+          ...prev,
+          info_transporte: { ...prev.info_transporte, [campo]: valor }
+        }))}
+      />
+
       {modoLeitura && (
         <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6">
           <p className="text-blue-900 font-semibold text-center">
