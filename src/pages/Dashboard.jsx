@@ -349,7 +349,16 @@ export default function Dashboard() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => window.open(paciente.relatorio_triagem_url, '_blank')}
+                            onClick={async () => {
+                              const resp = await fetch(paciente.relatorio_triagem_url);
+                              const blob = await resp.blob();
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = `Relatorio_Triagem_${paciente.nome_completo}.pdf`;
+                              a.click();
+                              URL.revokeObjectURL(url);
+                            }}
                             className="border-green-600 text-green-700 hover:bg-green-50"
                           >
                             <Eye className="w-4 h-4 mr-2" />
