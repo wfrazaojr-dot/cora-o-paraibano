@@ -134,6 +134,7 @@ export default function PainelInicial() {
     // Perfil com macrorregião
     if (macroSelecionada) {
       if (senhaDigitada === macroSelecionada.senha) {
+        sessionStorage.setItem('perfil_selecionado_sessao', perfilSelecionado.id);
         await base44.auth.updateMe({ equipe: perfilSelecionado.id, macrorregiao: macroSelecionada.macro });
         navigate(createPageUrl(getPaginaDestino(perfilSelecionado.id)));
       } else {
@@ -143,6 +144,7 @@ export default function PainelInicial() {
     }
     // Perfil simples com senha
     if (senhaDigitada === perfilSelecionado.senha) {
+      sessionStorage.setItem('perfil_selecionado_sessao', perfilSelecionado.id);
       await base44.auth.updateMe({ equipe: perfilSelecionado.id, macrorregiao: null });
       navigate(createPageUrl(getPaginaDestino(perfilSelecionado.id)));
     } else {
