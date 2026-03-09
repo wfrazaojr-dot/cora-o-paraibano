@@ -985,6 +985,34 @@ export default function ASSCARDIODetalhe() {
                       addLine(medicoData.parecer_cardiologista || '-');
                       sep();
 
+                      // Informações para Transporte
+                      const it = paciente?.avaliacao_clinica?.info_transporte;
+                      if (it && Object.keys(it).length > 0) {
+                        addLine("INFORMAÇÕES PARA TRANSPORTE", { bold: true, size: 11 });
+                        if (it.glasgow) addLine(`Glasgow: ${it.glasgow}`);
+                        const o2 = [];
+                        if (it.ar_ambiente === true) o2.push("Ar Ambiente");
+                        if (it.cateter_nasal === true) o2.push("Cateter Nasal");
+                        if (it.mascara_o2 === true) o2.push("Máscara O₂");
+                        if (o2.length) addLine(`Suporte O₂: ${o2.join(', ')}`);
+                        addLine(`Ventilação Mecânica: ${it.vm_ativo === true ? 'Sim' : it.vm_ativo === false ? 'Não' : '-'}`);
+                        if (it.vm_ativo === true) {
+                          const vmParts = [];
+                          if (it.vm_modo) vmParts.push(`Modo: ${it.vm_modo}`);
+                          if (it.vm_fr) vmParts.push(`FR: ${it.vm_fr} ipm`);
+                          if (it.vm_peep) vmParts.push(`PEEP: ${it.vm_peep} cmH₂O`);
+                          if (it.vm_fio2) vmParts.push(`FiO₂: ${it.vm_fio2}%`);
+                          if (it.vm_relacao_ie) vmParts.push(`I:E ${it.vm_relacao_ie}`);
+                          if (vmParts.length) addLine(`  Parâmetros: ${vmParts.join(' | ')}`);
+                        }
+                        addLine(`Analgesia/Sedação: ${it.analgesia_sedacao === true ? 'Sim' : it.analgesia_sedacao === false ? 'Não' : '-'}`);
+                        if (it.analgesia_sedacao === true && it.analgesia_drogas?.length) addLine(`  Drogas: ${it.analgesia_drogas.join(', ')}`);
+                        addLine(`DVA: ${it.dva === true ? 'Sim' : it.dva === false ? 'Não' : '-'}`);
+                        if (it.dva === true && it.dva_drogas?.length) addLine(`  Drogas: ${it.dva_drogas.join(', ')}`);
+                        addLine(`Marcapasso Transcutâneo: ${it.marcapasso_transcutaneo === true ? 'Sim' : it.marcapasso_transcutaneo === false ? 'Não' : '-'}`);
+                        sep();
+                      }
+
                       addLine("Sistema de Triagem de Dor Torácica - Walber Alves Frazão Júnior - COREN 110.238", { size: 8, color: [120,120,120] });
                       addLine(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm:ss", { locale: ptBR })}`, { size: 8, color: [120,120,120] });
 
