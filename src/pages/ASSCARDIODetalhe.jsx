@@ -497,28 +497,7 @@ export default function ASSCARDIODetalhe() {
                 <Label htmlFor="supra_nao" className="text-lg font-semibold">NÃO</Label>
               </div>
             </RadioGroup>
-            {ecgSupra.tem_supra === "sim" && (
-              <div className="mt-3">
-                <Label className="font-semibold">Parede:</Label>
-                <Select value={ecgSupra.parede_supra} onValueChange={(v) => setEcgSupra({...ecgSupra, parede_supra: v})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a parede" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Inferior">Inferior</SelectItem>
-                    <SelectItem value="Anterior">Anterior</SelectItem>
-                    <SelectItem value="Parede anterosseptal">Parede anterosseptal</SelectItem>
-                    <SelectItem value="Parede anterior localizada">Parede anterior localizada</SelectItem>
-                    <SelectItem value="Parede anterolateral">Parede anterolateral</SelectItem>
-                    <SelectItem value="Parede anterior extensa">Parede anterior extensa</SelectItem>
-                    <SelectItem value="Lateral">Lateral</SelectItem>
-                    <SelectItem value="Parede lateral alta">Parede lateral alta</SelectItem>
-                    <SelectItem value="Parede lateral baixa">Parede lateral baixa</SelectItem>
-                    <SelectItem value="VD">VD (Ventrículo Direito)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+
           </CardContent>
         </Card>
 
