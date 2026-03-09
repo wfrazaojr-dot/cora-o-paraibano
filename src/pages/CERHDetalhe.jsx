@@ -309,11 +309,11 @@ export default function CERHDetalhe() {
                 </CardHeader>
                 <CardContent className="pt-4">
                   <Button
-                    onClick={() => window.open(paciente.relatorio_agendamento_hemo_url, '_blank')}
+                    onClick={() => downloadPDF(paciente.relatorio_agendamento_hemo_url, `Agendamento_Hemo_${paciente.nome_completo}.pdf`)}
                     className="w-full bg-pink-600 hover:bg-pink-700 text-white"
-                  >
+                    >
                     <FileText className="w-4 h-4 mr-2" />
-                    ABRIR RELATÓRIO DE AGENDAMENTO
+                    BAIXAR RELATÓRIO DE AGENDAMENTO
                   </Button>
                 </CardContent>
               </Card>
