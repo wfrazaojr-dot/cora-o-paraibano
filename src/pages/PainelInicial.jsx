@@ -104,6 +104,7 @@ export default function PainelInicial() {
       setErroSenha(false);
       setEtapa("senha");
     } else {
+      sessionStorage.setItem('perfil_selecionado_sessao', perfilId);
       base44.auth.updateMe({ equipe: perfilId, macrorregiao: null });
       navigate(createPageUrl(getPaginaDestino(perfilId)));
     }
