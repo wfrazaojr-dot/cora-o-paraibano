@@ -24,7 +24,8 @@ export default function Etapa3_1_SCACESST({ dadosPaciente, onProxima, onAnterior
       exames_nao_realizados: false,
       exames_nao_liberados: false,
       outros: ""
-    }
+    },
+    info_transporte: dadosPaciente.avaliacao_clinica?.info_transporte || {}
   });
 
   const [novoMedicamento, setNovoMedicamento] = useState({ medicamento: "", dose: "", via: "" });

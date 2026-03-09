@@ -25,6 +25,7 @@ export default function Etapa3_3_SCASESST_SemTroponina({ dadosPaciente, onProxim
       exames_nao_liberados: false,
       outros: ""
     },
+    info_transporte: dadosPaciente.avaliacao_clinica?.info_transporte || {},
     // Dados para BLOCO 3 - ASSCARDIO
     historia_clinica: dadosPaciente.avaliacao_clinica?.historia_clinica || "",
     ecg_classificacao: dadosPaciente.avaliacao_clinica?.ecg_classificacao || "",

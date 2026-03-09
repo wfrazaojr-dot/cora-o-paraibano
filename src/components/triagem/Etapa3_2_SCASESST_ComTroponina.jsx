@@ -40,7 +40,8 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
       exames_nao_realizados: false,
       exames_nao_liberados: false,
       outros: ""
-    }
+    },
+    info_transporte: dadosPaciente.avaliacao_clinica?.info_transporte || {}
   });
 
   const [novoMedicamento, setNovoMedicamento] = useState({ medicamento: "", dose: "", via: "" });
