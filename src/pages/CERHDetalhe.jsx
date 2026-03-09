@@ -654,11 +654,11 @@ export default function CERHDetalhe() {
                 </CardHeader>
                 <CardContent>
                   <Button
-                    onClick={() => window.open(paciente.relatorio_cerh_url, '_blank')}
+                    onClick={() => downloadPDF(paciente.relatorio_cerh_url, `Relatorio_CERH_${paciente.nome_completo}.pdf`)}
                     className="w-full bg-indigo-600 hover:bg-indigo-700"
                   >
                     <Download className="w-4 h-4 mr-2" />
-                    Baixar Relatório PDF
+                    Baixar Relatório CERH PDF
                   </Button>
                 </CardContent>
               </Card>
