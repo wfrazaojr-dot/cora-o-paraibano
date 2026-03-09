@@ -917,13 +917,97 @@ export default function ASSCARDIODetalhe() {
                 />
               </div>
 
-              <Button
-                onClick={() => salvarLaudoMedico.mutate()}
-                disabled={salvarLaudoMedico.isPending || !medicoData.confirma_triagem}
-                className="w-full bg-red-600 hover:bg-red-700 text-white text-lg py-6"
-              >
-                {salvarLaudoMedico.isPending ? "Salvando..." : "🏁 FINALIZAR LAUDO"}
-              </Button>
+              <div className="flex flex-col gap-3">
+                <Button
+                  onClick={async () => {
+                    try {
+                      const pdf = new jsPDF("p", "mm", "a4");
+                      const pg = pdf.internal.pageSize;
+                      let y = 15;
+                      const addLine = (txt, opts = {}) => {
+                        const { bold, size, color } = opts;
+                        pdf.setFontSize(size || 10);
+                        if (bold) pdf.setFont("helvetica", "bold"); else pdf.setFont("helvetica", "normal");
+                        if (color) pdf.setTextColor(...color); else pdf.setTextColor(0, 0, 0);
+                        const lines = pdf.splitTextToSize(txt, pg.getWidth() - 20);
+                        lines.forEach(line => {
+                          if (y > pg.getHeight() - 15) { pdf.addPage(); y = 15; }
+                          pdf.text(line, 10, y);
+                          y += (size || 10) * 0.45;
+                        });
+                        y += 1;
+                      };
+                      const sep = () => { pdf.setDrawColor(180,180,180); pdf.line(10, y, pg.getWidth()-10, y); y += 4; };
+
+                      addLine("RELATÓRIO ASSESSORIA CARDIOLÓGICA - ASSCARDIO", { bold: true, size: 14, color: [180,0,0] });
+                      addLine(`Data: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`);
+                      sep();
+
+                      addLine("DADOS DO PACIENTE", { bold: true, size: 11 });
+                      addLine(`Nome: ${paciente?.nome_completo || '-'} | Idade: ${paciente?.idade || '-'} | Sexo: ${paciente?.sexo || '-'}`);
+                      addLine(`Unidade: ${paciente?.unidade_saude || '-'}`);
+                      sep();
+
+                      if (paciente?.triagem_medica) {
+                        const tm = paciente.triagem_medica;
+                        addLine("SINAIS VITAIS", { bold: true, size: 11 });
+                        addLine(`PA: ${tm.pa_braco_esquerdo || '-'} | FC: ${tm.frequencia_cardiaca || '-'} bpm | FR: ${tm.frequencia_respiratoria || '-'} irpm | SpO2: ${tm.spo2 || '-'}% | Temp: ${tm.temperatura || '-'}°C | Glicemia: ${tm.glicemia_capilar || '-'} mg/dL`);
+                        sep();
+                      }
+
+                      addLine("AVALIAÇÃO DE ENFERMAGEM (PRÉ-PARECER)", { bold: true, size: 11 });
+                      addLine(preParecer || '-');
+                      sep();
+
+                      addLine("DADOS CLÍNICOS", { bold: true, size: 11 });
+                      addLine(`Dor Típica: ${clinica.dor_tipica?'Sim':'Não'} | Sudorese: ${clinica.sudorese?'Sim':'Não'} | HAS: ${clinica.has?'Sim':'Não'} | DM: ${clinica.dm?'Sim':'Não'} | Tabagismo: ${clinica.tabagismo?'Sim':'Não'} | Dislipidemia: ${clinica.dislipidemia?'Sim':'Não'}`);
+                      sep();
+
+                      addLine("ACHADOS DO ECG", { bold: true, size: 11 });
+                      addLine(`Supra ST: ${ecgSupra.tem_supra === 'sim' ? 'SIM' : 'NÃO'}`);
+                      if (ecgSupra.tem_supra === 'sim' && ecgSupra.parede_supra) addLine(`Parede: ${ecgSupra.parede_supra}`);
+                      sep();
+
+                      if (ecgSupra.tem_supra !== 'sim') {
+                        addLine("HEART SCORE", { bold: true, size: 11 });
+                        addLine(`História: ${heartScore.historia} | ECG: ${heartScore.ecg} | Idade: ${heartScore.idade} | Fatores de Risco: ${heartScore.risco} | Troponina: ${heartScore.troponina}`);
+                        addLine(`TOTAL: ${calcularHeartTotal()} pontos - ${getHeartInterpretacao(calcularHeartTotal())}`, { bold: true });
+                        sep();
+                      }
+
+                      addLine("AVALIAÇÃO DO CARDIOLOGISTA", { bold: true, size: 11 });
+                      if (medicoData.cardiologista_nome) addLine(`Cardiologista: ${medicoData.cardiologista_nome} | CRM: ${medicoData.cardiologista_crm}${medicoData.cardiologista_rqe ? ` | RQE: ${medicoData.cardiologista_rqe}` : ''}`);
+                      addLine(`Triagem confirmada: ${medicoData.confirma_triagem ? 'Sim' : 'Não'}`);
+                      const estrategias = {"1":"1- IAM supra ST → Estratégia 1: transferência imediata","2":"2- SCA sem supra MUITO alto risco → Estratégia 1: transferência imediata","3":"3- IAM sem supra/alto risco → Estratégia 2: invasiva ≤24h","4":"4- SCA intermediário → Estratégia 3: invasiva ≤72h","5":"5- Orientação Cardiológica"};
+                      addLine(`Diagnóstico + Estratégia: ${estrategias[medicoData.diagnostico_estrategia] || 'Não definido'}`, { bold: true });
+                      y += 2;
+                      addLine("PARECER DO CARDIOLOGISTA:", { bold: true });
+                      addLine(medicoData.parecer_cardiologista || '-');
+                      sep();
+
+                      addLine("Sistema de Triagem de Dor Torácica - Walber Alves Frazão Júnior - COREN 110.238", { size: 8, color: [120,120,120] });
+                      addLine(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm:ss", { locale: ptBR })}`, { size: 8, color: [120,120,120] });
+
+                      const nomePaciente = (paciente?.nome_completo || 'Paciente').replace(/\s+/g, '_');
+                      pdf.save(`Parecer_ASSCARDIO_${nomePaciente}_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`);
+                    } catch(e) {
+                      alert("Erro ao gerar PDF: " + e.message);
+                    }
+                  }}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg py-4"
+                  variant="default"
+                >
+                  📄 BAIXAR PARECER ASSCARDIO (PDF)
+                </Button>
+
+                <Button
+                  onClick={() => salvarLaudoMedico.mutate()}
+                  disabled={salvarLaudoMedico.isPending || !medicoData.confirma_triagem}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white text-lg py-6"
+                >
+                  {salvarLaudoMedico.isPending ? "Salvando..." : "🏁 FINALIZAR LAUDO"}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
