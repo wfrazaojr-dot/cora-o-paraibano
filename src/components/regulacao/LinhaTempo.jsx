@@ -124,6 +124,26 @@ export default function LinhaTempo({ paciente }) {
   // Ordenar eventos por data/hora
   eventos.sort((a, b) => new Date(a.dataHora) - new Date(b.dataHora));
 
+  // Janela terapêutica: 12h a partir do início dos sintomas
+  let janelaInfo = null;
+  if (paciente.data_hora_inicio_sintomas) {
+    const inicio = new Date(paciente.data_hora_inicio_sintomas);
+    const limiteJanela = new Date(inicio.getTime() + 12 * 60 * 60 * 1000);
+    const agora = new Date();
+    const restanteMs = limiteJanela - agora;
+    const restanteMin = Math.round(restanteMs / 60000);
+    if (restanteMs > 0) {
+      const horas = Math.floor(restanteMin / 60);
+      const mins = restanteMin % 60;
+      janelaInfo = { texto: `${horas}h ${mins}min restantes`, aberta: true };
+    } else {
+      const ultrapassadoMin = Math.abs(restanteMin);
+      const horas = Math.floor(ultrapassadoMin / 60);
+      const mins = ultrapassadoMin % 60;
+      janelaInfo = { texto: `Encerrada há ${horas}h ${mins}min`, aberta: false };
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -133,6 +153,19 @@ export default function LinhaTempo({ paciente }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
+        {janelaInfo && (
+          <div className={`mb-3 pb-3 border-b flex items-center gap-2 rounded-lg px-3 py-2 ${janelaInfo.aberta ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+            <Clock className={`w-4 h-4 ${janelaInfo.aberta ? 'text-green-600' : 'text-red-600'}`} />
+            <div>
+              <p className={`text-xs font-bold ${janelaInfo.aberta ? 'text-green-800' : 'text-red-800'}`}>
+                ⏱ Janela Terapêutica (12h)
+              </p>
+              <p className={`text-xs font-semibold ${janelaInfo.aberta ? 'text-green-700' : 'text-red-700'}`}>
+                {janelaInfo.texto}
+              </p>
+            </div>
+          </div>
+        )}
         {macrorregiao && (
           <div className="mb-3 pb-3 border-b">
             <span className="inline-block bg-teal-100 text-teal-800 font-bold text-xs px-3 py-1 rounded-full border border-teal-300">
