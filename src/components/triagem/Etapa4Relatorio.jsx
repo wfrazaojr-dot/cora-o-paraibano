@@ -595,6 +595,36 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
           </div>
         )}
 
+        {/* Informações para Transporte */}
+        {dadosPaciente.transporte && (
+          <div className="mb-3">
+            <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">INFORMAÇÕES PARA TRANSPORTE</h2>
+            <div className="space-y-1 text-xs">
+              {dadosPaciente.transporte.data_hora_solicitacao && (
+                <div><span className="font-semibold">Solicitação:</span> {format(new Date(dadosPaciente.transporte.data_hora_solicitacao), "dd/MM/yy HH:mm", { locale: ptBR })}</div>
+              )}
+              {dadosPaciente.transporte.data_hora_inicio && (
+                <div><span className="font-semibold">Início:</span> {format(new Date(dadosPaciente.transporte.data_hora_inicio), "dd/MM/yy HH:mm", { locale: ptBR })}</div>
+              )}
+              {dadosPaciente.transporte.data_hora_chegada_destino && (
+                <div><span className="font-semibold">Chegada Destino:</span> {format(new Date(dadosPaciente.transporte.data_hora_chegada_destino), "dd/MM/yy HH:mm", { locale: ptBR })}</div>
+              )}
+              {dadosPaciente.transporte.equipe_responsavel && (
+                <div><span className="font-semibold">Equipe Responsável:</span> {dadosPaciente.transporte.equipe_responsavel}</div>
+              )}
+              {dadosPaciente.transporte.tipo_transporte && (
+                <div><span className="font-semibold">Tipo de Transporte:</span> {dadosPaciente.transporte.tipo_transporte}</div>
+              )}
+              {dadosPaciente.transporte.status_transporte && (
+                <div><span className="font-semibold">Status:</span> {dadosPaciente.transporte.status_transporte}</div>
+              )}
+              {dadosPaciente.transporte.intercorrencias && (
+                <div><span className="font-semibold">Intercorrências:</span> {dadosPaciente.transporte.intercorrencias}</div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Médico Responsável */}
         <div className="mt-4 bg-green-50 border border-green-500 rounded p-2">
           <h3 className="font-bold text-xs mb-1">MÉDICO RESPONSÁVEL</h3>
