@@ -211,7 +211,7 @@ export default function PainelInicial() {
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">{perfil.titulo}</h3>
                   <p className="text-sm text-gray-600">{perfil.descricao}</p>
-
+                  <p className="text-xs text-purple-600 mt-2 font-semibold">Seleciona Macrorregião</p>
                 </CardContent>
               </Card>
             );
