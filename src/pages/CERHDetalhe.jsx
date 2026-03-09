@@ -130,6 +130,17 @@ export default function CERHDetalhe() {
     }
   });
 
+  const downloadPDF = async (url, nomeArquivo) => {
+    const resp = await fetch(url);
+    const blob = await resp.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = nomeArquivo || 'relatorio.pdf';
+    a.click();
+    URL.revokeObjectURL(blobUrl);
+  };
+
   if (isLoading) {
     return <div className="p-8">Carregando...</div>;
   }
