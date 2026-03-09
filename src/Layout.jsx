@@ -30,15 +30,15 @@ export default function Layout({ children, currentPageName }) {
     queryFn: () => base44.auth.me(),
   });
 
-  // Redirecionar para PainelInicial se não tiver equipe definida
+  // Redirecionar para PainelInicial se não selecionou perfil na sessão atual
   useEffect(() => {
     if (!user) return;
     
-    // Só redireciona se não está no PainelInicial e não tem equipe
-    if (!user.equipe && currentPageName !== "PainelInicial") {
+    const perfilSelecionado = sessionStorage.getItem('perfil_selecionado_sessao');
+    if (!perfilSelecionado && currentPageName !== "PainelInicial") {
       navigate(createPageUrl("PainelInicial"), { replace: true });
     }
-  }, [user?.equipe, currentPageName, navigate]);
+  }, [user, currentPageName, navigate]);
 
 
 
