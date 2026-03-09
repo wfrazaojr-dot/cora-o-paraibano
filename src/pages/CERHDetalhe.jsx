@@ -422,11 +422,11 @@ export default function CERHDetalhe() {
                 </CardHeader>
                 <CardContent>
                   <Button
-                    onClick={() => window.open(paciente.relatorio_triagem_url, '_blank')}
+                    onClick={() => downloadPDF(paciente.relatorio_triagem_url, `Relatorio_Triagem_${paciente.nome_completo}.pdf`)}
                     className="w-full"
                   >
                     <FileText className="w-4 h-4 mr-2" />
-                    Visualizar Relatório
+                    Baixar Relatório da Unidade
                   </Button>
                 </CardContent>
               </Card>
