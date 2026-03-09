@@ -12,6 +12,19 @@ export default function LinhaTempo({ paciente }) {
   const macrorregiao = paciente.macrorregiao || null;
 
   // Adicionar eventos da linha do tempo
+  if (paciente.data_hora_inicio_sintomas) {
+    const tempoDorMin = paciente.data_hora_inicio_triagem
+      ? Math.round((new Date(paciente.data_hora_inicio_triagem) - new Date(paciente.data_hora_inicio_sintomas)) / 60000)
+      : null;
+    eventos.push({
+      tipo: "Início dos Sintomas",
+      dataHora: paciente.data_hora_inicio_sintomas,
+      icone: Clock,
+      cor: "text-orange-600",
+      detalhe: tempoDorMin != null ? `Tempo de Dor até triagem: ${tempoDorMin} min` : null
+    });
+  }
+
   if (paciente.data_hora_inicio_triagem) {
     eventos.push({
       tipo: "Triagem Médica Iniciada",
