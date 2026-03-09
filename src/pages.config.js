@@ -67,12 +67,12 @@ import Manual from './pages/Manual';
 import MonitorTransportes from './pages/MonitorTransportes';
 import NovaTriagem from './pages/NovaTriagem';
 import PINLogin from './pages/PINLogin';
+import PainelInicial from './pages/PainelInicial';
 import PerfilSelection from './pages/PerfilSelection';
 import ProtocoloEstrategias from './pages/ProtocoloEstrategias';
 import Protocolos from './pages/Protocolos';
 import RecuperarPIN from './pages/RecuperarPIN';
 import TransporteDetalhe from './pages/TransporteDetalhe';
-import PainelInicial from './pages/PainelInicial';
 import __Layout from './Layout.jsx';
 
 
@@ -97,12 +97,12 @@ export const PAGES = {
     "MonitorTransportes": MonitorTransportes,
     "NovaTriagem": NovaTriagem,
     "PINLogin": PINLogin,
+    "PainelInicial": PainelInicial,
     "PerfilSelection": PerfilSelection,
     "ProtocoloEstrategias": ProtocoloEstrategias,
     "Protocolos": Protocolos,
     "RecuperarPIN": RecuperarPIN,
     "TransporteDetalhe": TransporteDetalhe,
-    "PainelInicial": PainelInicial,
 }
 
 export const pagesConfig = {
