@@ -10,6 +10,7 @@ import TempoDor from "./TempoDor";
 import TempoECG from "./TempoECG";
 import TempoPortaAgulhaEtapa3 from "./TempoPortaAgulhaEtapa3";
 import TempoPortaBalaoEtapa3 from "./TempoPortaBalaoEtapa3";
+import InfoTransporte from "./InfoTransporte";
 
 export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxima, onAnterior, modoLeitura = false }) {
   const [dados, setDados] = useState({
