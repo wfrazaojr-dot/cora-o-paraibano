@@ -56,8 +56,8 @@ export default function CERHDetalhe() {
         conduta_inicial_outros: r.conduta_inicial_outros || "",
         conduta_final: r.conduta_final || "",
         unidade_destino: r.unidade_destino || "",
-        enfermeiro_nome: r.enfermeiro_nome || "",
-        enfermeiro_coren: r.enfermeiro_coren || "",
+        enfermeiro_nome: r.enfermeiro_regulador_nome || "",
+        enfermeiro_coren: r.enfermeiro_regulador_coren || "",
         senha_ses: r.senha_ses || "",
         observacoes_regulacao: r.observacoes_regulacao || ""
       });
