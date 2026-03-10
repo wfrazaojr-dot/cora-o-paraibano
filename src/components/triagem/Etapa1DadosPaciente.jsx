@@ -184,14 +184,28 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
         </p>
         <div className="mt-3 space-y-1">
           <Label htmlFor="cidade" className="text-sm font-semibold text-green-900">Cidade da Unidade de Saúde *</Label>
-          <Input
-            id="cidade"
-            value={dados.cidade}
-            onChange={(e) => setDados(prev => ({...prev, cidade: e.target.value}))}
-            placeholder="Ex: João Pessoa, Campina Grande, Patos..."
-            className="border-2 border-green-400"
-            disabled={modoLeitura}
-          />
+          {dados.macrorregiao && CIDADES_POR_MACRO[dados.macrorregiao] ? (
+            <select
+              id="cidade"
+              value={dados.cidade}
+              onChange={(e) => setDados(prev => ({...prev, cidade: e.target.value}))}
+              className="flex h-10 w-full rounded-md border-2 border-green-400 bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              disabled={modoLeitura}
+            >
+              <option value="">Selecione a cidade</option>
+              {CIDADES_POR_MACRO[dados.macrorregiao].map(cidade => (
+                <option key={cidade} value={cidade}>{cidade}</option>
+              ))}
+            </select>
+          ) : (
+            <Input
+              id="cidade"
+              value={dados.cidade}
+              disabled
+              placeholder="Selecione primeiro a Macrorregião acima"
+              className="border-2 border-green-200 bg-gray-50 text-gray-400"
+            />
+          )}
         </div>
       </div>
 
@@ -204,7 +218,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
             <button
               key={macro}
               type="button"
-              onClick={() => !modoLeitura && setDados(prev => ({...prev, macrorregiao: macro}))}
+              onClick={() => !modoLeitura && setDados(prev => ({...prev, macrorregiao: macro, cidade: ""}))}
               className={`flex-1 py-3 rounded-lg border-2 font-bold text-sm transition-colors ${
                 dados.macrorregiao === macro
                   ? "bg-teal-600 border-teal-600 text-white"
