@@ -275,6 +275,29 @@ export default function CERHDetalhe() {
             </div>
           )}
 
+          {/* Documentos Anexados do Formulário de Vaga */}
+          {paciente?.formulario_vaga?.documentos && paciente.formulario_vaga.documentos.length > 0 && (
+            <div className="mb-4">
+              <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">DOCUMENTOS ANEXADOS (FORMULÁRIO DE VAGA)</h2>
+              <div className="grid grid-cols-2 gap-2">
+                {paciente.formulario_vaga.documentos.map((doc, idx) => (
+                  <div key={idx} className="border border-gray-300 p-1">
+                    {doc.file_url && (
+                      <img 
+                        src={doc.file_url} 
+                        alt={`Documento ${idx + 1}`}
+                        className="w-full h-auto object-contain"
+                        crossOrigin="anonymous"
+                        style={{ maxHeight: '300px' }}
+                      />
+                    )}
+                    {doc.nome && <p className="text-xs text-gray-600 mt-1 text-center">{doc.nome}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Equipe CERH */}
           <div className="mb-4">
             <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">EQUIPE CERH</h2>
