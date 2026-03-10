@@ -105,7 +105,7 @@ export default function Dashboard() {
   );
   const dentroDaJanela = pacientesRegulacao.filter(p => p.janelaTerapeutica?.dentroJanela);
 
-  // Aplicar filtro
+  // Aplicar filtro de status
   let pacientesFiltrados = pacientesRegulacao;
   if (filtroSelecionado === "prioridade0") pacientesFiltrados = prioridade0;
   if (filtroSelecionado === "prioridade1") pacientesFiltrados = prioridade1;
@@ -115,6 +115,24 @@ export default function Dashboard() {
   if (filtroSelecionado === "aguardando_transporte") pacientesFiltrados = aguardandoTransporte;
   if (filtroSelecionado === "aguardando_hemodinamica") pacientesFiltrados = aguardandoHemodinamica;
   if (filtroSelecionado === "janela_terapeutica") pacientesFiltrados = dentroDaJanela;
+
+  // Aplicar filtros de busca textual
+  if (busca.trim()) {
+    const termo = busca.toLowerCase();
+    pacientesFiltrados = pacientesFiltrados.filter(p =>
+      p.nome_completo?.toLowerCase().includes(termo) ||
+      p.unidade_saude?.toLowerCase().includes(termo)
+    );
+  }
+  if (filtroCidade.trim()) {
+    const termoCidade = filtroCidade.toLowerCase();
+    pacientesFiltrados = pacientesFiltrados.filter(p =>
+      p.cidade?.toLowerCase().includes(termoCidade)
+    );
+  }
+
+  // Lista de cidades disponíveis para o autocomplete
+  const cidadesDisponiveis = [...new Set(pacientesRegulacao.map(p => p.cidade).filter(Boolean))].sort();
 
   if (!user) {
     return (
