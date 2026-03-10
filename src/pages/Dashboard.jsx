@@ -296,11 +296,12 @@ export default function Dashboard() {
             )}
           </div>
 
-          <div className="relative sm:w-44">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-500 font-medium">Macrorregião</label>
             <select
               value={filtroMacro}
               onChange={(e) => { setFiltroMacro(e.target.value); setFiltroCidade(""); }}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex h-10 w-44 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <option value="">Todas as Macros</option>
               <option value="Macro 1">Macro 1</option>
@@ -309,14 +310,15 @@ export default function Dashboard() {
             </select>
           </div>
 
-          <div className="relative sm:w-52">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-500 font-medium">Cidade</label>
             <select
               value={filtroCidade}
               onChange={(e) => setFiltroCidade(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex h-10 w-52 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={!filtroMacro}
             >
-              <option value="">{filtroMacro ? "Todas as cidades" : "Selecione uma Macro"}</option>
+              <option value="">{filtroMacro ? "Todas as cidades" : "Selecione uma macro primeiro"}</option>
               {cidadesDisponiveis.map(c => (
                 <option key={c} value={c}>{c}</option>
               ))}
