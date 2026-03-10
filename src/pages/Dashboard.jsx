@@ -364,6 +364,7 @@ export default function Dashboard() {
                           <div>
                             <span className="text-gray-500">Unidade:</span>
                             <p className="font-medium">{paciente.unidade_saude}</p>
+                            {paciente.cidade && <p className="text-xs text-gray-500">📍 {paciente.cidade}</p>}
                           </div>
                           <div>
                             <span className="text-gray-500">Idade/Sexo:</span>
@@ -380,6 +381,9 @@ export default function Dashboard() {
                           <div>
                             <span className="text-gray-500">Status:</span>
                             <p className="font-medium">{paciente.status}</p>
+                            {paciente.regulacao_central?.unidade_destino && (
+                              <p className="text-xs text-blue-600 font-semibold">→ {paciente.regulacao_central.unidade_destino}</p>
+                            )}
                           </div>
                         </div>
 
