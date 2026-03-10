@@ -5,13 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, FileText, Download, CheckCircle, AlertCircle, Heart, Activity, Truck } from "lucide-react";
+import { ArrowLeft, Download, CheckCircle, AlertCircle, Heart, Activity, Truck } from "lucide-react";
 import { format, differenceInMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import TempoDor from "./TempoDor";
-import InfoTransporte from "./InfoTransporte";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 
