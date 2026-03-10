@@ -26,7 +26,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
     celular: dadosPaciente.medico_celular || ""
   });
   const [confirmacaoHemodinamica, setConfirmacaoHemodinamica] = useState(null);
-  const [infoTransporte, setInfoTransporte] = useState(dadosPaciente.info_transporte || {});
+  const [infoTransporte, setInfoTransporte] = useState(dadosPaciente.avaliacao_clinica?.info_transporte || dadosPaciente.info_transporte || {});
 
   const updatePacienteMutation = useMutation({
     mutationFn: async (dados) => {
