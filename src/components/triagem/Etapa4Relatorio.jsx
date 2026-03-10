@@ -11,6 +11,7 @@ import { ptBR } from "date-fns/locale";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import TempoDor from "./TempoDor";
+import InfoTransporte from "./InfoTransporte";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 
