@@ -418,8 +418,11 @@ Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString(
       : "SCA";
     const assunto = encodeURIComponent(`[VAGA] ${getNomePaciente()} | ${classificacaoLocal} | ${paciente?.status || "Aguardando Regulação"} | ${getUnidade()}`);
     const linkPDF = pdfUrl ? `\n\n🔗 Link do Formulário PDF (para download):\n${pdfUrl}\n` : "\n\n⚠️ Gere e baixe o PDF antes de enviar e o anexe neste e-mail.\n";
+    const documentosLinksEmail = formData.documentos.length > 0
+      ? "\n\n📎 DOCUMENTOS ANEXADOS:\n" + formData.documentos.map((doc, idx) => `${idx + 1}. ${doc.nome || `Documento ${idx + 1}`}\n   🔗 ${doc.url}`).join("\n")
+      : "";
     const corpo = encodeURIComponent(
-      `Prezados,\n\nSegue solicitação de vaga do paciente ${getNomePaciente()}.\n\nID no Sistema: ${pacienteId || "Sem ID"}\nStatus Atual: ${paciente?.status || "Aguardando Regulação"}\nClassificação: ${classificacaoLocal}\nMacrorregião: ${getMacro()}\nUnidade: ${getUnidade()}\nEspecialidade: ${formData.especialidade_solicitada}\nHipótese Diagnóstica: ${formData.hipotese_diagnostica}${linkPDF}\nAtenciosamente,\n${user?.full_name || ""}\n${getUnidade()}`
+      `Prezados,\n\nSegue solicitação de vaga do paciente ${getNomePaciente()}.\n\nID no Sistema: ${pacienteId || "Sem ID"}\nStatus Atual: ${paciente?.status || "Aguardando Regulação"}\nClassificação: ${classificacaoLocal}\nMacrorregião: ${getMacro()}\nUnidade: ${getUnidade()}\nEspecialidade: ${formData.especialidade_solicitada}\nHipótese Diagnóstica: ${formData.hipotese_diagnostica}${linkPDF}${documentosLinksEmail}\n\nAtenciosamente,\n${user?.full_name || ""}\n${getUnidade()}`
     );
     window.open(`mailto:${emailCERH}?subject=${assunto}&body=${corpo}`, '_blank');
   };
