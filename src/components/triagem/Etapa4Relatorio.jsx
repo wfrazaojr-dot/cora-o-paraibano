@@ -159,7 +159,6 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         medico_celular: medico.celular,
         tempo_deslocamento_minutos: confirmacaoHemodinamica ? 60 : 120,
         usa_disponivel_menos_90min: confirmacaoHemodinamica,
-        info_transporte: infoTransporte,
         status: "Aguardando Assessoria",
         relatorio_triagem_url: pdfUrl,
         alerta_formulario_vaga: true,
