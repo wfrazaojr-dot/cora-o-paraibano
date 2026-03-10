@@ -6,13 +6,16 @@ import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Clock, Users, Activity, Eye, FileText } from "lucide-react";
+import { AlertTriangle, Clock, Users, Activity, Eye, FileText, Search, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { format, differenceInHours } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [filtroSelecionado, setFiltroSelecionado] = useState("todos");
+  const [busca, setBusca] = useState("");
+  const [filtroCidade, setFiltroCidade] = useState("");
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],

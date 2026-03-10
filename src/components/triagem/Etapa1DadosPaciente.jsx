@@ -21,6 +21,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
 
   const [dados, setDados] = useState({
     unidade_saude: "",
+    cidade: "",
     macrorregiao: "",
     nome_completo: "",
     data_nascimento: "",
