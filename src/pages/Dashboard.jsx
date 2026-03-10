@@ -16,6 +16,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [filtroSelecionado, setFiltroSelecionado] = useState("todos");
   const [busca, setBusca] = useState("");
+  const [filtroMacro, setFiltroMacro] = useState("");
   const [filtroCidade, setFiltroCidade] = useState("");
 
   const { data: user } = useQuery({
