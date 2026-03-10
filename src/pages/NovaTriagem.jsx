@@ -61,19 +61,8 @@ export default function NovaTriagem() {
         return resultado;
       }
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pacientes'] });
-      if (data) {
-        setDadosPaciente(prevDados => ({
-          ...prevDados,
-          ...data,
-          // Deep merge avaliacao_clinica para preservar info_transporte preenchido na Etapa 3
-          avaliacao_clinica: {
-            ...prevDados.avaliacao_clinica,
-            ...(data.avaliacao_clinica || {})
-          }
-        }));
-      }
     },
   });
 
