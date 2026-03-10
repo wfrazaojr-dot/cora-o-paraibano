@@ -126,15 +126,28 @@ export default function Dashboard() {
       p.unidade_saude?.toLowerCase().includes(termo)
     );
   }
-  if (filtroCidade.trim()) {
-    const termoCidade = filtroCidade.toLowerCase();
+  if (filtroMacro) {
+    pacientesFiltrados = pacientesFiltrados.filter(p => p.macrorregiao === filtroMacro);
+  }
+
+  if (filtroCidade) {
+    pacientesFiltrados = pacientesFiltrados.filter(p => p.cidade === filtroCidade);
+  }
+
+  if (busca.trim()) {
+    const termo = busca.toLowerCase();
     pacientesFiltrados = pacientesFiltrados.filter(p =>
-      p.cidade?.toLowerCase().includes(termoCidade)
+      p.nome_completo?.toLowerCase().includes(termo) ||
+      p.unidade_saude?.toLowerCase().includes(termo)
     );
   }
 
-  // Lista de cidades disponíveis para o autocomplete
-  const cidadesDisponiveis = [...new Set(pacientesRegulacao.map(p => p.cidade).filter(Boolean))].sort();
+  // Cidades disponíveis com base na macro selecionada (ou todas presentes nos dados)
+  const cidadesDisponiveis = filtroMacro && CIDADES_POR_MACRO[filtroMacro]
+    ? CIDADES_POR_MACRO[filtroMacro].filter(c =>
+        pacientesRegulacao.some(p => p.cidade === c)
+      )
+    : [...new Set(pacientesRegulacao.map(p => p.cidade).filter(Boolean))].sort();
 
   if (!user) {
     return (
