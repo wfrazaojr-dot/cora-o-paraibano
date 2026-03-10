@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { CIDADES_POR_MACRO } from "@/components/data/cidadesParaiba";
@@ -118,14 +119,6 @@ export default function Dashboard() {
   if (filtroSelecionado === "aguardando_hemodinamica") pacientesFiltrados = aguardandoHemodinamica;
   if (filtroSelecionado === "janela_terapeutica") pacientesFiltrados = dentroDaJanela;
 
-  // Aplicar filtros de busca textual
-  if (busca.trim()) {
-    const termo = busca.toLowerCase();
-    pacientesFiltrados = pacientesFiltrados.filter(p =>
-      p.nome_completo?.toLowerCase().includes(termo) ||
-      p.unidade_saude?.toLowerCase().includes(termo)
-    );
-  }
   if (filtroMacro) {
     pacientesFiltrados = pacientesFiltrados.filter(p => p.macrorregiao === filtroMacro);
   }
