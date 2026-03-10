@@ -287,12 +287,12 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Barra de Busca */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-4">
-          <div className="relative flex-1">
+        {/* Barra de Busca e Filtros */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-4 flex-wrap">
+          <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
-              placeholder="Buscar por nome do paciente ou unidade de saúde..."
+              placeholder="Buscar por nome ou unidade de saúde..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               className="pl-9"
@@ -303,24 +303,42 @@ export default function Dashboard() {
               </button>
             )}
           </div>
-          <div className="relative sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Filtrar por cidade..."
+
+          <div className="relative sm:w-44">
+            <select
+              value={filtroMacro}
+              onChange={(e) => { setFiltroMacro(e.target.value); setFiltroCidade(""); }}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <option value="">Todas as Macros</option>
+              <option value="Macro 1">Macro 1</option>
+              <option value="Macro 2">Macro 2</option>
+              <option value="Macro 3">Macro 3</option>
+            </select>
+          </div>
+
+          <div className="relative sm:w-52">
+            <select
               value={filtroCidade}
               onChange={(e) => setFiltroCidade(e.target.value)}
-              className="pl-9"
-              list="cidades-list"
-            />
-            <datalist id="cidades-list">
-              {cidadesDisponiveis.map(c => <option key={c} value={c} />)}
-            </datalist>
-            {filtroCidade && (
-              <button onClick={() => setFiltroCidade("")} className="absolute right-3 top-1/2 -translate-y-1/2">
-                <X className="w-4 h-4 text-gray-400 hover:text-gray-600" />
-              </button>
-            )}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              disabled={!filtroMacro}
+            >
+              <option value="">{filtroMacro ? "Todas as cidades" : "Selecione uma Macro"}</option>
+              {cidadesDisponiveis.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
           </div>
+
+          {(filtroMacro || filtroCidade || busca) && (
+            <button
+              onClick={() => { setFiltroMacro(""); setFiltroCidade(""); setBusca(""); }}
+              className="flex items-center gap-1 text-sm text-red-600 hover:text-red-800 font-medium px-2"
+            >
+              <X className="w-4 h-4" /> Limpar filtros
+            </button>
+          )}
         </div>
 
         {/* Lista de Pacientes */}
