@@ -145,7 +145,7 @@ export default function FormularioVaga() {
     }
     setUploadingFiles(true);
     const results = await Promise.all(files.map(file => base44.integrations.Core.UploadFile({ file })));
-    const fileUrls = results.map((r, i) => ({ url: r.file_url, nome: files[i].name }));
+    const fileUrls = results.map((r, i) => ({ file_url: r.file_url, nome: files[i].name }));
     setFormData(prev => ({ ...prev, documentos: [...prev.documentos, ...fileUrls] }));
     toast.success(`${files.length} arquivo(s) enviado(s) com sucesso!`);
     setUploadingFiles(false);
@@ -293,7 +293,7 @@ export default function FormularioVaga() {
     titulo("DOCUMENTOS ANEXADOS");
     if (formData.documentos.length > 0) {
       formData.documentos.forEach((doc, i) => {
-        addRow([[`Documento ${i + 1}`, doc.nome || doc.url]]);
+        addRow([[`Documento ${i + 1}`, doc.nome || doc.file_url]]);
       });
     } else {
       addRow([["Documentos", "Nenhum documento anexado"]]);
@@ -366,7 +366,7 @@ export default function FormularioVaga() {
         const idPaciente = pacienteId || "Sem ID";
 
         const documentosLinks = formData.documentos.length > 0
-          ? "\n\n📎 DOCUMENTOS ANEXADOS:\n" + formData.documentos.map((doc, idx) => `${idx + 1}. ${doc.nome || `Documento ${idx + 1}`}\n   🔗 ${doc.url}`).join("\n")
+          ? "\n\n📎 DOCUMENTOS ANEXADOS:\n" + formData.documentos.map((doc, idx) => `${idx + 1}. ${doc.nome || `Documento ${idx + 1}`}\n   🔗 ${doc.file_url}`).join("\n")
           : "";
 
         const emailBody = `FORMULÁRIO DE SOLICITAÇÃO DE VAGA - Sistema Coração Paraibano
@@ -419,7 +419,7 @@ Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString(
     const assunto = encodeURIComponent(`[VAGA] ${getNomePaciente()} | ${classificacaoLocal} | ${paciente?.status || "Aguardando Regulação"} | ${getUnidade()}`);
     const linkPDF = pdfUrl ? `\n\n🔗 Link do Formulário PDF (para download):\n${pdfUrl}\n` : "\n\n⚠️ Gere e baixe o PDF antes de enviar e o anexe neste e-mail.\n";
     const documentosLinksEmail = formData.documentos.length > 0
-      ? "\n\n📎 DOCUMENTOS ANEXADOS:\n" + formData.documentos.map((doc, idx) => `${idx + 1}. ${doc.nome || `Documento ${idx + 1}`}\n   🔗 ${doc.url}`).join("\n")
+      ? "\n\n📎 DOCUMENTOS ANEXADOS:\n" + formData.documentos.map((doc, idx) => `${idx + 1}. ${doc.nome || `Documento ${idx + 1}`}\n   🔗 ${doc.file_url}`).join("\n")
       : "";
     const corpo = encodeURIComponent(
       `Prezados,\n\nSegue solicitação de vaga do paciente ${getNomePaciente()}.\n\nID no Sistema: ${pacienteId || "Sem ID"}\nStatus Atual: ${paciente?.status || "Aguardando Regulação"}\nClassificação: ${classificacaoLocal}\nMacrorregião: ${getMacro()}\nUnidade: ${getUnidade()}\nEspecialidade: ${formData.especialidade_solicitada}\nHipótese Diagnóstica: ${formData.hipotese_diagnostica}${linkPDF}${documentosLinksEmail}\n\nAtenciosamente,\n${user?.full_name || ""}\n${getUnidade()}`
@@ -650,7 +650,7 @@ Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString(
               {formData.documentos.length > 0 && (
                 <div className="space-y-2">
                   {formData.documentos.map((doc, idx) => {
-                    const isImage = doc.url && /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(doc.url);
+                    const isImage = doc.file_url && /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(doc.file_url);
                     return (
                       <div key={idx} className="bg-green-50 border border-green-200 rounded-lg p-3">
                         <div className="flex items-center justify-between mb-2">
@@ -660,10 +660,10 @@ Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString(
                           </Button>
                         </div>
                         {isImage && (
-                          <img src={doc.url} alt={doc.nome || `Documento ${idx + 1}`} className="max-h-48 max-w-full rounded border border-green-300 object-contain" />
+                          <img src={doc.file_url} alt={doc.nome || `Documento ${idx + 1}`} className="max-h-48 max-w-full rounded border border-green-300 object-contain" />
                         )}
-                        {!isImage && doc.url && (
-                          <a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline">Visualizar arquivo</a>
+                        {!isImage && doc.file_url && (
+                          <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline">Visualizar arquivo</a>
                         )}
                       </div>
                     );
