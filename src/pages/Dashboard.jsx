@@ -272,6 +272,42 @@ export default function Dashboard() {
           </Card>
         </div>
 
+        {/* Barra de Busca */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Buscar por nome do paciente ou unidade de saúde..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className="pl-9"
+            />
+            {busca && (
+              <button onClick={() => setBusca("")} className="absolute right-3 top-1/2 -translate-y-1/2">
+                <X className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+              </button>
+            )}
+          </div>
+          <div className="relative sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Filtrar por cidade..."
+              value={filtroCidade}
+              onChange={(e) => setFiltroCidade(e.target.value)}
+              className="pl-9"
+              list="cidades-list"
+            />
+            <datalist id="cidades-list">
+              {cidadesDisponiveis.map(c => <option key={c} value={c} />)}
+            </datalist>
+            {filtroCidade && (
+              <button onClick={() => setFiltroCidade("")} className="absolute right-3 top-1/2 -translate-y-1/2">
+                <X className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Lista de Pacientes */}
         <Card>
           <CardHeader>
