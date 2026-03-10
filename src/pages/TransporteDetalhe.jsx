@@ -117,7 +117,10 @@ export default function TransporteDetalhe() {
       alert("Transporte concluído! Relatório PDF gerado e aberto.");
       navigate(createPageUrl("Dashboard"));
     },
-    onError: () => setGerandoPDF(false)
+    onError: (err) => {
+      setGerandoPDF(false);
+      alert(err.message || "Erro ao gerar relatório. Tente novamente.");
+    }
   });
 
   const finalizarComIntercorrencia = useMutation({

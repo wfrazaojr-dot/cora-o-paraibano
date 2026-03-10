@@ -178,7 +178,12 @@ Deno.serve(async (req) => {
     doc.text(`Gerado em: ${fmt(new Date().toISOString())}`, 20, pageHeight - 4);
 
     const pdfData = doc.output('arraybuffer');
-    const pdfBase64 = btoa(String.fromCharCode(...new Uint8Array(pdfData)));
+    const bytes = new Uint8Array(pdfData);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    const pdfBase64 = btoa(binary);
 
     const uploadResult = await base44.integrations.Core.UploadFile({
       file: `data:application/pdf;base64,${pdfBase64}`
