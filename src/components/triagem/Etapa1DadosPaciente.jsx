@@ -6,6 +6,7 @@ import { ArrowRight, ArrowLeft, Clock, Building2, AlertCircle } from "lucide-rea
 import { format, differenceInMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { base44 } from "@/api/base44Client";
+import { CIDADES_POR_MACRO } from "@/components/data/cidadesParaiba";
 
 
 export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnterior, modoLeitura = false, permitirNavegacao = false }) {
