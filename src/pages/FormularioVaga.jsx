@@ -365,6 +365,10 @@ export default function FormularioVaga() {
         const statusAtual = paciente?.status || "Aguardando Regulação";
         const idPaciente = pacienteId || "Sem ID";
 
+        const documentosLinks = formData.documentos.length > 0
+          ? "\n\n📎 DOCUMENTOS ANEXADOS:\n" + formData.documentos.map((doc, idx) => `${idx + 1}. ${doc.nome || `Documento ${idx + 1}`}\n   🔗 ${doc.url}`).join("\n")
+          : "";
+
         const emailBody = `FORMULÁRIO DE SOLICITAÇÃO DE VAGA - Sistema Coração Paraibano
 Data/Hora: ${new Date().toLocaleString('pt-BR')} | Macrorregião: ${getMacro()} | ID: ${idPaciente}
 
@@ -380,7 +384,8 @@ Medicações: ${formData.medicacoes_uso_continuo === 'NÃO SABE INFORMAR' ? 'NÃ
 Comorbidades: ${[...formData.comorbidades, formData.comorbidades_outras].filter(Boolean).join(', ') || "Nenhuma"}
 
 SOLICITAÇÃO: Leito de ${formData.solicita_leito || "—"} | Médico: ${formData.medico_solicitante || "—"} CRM ${formData.crm_solicitante || "—"}
-${urlFormulario}
+${urlFormulario}${documentosLinks}
+
 Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString('pt-BR')}`;
 
         await base44.integrations.Core.SendEmail({
