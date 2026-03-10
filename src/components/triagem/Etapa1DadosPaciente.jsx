@@ -132,6 +132,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
 
     onProxima({
       ...dados,
+      cidade: dados.cidade,
       idade: idadeCalculada,
       data_hora_chegada: dataChegada,
       data_hora_inicio_sintomas: dataHoraInicioSintomas,
@@ -180,6 +181,17 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
         <p className="text-xs text-green-700 mt-2 font-medium">
           ⚠️ Este nome aparecerá nos relatórios e documentos oficiais - campo obrigatório
         </p>
+        <div className="mt-3 space-y-1">
+          <Label htmlFor="cidade" className="text-sm font-semibold text-green-900">Cidade da Unidade de Saúde *</Label>
+          <Input
+            id="cidade"
+            value={dados.cidade}
+            onChange={(e) => setDados(prev => ({...prev, cidade: e.target.value}))}
+            placeholder="Ex: João Pessoa, Campina Grande, Patos..."
+            className="border-2 border-green-400"
+            disabled={modoLeitura}
+          />
+        </div>
       </div>
 
       <div className="bg-teal-50 border-2 border-teal-300 rounded-lg p-4">
