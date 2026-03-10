@@ -241,6 +241,12 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         </div>
       </div>
 
+      {/* Informações para Transporte */}
+      <InfoTransporte
+        dados={infoTransporte}
+        onChange={(campo, valor) => setInfoTransporte(prev => ({ ...prev, [campo]: valor }))}
+      />
+
       {/* Disponibilidade de USA */}
       <div className="bg-orange-50 border-2 border-orange-300 rounded-lg p-6">
         <div className="flex items-center gap-3 mb-4">
