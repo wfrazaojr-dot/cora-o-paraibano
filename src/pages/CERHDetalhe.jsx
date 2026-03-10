@@ -106,7 +106,16 @@ export default function CERHDetalhe() {
   const salvarRegulacao = useMutation({
     mutationFn: async () => {
       const regulacaoData = {
-        ...formData,
+        medico_regulador_nome: formData.medico_regulador_nome,
+        medico_regulador_crm: formData.medico_regulador_crm,
+        conduta_inicial: formData.conduta_inicial,
+        conduta_inicial_outros: formData.conduta_inicial_outros,
+        conduta_final: formData.conduta_final,
+        unidade_destino: formData.unidade_destino,
+        enfermeiro_regulador_nome: formData.enfermeiro_nome,
+        enfermeiro_regulador_coren: formData.enfermeiro_coren,
+        senha_ses: formData.senha_ses,
+        observacoes_regulacao: formData.observacoes_regulacao,
         data_hora: new Date().toISOString()
       };
       // Primeiro salva os dados para que o ref do relatório seja renderizado
