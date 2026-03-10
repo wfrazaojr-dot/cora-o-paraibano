@@ -163,54 +163,8 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
         </div>
       </div>
 
-      <div className="bg-green-50 border-2 border-green-300 rounded-lg p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <Building2 className="w-5 h-5 text-green-700" />
-          <Label htmlFor="unidade_saude" className="text-base font-semibold text-green-900">
-            Nome da Unidade de Saúde *
-          </Label>
-        </div>
-        <Input
-          id="unidade_saude"
-          value={dados.unidade_saude}
-          onChange={(e) => setDados(prev => ({...prev, unidade_saude: e.target.value}))}
-          placeholder="Ex: Hospital Municipal São José, UPA Centro, etc."
-          required
-          className="text-base border-2 border-green-400"
-          disabled={modoLeitura}
-        />
-        <p className="text-xs text-green-700 mt-2 font-medium">
-          ⚠️ Este nome aparecerá nos relatórios e documentos oficiais - campo obrigatório
-        </p>
-        <div className="mt-3 space-y-1">
-          <Label htmlFor="cidade" className="text-sm font-semibold text-green-900">Cidade da Unidade de Saúde *</Label>
-          {dados.macrorregiao && CIDADES_POR_MACRO[dados.macrorregiao] ? (
-            <select
-              id="cidade"
-              value={dados.cidade}
-              onChange={(e) => setDados(prev => ({...prev, cidade: e.target.value}))}
-              className="flex h-10 w-full rounded-md border-2 border-green-400 bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              disabled={modoLeitura}
-            >
-              <option value="">Selecione a cidade</option>
-              {CIDADES_POR_MACRO[dados.macrorregiao].map(cidade => (
-                <option key={cidade} value={cidade}>{cidade}</option>
-              ))}
-            </select>
-          ) : (
-            <Input
-              id="cidade"
-              value={dados.cidade}
-              disabled
-              placeholder="Selecione primeiro a Macrorregião acima"
-              className="border-2 border-green-200 bg-gray-50 text-gray-400"
-            />
-          )}
-        </div>
-      </div>
-
-      <div className="bg-teal-50 border-2 border-teal-300 rounded-lg p-4">
-        <Label className="text-base font-semibold text-teal-900 mb-3 block">
+      <div className="bg-teal-50 border-2 border-teal-300 rounded-lg p-4 space-y-4">
+        <Label className="text-base font-semibold text-teal-900 block">
           Macrorregião de Saúde *
         </Label>
         <div className="flex gap-3">
@@ -228,6 +182,53 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
               {macro}
             </button>
           ))}
+        </div>
+
+        <div className="space-y-1">
+          <Label htmlFor="cidade" className="text-sm font-semibold text-teal-900">Cidade da Unidade de Saúde *</Label>
+          {dados.macrorregiao && CIDADES_POR_MACRO[dados.macrorregiao] ? (
+            <select
+              id="cidade"
+              value={dados.cidade}
+              onChange={(e) => setDados(prev => ({...prev, cidade: e.target.value}))}
+              className="flex h-10 w-full rounded-md border-2 border-teal-400 bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              disabled={modoLeitura}
+            >
+              <option value="">Selecione a cidade</option>
+              {CIDADES_POR_MACRO[dados.macrorregiao].map(cidade => (
+                <option key={cidade} value={cidade}>{cidade}</option>
+              ))}
+            </select>
+          ) : (
+            <Input
+              id="cidade"
+              value={dados.cidade}
+              disabled
+              placeholder="Selecione primeiro a Macrorregião acima"
+              className="border-2 border-teal-200 bg-gray-50 text-gray-400"
+            />
+          )}
+        </div>
+
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Building2 className="w-4 h-4 text-teal-700" />
+            <Label htmlFor="unidade_saude" className="text-sm font-semibold text-teal-900">
+              Nome da Unidade de Saúde *
+            </Label>
+          </div>
+          <Input
+            id="unidade_saude"
+            value={dados.unidade_saude}
+            onChange={(e) => setDados(prev => ({...prev, unidade_saude: e.target.value}))}
+            placeholder="Ex: Hospital Municipal São José, UPA Centro, etc."
+            required
+            className="text-base border-2 border-teal-400"
+            disabled={modoLeitura}
+          />
+          <p className="text-xs text-teal-700 mt-1 font-medium">
+            ⚠️ Este nome aparecerá nos relatórios e documentos oficiais - campo obrigatório
+          </p>
         </div>
       </div>
 
