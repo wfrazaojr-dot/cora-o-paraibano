@@ -605,31 +605,24 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         )}
 
         {/* Informações para Transporte */}
-        {dadosPaciente.transporte && (
+        {Object.keys(infoTransporte).length > 0 && (
           <div className="mb-3">
             <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">INFORMAÇÕES PARA TRANSPORTE</h2>
-            <div className="space-y-1 text-xs">
-              {dadosPaciente.transporte.data_hora_solicitacao && (
-                <div><span className="font-semibold">Solicitação:</span> {format(new Date(dadosPaciente.transporte.data_hora_solicitacao), "dd/MM/yy HH:mm", { locale: ptBR })}</div>
-              )}
-              {dadosPaciente.transporte.data_hora_inicio && (
-                <div><span className="font-semibold">Início:</span> {format(new Date(dadosPaciente.transporte.data_hora_inicio), "dd/MM/yy HH:mm", { locale: ptBR })}</div>
-              )}
-              {dadosPaciente.transporte.data_hora_chegada_destino && (
-                <div><span className="font-semibold">Chegada Destino:</span> {format(new Date(dadosPaciente.transporte.data_hora_chegada_destino), "dd/MM/yy HH:mm", { locale: ptBR })}</div>
-              )}
-              {dadosPaciente.transporte.equipe_responsavel && (
-                <div><span className="font-semibold">Equipe Responsável:</span> {dadosPaciente.transporte.equipe_responsavel}</div>
-              )}
-              {dadosPaciente.transporte.tipo_transporte && (
-                <div><span className="font-semibold">Tipo de Transporte:</span> {dadosPaciente.transporte.tipo_transporte}</div>
-              )}
-              {dadosPaciente.transporte.status_transporte && (
-                <div><span className="font-semibold">Status:</span> {dadosPaciente.transporte.status_transporte}</div>
-              )}
-              {dadosPaciente.transporte.intercorrencias && (
-                <div><span className="font-semibold">Intercorrências:</span> {dadosPaciente.transporte.intercorrencias}</div>
-              )}
+            <div className="grid grid-cols-2 gap-1 text-xs">
+              {infoTransporte.glasgow && <div><span className="font-semibold">Glasgow:</span> {infoTransporte.glasgow}</div>}
+              {infoTransporte.ar_ambiente !== undefined && <div><span className="font-semibold">Ar Ambiente:</span> {infoTransporte.ar_ambiente ? "Sim" : "Não"}</div>}
+              {infoTransporte.cateter_nasal !== undefined && <div><span className="font-semibold">Cateter Nasal:</span> {infoTransporte.cateter_nasal ? "Sim" : "Não"}</div>}
+              {infoTransporte.mascara_o2 !== undefined && <div><span className="font-semibold">Máscara O₂:</span> {infoTransporte.mascara_o2 ? "Sim" : "Não"}</div>}
+              {infoTransporte.vm_ativo !== undefined && <div><span className="font-semibold">Ventilação Mecânica:</span> {infoTransporte.vm_ativo ? "Sim" : "Não"}</div>}
+              {infoTransporte.vm_ativo && infoTransporte.vm_modo && <div><span className="font-semibold">Modo VM:</span> {infoTransporte.vm_modo}</div>}
+              {infoTransporte.vm_ativo && infoTransporte.vm_fr && <div><span className="font-semibold">FR:</span> {infoTransporte.vm_fr} ipm</div>}
+              {infoTransporte.vm_ativo && infoTransporte.vm_peep && <div><span className="font-semibold">PEEP:</span> {infoTransporte.vm_peep} cmH₂O</div>}
+              {infoTransporte.vm_ativo && infoTransporte.vm_fio2 && <div><span className="font-semibold">FiO₂:</span> {infoTransporte.vm_fio2}%</div>}
+              {infoTransporte.analgesia_sedacao !== undefined && <div><span className="font-semibold">Analgesia/Sedação:</span> {infoTransporte.analgesia_sedacao ? "Sim" : "Não"}</div>}
+              {infoTransporte.analgesia_sedacao && infoTransporte.analgesia_drogas?.length > 0 && <div className="col-span-2"><span className="font-semibold">Drogas Sedação:</span> {infoTransporte.analgesia_drogas.join(", ")}</div>}
+              {infoTransporte.dva !== undefined && <div><span className="font-semibold">DVA:</span> {infoTransporte.dva ? "Sim" : "Não"}</div>}
+              {infoTransporte.dva && infoTransporte.dva_drogas?.length > 0 && <div className="col-span-2"><span className="font-semibold">Drogas DVA:</span> {infoTransporte.dva_drogas.join(", ")}</div>}
+              {infoTransporte.marcapasso_transcutaneo !== undefined && <div><span className="font-semibold">Marcapasso Transcutâneo:</span> {infoTransporte.marcapasso_transcutaneo ? "Sim" : "Não"}</div>}
             </div>
           </div>
         )}
