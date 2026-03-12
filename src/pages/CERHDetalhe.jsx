@@ -221,6 +221,9 @@ export default function CERHDetalhe() {
               <div><span className="font-semibold">Idade:</span> {paciente?.idade} anos | <span className="font-semibold">Sexo:</span> {paciente?.sexo}</div>
               <div><span className="font-semibold">Unidade de Origem:</span> {paciente?.unidade_saude}</div>
               <div><span className="font-semibold">Macrorregiâo:</span> {paciente?.macrorregiao}</div>
+              {paciente?.formulario_vaga?.email_unidade_solicitante && (
+                <div className="col-span-2"><span className="font-semibold">E-mail Unidade Solicitante:</span> {paciente.formulario_vaga.email_unidade_solicitante}</div>
+              )}
             </div>
           </div>
 
@@ -293,29 +296,6 @@ export default function CERHDetalhe() {
                 <p><span className="font-semibold">Cardiologista:</span> {paciente.assessoria_cardiologia.cardiologista_nome} - CRM {paciente.assessoria_cardiologia.cardiologista_crm}</p>
                 {paciente.assessoria_cardiologia.diagnostico && <p><span className="font-semibold">Diagnóstico:</span> {paciente.assessoria_cardiologia.diagnostico}</p>}
                 {paciente.assessoria_cardiologia.conduta && <p><span className="font-semibold">Conduta:</span> {paciente.assessoria_cardiologia.conduta}</p>}
-              </div>
-            </div>
-          )}
-
-          {/* Documentos Anexados do Formulário de Vaga */}
-          {paciente?.formulario_vaga?.documentos && paciente.formulario_vaga.documentos.length > 0 && (
-            <div className="mb-4">
-              <h2 className="text-base font-bold text-gray-900 mb-2 pb-1 border-b border-gray-300">DOCUMENTOS ANEXADOS (FORMULÁRIO DE VAGA)</h2>
-              <div className="grid grid-cols-2 gap-2">
-                {paciente.formulario_vaga.documentos.map((doc, idx) => (
-                  <div key={idx} className="border border-gray-300 p-1">
-                    {doc.file_url && (
-                      <img 
-                        src={doc.file_url} 
-                        alt={`Documento ${idx + 1}`}
-                        className="w-full h-auto object-contain"
-                        crossOrigin="anonymous"
-                        style={{ maxHeight: '300px' }}
-                      />
-                    )}
-                    {doc.nome && <p className="text-xs text-gray-600 mt-1 text-center">{doc.nome}</p>}
-                  </div>
-                ))}
               </div>
             </div>
           )}
