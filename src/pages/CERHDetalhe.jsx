@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Radio, FileText, Save, Heart, Download, AlertTriangle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import DadosPaciente from "@/components/regulacao/DadosPaciente";
@@ -34,6 +35,7 @@ export default function CERHDetalhe() {
     conduta_inicial_outros: "",
     conduta_final: "",
     unidade_destino: "",
+    unidade_destino_outro: "",
     enfermeiro_nome: "",
     enfermeiro_coren: "",
     senha_ses: "",
@@ -49,13 +51,20 @@ export default function CERHDetalhe() {
   useEffect(() => {
     if (paciente?.regulacao_central) {
       const r = paciente.regulacao_central;
+      const unidades = [
+        "Hospital Metropolitano Dom José Maria Pires",
+        "Hospital de Emergência e Trauma Dom Luiz Gonzaga Fernandes",
+        "Hospital Regional de Patos Deputado Janduhy Carneiro"
+      ];
+      const isPreset = unidades.includes(r.unidade_destino);
       setFormData({
         medico_regulador_nome: r.medico_regulador_nome || "",
         medico_regulador_crm: r.medico_regulador_crm || "",
         conduta_inicial: r.conduta_inicial || [],
         conduta_inicial_outros: r.conduta_inicial_outros || "",
         conduta_final: r.conduta_final || "",
-        unidade_destino: r.unidade_destino || "",
+        unidade_destino: isPreset ? r.unidade_destino : (r.unidade_destino ? "outro" : ""),
+        unidade_destino_outro: isPreset ? "" : (r.unidade_destino || ""),
         enfermeiro_nome: r.enfermeiro_regulador_nome || "",
         enfermeiro_coren: r.enfermeiro_regulador_coren || "",
         senha_ses: r.senha_ses || "",
@@ -105,13 +114,14 @@ export default function CERHDetalhe() {
 
   const salvarRascunho = useMutation({
     mutationFn: async () => {
+      const unidadeDestino = formData.unidade_destino === "outro" ? formData.unidade_destino_outro : formData.unidade_destino;
       const regulacaoData = {
         medico_regulador_nome: formData.medico_regulador_nome,
         medico_regulador_crm: formData.medico_regulador_crm,
         conduta_inicial: formData.conduta_inicial,
         conduta_inicial_outros: formData.conduta_inicial_outros,
         conduta_final: formData.conduta_final,
-        unidade_destino: formData.unidade_destino,
+        unidade_destino: unidadeDestino,
         enfermeiro_regulador_nome: formData.enfermeiro_nome,
         enfermeiro_regulador_coren: formData.enfermeiro_coren,
         senha_ses: formData.senha_ses,
@@ -130,13 +140,14 @@ export default function CERHDetalhe() {
 
   const salvarRegulacao = useMutation({
     mutationFn: async () => {
+      const unidadeDestino = formData.unidade_destino === "outro" ? formData.unidade_destino_outro : formData.unidade_destino;
       const regulacaoData = {
         medico_regulador_nome: formData.medico_regulador_nome,
         medico_regulador_crm: formData.medico_regulador_crm,
         conduta_inicial: formData.conduta_inicial,
         conduta_inicial_outros: formData.conduta_inicial_outros,
         conduta_final: formData.conduta_final,
-        unidade_destino: formData.unidade_destino,
+        unidade_destino: unidadeDestino,
         enfermeiro_regulador_nome: formData.enfermeiro_nome,
         enfermeiro_regulador_coren: formData.enfermeiro_coren,
         senha_ses: formData.senha_ses,
@@ -666,13 +677,35 @@ export default function CERHDetalhe() {
                   />
                 </div>
 
-                <div>
+                <div className="space-y-2">
                   <Label>Unidade de Saúde de Destino</Label>
-                  <Input
+                  <Select
                     value={formData.unidade_destino}
-                    onChange={(e) => setFormData({...formData, unidade_destino: e.target.value})}
-                    placeholder="Hospital/Unidade de destino"
-                  />
+                    onValueChange={(value) => setFormData({...formData, unidade_destino: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a unidade de destino" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Hospital Metropolitano Dom José Maria Pires">
+                        Hospital Metropolitano Dom José Maria Pires
+                      </SelectItem>
+                      <SelectItem value="Hospital de Emergência e Trauma Dom Luiz Gonzaga Fernandes">
+                        Hospital de Emergência e Trauma Dom Luiz Gonzaga Fernandes
+                      </SelectItem>
+                      <SelectItem value="Hospital Regional de Patos Deputado Janduhy Carneiro">
+                        Hospital Regional de Patos Deputado Janduhy Carneiro
+                      </SelectItem>
+                      <SelectItem value="outro">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formData.unidade_destino === "outro" && (
+                    <Input
+                      value={formData.unidade_destino_outro}
+                      onChange={(e) => setFormData({...formData, unidade_destino_outro: e.target.value})}
+                      placeholder="Digite o nome da unidade de destino"
+                    />
+                  )}
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-4">
