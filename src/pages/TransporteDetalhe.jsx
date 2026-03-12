@@ -45,6 +45,11 @@ export default function TransporteDetalhe() {
   const [formData, setFormData] = useState({
     central_transporte: "",
     tipo_transporte: "USA CORAÇÃO PARAIBANO",
+    viatura: "",
+    equipe: "",
+    medico: "",
+    enfermeiro: "",
+    condutor: "",
     intercorrencias: "",
     motivo_intercorrencia: "",
     motivo_detalhado: "",
@@ -95,12 +100,22 @@ export default function TransporteDetalhe() {
       const resultado = await base44.functions.invoke('generateRelatorioTransporte', {
         pacienteId,
         intercorrencias: formData.intercorrencias || null,
+        viatura: formData.viatura || null,
+        equipe: formData.equipe || null,
+        medico: formData.medico || null,
+        enfermeiro: formData.enfermeiro || null,
+        condutor: formData.condutor || null,
         status_final: "Concluído"
       });
       await base44.entities.Paciente.update(pacienteId, {
         transporte: {
           ...paciente.transporte,
           intercorrencias: formData.intercorrencias || "",
+          viatura: formData.viatura || "",
+          equipe: formData.equipe || "",
+          medico: formData.medico || "",
+          enfermeiro: formData.enfermeiro || "",
+          condutor: formData.condutor || "",
           data_hora_chegada_destino: new Date().toISOString(),
           status_transporte: "Concluído",
           relatorio_transporte_url: resultado.data.file_url
@@ -109,12 +124,21 @@ export default function TransporteDetalhe() {
         relatorio_transporte_url: resultado.data.file_url
       });
       setGerandoPDF(false);
-      // Abrir PDF automaticamente
+      
+      // Download automático do PDF
+      const link = document.createElement('a');
+      link.href = resultado.data.file_url;
+      link.download = `Relatorio_Transporte_${paciente.nome_completo.replace(/\s+/g, '_')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Abrir PDF em nova aba
       window.open(resultado.data.file_url, '_blank');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['paciente', pacienteId] });
-      alert("Transporte concluído! Relatório PDF gerado e aberto.");
+      alert("Transporte concluído! Relatório PDF gerado, baixado e aberto.");
       navigate(createPageUrl("Dashboard"));
     },
     onError: (err) => {
@@ -579,6 +603,51 @@ export default function TransporteDetalhe() {
                         <p className="font-bold text-indigo-700">{paciente.transporte.unidade_destino}</p>
                       </div>
                     )}
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <Label>Viatura</Label>
+                      <Input
+                        value={formData.viatura}
+                        onChange={(e) => setFormData({...formData, viatura: e.target.value})}
+                        placeholder="Identificação da viatura"
+                      />
+                    </div>
+                    <div>
+                      <Label>Equipe</Label>
+                      <Input
+                        value={formData.equipe}
+                        onChange={(e) => setFormData({...formData, equipe: e.target.value})}
+                        placeholder="Nome/identificação da equipe"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <Label>Médico</Label>
+                        <Input
+                          value={formData.medico}
+                          onChange={(e) => setFormData({...formData, medico: e.target.value})}
+                          placeholder="Nome do médico"
+                        />
+                      </div>
+                      <div>
+                        <Label>Enfermeiro</Label>
+                        <Input
+                          value={formData.enfermeiro}
+                          onChange={(e) => setFormData({...formData, enfermeiro: e.target.value})}
+                          placeholder="Nome do enfermeiro"
+                        />
+                      </div>
+                      <div>
+                        <Label>Condutor</Label>
+                        <Input
+                          value={formData.condutor}
+                          onChange={(e) => setFormData({...formData, condutor: e.target.value})}
+                          placeholder="Nome do condutor"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <div>
