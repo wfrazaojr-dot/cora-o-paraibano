@@ -289,12 +289,32 @@ export default function FormularioVaga() {
     addRow([["Médico Solicitante", formData.medico_solicitante], ["CRM", formData.crm_solicitante]]);
     y += 2;
 
-    // Documentos
+    // Documentos (com imagens se disponíveis)
     titulo("DOCUMENTOS ANEXADOS");
     if (formData.documentos.length > 0) {
-      formData.documentos.forEach((doc, i) => {
-        addRow([[`Documento ${i + 1}`, doc.nome || doc.file_url]]);
-      });
+      for (let i = 0; i < formData.documentos.length; i++) {
+        const doc = formData.documentos[i];
+        const isImage = doc.file_url && /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(doc.file_url);
+        
+        addRow([[`Documento ${i + 1}`, doc.nome || `Arquivo ${i + 1}`]]);
+        
+        if (isImage && doc.file_url) {
+          try {
+            // Adiciona imagem ao PDF
+            if (y > 200) { pdf.addPage(); y = 20; }
+            const imgWidth = contentW;
+            const imgHeight = 80; // Altura máxima da imagem
+            pdf.addImage(doc.file_url, 'JPEG', margin, y, imgWidth, imgHeight, undefined, 'FAST');
+            y += imgHeight + 4;
+            if (y > 270) { pdf.addPage(); y = 20; }
+          } catch (err) {
+            // Se falhar ao adicionar imagem, apenas mostra o link
+            addRow([[`Link`, doc.file_url]]);
+          }
+        } else {
+          addRow([[`Link`, doc.file_url]]);
+        }
+      }
     } else {
       addRow([["Documentos", "Nenhum documento anexado"]]);
     }
