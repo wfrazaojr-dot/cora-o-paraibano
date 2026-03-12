@@ -140,6 +140,57 @@ export default function ASSCARDIODetalhe() {
     cardiologista_rqe: ""
   });
 
+  // Carregar dados salvos da assessoria cardiológica
+  useEffect(() => {
+    if (!paciente?.assessoria_cardiologia) return;
+
+    const ass = paciente.assessoria_cardiologia;
+
+    // Carregar dados clínicos
+    if (ass.clinica) {
+      setClinica(ass.clinica);
+    }
+
+    // Carregar dados ECG Supra
+    if (ass.ecg_supra) {
+      setEcgSupra(ass.ecg_supra);
+    }
+
+    // Carregar dados ECG Sem Supra
+    if (ass.ecg_sem_supra) {
+      setEcgSemSupra(ass.ecg_sem_supra);
+    }
+
+    // Carregar HEART Score
+    if (ass.heart_score) {
+      setHeartScore({
+        historia: ass.heart_score.historia || 0,
+        ecg: ass.heart_score.ecg || 0,
+        idade: ass.heart_score.idade || 0,
+        risco: ass.heart_score.risco || 0,
+        troponina: ass.heart_score.troponina || 0
+      });
+    }
+
+    // Carregar pré-parecer
+    if (ass.pre_parecer) {
+      setPreParecer(ass.pre_parecer);
+      setEnfermeiroFinalizado(true);
+    }
+
+    // Carregar dados do médico
+    if (ass.cardiologista_nome || ass.parecer_cardiologista) {
+      setMedicoData({
+        confirma_triagem: ass.confirma_triagem || false,
+        diagnostico_estrategia: ass.diagnostico_estrategia || "",
+        parecer_cardiologista: ass.parecer_cardiologista || "",
+        cardiologista_nome: ass.cardiologista_nome || "",
+        cardiologista_crm: ass.cardiologista_crm || "",
+        cardiologista_rqe: ass.cardiologista_rqe || ""
+      });
+    }
+  }, [paciente]);
+
   // Calcular HEART Score total
   const calcularHeartTotal = () => {
     return heartScore.historia + heartScore.ecg + heartScore.idade + heartScore.risco + heartScore.troponina;
