@@ -103,6 +103,31 @@ export default function CERHDetalhe() {
     }
   };
 
+  const salvarRascunho = useMutation({
+    mutationFn: async () => {
+      const regulacaoData = {
+        medico_regulador_nome: formData.medico_regulador_nome,
+        medico_regulador_crm: formData.medico_regulador_crm,
+        conduta_inicial: formData.conduta_inicial,
+        conduta_inicial_outros: formData.conduta_inicial_outros,
+        conduta_final: formData.conduta_final,
+        unidade_destino: formData.unidade_destino,
+        enfermeiro_regulador_nome: formData.enfermeiro_nome,
+        enfermeiro_regulador_coren: formData.enfermeiro_coren,
+        senha_ses: formData.senha_ses,
+        observacoes_regulacao: formData.observacoes_regulacao,
+        data_hora: new Date().toISOString()
+      };
+      await base44.entities.Paciente.update(pacienteId, {
+        regulacao_central: regulacaoData
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['paciente', pacienteId]);
+      alert("Rascunho salvo com sucesso! Você pode continuar depois.");
+    }
+  });
+
   const salvarRegulacao = useMutation({
     mutationFn: async () => {
       const regulacaoData = {
@@ -687,14 +712,25 @@ export default function CERHDetalhe() {
                   />
                 </div>
 
-                <Button
-                  onClick={() => salvarRegulacao.mutate()}
-                  disabled={salvarRegulacao.isPending}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  {salvarRegulacao.isPending ? "Salvando..." : "Confirmar Regulação"}
-                </Button>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => salvarRascunho.mutate()}
+                    disabled={salvarRascunho.isPending}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {salvarRascunho.isPending ? "Salvando..." : "Salvar Rascunho"}
+                  </Button>
+                  <Button
+                    onClick={() => salvarRegulacao.mutate()}
+                    disabled={salvarRegulacao.isPending}
+                    className="flex-1 bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {salvarRegulacao.isPending ? "Salvando..." : "Confirmar Regulação"}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
