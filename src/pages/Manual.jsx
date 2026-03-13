@@ -85,7 +85,37 @@ export default function Manual() {
                     <li>Busca de vaga em unidade de destino</li>
                     <li>Emissão de senha SES para internação</li>
                     <li>Acionamento de alerta para Unidade enviar Formulário/Vaga</li>
-                    <li>Geração de relatório de regulação</li>
+                    <li>Geração de relatório de regulação com e-mail da unidade</li>
+                  </ul>
+                </div>
+
+                <div className="border-l-4 border-orange-500 pl-4">
+                  <h4 className="font-semibold mb-2">🚑 Transporte</h4>
+                  <p className="text-gray-700 mb-2">
+                    Equipe responsável pela remoção e transporte de pacientes entre unidades.
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                    <li>Monitor de transportes em tempo real</li>
+                    <li>Visualização de pacientes aguardando transporte</li>
+                    <li>Registro de início, intercorrências e conclusão de transporte</li>
+                    <li>Geração automática de relatório de transporte</li>
+                    <li>Acesso ao painel de regulação para contexto clínico</li>
+                  </ul>
+                </div>
+
+                <div className="border-l-4 border-pink-500 pl-4">
+                  <h4 className="font-semibold mb-2">💉 Hemodinâmica</h4>
+                  <p className="text-gray-700 mb-2">
+                    Equipe que realiza procedimentos de cateterismo e ICP (Intervenção Coronariana Percutânea).
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                    <li>Definição de estratégia: ICP Imediata, Estratégia Invasiva Precoce (≤24h), ou Estratégia Invasiva Durante o Internamento (≤72h)</li>
+                    <li>Agendamento de ICP para estratégias não imediatas</li>
+                    <li>Geração automática de relatório de agendamento identificando a macrorregião responsável</li>
+                    <li>Registro de chegada, início de procedimento e início de ICP</li>
+                    <li>Transferência de pacientes entre hemodinâmicas (Macro 1, 2 ou 3)</li>
+                    <li>Finalização com desfecho e geração de relatório completo</li>
+                    <li>Relatórios incluem e-mail da unidade de origem</li>
                   </ul>
                 </div>
 
@@ -173,10 +203,17 @@ export default function Manual() {
                     <ul className="list-disc pl-5">
                       <li>Visualiza o relatório de triagem da unidade</li>
                       <li>Analisa ECGs e dados clínicos</li>
-                      <li>Emite parecer técnico com diagnóstico</li>
-                      <li>Define conduta (hemodinâmica, tratamento clínico, etc)</li>
-                      <li>Classifica urgência (Emergência/Urgente/Eletivo)</li>
-                      <li>Gera relatório ASSCARDIO</li>
+                      <li>Preenche bloco clínico e analisa achados de ECG (com/sem Supra ST)</li>
+                      <li>Visualiza HEART Score calculado (para pacientes sem Supra ST com Troponina)</li>
+                      <li>Emite parecer técnico com diagnóstico e estratégia:
+                        <ul className="list-disc pl-5 mt-1">
+                          <li>Estratégia 1: Transferência imediata (IAM Supra ST ou SCA sem supra de muito alto risco)</li>
+                          <li>Estratégia 2: Estratégia Invasiva Precoce (IAM sem supra/alto risco)</li>
+                          <li>Estratégia 3: Estratégia Invasiva Durante o Internamento (SCA intermediário)</li>
+                          <li>Orientação Cardiológica</li>
+                        </ul>
+                      </li>
+                      <li>Gera relatório ASSCARDIO com e-mail da unidade</li>
                     </ul>
                   </div>
                 </div>
@@ -190,11 +227,13 @@ export default function Manual() {
                     <p>O médico regulador da CERH:</p>
                     <ul className="list-disc pl-5">
                       <li>Visualiza relatórios da Unidade e da ASSCARDIO</li>
+                      <li>Visualiza informações de agendamento de ICP quando aplicável</li>
                       <li>Define conduta inicial (ex: aguardar troponina, repetir ECG)</li>
                       <li>Define conduta final</li>
                       <li>Identifica unidade de destino</li>
                       <li>Emite senha SES para internação</li>
                       <li>Ao confirmar regulação: sistema envia alerta para Unidade enviar Formulário/Vaga</li>
+                      <li>Gera relatório de regulação com e-mail da unidade</li>
                     </ul>
                   </div>
                 </div>
@@ -209,6 +248,7 @@ export default function Manual() {
                     <ul className="list-disc pl-5">
                       <li>Dados pessoais completos do paciente (RG, CPF, CNS, endereço)</li>
                       <li>Especialidade solicitada (UTI Cardio, Hemodinâmica, Outra)</li>
+                      <li>E-mail da unidade solicitante (salvo automaticamente para inclusão em relatórios)</li>
                       <li>Dados clínicos detalhados (exame físico, sinais vitais, gasometria)</li>
                       <li>Comorbidades e medicações de uso contínuo</li>
                       <li>Conduta atual (VMI, sedação, drogas vasoativas)</li>
@@ -219,6 +259,49 @@ export default function Manual() {
                     <p className="font-semibold text-yellow-900 mt-2">
                       ⚠️ Este formulário acelera a autorização de vaga pela SES
                     </p>
+                  </div>
+                </div>
+
+                <div className="border-l-4 border-blue-500 pl-4">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Truck className="w-5 h-5" />
+                    5️⃣ Transporte
+                  </h4>
+                  <div className="space-y-2 text-sm text-gray-700">
+                    <p>A equipe de transporte:</p>
+                    <ul className="list-disc pl-5">
+                      <li>Acessa o Monitor de Transportes</li>
+                      <li>Visualiza pacientes aguardando transporte</li>
+                      <li>Registra início do transporte</li>
+                      <li>Documenta intercorrências durante o trajeto (se houver)</li>
+                      <li>Registra chegada ao destino</li>
+                      <li>Sistema gera automaticamente relatório de transporte em PDF</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="border-l-4 border-pink-500 pl-4">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Activity className="w-5 h-5" />
+                    6️⃣ Hemodinâmica
+                  </h4>
+                  <div className="space-y-2 text-sm text-gray-700">
+                    <p>A equipe de hemodinâmica:</p>
+                    <ul className="list-disc pl-5">
+                      <li><strong>Define estratégia de ICP:</strong>
+                        <ul className="list-disc pl-5 mt-1">
+                          <li>ICP Imediata (para IAM com Supra ST)</li>
+                          <li>Estratégia Invasiva Precoce (≤24h, para alto risco)</li>
+                          <li>Estratégia Invasiva Durante o Internamento (≤72h, para risco intermediário)</li>
+                        </ul>
+                      </li>
+                      <li>Para estratégias não imediatas: agenda data/hora do procedimento e gera relatório identificando a macrorregião (ex: RELATÓRIO DE AGENDAMENTO - HEMODINÂMICA MACRO 1)</li>
+                      <li>Sistema entra em standby até a data agendada</li>
+                      <li>Registra chegada do paciente, início do procedimento e início da ICP</li>
+                      <li>Pode transferir paciente entre hemodinâmicas (Macro 1 ↔ Macro 2 ↔ Macro 3)</li>
+                      <li>Finaliza caso com desfecho, procedimento realizado e intercorrências</li>
+                      <li>Gera relatório final da hemodinâmica com e-mail da unidade</li>
+                    </ul>
                   </div>
                 </div>
               </div>
@@ -259,14 +342,26 @@ export default function Manual() {
 
                 <div>
                   <h4 className="font-semibold mb-2">🔴 Painel de Regulação (Dashboard)</h4>
-                  <p className="text-gray-700 mb-2">Para CERH, ASSCARDIO e Administradores:</p>
+                  <p className="text-gray-700 mb-2">Para CERH, ASSCARDIO, Transporte e Administradores:</p>
                   <ul className="list-disc pl-5 text-gray-700">
                     <li>Cards com estatísticas: Prioridade 0, 1, 2</li>
                     <li>Pacientes dentro da janela terapêutica (≤12h)</li>
                     <li>Aguardando ASSCARDIO, CERH, Transporte, Hemodinâmica</li>
                     <li>Lista de pacientes ordenados por prioridade</li>
                     <li>Filtros clicáveis nos cards</li>
-                    <li>Botões de acesso rápido por equipe</li>
+                    <li>Botões de acesso rápido por equipe (ASSCARDIO, CERH, Transporte, Hemodinâmica)</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2">🚑 Monitor de Transportes</h4>
+                  <p className="text-gray-700 mb-2">Para equipe de Transporte e Administradores:</p>
+                  <ul className="list-disc pl-5 text-gray-700">
+                    <li>Visualização em tempo real de todos os transportes</li>
+                    <li>Status: Aguardando, Em Deslocamento, Concluído, Com Intercorrência</li>
+                    <li>Filtros por status e busca por paciente</li>
+                    <li>Cartões com informações de origem, destino, tipo de transporte e central</li>
+                    <li>Acesso rápido aos detalhes do paciente e registro de transporte</li>
                   </ul>
                 </div>
 
@@ -419,13 +514,14 @@ export default function Manual() {
                 <ul className="list-disc pl-5">
                   <li><strong>Painel Inicial:</strong> Tela de boas-vindas e seleção de equipe</li>
                   <li><strong>Painel Assistencial:</strong> Histórico de pacientes (Unidades de Saúde)</li>
-                  <li><strong>Painel de Regulação:</strong> Dashboard de casos (CERH/ASSCARDIO)</li>
+                  <li><strong>Painel de Regulação:</strong> Dashboard de casos (CERH/ASSCARDIO/Transporte)</li>
                   <li><strong>Indicadores:</strong> Métricas e estatísticas (Administradores)</li>
                   <li><strong>Protocolos:</strong> Guias clínicos e fluxogramas</li>
                   <li><strong>Estratégias e Condutas:</strong> Protocolos de medicamentos</li>
                   <li><strong>Manual:</strong> Esta página de ajuda</li>
+                  <li><strong>Monitor Transportes:</strong> Gestão de transportes em tempo real (Transporte)</li>
                   <li><strong>Formulário/Vaga:</strong> Solicitação de vaga SES</li>
-                  <li><strong>Administração:</strong> Gestão de usuários e configurações</li>
+                  <li><strong>Administração:</strong> Gestão de usuários e configurações (Administradores)</li>
                 </ul>
                 
                 <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
