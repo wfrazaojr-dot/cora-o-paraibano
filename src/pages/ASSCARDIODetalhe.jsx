@@ -366,8 +366,8 @@ export default function ASSCARDIODetalhe() {
                       <p className="text-sm font-semibold text-blue-900">Tipo de ICP:</p>
                       <Badge className="mt-1">
                         {paciente.hemodinamica.tipo_icp === 'imediata' && 'Imediata'}
-                        {paciente.hemodinamica.tipo_icp === 'ate_24h' && 'Até 24 horas'}
-                        {paciente.hemodinamica.tipo_icp === 'ate_72h' && 'Até 72 horas'}
+                        {paciente.hemodinamica.tipo_icp === 'ate_24h' && 'Estratégia Invasiva Precoce'}
+                        {paciente.hemodinamica.tipo_icp === 'ate_72h' && 'Estratégia Invasiva Durante o Internamento'}
                       </Badge>
                     </div>
                   )}
