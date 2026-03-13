@@ -511,7 +511,7 @@ export default function ASSCARDIODetalhe() {
                         "1": "1- IAM supra ST → Estratégia 1: transferência imediata",
                         "2": "2- SCA sem supra MUITO alto risco → Estratégia 1: transferência imediata",
                         "3": "3- IAM sem supra/alto risco → Estratégia 2: Estratégia Invasiva Precoce",
-                        "4": "4- SCA intermediário → Estratégia 3: invasiva ≤72h",
+                        "4": "4- SCA intermediário → Estratégia 3: Estratégia Invasiva Durante o Internamento",
                         "5": "5- Orientação Cardiológica"
                       };
                       return estrategias[medicoData.diagnostico_estrategia] || 'Não definido';
@@ -918,7 +918,7 @@ export default function ASSCARDIODetalhe() {
                   </div>
                   <div className="flex items-center space-x-2 bg-green-100 p-3 rounded">
                     <RadioGroupItem value="4" id="est4" />
-                    <Label htmlFor="est4" className="text-base">☐ 4- SCA intermediário → "Estratégia 3: invasiva ≤72h"</Label>
+                    <Label htmlFor="est4" className="text-base">☐ 4- SCA intermediário → "Estratégia 3: Estratégia Invasiva Durante o Internamento"</Label>
                   </div>
                   <div className="flex items-center space-x-2 bg-blue-100 p-3 rounded">
                     <RadioGroupItem value="5" id="est5" />
@@ -1029,7 +1029,7 @@ export default function ASSCARDIODetalhe() {
                       addLine("AVALIAÇÃO DO CARDIOLOGISTA", { bold: true, size: 11 });
                       if (medicoData.cardiologista_nome) addLine(`Cardiologista: ${medicoData.cardiologista_nome} | CRM: ${medicoData.cardiologista_crm}${medicoData.cardiologista_rqe ? ` | RQE: ${medicoData.cardiologista_rqe}` : ''}`);
                       addLine(`Triagem confirmada: ${medicoData.confirma_triagem ? 'Sim' : 'Não'}`);
-                      const estrategias = {"1":"1- IAM supra ST → Estratégia 1: transferência imediata","2":"2- SCA sem supra MUITO alto risco → Estratégia 1: transferência imediata","3":"3- IAM sem supra/alto risco → Estratégia 2: Estratégia Invasiva Precoce","4":"4- SCA intermediário → Estratégia 3: invasiva ≤72h","5":"5- Orientação Cardiológica"};
+                      const estrategias = {"1":"1- IAM supra ST → Estratégia 1: transferência imediata","2":"2- SCA sem supra MUITO alto risco → Estratégia 1: transferência imediata","3":"3- IAM sem supra/alto risco → Estratégia 2: Estratégia Invasiva Precoce","4":"4- SCA intermediário → Estratégia 3: Estratégia Invasiva Durante o Internamento","5":"5- Orientação Cardiológica"};
                       addLine(`Diagnóstico + Estratégia: ${estrategias[medicoData.diagnostico_estrategia] || 'Não definido'}`, { bold: true });
                       y += 2;
                       addLine("PARECER DO CARDIOLOGISTA:", { bold: true });
