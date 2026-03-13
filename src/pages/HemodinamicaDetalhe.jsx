@@ -21,8 +21,8 @@ import { ptBR } from "date-fns/locale";
 
 const TIPO_ICP_LABELS = {
   imediata: "ICP Imediata",
-  ate_24h: "Estratégia 2: Invasiva ≤ 24h",
-  ate_72h: "Estratégia 3: Invasiva ≤ 72h"
+  ate_24h: "Estratégia 2: Estratégia Invasiva Precoce",
+  ate_72h: "Estratégia 3: Estratégia Invasiva Durante o Internamento"
 };
 
 export default function HemodinamicaDetalhe() {
@@ -485,8 +485,8 @@ export default function HemodinamicaDetalhe() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="imediata">ICP Imediata</SelectItem>
-                        <SelectItem value="ate_24h">Regulado para: Estratégia 2 – Invasiva ≤ 24h</SelectItem>
-                        <SelectItem value="ate_72h">Regulado para: Estratégia 3 – Invasiva ≤ 72h</SelectItem>
+                        <SelectItem value="ate_24h">Regulado para: Estratégia 2 – Estratégia Invasiva Precoce</SelectItem>
+                        <SelectItem value="ate_72h">Regulado para: Estratégia 3 – Estratégia Invasiva Durante o Internamento</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
