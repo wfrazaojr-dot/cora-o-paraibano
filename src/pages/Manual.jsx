@@ -549,12 +549,6 @@ export default function Manual() {
                   Walber Alves Frazão Júnior<br />
                   Enfermeiro Emergencista (COREN 110.238)
                 </p>
-                <p className="text-xs text-gray-600">
-                  Pós-graduado em Cardiologia e Hemodinâmica (FACULDADE INVECTUS)<br />
-                  Pós-graduado em Neurologia (INSTITUTO ENSINAR BRASIL)<br />
-                  Pós-graduado em Auditoria em Serviços de Saúde (FACULDADE UNINA)<br />
-                  Pós-graduado em Urgência e Emergência (UNIFAN)
-                </p>
                 <div className="mt-4 pt-4 border-t">
                   <p className="text-xs text-gray-600">
                     <strong>Secretaria de Estado de Saúde da Paraíba</strong><br />
