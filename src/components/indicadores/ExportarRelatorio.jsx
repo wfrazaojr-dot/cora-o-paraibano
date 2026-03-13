@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, FileSpreadsheet, FileText } from "lucide-react";
+import { Download, FileText } from "lucide-react";
 import { format, differenceInMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -74,7 +73,7 @@ function buildRow(p) {
 }
 
 export default function ExportarRelatorio({ pacientes, mesSelecionado, anoSelecionado, macrorregiao, tipoSca }) {
-  const [formato, setFormato] = useState("excel");
+  const [formato, setFormato] = useState("csv");
 
   const dadosFiltrados = pacientes.filter(p => {
     if (macrorregiao && macrorregiao !== "todas" && p.macrorregiao !== macrorregiao) return false;
@@ -86,45 +85,22 @@ export default function ExportarRelatorio({ pacientes, mesSelecionado, anoSeleci
     const rows = dadosFiltrados.map(buildRow);
     const nomeArquivo = `Indicadores_${mesSelecionado < 10 ? "0" + mesSelecionado : mesSelecionado}_${anoSelecionado}`;
 
-    if (formato === "csv") {
-      const headers = Object.keys(rows[0] || buildRow({}));
-      const csvRows = [headers.join(";"), ...rows.map(r => headers.map(h => `"${r[h] ?? ""}"`).join(";"))];
-      const blob = new Blob(["\uFEFF" + csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = nomeArquivo + ".csv";
-      a.click();
-      URL.revokeObjectURL(url);
-    } else {
-      const ws = XLSX.utils.json_to_sheet(rows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Indicadores");
-      XLSX.writeFile(wb, nomeArquivo + ".xlsx");
-    }
+    const headers = Object.keys(rows[0] || buildRow({}));
+    const csvRows = [headers.join(";"), ...rows.map(r => headers.map(h => `"${r[h] ?? ""}"`).join(";"))];
+    const blob = new Blob(["\uFEFF" + csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = nomeArquivo + ".csv";
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
     <div className="flex flex-wrap items-end gap-3">
-      <div>
-        <p className="text-xs text-gray-500 mb-1">Formato</p>
-        <Select value={formato} onValueChange={setFormato}>
-          <SelectTrigger className="w-36">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="excel">
-              <span className="flex items-center gap-2"><FileSpreadsheet className="w-4 h-4 text-green-600" /> Excel (.xlsx)</span>
-            </SelectItem>
-            <SelectItem value="csv">
-              <span className="flex items-center gap-2"><FileText className="w-4 h-4 text-blue-600" /> CSV (.csv)</span>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
       <Button onClick={exportar} disabled={dadosFiltrados.length === 0} className="bg-green-600 hover:bg-green-700">
         <Download className="w-4 h-4 mr-2" />
-        Exportar ({dadosFiltrados.length} registros)
+        Exportar CSV ({dadosFiltrados.length} registros)
       </Button>
     </div>
   );
