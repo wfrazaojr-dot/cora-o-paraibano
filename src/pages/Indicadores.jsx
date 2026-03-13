@@ -722,11 +722,11 @@ export default function Indicadores() {
                 <p className="text-3xl font-bold text-red-700">{icpPorTipo.totais.imediata}</p>
               </div>
               <div className="bg-orange-50 rounded-lg p-4 text-center border border-orange-200">
-                <p className="text-xs text-gray-600 font-medium">ICP ≤ 24h</p>
+                <p className="text-xs text-gray-600 font-medium">Estratégia Invasiva Precoce</p>
                 <p className="text-3xl font-bold text-orange-700">{icpPorTipo.totais.ate_24h}</p>
               </div>
               <div className="bg-yellow-50 rounded-lg p-4 text-center border border-yellow-200">
-                <p className="text-xs text-gray-600 font-medium">ICP ≤ 72h</p>
+                <p className="text-xs text-gray-600 font-medium">Invasiva Durante Internamento</p>
                 <p className="text-3xl font-bold text-yellow-700">{icpPorTipo.totais.ate_72h}</p>
               </div>
             </div>
@@ -757,8 +757,8 @@ export default function Indicadores() {
                     <Tooltip />
                     <Legend />
                     <Bar dataKey="imediata" name="ICP Imediata" fill="#DC2626" />
-                    <Bar dataKey="ate_24h" name="ICP ≤ 24h" fill="#EA580C" />
-                    <Bar dataKey="ate_72h" name="ICP ≤ 72h" fill="#CA8A04" />
+                    <Bar dataKey="ate_24h" name="Estratégia Invasiva Precoce" fill="#EA580C" />
+                    <Bar dataKey="ate_72h" name="Invasiva Durante Internamento" fill="#CA8A04" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -786,8 +786,8 @@ export default function Indicadores() {
               <p><strong>• ICP-Hemodinâmica (≤15min):</strong> Chegada na hemodinâmica até início da ICP</p>
               <p><strong>• FMC-to-device (≤120min):</strong> Início da triagem até chegada na hemodinâmica</p>
               <p><strong>• ICP Imediata:</strong> Estratégia 1 – ICP realizada imediatamente (IAMCEST ou alto risco imediato)</p>
-              <p><strong>• ICP ≤ 24h:</strong> Estratégia 2 – Invasiva em até 24 horas (SCASESST alto risco)</p>
-              <p><strong>• ICP ≤ 72h:</strong> Estratégia 3 – Invasiva em até 72 horas (SCASESST risco intermediário)</p>
+              <p><strong>• Estratégia Invasiva Precoce:</strong> Estratégia 2 – Invasiva em até 24 horas (SCASESST alto risco)</p>
+              <p><strong>• Invasiva Durante Internamento:</strong> Estratégia 3 – Invasiva em até 72 horas (SCASESST risco intermediário)</p>
             </div>
           </CardContent>
         </Card>
