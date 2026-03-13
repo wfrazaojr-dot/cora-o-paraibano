@@ -279,14 +279,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
             </Alert>
           )}
 
-          {confirmacaoHemodinamica === false && (
-            <Alert className="bg-red-100 border-red-600 border-2">
-              <AlertCircle className="h-6 w-6 text-red-700" />
-              <AlertDescription className="text-red-900 font-bold text-base">
-                Esteja preparado para possível trombólise, avalie os critérios e as medicações necessárias e aguarde o parecer da cardiologia.
-              </AlertDescription>
-            </Alert>
-          )}
+
         </div>
       </div>
 
