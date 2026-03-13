@@ -9,11 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Activity, FileText, Save, Download, Clock, Calendar, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Activity, FileText, Save, Download, Clock, Calendar, CheckCircle, XCircle, AlertTriangle, ArrowRightLeft } from "lucide-react";
 import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
 import MonitorTransporte from "@/components/regulacao/MonitorTransporte";
 import { Badge } from "@/components/ui/badge";
+import DialogoTransferencia from "@/components/hemodinamica/DialogoTransferencia";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
@@ -45,11 +46,17 @@ export default function HemodinamicaDetalhe() {
   });
   const [comparecimento, setComparecimento] = useState("");
   const [gerandoPDF, setGerandoPDF] = useState(false);
+  const [dialogoTransferenciaAberto, setDialogoTransferenciaAberto] = useState(false);
 
   const { data: paciente, isLoading } = useQuery({
     queryKey: ['paciente', pacienteId],
     queryFn: () => base44.entities.Paciente.list().then(list => list.find(p => p.id === pacienteId)),
     enabled: !!pacienteId
+  });
+
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me()
   });
 
   const tipoIcp = paciente?.hemodinamica?.tipo_icp || tipoIcpSelecionado;
@@ -216,6 +223,34 @@ export default function HemodinamicaDetalhe() {
       navigate(createPageUrl("Dashboard"));
     },
     onError: () => setGerandoPDF(false)
+  });
+
+  const transferirPaciente = useMutation({
+    mutationFn: async ({ macroDestino, motivo }) => {
+      const macroAtual = paciente?.hemodinamica_macro_responsavel || paciente?.macrorregiao;
+      const historico = paciente?.historico_transferencias_hemo || [];
+      
+      const novaTransferencia = {
+        data_hora: new Date().toISOString(),
+        macro_origem: macroAtual,
+        macro_destino: macroDestino,
+        motivo: motivo,
+        usuario: user?.full_name || user?.email || "Sistema"
+      };
+
+      await base44.entities.Paciente.update(pacienteId, {
+        hemodinamica_macro_responsavel: macroDestino,
+        historico_transferencias_hemo: [...historico, novaTransferencia],
+        status: "Aguardando Hemodinâmica"
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['paciente', pacienteId]);
+      queryClient.invalidateQueries(['pacientes']);
+      setDialogoTransferenciaAberto(false);
+      alert("Paciente transferido com sucesso para a nova hemodinâmica!");
+      navigate(createPageUrl("Dashboard"));
+    }
   });
 
   if (isLoading) return <div className="p-8">Carregando...</div>;
@@ -528,18 +563,31 @@ export default function HemodinamicaDetalhe() {
             {tipoIcpDefinido && (
               <Card className="border-pink-200 bg-pink-50">
                 <CardContent className="pt-4">
-                  <div className="flex items-center gap-3">
-                    <Activity className="w-5 h-5 text-pink-600" />
-                    <div>
-                      <p className="font-semibold text-pink-800">Estratégia Definida</p>
-                      <p className="text-sm text-pink-700">{TIPO_ICP_LABELS[paciente.hemodinamica.tipo_icp]}</p>
-                      {agendamentoSalvo && (
-                        <p className="text-xs text-gray-600 mt-1">
-                          <Calendar className="w-3 h-3 inline mr-1" />
-                          Agendado para: {format(new Date(agendamentoSalvo), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                        </p>
-                      )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Activity className="w-5 h-5 text-pink-600" />
+                      <div>
+                        <p className="font-semibold text-pink-800">Estratégia Definida</p>
+                        <p className="text-sm text-pink-700">{TIPO_ICP_LABELS[paciente.hemodinamica.tipo_icp]}</p>
+                        {agendamentoSalvo && (
+                          <p className="text-xs text-gray-600 mt-1">
+                            <Calendar className="w-3 h-3 inline mr-1" />
+                            Agendado para: {format(new Date(agendamentoSalvo), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                          </p>
+                        )}
+                      </div>
                     </div>
+                    {!paciente.hemodinamica?.data_hora_inicio_procedimento && (
+                      <Button
+                        onClick={() => setDialogoTransferenciaAberto(true)}
+                        variant="outline"
+                        className="border-orange-400 text-orange-700 hover:bg-orange-50"
+                        size="sm"
+                      >
+                        <ArrowRightLeft className="w-4 h-4 mr-2" />
+                        Transferir
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -746,6 +794,14 @@ export default function HemodinamicaDetalhe() {
           </div>
         </div>
       </div>
+
+      <DialogoTransferencia
+        open={dialogoTransferenciaAberto}
+        onClose={() => setDialogoTransferenciaAberto(false)}
+        paciente={paciente}
+        onConfirmar={(dados) => transferirPaciente.mutate(dados)}
+        isLoading={transferirPaciente.isPending}
+      />
     </div>
   );
 }
