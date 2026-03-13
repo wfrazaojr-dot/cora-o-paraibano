@@ -49,9 +49,17 @@ export default function Dashboard() {
         return base44.entities.Paciente.list("-created_date");
       }
       
-      // CERH, ASSCARDIO, HEMODINÂMICA: filtrar por macrorregião se tiver definida
-      if (user?.macrorregiao) {
+      // CERH, ASSCARDIO: filtrar por macrorregião se tiver definida
+      if ((user?.equipe === 'cerh' || user?.equipe === 'asscardio') && user?.macrorregiao) {
         return base44.entities.Paciente.filter({ macrorregiao: user.macrorregiao }, "-created_date");
+      }
+
+      // HEMODINÂMICA: filtrar por hemodinamica_macro_responsavel (se definido) OU macrorregiao (fallback)
+      if (user?.equipe === 'hemodinamica' && user?.macrorregiao) {
+        const todos = await base44.entities.Paciente.list("-created_date");
+        return todos.filter(p => 
+          (p.hemodinamica_macro_responsavel || p.macrorregiao) === user.macrorregiao
+        );
       }
 
       // Sem macrorregião definida, vê todos (fallback)
@@ -406,11 +414,14 @@ export default function Dashboard() {
                             </p>
                           </div>
                           <div>
-                            <span className="text-gray-500">Status:</span>
-                            <p className="font-medium">{paciente.status}</p>
-                            {paciente.regulacao_central?.unidade_destino && (
-                              <p className="text-xs text-blue-600 font-semibold">→ {paciente.regulacao_central.unidade_destino}</p>
-                            )}
+                           <span className="text-gray-500">Status:</span>
+                           <p className="font-medium">{paciente.status}</p>
+                           {paciente.regulacao_central?.unidade_destino && (
+                             <p className="text-xs text-blue-600 font-semibold">→ {paciente.regulacao_central.unidade_destino}</p>
+                           )}
+                           {paciente.hemodinamica_macro_responsavel && paciente.hemodinamica_macro_responsavel !== paciente.macrorregiao && (
+                             <p className="text-xs text-orange-600 font-semibold">🔄 Transferido para Hemo {paciente.hemodinamica_macro_responsavel}</p>
+                           )}
                           </div>
                         </div>
 
