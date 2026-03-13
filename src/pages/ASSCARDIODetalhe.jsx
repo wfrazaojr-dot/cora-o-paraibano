@@ -408,6 +408,9 @@ export default function ASSCARDIODetalhe() {
                     <div><span className="font-semibold">Idade:</span> {paciente?.idade} anos</div>
                     <div><span className="font-semibold">Sexo:</span> {paciente?.sexo}</div>
                     <div><span className="font-semibold">Unidade:</span> {paciente?.unidade_saude || 'Não Informada'}</div>
+                    {paciente?.formulario_vaga?.email_unidade_solicitante && (
+                      <div className="col-span-2"><span className="font-semibold">E-mail da Unidade:</span> {paciente.formulario_vaga.email_unidade_solicitante}</div>
+                    )}
                   </div>
                 </div>
 

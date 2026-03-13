@@ -417,7 +417,7 @@ Programa Coração Paraibano
               <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg" alt="Complexo Regulador" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
             </div>
             <div className="text-center">
-              <h1 className="text-xl font-bold text-pink-700">RELATÓRIO DE AGENDAMENTO - HEMODINÂMICA</h1>
+              <h1 className="text-xl font-bold text-pink-700">RELATÓRIO DE AGENDAMENTO - HEMODINÂMICA {paciente?.hemodinamica_macro_responsavel || paciente?.macrorregiao || ''}</h1>
               <p className="text-sm text-gray-600 mt-1">Emitido em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
             </div>
           </div>
@@ -429,6 +429,9 @@ Programa Coração Paraibano
               <div><span className="font-semibold">Idade:</span> {paciente?.idade} anos | <span className="font-semibold">Sexo:</span> {paciente?.sexo}</div>
               <div><span className="font-semibold">Unidade de Origem:</span> {paciente?.unidade_saude}</div>
               <div><span className="font-semibold">Macrorregião:</span> {paciente?.macrorregiao}</div>
+              {paciente?.formulario_vaga?.email_unidade_solicitante && (
+                <div className="col-span-2"><span className="font-semibold">E-mail da Unidade:</span> {paciente.formulario_vaga.email_unidade_solicitante}</div>
+              )}
             </div>
           </div>
 
@@ -510,6 +513,9 @@ Programa Coração Paraibano
               <div><span className="font-semibold">Idade:</span> {paciente?.idade} anos | <span className="font-semibold">Sexo:</span> {paciente?.sexo}</div>
               <div><span className="font-semibold">Unidade:</span> {paciente?.unidade_saude}</div>
               <div><span className="font-semibold">Macrorregiâo:</span> {paciente?.macrorregiao}</div>
+              {paciente?.formulario_vaga?.email_unidade_solicitante && (
+                <div className="col-span-2"><span className="font-semibold">E-mail da Unidade:</span> {paciente.formulario_vaga.email_unidade_solicitante}</div>
+              )}
             </div>
           </div>
 
