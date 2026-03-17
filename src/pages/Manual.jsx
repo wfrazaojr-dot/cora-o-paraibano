@@ -448,17 +448,6 @@ export default function Manual() {
             <CardContent className="p-6">
               <div className="space-y-4 text-sm text-gray-700">
                 <div>
-                  <h4 className="font-semibold mb-2">🤖 Análise de ECG por Inteligência Artificial</h4>
-                  <ul className="list-disc pl-5">
-                    <li>Análise automática de imagens de ECG</li>
-                    <li>Identificação de padrões de SCACESST</li>
-                    <li>Detecção de síndromes (Wellens, Wellen, Winter, De Winter)</li>
-                    <li>Diferenciação de bloqueios de ramo</li>
-                    <li>Alertas para imitadores de IAM</li>
-                  </ul>
-                </div>
-
-                <div>
                   <h4 className="font-semibold mb-2">📈 Cálculo Automático do HEART Score</h4>
                   <ul className="list-disc pl-5">
                     <li>Pontuação automática baseada em 5 critérios</li>
