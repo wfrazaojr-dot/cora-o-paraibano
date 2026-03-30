@@ -57,7 +57,7 @@ export default function FormularioVaga() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: paciente } = useQuery({
+  const { data: paciente, isLoading: loadingPaciente } = useQuery({
     queryKey: ['paciente', pacienteId],
     queryFn: () => base44.entities.Paciente.list().then(list => list.find(p => p.id === pacienteId)),
     enabled: !!pacienteId,
@@ -468,6 +468,17 @@ Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString(
     // Abre cliente de e-mail
     setTimeout(() => abrirEmailCliente(), 800);
   };
+
+  if (pacienteId && loadingPaciente) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 animate-spin text-blue-600 mx-auto mb-3" />
+          <p className="text-blue-700 font-medium">Carregando dados do paciente...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gradient-to-br from-blue-50 to-green-50 min-h-screen">

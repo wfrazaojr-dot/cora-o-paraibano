@@ -478,9 +478,10 @@ export default function Manual() {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">🔐 Autenticação de Profissionais</h4>
+                  <h4 className="font-semibold mb-2">🔐 Acesso por Perfil com Senha</h4>
                   <ul className="list-disc pl-5">
-                    <li>PIN de 4 dígitos para profissionais</li>
+                    <li>Senha específica por perfil: ASSCARDIO, CERH, Hemodinâmica e Transporte</li>
+                    <li>Cada perfil possui uma senha própria de acesso definida pelo administrador</li>
                     <li>Registro automático de quem preencheu cada etapa</li>
                     <li>Rastreabilidade completa do atendimento</li>
                   </ul>
