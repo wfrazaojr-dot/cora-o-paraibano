@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Search, ExternalLink, RefreshCw, Filter, Plus } from "lucide-react";
+import { Search, ExternalLink, RefreshCw, Filter, Plus, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Link, useNavigate } from "react-router-dom";
@@ -100,7 +100,7 @@ export default function Historico() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: pacientes = [], isLoading } = useQuery({
+  const { data: pacientes = [], isLoading, dataUpdatedAt, refetch, isFetching } = useQuery({
     queryKey: ['pacientes', user?.email, user?.equipe],
     queryFn: async () => {
       const equipe = user?.equipe || 'unidade_saude';
@@ -120,6 +120,7 @@ export default function Historico() {
     },
     enabled: !!user,
     initialData: [],
+    refetchInterval: 30000,
   });
 
   const unidadesDisponiveis = Array.from(new Set(pacientes.map(p => p.unidade_saude).filter(Boolean))).sort();
@@ -188,14 +189,20 @@ export default function Historico() {
               {user?.role === 'admin' && <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">ADMINISTRADOR</span>}
             </p>
           </div>
-          {(user?.equipe === 'unidade_saude' || user?.role === 'admin') && (
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
+              {isFetching ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+              Atualizar
+            </Button>
+            {(user?.equipe === 'unidade_saude' || user?.role === 'admin') && (
             <Link to={createPageUrl("NovaTriagem")}>
               <Button className="bg-red-600 hover:bg-red-700 shadow-lg">
                 <Plus className="w-5 h-5 mr-2" />
                 Novo Paciente
               </Button>
             </Link>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Filtros */}
@@ -338,7 +345,10 @@ export default function Historico() {
           </CardHeader>
           <CardContent className="p-0">
             {isLoading ? (
-              <div className="p-8 text-center text-gray-500">Carregando...</div>
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-red-500 mr-3" />
+                <p className="text-gray-500">Carregando pacientes...</p>
+              </div>
             ) : pacientesFiltrados.length === 0 ? (
               <div className="p-8 text-center text-gray-500">
                 {busca || filtroStatus !== "todos" ? (

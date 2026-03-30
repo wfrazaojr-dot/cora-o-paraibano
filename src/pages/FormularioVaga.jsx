@@ -59,7 +59,7 @@ export default function FormularioVaga() {
 
   const { data: paciente, isLoading: loadingPaciente } = useQuery({
     queryKey: ['paciente', pacienteId],
-    queryFn: () => base44.entities.Paciente.list().then(list => list.find(p => p.id === pacienteId)),
+    queryFn: () => base44.entities.Paciente.filter({ id: pacienteId }).then(list => list[0]),
     enabled: !!pacienteId,
   });
 

@@ -31,7 +31,7 @@ export default function Dashboard() {
     }
   }, [user, navigate]);
 
-  const { data: pacientes = [], isLoading } = useQuery({
+  const { data: pacientes = [], isLoading, dataUpdatedAt, refetch } = useQuery({
     queryKey: ['pacientes-regulacao', user?.email, user?.macrorregiao],
     queryFn: async () => {
       // Admin vê todos
@@ -67,6 +67,7 @@ export default function Dashboard() {
     },
     enabled: !!user,
     initialData: [],
+    refetchInterval: 30000,
   });
 
   // Função para calcular prioridade
@@ -178,6 +179,17 @@ export default function Dashboard() {
               <span className="ml-2 px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs font-semibold">⚠️ Sem macrorregião definida — exibindo todos</span>
             )}
           </p>
+        </div>
+        <div className="flex items-center gap-3">
+          {dataUpdatedAt > 0 && (
+            <span className="text-xs text-gray-400">
+              Atualizado: {new Date(dataUpdatedAt).toLocaleTimeString('pt-BR')}
+            </span>
+          )}
+          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isLoading}>
+            <Activity className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
         </div>
 
         {/* Cards de Estatísticas */}
@@ -365,7 +377,10 @@ export default function Dashboard() {
           <CardContent>
             <div className="space-y-4">
               {isLoading ? (
-                <p className="text-center text-gray-500 py-8">Carregando...</p>
+                <div className="flex items-center justify-center py-12">
+                  <Activity className="w-8 h-8 animate-spin text-red-500 mr-3" />
+                  <p className="text-gray-500">Carregando pacientes...</p>
+                </div>
               ) : pacientesFiltrados.length === 0 ? (
                 <p className="text-center text-gray-500 py-8">Nenhum paciente encontrado</p>
               ) : (
