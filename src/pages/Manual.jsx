@@ -211,6 +211,7 @@ export default function Manual() {
                           <li>Estratégia 2: Estratégia Invasiva Precoce (IAM sem supra/alto risco)</li>
                           <li>Estratégia 3: Estratégia Invasiva Durante o Internamento (SCA intermediário)</li>
                           <li>Orientação Cardiológica</li>
+                          <li>Estratégia 6: Trombólise</li>
                         </ul>
                       </li>
                       <li>Gera relatório ASSCARDIO com e-mail da unidade</li>
