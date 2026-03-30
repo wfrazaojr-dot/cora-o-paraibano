@@ -100,26 +100,17 @@ export default function Historico() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: pacientes = [], isLoading, dataUpdatedAt, refetch, isFetching } = useQuery({
+  const { data: pacientes = [], isLoading, refetch, isFetching } = useQuery({
     queryKey: ['pacientes', user?.email, user?.equipe],
     queryFn: async () => {
       const equipe = user?.equipe || 'unidade_saude';
-
-      // Admin vê todos
-      if (user?.role === 'admin') {
-        return base44.entities.Paciente.list("-created_date");
-      }
-
-      // Usuário de unidade de saúde: vê apenas pacientes criados por ele
-      if (equipe === 'unidade_saude') {
-        return base44.entities.Paciente.filter({ created_by: user.email }, "-created_date");
-      }
-
-      // CERH e ASSCARDIO: veem todos (consolidado)
+      if (user?.role === 'admin') return base44.entities.Paciente.list("-created_date");
+      if (equipe === 'unidade_saude') return base44.entities.Paciente.filter({ created_by: user.email }, "-created_date");
       return base44.entities.Paciente.list("-created_date");
     },
     enabled: !!user,
     initialData: [],
+    staleTime: 20000,
     refetchInterval: 30000,
   });
 

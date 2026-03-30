@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -6,11 +6,12 @@ import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { FileUp, Send, Download, X, AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, Download, Send } from "lucide-react";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
+import SecaoDadosPessoais from "@/components/formularioVaga/SecaoDadosPessoais";
+import SecaoDadosUnidade from "@/components/formularioVaga/SecaoDadosUnidade";
+import SecaoDocumentos from "@/components/formularioVaga/SecaoDocumentos";
 
 export default function FormularioVaga() {
   const navigate = useNavigate();
@@ -423,7 +424,11 @@ Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString(
       navigate(createPageUrl("Historico"));
     },
     onError: (error) => {
-      toast.error("Erro ao salvar formulário: " + error.message);
+      const msgTraduzida = error.message?.includes('Network') ? 'Erro de conexão. Verifique sua internet e tente novamente.'
+        : error.message?.includes('permission') ? 'Você não tem permissão para realizar esta ação.'
+        : error.message?.includes('not found') ? 'Paciente não encontrado no sistema.'
+        : 'Não foi possível salvar o formulário. Tente novamente.';
+      toast.error(msgTraduzida);
     }
   });
 
@@ -532,124 +537,17 @@ Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString(
             </div>
 
             {/* Dados Pessoais */}
-            <div>
-              <h3 className="text-base font-bold mb-3 border-b pb-2 text-blue-900">DADOS PESSOAIS</h3>
-              {paciente && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 grid md:grid-cols-3 gap-3">
-                  <div className="md:col-span-3">
-                    <span className="text-xs text-blue-600 font-semibold uppercase">Nome Completo</span>
-                    <p className="font-bold text-gray-900">{paciente.nome_completo}</p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-blue-600 font-semibold uppercase">Data de Nascimento</span>
-                    <p className="text-gray-900">{paciente.data_nascimento ? new Date(paciente.data_nascimento + 'T12:00:00').toLocaleDateString('pt-BR') : '—'}</p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-blue-600 font-semibold uppercase">Idade</span>
-                    <p className="text-gray-900">{paciente.idade ? `${paciente.idade} anos` : '—'}</p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-blue-600 font-semibold uppercase">Sexo</span>
-                    <p className="text-gray-900">{paciente.sexo || '—'}</p>
-                  </div>
-                </div>
-              )}
-              <div className="grid md:grid-cols-2 gap-4">
-                {!paciente && (
-                  <>
-                    <div className="md:col-span-2">
-                      <Label>Nome Completo *</Label>
-                      <Input value={formData.nome_completo} onChange={(e) => setFormData({...formData, nome_completo: e.target.value})} required />
-                    </div>
-                    <div>
-                      <Label>Data de Nascimento</Label>
-                      <Input type="date" value={formData.data_nascimento} onChange={(e) => {
-                        const novaData = e.target.value;
-                        setFormData({...formData, data_nascimento: novaData, idade: calcularIdade(novaData)});
-                      }} />
-                    </div>
-                    <div>
-                      <Label>Idade</Label>
-                      <Input type="number" value={formData.idade} onChange={(e) => setFormData({...formData, idade: e.target.value})} />
-                    </div>
-                    <div>
-                      <Label>Sexo</Label>
-                      <Select value={formData.sexo} onValueChange={(v) => setFormData({...formData, sexo: v})}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Masculino">Masculino</SelectItem>
-                          <SelectItem value="Feminino">Feminino</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </>
-                )}
-                <div>
-                  <Label>Nome da Mãe</Label>
-                  <Input value={formData.nome_mae} onChange={(e) => setFormData({...formData, nome_mae: e.target.value})} />
-                </div>
-                <div className="md:col-span-2">
-                  <Label>Local de Nascimento</Label>
-                  <Input value={formData.local_nascimento} onChange={(e) => setFormData({...formData, local_nascimento: e.target.value})} />
-                </div>
-                <div>
-                  <Label>RG nº</Label>
-                  <Input value={formData.rg} onChange={(e) => setFormData({...formData, rg: e.target.value})} />
-                </div>
-                <div>
-                  <Label>UF</Label>
-                  <Input value={formData.uf_rg} onChange={(e) => setFormData({...formData, uf_rg: e.target.value})} maxLength={2} />
-                </div>
-                <div>
-                  <Label>CPF nº</Label>
-                  <Input value={formData.cpf} onChange={(e) => setFormData({...formData, cpf: formatarCPF(e.target.value)})} maxLength={14} />
-                </div>
-                <div>
-                  <Label>CNS nº</Label>
-                  <Input value={formData.cns} onChange={(e) => setFormData({...formData, cns: e.target.value})} />
-                </div>
-                <div className="md:col-span-2">
-                  <Label>Endereço Completo</Label>
-                  <Input value={formData.endereco} onChange={(e) => setFormData({...formData, endereco: e.target.value})} />
-                </div>
-                <div className="md:col-span-2">
-                  <Label>Telefone de Contato do Responsável</Label>
-                  <Input value={formData.telefone_responsavel} onChange={(e) => setFormData({...formData, telefone_responsavel: formatarTelefone(e.target.value)})} maxLength={14} placeholder="83 98877-3344" />
-                </div>
-              </div>
-            </div>
+            <SecaoDadosPessoais
+              formData={formData}
+              setFormData={setFormData}
+              paciente={paciente}
+              calcularIdade={calcularIdade}
+              formatarCPF={formatarCPF}
+              formatarTelefone={formatarTelefone}
+            />
 
             {/* Dados da Unidade */}
-            <div>
-              <h3 className="text-base font-bold mb-3 border-b pb-2 text-blue-900">DADOS DA UNIDADE</h3>
-              {paciente ? (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 grid md:grid-cols-3 gap-3">
-                  <div>
-                    <span className="text-xs text-blue-600 font-semibold uppercase">Unidade Solicitante</span>
-                    <p className="font-bold text-gray-900">{paciente.unidade_saude || '—'}</p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-blue-600 font-semibold uppercase">Macrorregião</span>
-                    <p className="font-bold text-gray-900">{paciente.macrorregiao || '—'}</p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-blue-600 font-semibold uppercase">Data e Horário da Admissão</span>
-                    <p className="text-gray-900">{paciente.data_hora_chegada ? new Date(paciente.data_hora_chegada).toLocaleString('pt-BR') : '—'}</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Unidade Solicitante *</Label>
-                    <Input value={formData.unidade_solicitante} onChange={(e) => setFormData({...formData, unidade_solicitante: e.target.value})} required />
-                  </div>
-                  <div>
-                    <Label>Data e Horário da Admissão</Label>
-                    <Input type="datetime-local" value={formData.data_hora_admissao} onChange={(e) => setFormData({...formData, data_hora_admissao: e.target.value})} />
-                  </div>
-                </div>
-              )}
-            </div>
+            <SecaoDadosUnidade formData={formData} setFormData={setFormData} paciente={paciente} />
 
             {/* Solicitação */}
             <div>
@@ -667,41 +565,12 @@ Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString(
             </div>
 
             {/* Upload de Documentos */}
-            <div>
-              <h3 className="text-base font-bold mb-3 border-b pb-2 text-blue-900">DOCUMENTOS DO PACIENTE (máx. 4 arquivos)</h3>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors mb-4">
-                <input type="file" id="file-upload" multiple onChange={handleFileUpload} className="hidden" accept=".pdf,.jpg,.jpeg,.gif,.png" disabled={formData.documentos.length >= 4} />
-                <label htmlFor="file-upload" className={`cursor-pointer ${formData.documentos.length >= 4 ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                  <FileUp className="w-10 h-10 mx-auto text-gray-400 mb-2" />
-                  <p className="text-sm text-gray-600">{formData.documentos.length >= 4 ? 'Limite atingido' : 'Clique para adicionar documentos'}</p>
-                  <p className="text-xs text-gray-500">PDF, JPG, PNG</p>
-                </label>
-              </div>
-              {uploadingFiles && <p className="text-blue-600 text-sm text-center mb-2">Enviando arquivos...</p>}
-              {formData.documentos.length > 0 && (
-                <div className="space-y-2">
-                  {formData.documentos.map((doc, idx) => {
-                    const isImage = doc.file_url && /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(doc.file_url);
-                    return (
-                      <div key={idx} className="bg-green-50 border border-green-200 rounded-lg p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm text-green-900 font-medium truncate flex-1">{doc.nome || `Documento ${idx + 1}`}</span>
-                          <Button type="button" variant="ghost" size="sm" onClick={() => removerDocumento(idx)} className="text-red-600 hover:text-red-800 ml-2">
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        {isImage && (
-                          <img src={doc.file_url} alt={doc.nome || `Documento ${idx + 1}`} className="max-h-48 max-w-full rounded border border-green-300 object-contain" />
-                        )}
-                        {!isImage && doc.file_url && (
-                          <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline">Visualizar arquivo</a>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+            <SecaoDocumentos
+              formData={formData}
+              handleFileUpload={handleFileUpload}
+              removerDocumento={removerDocumento}
+              uploadingFiles={uploadingFiles}
+            />
 
             {/* Botões de Ação */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
