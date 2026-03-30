@@ -8,7 +8,7 @@ export default function ProtocoloEstrategias() {
 
   const cenario1 = {
     titulo: "Cenário 1: Estratégia 1 em Hospital Sem Hemodinâmica",
-    condicao: "Paciente com Síndrome de Dor Torácica há > 12 horas, e sem contraindicações à fibrinólise e sua indicação (APENAS CASOS SELECIONADOS E SINALIZADOS PELO MÉDICO REGULADOR)",
+    condicao: "Paciente com Síndrome de Dor Torácica há < 12 horas, e sem contraindicações à fibrinólise e sua indicação (APENAS CASOS SELECIONADOS E SINALIZADOS PELO MÉDICO REGULADOR)",
     medicamentos: [
       {
         categoria: "Medidas Iniciais",
