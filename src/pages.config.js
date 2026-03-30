@@ -106,7 +106,7 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "FormularioVaga",
+    mainPage: "PainelInicial",
     Pages: PAGES,
     Layout: __Layout,
 };
