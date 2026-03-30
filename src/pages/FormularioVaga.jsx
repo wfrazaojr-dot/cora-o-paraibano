@@ -53,6 +53,27 @@ export default function FormularioVaga() {
   const [pdfGerado, setPdfGerado] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
 
+  // Chave única para rascunho no localStorage
+  const rascunhoKey = `formulario_vaga_rascunho_${pacienteId || 'novo'}`;
+
+  // Restaurar rascunho do localStorage ao montar (apenas campos livres, não os do paciente)
+  useEffect(() => {
+    const rascunho = localStorage.getItem(rascunhoKey);
+    if (rascunho) {
+      try {
+        const dados = JSON.parse(rascunho);
+        setFormData(prev => ({ ...prev, ...dados }));
+      } catch {}
+    }
+  }, [rascunhoKey]);
+
+  // Salvar rascunho automaticamente a cada mudança no formData
+  useEffect(() => {
+    // Não salvar documentos no localStorage (URLs já estão no servidor)
+    const { documentos, ...dadosSemDocs } = formData;
+    localStorage.setItem(rascunhoKey, JSON.stringify(dadosSemDocs));
+  }, [formData, rascunhoKey]);
+
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
@@ -420,6 +441,8 @@ Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString(
       }
     },
     onSuccess: () => {
+      // Limpar rascunho ao enviar com sucesso
+      localStorage.removeItem(rascunhoKey);
       alert(`✅ Formulário registrado no sistema com sucesso!\n\nPaciente: ${getNomePaciente()}\nDestinatário CERH: ${getEmailCERH()}\n\nO cliente de e-mail será aberto para você enviar o formulário manualmente com o PDF anexado.`);
       navigate(createPageUrl("Historico"));
     },
