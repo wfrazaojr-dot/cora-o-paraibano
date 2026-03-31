@@ -935,6 +935,17 @@ export default function ASSCARDIODetalhe() {
                 </RadioGroup>
               </div>
 
+              <div>
+                <Label className="text-lg font-bold">Parecer do Cardiologista:</Label>
+                <Textarea
+                  value={medicoData.parecer_cardiologista}
+                  onChange={(e) => setMedicoData({...medicoData, parecer_cardiologista: e.target.value})}
+                  placeholder="Digite aqui o parecer detalhado do cardiologista..."
+                  rows={6}
+                  className="mt-2"
+                />
+              </div>
+
               <div className="grid md:grid-cols-3 gap-3">
                 <div>
                   <Label className="font-bold">Médico Cardiologista *</Label>
@@ -963,17 +974,6 @@ export default function ASSCARDIODetalhe() {
                     className="mt-1"
                   />
                 </div>
-              </div>
-
-              <div>
-                <Label className="text-lg font-bold">Parecer do Cardiologista:</Label>
-                <Textarea
-                  value={medicoData.parecer_cardiologista}
-                  onChange={(e) => setMedicoData({...medicoData, parecer_cardiologista: e.target.value})}
-                  placeholder="Digite aqui o parecer detalhado do cardiologista..."
-                  rows={6}
-                  className="mt-2"
-                />
               </div>
 
               <div className="flex flex-col gap-3">
