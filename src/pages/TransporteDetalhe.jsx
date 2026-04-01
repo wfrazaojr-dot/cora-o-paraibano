@@ -616,11 +616,6 @@ export default function TransporteDetalhe() {
                     </div>
                     <div>
                       <Label>Equipe</Label>
-                      <Input
-                        value={formData.equipe}
-                        onChange={(e) => setFormData({...formData, equipe: e.target.value})}
-                        placeholder="Nome/identificação da equipe"
-                      />
                     </div>
                     <div className="grid grid-cols-3 gap-2">
                       <div>
