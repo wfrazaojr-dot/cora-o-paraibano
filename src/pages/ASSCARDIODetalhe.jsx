@@ -333,7 +333,7 @@ export default function ASSCARDIODetalhe() {
   const salvarLaudoMedico = useMutation({
     mutationFn: async () => {
       const file_url = await gerarRelatorioPDF();
-      await base44.entities.Paciente.update(pacienteId, {
+      const updateData = {
         assessoria_cardiologia: {
           data_hora: new Date().toISOString(),
           clinica: clinica,
@@ -353,7 +353,12 @@ export default function ASSCARDIODetalhe() {
         },
         relatorio_asscardio_url: file_url,
         status: "Aguardando Regulação"
-      });
+      };
+      // Se estratégia 6 (Trombólise + ICP 2-24h), pré-define tipo_icp na hemodinâmica
+      if (String(medicoData.diagnostico_estrategia) === "6") {
+        updateData.hemodinamica = { ...paciente?.hemodinamica, tipo_icp: "trombolise_icp" };
+      }
+      await base44.entities.Paciente.update(pacienteId, updateData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['paciente', pacienteId]);

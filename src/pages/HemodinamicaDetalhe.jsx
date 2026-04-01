@@ -23,7 +23,8 @@ import { ptBR } from "date-fns/locale";
 const TIPO_ICP_LABELS = {
   imediata: "ICP Imediata",
   ate_24h: "Estratégia 2: Estratégia Invasiva Precoce",
-  ate_72h: "Estratégia 3: Estratégia Invasiva Durante o Internamento"
+  ate_72h: "Estratégia 3: Estratégia Invasiva Durante o Internamento",
+  trombolise_icp: "Trombólise e ICP 2-24h"
 };
 
 export default function HemodinamicaDetalhe() {
@@ -673,6 +674,7 @@ Programa Coração Paraibano
                         <SelectItem value="imediata">ICP Imediata</SelectItem>
                         <SelectItem value="ate_24h">Regulado para: Estratégia 2 – Estratégia Invasiva Precoce</SelectItem>
                         <SelectItem value="ate_72h">Regulado para: Estratégia 3 – Estratégia Invasiva Durante o Internamento</SelectItem>
+                        <SelectItem value="trombolise_icp">Trombólise e ICP 2-24h</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

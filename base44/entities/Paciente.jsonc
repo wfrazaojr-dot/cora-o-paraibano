@@ -1,0 +1,833 @@
+{
+  "name": "Paciente",
+  "type": "object",
+  "properties": {
+    "unidade_saude": {
+      "type": "string",
+      "description": "Nome da unidade de sa\u00fade"
+    },
+    "cidade": {
+      "type": "string",
+      "description": "Cidade onde est\u00e1 a unidade de sa\u00fade"
+    },
+    "macrorregiao": {
+      "type": "string",
+      "enum": [
+        "Macro 1",
+        "Macro 2",
+        "Macro 3"
+      ],
+      "description": "Macrorregi\u00e3o de sa\u00fade da Para\u00edba"
+    },
+    "hemodinamica_macro_responsavel": {
+      "type": "string",
+      "enum": [
+        "Macro 1",
+        "Macro 2",
+        "Macro 3"
+      ],
+      "description": "Macrorregi\u00e3o respons\u00e1vel pelo agendamento/procedimento de hemodin\u00e2mica"
+    },
+    "historico_transferencias_hemo": {
+      "type": "array",
+      "description": "Hist\u00f3rico de transfer\u00eancias entre hemodin\u00e2micas",
+      "items": {
+        "type": "object",
+        "properties": {
+          "data_hora": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "macro_origem": {
+            "type": "string"
+          },
+          "macro_destino": {
+            "type": "string"
+          },
+          "motivo": {
+            "type": "string"
+          },
+          "usuario": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "nome_completo": {
+      "type": "string",
+      "description": "Nome completo do paciente"
+    },
+    "data_nascimento": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de nascimento do paciente"
+    },
+    "idade": {
+      "type": "number",
+      "description": "Idade do paciente"
+    },
+    "sexo": {
+      "type": "string",
+      "enum": [
+        "Masculino",
+        "Feminino"
+      ],
+      "description": "Sexo do paciente"
+    },
+    "uso_inibidor_fosfodiesterase": {
+      "type": "boolean"
+    },
+    "data_hora_inicio_triagem": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data_hora_chegada": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data_hora_inicio_sintomas": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "tempo_deslocamento_minutos": {
+      "type": "number"
+    },
+    "triagem_enfermagem": {
+      "type": "object",
+      "properties": {
+        "data_hora_classificacao_risco": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "data_hora_ecg": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "tempo_triagem_ecg_minutos": {
+          "type": "number"
+        },
+        "classificacao_risco": {
+          "type": "string",
+          "enum": [
+            "vermelha",
+            "laranja",
+            "amarela",
+            "verde"
+          ]
+        }
+      }
+    },
+    "triagem_medica": {
+      "type": "object",
+      "properties": {
+        "data_hora_inicio": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "medico_nome": {
+          "type": "string"
+        },
+        "medico_crm": {
+          "type": "string"
+        },
+        "pa_braco_esquerdo": {
+          "type": "string"
+        },
+        "pa_braco_direito": {
+          "type": "string"
+        },
+        "diferenca_pa_mse_msd": {
+          "type": "string"
+        },
+        "frequencia_cardiaca": {
+          "type": "number"
+        },
+        "frequencia_respiratoria": {
+          "type": "number"
+        },
+        "temperatura": {
+          "type": "number"
+        },
+        "spo2": {
+          "type": "number"
+        },
+        "uso_oxigenio": {
+          "type": "boolean"
+        },
+        "litros_oxigenio": {
+          "type": "number"
+        },
+        "diabetes": {
+          "type": "boolean"
+        },
+        "dpoc": {
+          "type": "boolean"
+        },
+        "glicemia_capilar": {
+          "type": "number"
+        },
+        "ecg_files": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "alteracoes_ecg": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tipo_sca": {
+          "type": "string",
+          "enum": [
+            "SCACESST",
+            "SCASESST_COM_TROPONINA",
+            "SCASESST_SEM_TROPONINA"
+          ]
+        }
+      }
+    },
+    "avaliacao_clinica": {
+      "type": "object",
+      "properties": {
+        "antecedentes": {
+          "type": "string"
+        },
+        "quadro_atual": {
+          "type": "string"
+        },
+        "hipotese_diagnostica": {
+          "type": "string"
+        },
+        "heart_score": {
+          "type": "object",
+          "properties": {
+            "historia_clinica": {
+              "type": "number"
+            },
+            "ecg": {
+              "type": "number"
+            },
+            "idade": {
+              "type": "number"
+            },
+            "fatores_risco": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "pontos_fatores_risco": {
+              "type": "number"
+            },
+            "troponina": {
+              "type": "number"
+            },
+            "total": {
+              "type": "number"
+            },
+            "interpretacao": {
+              "type": "string"
+            }
+          }
+        },
+        "avaliacao_gravidade": {
+          "type": "object",
+          "properties": {
+            "historia_clinica": {
+              "type": "string"
+            },
+            "ecg": {
+              "type": "string"
+            },
+            "idade": {
+              "type": "string"
+            },
+            "fatores_risco": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "prescricao_medicamentos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "medicamento": {
+                "type": "string"
+              },
+              "dose": {
+                "type": "string"
+              },
+              "via": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "exames_solicitados": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "resultados_exames": {
+          "type": "object"
+        },
+        "resultados_exames_mnm": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "observacoes_exames": {
+          "type": "object"
+        },
+        "limite_superior_normalidade": {
+          "type": "string"
+        },
+        "valor_troponina_paciente": {
+          "type": "string"
+        },
+        "valor_troponina_paciente_2": {
+          "type": "string"
+        },
+        "tipo_troponina_1": {
+          "type": "string"
+        },
+        "tipo_troponina_2": {
+          "type": "string"
+        },
+        "historia_clinica": {
+          "type": "string"
+        },
+        "ecg_classificacao": {
+          "type": "string"
+        },
+        "faixa_etaria": {
+          "type": "string"
+        },
+        "fatores_risco": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "info_transporte": {
+          "type": "object",
+          "description": "Informa\u00e7\u00f5es para transporte preenchidas na Etapa 3",
+          "properties": {
+            "glasgow": {
+              "type": "string"
+            },
+            "ar_ambiente": {
+              "type": "boolean"
+            },
+            "cateter_nasal": {
+              "type": "boolean"
+            },
+            "mascara_o2": {
+              "type": "boolean"
+            },
+            "vm_ativo": {
+              "type": "boolean"
+            },
+            "vm_modo": {
+              "type": "string"
+            },
+            "vm_fr": {
+              "type": "string"
+            },
+            "vm_peep": {
+              "type": "string"
+            },
+            "vm_fio2": {
+              "type": "string"
+            },
+            "vm_relacao_ie": {
+              "type": "string"
+            },
+            "analgesia_sedacao": {
+              "type": "boolean"
+            },
+            "analgesia_drogas": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "dva": {
+              "type": "boolean"
+            },
+            "dva_drogas": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "marcapasso_transcutaneo": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "medico_nome": {
+      "type": "string"
+    },
+    "medico_crm": {
+      "type": "string"
+    },
+    "medico_celular": {
+      "type": "string"
+    },
+    "tempo_triagem_medica_minutos": {
+      "type": "number"
+    },
+    "usa_disponivel_menos_90min": {
+      "type": "boolean"
+    },
+    "assessoria_cardiologia": {
+      "type": "object",
+      "properties": {
+        "cardiologista_nome": {
+          "type": "string"
+        },
+        "cardiologista_crm": {
+          "type": "string"
+        },
+        "parecer_cardiologista": {
+          "type": "string"
+        },
+        "enfermeiro_nome": {
+          "type": "string"
+        },
+        "enfermeiro_coren": {
+          "type": "string"
+        },
+        "parecer_enfermeiro": {
+          "type": "string"
+        },
+        "data_hora": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "diagnostico": {
+          "type": "string"
+        },
+        "diagnostico_estrategia": {
+          "type": "string"
+        },
+        "conduta": {
+          "type": "string"
+        },
+        "indicacao_hemodinamica": {
+          "type": "boolean"
+        },
+        "urgencia": {
+          "type": "string",
+          "enum": [
+            "Emerg\u00eancia",
+            "Urgente",
+            "Eletivo"
+          ]
+        }
+      }
+    },
+    "regulacao_central": {
+      "type": "object",
+      "properties": {
+        "medico_regulador_nome": {
+          "type": "string"
+        },
+        "medico_regulador_crm": {
+          "type": "string"
+        },
+        "parecer_medico_regulador": {
+          "type": "string"
+        },
+        "enfermeiro_regulador_nome": {
+          "type": "string"
+        },
+        "enfermeiro_regulador_coren": {
+          "type": "string"
+        },
+        "parecer_enfermeiro_regulador": {
+          "type": "string"
+        },
+        "data_hora": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "unidade_destino": {
+          "type": "string"
+        },
+        "vagas_disponiveis": {
+          "type": "number"
+        },
+        "observacoes_regulacao": {
+          "type": "string"
+        },
+        "conduta_inicial": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conduta_inicial_outros": {
+          "type": "string"
+        },
+        "conduta_final": {
+          "type": "string"
+        },
+        "senha_ses": {
+          "type": "string"
+        },
+        "email_regulador": {
+          "type": "string"
+        }
+      }
+    },
+    "transporte": {
+      "type": "object",
+      "properties": {
+        "data_hora_solicitacao": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "data_hora_inicio": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "data_hora_chegada_destino": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "equipe_responsavel": {
+          "type": "string"
+        },
+        "tipo_transporte": {
+          "type": "string"
+        },
+        "central_transporte": {
+          "type": "string"
+        },
+        "unidade_destino": {
+          "type": "string"
+        },
+        "intercorrencias": {
+          "type": "string"
+        },
+        "motivo_intercorrencia": {
+          "type": "string"
+        },
+        "motivo_detalhado": {
+          "type": "string"
+        },
+        "acoes_tomadas": {
+          "type": "string"
+        },
+        "motivo_nao_iniciado": {
+          "type": "string"
+        },
+        "descricao_nao_iniciado": {
+          "type": "string"
+        },
+        "relatorio_transporte_url": {
+          "type": "string"
+        },
+        "status_transporte": {
+          "type": "string",
+          "enum": [
+            "Aguardando",
+            "Em Deslocamento",
+            "Conclu\u00eddo",
+            "Com Intercorr\u00eancia",
+            "N\u00e3o Iniciado - Intercorr\u00eancia"
+          ]
+        },
+        "historico_intercorrencias": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "data_hora": {
+                "type": "string"
+              },
+              "motivo": {
+                "type": "string"
+              },
+              "descricao": {
+                "type": "string"
+              },
+              "acoes_tomadas": {
+                "type": "string"
+              },
+              "relatorio_url": {
+                "type": "string"
+              },
+              "tipo_transporte": {
+                "type": "string"
+              },
+              "central": {
+                "type": "string"
+              },
+              "destino": {
+                "type": "string"
+              },
+              "registrado_por": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "hemodinamica": {
+      "type": "object",
+      "properties": {
+        "tipo_icp": {
+          "type": "string",
+          "enum": [
+            "imediata",
+            "ate_24h",
+            "ate_72h",
+            "trombolise_icp"
+          ],
+          "description": "Tipo de ICP: imediata, \u226424h, \u226472h ou Tromb\u00f3lise e ICP 2-24h"
+        },
+        "data_hora_agendamento_icp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Data e hora agendada para ICP n\u00e3o imediata"
+        },
+        "comparecimento_paciente": {
+          "type": "string",
+          "enum": [
+            "compareceu",
+            "nao_compareceu"
+          ],
+          "description": "Se o paciente compareceu na data agendada"
+        },
+        "data_hora_chegada": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "data_hora_inicio_procedimento": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "data_hora_inicio_icp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "data_hora_fim_procedimento": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "fmc_to_device_minutos": {
+          "type": "number"
+        },
+        "procedimento_realizado": {
+          "type": "string"
+        },
+        "icp_realizada": {
+          "type": "boolean"
+        },
+        "reperfusao_efetiva": {
+          "type": "boolean"
+        },
+        "intercorrencias": {
+          "type": "string"
+        },
+        "desfecho": {
+          "type": "string",
+          "enum": [
+            "Sucesso",
+            "Complica\u00e7\u00f5es",
+            "\u00d3bito"
+          ]
+        },
+        "observacoes": {
+          "type": "string"
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Em Triagem",
+        "Aguardando Assessoria",
+        "Aguardando Regula\u00e7\u00e3o",
+        "Aguardando Transporte",
+        "Em Transporte",
+        "Aguardando Hemodin\u00e2mica",
+        "Em Procedimento",
+        "Conclu\u00eddo"
+      ],
+      "default": "Em Triagem"
+    },
+    "classificacao_prioridade": {
+      "type": "string",
+      "enum": [
+        "Vermelha",
+        "Amarela",
+        "Verde"
+      ]
+    },
+    "historico_etapas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "etapa": {
+            "type": "number"
+          },
+          "medico_email": {
+            "type": "string"
+          },
+          "medico_nome": {
+            "type": "string"
+          },
+          "data_hora": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "relatorio_triagem_url": {
+      "type": "string"
+    },
+    "relatorio_asscardio_url": {
+      "type": "string"
+    },
+    "relatorio_cerh_url": {
+      "type": "string"
+    },
+    "relatorio_transporte_url": {
+      "type": "string"
+    },
+    "relatorio_hemodinamica_url": {
+      "type": "string",
+      "description": "URL do relat\u00f3rio PDF da Hemodin\u00e2mica"
+    },
+    "relatorio_agendamento_hemo_url": {
+      "type": "string",
+      "description": "URL do relat\u00f3rio PDF de Agendamento de Hemodin\u00e2mica (\u226424h ou \u226472h)"
+    },
+    "alerta_formulario_vaga": {
+      "type": "boolean",
+      "default": false
+    },
+    "formulario_vaga": {
+      "type": "object",
+      "description": "Dados do formul\u00e1rio de solicita\u00e7\u00e3o de vaga enviado pela unidade de sa\u00fade",
+      "properties": {
+        "data_envio": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "enviado_por": {
+          "type": "string"
+        },
+        "especialidade_solicitada": {
+          "type": "string"
+        },
+        "nome_completo": {
+          "type": "string"
+        },
+        "data_nascimento": {
+          "type": "string"
+        },
+        "idade": {
+          "type": "string"
+        },
+        "sexo": {
+          "type": "string"
+        },
+        "nome_mae": {
+          "type": "string"
+        },
+        "local_nascimento": {
+          "type": "string"
+        },
+        "rg": {
+          "type": "string"
+        },
+        "uf_rg": {
+          "type": "string"
+        },
+        "cpf": {
+          "type": "string"
+        },
+        "cns": {
+          "type": "string"
+        },
+        "endereco": {
+          "type": "string"
+        },
+        "telefone_responsavel": {
+          "type": "string"
+        },
+        "email_unidade_solicitante": {
+          "type": "string",
+          "description": "E-mail da unidade de sa\u00fade que enviou o formul\u00e1rio"
+        },
+        "unidade_solicitante": {
+          "type": "string"
+        },
+        "data_hora_admissao": {
+          "type": "string"
+        },
+        "hipotese_diagnostica": {
+          "type": "string"
+        },
+        "alergia": {
+          "type": "string"
+        },
+        "alergia_descricao": {
+          "type": "string"
+        },
+        "medicacoes_uso_continuo": {
+          "type": "string"
+        },
+        "medicacoes_descricao": {
+          "type": "string"
+        },
+        "comorbidades": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "comorbidades_outras": {
+          "type": "string"
+        },
+        "solicita_leito": {
+          "type": "string"
+        },
+        "medico_solicitante": {
+          "type": "string"
+        },
+        "crm_solicitante": {
+          "type": "string"
+        },
+        "documentos": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "nome_completo",
+    "sexo"
+  ]
+}
