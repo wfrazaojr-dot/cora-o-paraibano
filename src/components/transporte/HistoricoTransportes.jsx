@@ -33,13 +33,16 @@ export default function HistoricoTransportes({ pacientes }) {
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
 
-  // Apenas transportes finalizados (com chegada ao destino OU não iniciado com intercorrência)
+  // Transportes finalizados: com chegada ao destino, status concluído, com intercorrência ou não iniciado
   const historico = useMemo(() => {
     return pacientes
       .filter(p => {
         const t = p.transporte;
         if (!t) return false;
-        return !!t.data_hora_chegada_destino || t.status_transporte === "Não Iniciado - Intercorrência";
+        return !!t.data_hora_chegada_destino
+          || t.status_transporte === "Concluído"
+          || t.status_transporte === "Com Intercorrência"
+          || t.status_transporte === "Não Iniciado - Intercorrência";
       })
       .sort((a, b) => {
         const dA = a.transporte?.data_hora_chegada_destino || a.transporte?.data_hora_solicitacao || "";
