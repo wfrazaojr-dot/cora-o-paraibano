@@ -61,10 +61,10 @@ export default function CartaoTransporte({ paciente }) {
         </div>
 
         {/* Destino */}
-        {transporte.unidade_destino && (
+        {(transporte.unidade_destino || paciente.regulacao_central?.unidade_destino) && (
           <div className="flex items-center gap-1 text-sm text-indigo-700">
             <MapPin className="w-3 h-3 shrink-0" />
-            <span className="font-semibold truncate">{transporte.unidade_destino}</span>
+            <span className="font-semibold truncate">{transporte.unidade_destino || paciente.regulacao_central?.unidade_destino}</span>
           </div>
         )}
 
