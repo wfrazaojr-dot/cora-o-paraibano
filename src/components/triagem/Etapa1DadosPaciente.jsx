@@ -150,7 +150,14 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Informações do Paciente</h2>
-        <p className="text-gray-600">Preencha os dados básicos do paciente para iniciar a triagem</p>
+        <div className="bg-red-50 border-2 border-red-400 rounded-lg p-4 mt-2">
+          <p className="text-sm font-bold text-red-800 mb-2">⚠️ ATENÇÃO</p>
+          <p className="text-sm text-red-900 leading-relaxed">
+            Em caso de <strong>ECG com elevação de segmento ST</strong>, preencha de imediato este formulário.<br /><br />
+            Em caso de <strong>ECG sem elevação de ST</strong>, preencha este formulário após o primeiro resultado da primeira Troponina quantitativa, incluindo o valor do Limite Superior da Normalidade (LSN) do laboratório. Caso o resultado seja normal, repetir a segunda Troponina e após o resultado iniciar o preenchimento deste formulário.<br /><br />
+            Caso <strong>não tenha troponina</strong>, faça o preenchimento de imediato após um segundo ECG de 12 a 16 derivações.
+          </p>
+        </div>
       </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
