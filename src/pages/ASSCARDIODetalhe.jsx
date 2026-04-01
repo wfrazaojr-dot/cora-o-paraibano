@@ -18,6 +18,7 @@ import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
 import MonitorTransporte from "@/components/regulacao/MonitorTransporte";
 import ChatInterno from "@/components/ChatInterno";
+import RecomendacoesTrombolise from "@/components/asscardio/RecomendacoesTrombolise";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
@@ -933,6 +934,7 @@ export default function ASSCARDIODetalhe() {
                     <Label htmlFor="est6" className="text-base">☐ 6- Trombólise</Label>
                   </div>
                 </RadioGroup>
+                {medicoData.diagnostico_estrategia === "6" && <RecomendacoesTrombolise />}
               </div>
 
               <div>
