@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 import { jsPDF } from 'npm:jspdf@2.5.1';
 
 Deno.serve(async (req) => {
@@ -178,15 +178,10 @@ Deno.serve(async (req) => {
     doc.text(`Gerado em: ${fmt(new Date().toISOString())}`, 20, pageHeight - 4);
 
     const pdfData = doc.output('arraybuffer');
-    const bytes = new Uint8Array(pdfData);
-    let binary = '';
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    const pdfBase64 = btoa(binary);
+    const pdfBlob = new Blob([pdfData], { type: 'application/pdf' });
 
     const uploadResult = await base44.integrations.Core.UploadFile({
-      file: `data:application/pdf;base64,${pdfBase64}`
+      file: pdfBlob
     });
 
     return Response.json({
