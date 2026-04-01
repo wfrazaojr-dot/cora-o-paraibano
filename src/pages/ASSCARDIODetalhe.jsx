@@ -179,8 +179,8 @@ export default function ASSCARDIODetalhe() {
       setEnfermeiroFinalizado(true);
     }
 
-    // Carregar dados do médico
-    if (ass.cardiologista_nome || ass.parecer_cardiologista) {
+    // Carregar dados do médico (inclui confirma_triagem mesmo sem nome/parecer)
+    if (ass.cardiologista_nome || ass.parecer_cardiologista || ass.diagnostico_estrategia || ass.confirma_triagem) {
       setMedicoData({
         confirma_triagem: ass.confirma_triagem || false,
         diagnostico_estrategia: ass.diagnostico_estrategia ? String(ass.diagnostico_estrategia) : "",
@@ -410,7 +410,26 @@ export default function ASSCARDIODetalhe() {
           {/* Coluna Direita - Formulário */}
            <div className="lg:col-span-2 space-y-4">
 
-            {/* Card de Agendamento de ICP - Se houver */}
+            {/* Botão Baixar PDF do Laudo ASSCARDIO */}
+            {paciente.relatorio_asscardio_url && (
+              <Card className="border-2 border-red-300 bg-red-50">
+                <CardHeader className="bg-red-100">
+                  <CardTitle className="flex items-center gap-2 text-red-800">
+                    📄 Relatório ASSCARDIO - Gerado
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-2">
+                  <Button
+                    onClick={() => window.open(paciente.relatorio_asscardio_url, '_blank')}
+                    className="w-full bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    ⬇️ BAIXAR PDF DO PARECER CARDIOLÓGICO
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+        {/* Card de Agendamento de ICP - Se houver */}
             {paciente.hemodinamica?.data_hora_agendamento_icp && (
               <Card className="border-blue-300 bg-blue-50">
                 <CardHeader className="bg-blue-100">
@@ -431,6 +450,7 @@ export default function ASSCARDIODetalhe() {
                         {paciente.hemodinamica.tipo_icp === 'imediata' && 'Imediata'}
                         {paciente.hemodinamica.tipo_icp === 'ate_24h' && 'Estratégia Invasiva Precoce'}
                         {paciente.hemodinamica.tipo_icp === 'ate_72h' && 'Estratégia Invasiva Durante o Internamento'}
+                        {paciente.hemodinamica.tipo_icp === 'trombolise_icp' && 'Trombólise e ICP 2-24h'}
                       </Badge>
                     </div>
                   )}
