@@ -9,9 +9,39 @@ import { ptBR } from "date-fns/locale";
 export default function MonitorTransporte({ paciente }) {
   const transporte = paciente?.transporte;
 
-  if (!transporte?.data_hora_inicio && !transporte?.data_hora_solicitacao) return null;
+  // Não exibe nada se não houver solicitação de transporte
+  if (!transporte?.data_hora_solicitacao) return null;
 
-  const status = transporte?.status_transporte || "Aguardando";
+  // Transporte solicitado mas ainda NÃO iniciado
+  if (!transporte.data_hora_inicio) {
+    return (
+      <Card className="border-2 border-blue-400 bg-blue-50">
+        <CardHeader className="pb-2 bg-blue-100">
+          <CardTitle className="flex items-center gap-2 text-sm text-blue-800">
+            <Clock className="w-4 h-4" />
+            <Truck className="w-4 h-4" />
+            Transporte — Pendente
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-3 space-y-2 text-xs">
+          <div>
+            <p className="font-semibold text-gray-600">SOLICITADO EM</p>
+            <p className="font-bold">{format(new Date(transporte.data_hora_solicitacao), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+          </div>
+          {transporte.unidade_destino && (
+            <div className="flex items-center gap-1 font-bold text-indigo-700">
+              <MapPin className="w-3 h-3" />
+              <span>Destino: {transporte.unidade_destino}</span>
+            </div>
+          )}
+          <p className="text-blue-700 italic">Aguardando início do transporte pela equipe responsável.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Transporte iniciado
+  const status = transporte?.status_transporte || "Em Deslocamento";
   const finalizado = !!transporte?.data_hora_chegada_destino;
   const isIntercorrencia = status === "Com Intercorrência";
 
