@@ -297,12 +297,42 @@ export default function ASSCARDIODetalhe() {
     }
   };
 
+  const salvarRascunho = useMutation({
+    mutationFn: async () => {
+      await base44.entities.Paciente.update(pacienteId, {
+        assessoria_cardiologia: {
+          ...paciente?.assessoria_cardiologia,
+          clinica,
+          ecg_supra: ecgSupra,
+          ecg_sem_supra: ecgSemSupra,
+          heart_score: {
+            ...heartScore,
+            total: calcularHeartTotal(),
+            interpretacao: getHeartInterpretacao(calcularHeartTotal())
+          },
+          pre_parecer: preParecer,
+          diagnostico_estrategia: medicoData.diagnostico_estrategia,
+          parecer_cardiologista: medicoData.parecer_cardiologista,
+          cardiologista_nome: medicoData.cardiologista_nome,
+          cardiologista_crm: medicoData.cardiologista_crm,
+          cardiologista_rqe: medicoData.cardiologista_rqe,
+          confirma_triagem: medicoData.confirma_triagem,
+          _rascunho: true
+        }
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['paciente', pacienteId]);
+      alert("Rascunho salvo com sucesso! Você pode continuar depois.");
+    },
+    onError: (error) => {
+      alert("Erro ao salvar rascunho: " + error.message);
+    }
+  });
+
   const salvarLaudoMedico = useMutation({
     mutationFn: async () => {
-      // Gerar o relatório como PDF
       const file_url = await gerarRelatorioPDF();
-
-      // Salvar dados da assessoria + URL do relatório
       await base44.entities.Paciente.update(pacienteId, {
         assessoria_cardiologia: {
           data_hora: new Date().toISOString(),
@@ -1007,163 +1037,12 @@ export default function ASSCARDIODetalhe() {
 
               <div className="flex flex-col gap-3">
                 <Button
-                  onClick={async () => {
-                    try {
-                      const toBase64 = (url) => fetch(url).then(r => r.blob()).then(b => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(b); }));
-                      const [imgGov, imgCoracao, imgComplexo] = await Promise.all([
-                        toBase64('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png'),
-                        toBase64('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png'),
-                        toBase64('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg'),
-                      ]);
-                      const pdf = new jsPDF("p", "mm", "a4");
-                      const pg = pdf.internal.pageSize;
-                      // Cabeçalho com logos
-                      pdf.addImage(imgGov, 'PNG', 10, 8, 40, 14);
-                      pdf.addImage(imgCoracao, 'PNG', 85, 8, 40, 14);
-                      pdf.addImage(imgComplexo, 'JPEG', 160, 8, 40, 14);
-                      let y = 28;
-                      const addLine = (txt, opts = {}) => {
-                        const { bold, size, color } = opts;
-                        pdf.setFontSize(size || 10);
-                        if (bold) pdf.setFont("helvetica", "bold"); else pdf.setFont("helvetica", "normal");
-                        if (color) pdf.setTextColor(...color); else pdf.setTextColor(0, 0, 0);
-                        const lines = pdf.splitTextToSize(txt, pg.getWidth() - 20);
-                        lines.forEach(line => {
-                          if (y > pg.getHeight() - 15) { pdf.addPage(); y = 15; }
-                          pdf.text(line, 10, y);
-                          y += (size || 10) * 0.45;
-                        });
-                        y += 1;
-                      };
-                      const sep = () => { pdf.setDrawColor(180,180,180); pdf.line(10, y, pg.getWidth()-10, y); y += 4; };
-
-                      addLine("RELATÓRIO ASSESSORIA CARDIOLÓGICA - ASSCARDIO", { bold: true, size: 14, color: [180,0,0] });
-                      addLine(`Data: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`);
-                      sep();
-
-                      addLine("DADOS DO PACIENTE", { bold: true, size: 11 });
-                      addLine(`Nome: ${paciente?.nome_completo || '-'} | Idade: ${paciente?.idade || '-'} | Sexo: ${paciente?.sexo || '-'}`);
-                      addLine(`Unidade: ${paciente?.unidade_saude || '-'}`);
-                      sep();
-
-                      if (paciente?.triagem_medica) {
-                        const tm = paciente.triagem_medica;
-                        addLine("SINAIS VITAIS", { bold: true, size: 11 });
-                        addLine(`PA: ${tm.pa_braco_esquerdo || '-'} | FC: ${tm.frequencia_cardiaca || '-'} bpm | FR: ${tm.frequencia_respiratoria || '-'} irpm | SpO2: ${tm.spo2 || '-'}% | Temp: ${tm.temperatura || '-'}°C | Glicemia: ${tm.glicemia_capilar || '-'} mg/dL`);
-                        sep();
-                      }
-
-                      addLine("AVALIAÇÃO DE ENFERMAGEM (PRÉ-PARECER)", { bold: true, size: 11 });
-                      addLine(preParecer || '-');
-                      sep();
-
-                      addLine("DADOS CLÍNICOS", { bold: true, size: 11 });
-                      addLine(`Dor Típica: ${clinica.dor_tipica?'Sim':'Não'} | Sudorese: ${clinica.sudorese?'Sim':'Não'} | HAS: ${clinica.has?'Sim':'Não'} | DM: ${clinica.dm?'Sim':'Não'} | Tabagismo: ${clinica.tabagismo?'Sim':'Não'} | Dislipidemia: ${clinica.dislipidemia?'Sim':'Não'}`);
-                      sep();
-
-                      addLine("ACHADOS DO ECG", { bold: true, size: 11 });
-                      addLine(`Supra ST: ${ecgSupra.tem_supra === 'sim' ? 'SIM' : 'NÃO'}`);
-                      if (ecgSupra.tem_supra === 'sim' && ecgSupra.parede_supra) addLine(`Parede: ${ecgSupra.parede_supra}`);
-                      sep();
-
-                      if (ecgSupra.tem_supra !== 'sim') {
-                        addLine("HEART SCORE", { bold: true, size: 11 });
-                        addLine(`História: ${heartScore.historia} | ECG: ${heartScore.ecg} | Idade: ${heartScore.idade} | Fatores de Risco: ${heartScore.risco} | Troponina: ${heartScore.troponina}`);
-                        addLine(`TOTAL: ${calcularHeartTotal()} pontos - ${getHeartInterpretacao(calcularHeartTotal())}`, { bold: true });
-                        sep();
-                      }
-
-                      addLine("AVALIAÇÃO DO CARDIOLOGISTA", { bold: true, size: 11 });
-                      if (medicoData.cardiologista_nome) addLine(`Cardiologista: ${medicoData.cardiologista_nome} | CRM: ${medicoData.cardiologista_crm}${medicoData.cardiologista_rqe ? ` | RQE: ${medicoData.cardiologista_rqe}` : ''}`);
-                      addLine(`Triagem confirmada: ${medicoData.confirma_triagem ? 'Sim' : 'Não'}`);
-                      const estrategias = {"1":"1- IAM supra ST → Estratégia 1: transferência imediata","2":"2- SCA sem supra MUITO alto risco → Estratégia 1: transferência imediata","3":"3- IAM sem supra/alto risco → Estratégia 2: Estratégia Invasiva Precoce","4":"4- SCA intermediário → Estratégia 3: Estratégia Invasiva Durante o Internamento","5":"5- Orientação Cardiológica","6":"6- Trombólise + ICP 2-24h"};
-                      addLine(`Diagnóstico + Estratégia: ${estrategias[medicoData.diagnostico_estrategia] || 'Não definido'}`, { bold: true });
-                      y += 2;
-                      addLine("PARECER DO CARDIOLOGISTA:", { bold: true });
-                      addLine(medicoData.parecer_cardiologista || '-');
-                      sep();
-
-                      // Recomendações para Trombólise (apenas estratégia 6)
-                      if (String(medicoData.diagnostico_estrategia) === "6") {
-                        addLine("RECOMENDAÇÕES PARA TROMBÓLISE", { bold: true, size: 12, color: [100,0,150] });
-                        addLine("Após a administração da terapia inicial, incluindo analgesia e anti-agregação plaquetária, identificar as contraindicações ao uso do trombolítico.");
-                        y += 2;
-
-                        addLine("CONTRAINDICAÇÕES ABSOLUTAS:", { bold: true, color: [180,0,0] });
-                        addLine("• História de AVC hemorrágico prévio ou AVC isquêmico nos últimos seis meses; malformação arteriovenosa, dano ou neoplasia em sistema nervoso central; trauma de face ou cabeça nos últimos 30 dias; punção não compressível há menos de 24 horas (exemplos: biópsia renal ou hepática, punção liquórica); sangramento ativo; sangramento em trato gastrointestinal nos últimos 30 dias; suspeita de dissecção aguda de aorta.");
-                        y += 2;
-
-                        addLine("CONTRAINDICAÇÕES RELATIVAS:", { bold: true, color: [180,80,0] });
-                        addLine("• PA > 180/110mmHg; uso prévio de anticoagulante; doença hepática avançada; úlcera péptica ativa; ressuscitação cardíaca prolongada; endocardite infecciosa; gravidez e primeira semana de puerpério; ataque isquêmico transitório nos últimos seis meses.");
-                        y += 2;
-
-                        addLine("TERAPIA PERITROMBÓLISE", { bold: true, color: [0,0,150] });
-                        addLine("1 - TERAPIA ANTICOAGULANTE - Enoxaparina Injetável:", { bold: true });
-                        addLine("• < 75 anos: 30mg EV em bolus; após 15 minutos, 1mg/kg SC 12/12 horas (máximo de 100mg/dose);");
-                        addLine("• ≥ 75 anos: 0,75mg/kg SC 12/12 horas (máximo de 100mg/dose, omite-se a dose de ataque).");
-                        y += 2;
-
-                        addLine("2 - FIBRINÓLISE", { bold: true });
-                        addLine("2.1 - ALTEPLASE (Início dos sintomas há menos de seis horas):", { bold: true });
-                        addLine("• 15mg EV em bolus, seguidos de infusão de 0,75mg/kg (não excedendo 50mg) em 30 minutos e, por fim, mais 0,50mg/kg (não excedendo 35mg) nos próximos 60 minutos.");
-                        addLine("2.2 - ALTEPLASE (Início dos sintomas entre seis e 12 horas):", { bold: true });
-                        addLine("• 10mg EV em bolus, seguidos de infusão de 50mg em 60 minutos e, por fim, mais 35mg nos próximos 120 minutos. Naqueles com menos de 65kg, a dose total não deve exceder 1,5mg/kg.");
-                        y += 2;
-
-                        addLine("3.1 - TENECTEPLASE (Ampola de 40mg até 80Kg):", { bold: true });
-                        addLine("• Até 60kg: 30mg; 60kg a 70kg: 35mg; 71kg a 80kg: 40mg. Nos idosos com mais de 75 anos, faz-se somente metade da dose.");
-                        addLine("3.2 - TENECTEPLASE (Ampola de 50mg > 80Kg):", { bold: true });
-                        addLine("• 81kg a 90kg: 45mg; 90kg: 50mg. Nos idosos com mais de 75 anos, faz-se somente metade da dose.");
-                        y += 2;
-
-                        addLine("CUIDADOS PERITROMBÓLISE:", { bold: true, color: [150,100,0] });
-                        addLine("O paciente deve permanecer sob monitorização hemodinâmica contínua, com verificação dos sinais vitais 15/15 min. durante as primeiras duas horas; 30/30 min. nas próximas quatro horas; e de 60/60 min por 18 horas.");
-                        addLine("Devem ser evitados procedimentos invasivos dentro de 24 horas, sobretudo dentro das primeiras seis horas após o término do trombolítico, tais como: cateterização venosa central ou punção arterial; sondagem vesical; sondagem nasoenteral ou nasogástrica.");
-                        addLine("Observar os critérios de reperfusão, verificados após 90 minutos do início do trombolítico (melhora súbita da dor, regressão superior a 50% do supradesnível de ST, pico precoce de marcadores de necrose e/ou arritmias de reperfusão).");
-                        sep();
-                      }
-
-                      // Informações para Transporte
-                      const it = paciente?.avaliacao_clinica?.info_transporte;
-                      if (it && Object.keys(it).length > 0) {
-                        addLine("INFORMAÇÕES PARA TRANSPORTE", { bold: true, size: 11 });
-                        if (it.glasgow) addLine(`Glasgow: ${it.glasgow}`);
-                        const o2 = [];
-                        if (it.ar_ambiente === true) o2.push("Ar Ambiente");
-                        if (it.cateter_nasal === true) o2.push("Cateter Nasal");
-                        if (it.mascara_o2 === true) o2.push("Máscara O₂");
-                        if (o2.length) addLine(`Suporte O₂: ${o2.join(', ')}`);
-                        addLine(`Ventilação Mecânica: ${it.vm_ativo === true ? 'Sim' : it.vm_ativo === false ? 'Não' : '-'}`);
-                        if (it.vm_ativo === true) {
-                          const vmParts = [];
-                          if (it.vm_modo) vmParts.push(`Modo: ${it.vm_modo}`);
-                          if (it.vm_fr) vmParts.push(`FR: ${it.vm_fr} ipm`);
-                          if (it.vm_peep) vmParts.push(`PEEP: ${it.vm_peep} cmH₂O`);
-                          if (it.vm_fio2) vmParts.push(`FiO₂: ${it.vm_fio2}%`);
-                          if (it.vm_relacao_ie) vmParts.push(`I:E ${it.vm_relacao_ie}`);
-                          if (vmParts.length) addLine(`  Parâmetros: ${vmParts.join(' | ')}`);
-                        }
-                        addLine(`Analgesia/Sedação: ${it.analgesia_sedacao === true ? 'Sim' : it.analgesia_sedacao === false ? 'Não' : '-'}`);
-                        if (it.analgesia_sedacao === true && it.analgesia_drogas?.length) addLine(`  Drogas: ${it.analgesia_drogas.join(', ')}`);
-                        addLine(`DVA: ${it.dva === true ? 'Sim' : it.dva === false ? 'Não' : '-'}`);
-                        if (it.dva === true && it.dva_drogas?.length) addLine(`  Drogas: ${it.dva_drogas.join(', ')}`);
-                        addLine(`Marcapasso Transcutâneo: ${it.marcapasso_transcutaneo === true ? 'Sim' : it.marcapasso_transcutaneo === false ? 'Não' : '-'}`);
-                        sep();
-                      }
-
-                      addLine("Sistema de Triagem de Dor Torácica - Walber Alves Frazão Júnior - COREN 110.238", { size: 8, color: [120,120,120] });
-                      addLine(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm:ss", { locale: ptBR })}`, { size: 8, color: [120,120,120] });
-
-                      const nomePaciente = (paciente?.nome_completo || 'Paciente').replace(/\s+/g, '_');
-                      pdf.save(`Parecer_ASSCARDIO_${nomePaciente}_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`);
-                    } catch(e) {
-                      alert("Erro ao gerar PDF: " + e.message);
-                    }
-                  }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg py-4"
-                  variant="default"
+                  onClick={() => salvarRascunho.mutate()}
+                  disabled={salvarRascunho.isPending}
+                  variant="outline"
+                  className="w-full border-2 border-orange-400 text-orange-700 hover:bg-orange-50 text-lg py-4"
                 >
-                  📄 BAIXAR PARECER ASSCARDIO (PDF)
+                  {salvarRascunho.isPending ? "Salvando..." : "💾 SALVAR RASCUNHO"}
                 </Button>
 
                 <Button
