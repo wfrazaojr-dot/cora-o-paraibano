@@ -108,7 +108,7 @@ export default function HistoricoTransportes({ pacientes }) {
             )}
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Busca por nome/destino */}
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 w-4 h-4 text-gray-400" />
