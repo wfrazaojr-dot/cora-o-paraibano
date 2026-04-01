@@ -183,7 +183,7 @@ export default function ASSCARDIODetalhe() {
     if (ass.cardiologista_nome || ass.parecer_cardiologista) {
       setMedicoData({
         confirma_triagem: ass.confirma_triagem || false,
-        diagnostico_estrategia: ass.diagnostico_estrategia || "",
+        diagnostico_estrategia: ass.diagnostico_estrategia ? String(ass.diagnostico_estrategia) : "",
         parecer_cardiologista: ass.parecer_cardiologista || "",
         cardiologista_nome: ass.cardiologista_nome || "",
         cardiologista_crm: ass.cardiologista_crm || "",
@@ -404,7 +404,7 @@ export default function ASSCARDIODetalhe() {
             )}
 
             {/* Relatório Visual (Oculto) */}
-            <div style={{ position: 'absolute', left: '-9999px' }}>
+            <div style={{ position: 'fixed', top: '-9999px', left: '-9999px', visibility: 'hidden', pointerEvents: 'none' }}>
               <div 
                 ref={relatorioRef} 
                 className="bg-white p-8"
@@ -961,7 +961,7 @@ export default function ASSCARDIODetalhe() {
                     <Label htmlFor="est6" className="text-base">☐ 6- Trombólise + ICP 2-24h</Label>
                   </div>
                 </RadioGroup>
-                {medicoData.diagnostico_estrategia === "6" && <RecomendacoesTrombolise />}
+                {String(medicoData.diagnostico_estrategia) === "6" && <RecomendacoesTrombolise />}
               </div>
 
               <div>
@@ -1084,7 +1084,7 @@ export default function ASSCARDIODetalhe() {
                       sep();
 
                       // Recomendações para Trombólise (apenas estratégia 6)
-                      if (medicoData.diagnostico_estrategia === "6") {
+                      if (String(medicoData.diagnostico_estrategia) === "6") {
                         addLine("RECOMENDAÇÕES PARA TROMBÓLISE", { bold: true, size: 12, color: [100,0,150] });
                         addLine("Após a administração da terapia inicial, incluindo analgesia e anti-agregação plaquetária, identificar as contraindicações ao uso do trombolítico.");
                         y += 2;
