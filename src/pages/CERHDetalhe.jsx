@@ -496,7 +496,7 @@ export default function CERHDetalhe() {
                   <div className="mt-4">
                     {paciente.relatorio_asscardio_url ? (
                       <Button
-                        onClick={() => downloadPDF(paciente.relatorio_asscardio_url, `Parecer_ASSCARDIO_${paciente.nome_completo}.pdf`)}
+                        onClick={() => window.open(paciente.relatorio_asscardio_url, '_blank')}
                         className="w-full bg-red-600 hover:bg-red-700"
                       >
                         <FileText className="w-4 h-4 mr-2" />
