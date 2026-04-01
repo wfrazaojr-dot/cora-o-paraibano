@@ -544,7 +544,7 @@ export default function ASSCARDIODetalhe() {
                         "3": "3- IAM sem supra/alto risco → Estratégia 2: Estratégia Invasiva Precoce",
                         "4": "4- SCA intermediário → Estratégia 3: Estratégia Invasiva Durante o Internamento",
                         "5": "5- Orientação Cardiológica",
-                        "6": "6- Trombólise"
+                        "6": "6- Trombólise + ICP 2-24h"
                       };
                       return estrategias[medicoData.diagnostico_estrategia] || 'Não definido';
                     })()}</p>
@@ -958,7 +958,7 @@ export default function ASSCARDIODetalhe() {
                   </div>
                   <div className="flex items-center space-x-2 bg-purple-100 p-3 rounded">
                     <RadioGroupItem value="6" id="est6" />
-                    <Label htmlFor="est6" className="text-base">☐ 6- Trombólise</Label>
+                    <Label htmlFor="est6" className="text-base">☐ 6- Trombólise + ICP 2-24h</Label>
                   </div>
                 </RadioGroup>
                 {medicoData.diagnostico_estrategia === "6" && <RecomendacoesTrombolise />}
@@ -1066,7 +1066,7 @@ export default function ASSCARDIODetalhe() {
                       addLine("AVALIAÇÃO DO CARDIOLOGISTA", { bold: true, size: 11 });
                       if (medicoData.cardiologista_nome) addLine(`Cardiologista: ${medicoData.cardiologista_nome} | CRM: ${medicoData.cardiologista_crm}${medicoData.cardiologista_rqe ? ` | RQE: ${medicoData.cardiologista_rqe}` : ''}`);
                       addLine(`Triagem confirmada: ${medicoData.confirma_triagem ? 'Sim' : 'Não'}`);
-                      const estrategias = {"1":"1- IAM supra ST → Estratégia 1: transferência imediata","2":"2- SCA sem supra MUITO alto risco → Estratégia 1: transferência imediata","3":"3- IAM sem supra/alto risco → Estratégia 2: Estratégia Invasiva Precoce","4":"4- SCA intermediário → Estratégia 3: Estratégia Invasiva Durante o Internamento","5":"5- Orientação Cardiológica","6":"6- Trombólise"};
+                      const estrategias = {"1":"1- IAM supra ST → Estratégia 1: transferência imediata","2":"2- SCA sem supra MUITO alto risco → Estratégia 1: transferência imediata","3":"3- IAM sem supra/alto risco → Estratégia 2: Estratégia Invasiva Precoce","4":"4- SCA intermediário → Estratégia 3: Estratégia Invasiva Durante o Internamento","5":"5- Orientação Cardiológica","6":"6- Trombólise + ICP 2-24h"};
                       addLine(`Diagnóstico + Estratégia: ${estrategias[medicoData.diagnostico_estrategia] || 'Não definido'}`, { bold: true });
                       y += 2;
                       addLine("PARECER DO CARDIOLOGISTA:", { bold: true });
