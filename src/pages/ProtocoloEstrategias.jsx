@@ -34,17 +34,78 @@ export default function ProtocoloEstrategias() {
         ]
       },
       {
-        categoria: "Adicionar anticoagulante",
+        categoria: "RECOMENDAÇÕES PARA TROMBÓLISE",
         itens: [
-          "Enoxaparina 30 mg EV (15 a 30 minutos após fibrinolítico) e 30 mg EV (15 minutos após administração de fibrinolítico) e manutenção de 1 mg/kg 12/12 horas ou 0,75 mg/kg se idade > 75 anos, ou ajustar dose para ClCr < 30 (redução de 50% da dose)"
+          "Após a administração da terapia inicial, incluindo analgesia e anti-agregação plaquetária, identificar as contraindicações ao uso do trombolítico."
         ]
       },
       {
-        categoria: "Administrar Fibrinolítico",
+        categoria: "CONTRAINDICAÇÕES ABSOLUTAS",
         itens: [
-          "Administrar após a avaliação conjunta com médico Cardiologista do Complexo Regulador do Estado da Paraíba (CERH-PB)",
-          "Alteplase (conforme orientação já exposta), com os cuidados envolvidos tanto durante a administração quanto após",
-          "Avaliar critérios de reperfusão e realizar prontamente novo contato com Médico Regulador do Coração Paraibano"
+          "História de AVC hemorrágico prévio ou AVC isquêmico nos últimos seis meses",
+          "Malformação arteriovenosa, dano ou neoplasia em sistema nervoso central",
+          "Trauma de face ou cabeça nos últimos 30 dias",
+          "Punção não compressível há menos de 24 horas (exemplos: biópsia renal ou hepática, punção liquórica)",
+          "Sangramento ativo",
+          "Sangramento em trato gastrointestinal nos últimos 30 dias",
+          "Suspeita de dissecção aguda de aorta"
+        ]
+      },
+      {
+        categoria: "CONTRAINDICAÇÕES RELATIVAS",
+        itens: [
+          "PA > 180/110mmHg",
+          "Uso prévio de anticoagulante",
+          "Doença hepática avançada",
+          "Úlcera péptica ativa",
+          "Ressuscitação cardíaca prolongada",
+          "Endocardite infecciosa",
+          "Gravidez e primeira semana de puerpério",
+          "Ataque isquêmico transitório nos últimos seis meses"
+        ]
+      },
+      {
+        categoria: "1 - TERAPIA ANTICOAGULANTE: Enoxaparina Injetável",
+        itens: [
+          "< 75 anos: 30mg EV em bolus; após 15 minutos, 1mg/kg subcutâneo (SC) 12/12 horas (máximo de 100mg/dose)",
+          "≥ 75 anos: 0,75mg/kg SC 12/12 horas (máximo de 100mg/dose, omite-se a dose de ataque)"
+        ]
+      },
+      {
+        categoria: "2.1 – ALTEPLASE (Início dos sintomas há menos de seis horas)",
+        itens: [
+          "15mg EV em bolus, seguidos de infusão de 0,75mg/kg (não excedendo 50mg) em 30 minutos e, por fim, mais 0,50mg/kg (não excedendo 35mg) nos próximos 60 minutos."
+        ]
+      },
+      {
+        categoria: "2.2 – ALTEPLASE (Início dos sintomas entre seis e 12 horas)",
+        itens: [
+          "10mg EV em bolus, seguidos de infusão de 50mg em 60 minutos e, por fim, mais 35mg nos próximos 120 minutos. Naqueles com menos de 65kg, a dose total não deve exceder 1,5mg/kg."
+        ]
+      },
+      {
+        categoria: "3.1 – TENECTEPLASE (Ampola de 40mg até 80Kg)",
+        itens: [
+          "Até 60kg: 30mg",
+          "60kg a 70kg: 35mg",
+          "71kg a 80kg: 40mg",
+          "Nos idosos com mais de 75 anos, faz-se somente metade da dose."
+        ]
+      },
+      {
+        categoria: "3.2 – TENECTEPLASE (Ampola de 50mg > 80Kg)",
+        itens: [
+          "81kg a 90kg: 45mg",
+          "90kg: 50mg",
+          "Nos idosos com mais de 75 anos, faz-se somente metade da dose."
+        ]
+      },
+      {
+        categoria: "CUIDADOS PERITROMBÓLISE",
+        itens: [
+          "O paciente deve permanecer sob monitorização hemodinâmica contínua, com verificação dos sinais vitais 15/15 min. durante as primeiras duas horas; 30/30 min. nas próximas quatro horas; e de 60/60 min por 18 horas.",
+          "Devem ser evitados procedimentos invasivos dentro de 24 horas, sobretudo dentro das primeiras seis horas após o término do trombolítico, tais como: cateterização venosa central ou punção arterial; sondagem vesical; sondagem nasoenteral ou nasogástrica.",
+          "Observar os critérios de reperfusão, verificados após 90 minutos do início do trombolítico (melhora súbita da dor, regressão superior a 50% do supradesnível de ST, pico precoce de marcadores de necrose e/ou arritmias de reperfusão)."
         ]
       },
       {
