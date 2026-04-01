@@ -420,7 +420,14 @@ export default function ASSCARDIODetalhe() {
                 </CardHeader>
                 <CardContent className="pt-2">
                   <Button
-                    onClick={() => window.open(paciente.relatorio_asscardio_url, '_blank')}
+                    onClick={() => {
+                      const a = document.createElement('a');
+                      a.href = paciente.relatorio_asscardio_url;
+                      a.download = `Parecer_ASSCARDIO_${(paciente.nome_completo || 'Paciente').replace(/\s+/g, '_')}.pdf`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                    }}
                     className="w-full bg-red-600 hover:bg-red-700 text-white"
                   >
                     ⬇️ BAIXAR PDF DO PARECER CARDIOLÓGICO
