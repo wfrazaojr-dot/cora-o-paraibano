@@ -434,7 +434,7 @@ export default function ASSCARDIODetalhe() {
             )}
 
             {/* Relatório Visual (Oculto) */}
-            <div style={{ position: 'fixed', top: '-9999px', left: '-9999px', visibility: 'hidden', pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', pointerEvents: 'none' }}>
               <div 
                 ref={relatorioRef} 
                 className="bg-white p-8"
