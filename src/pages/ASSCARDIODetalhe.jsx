@@ -1009,9 +1009,19 @@ export default function ASSCARDIODetalhe() {
                 <Button
                   onClick={async () => {
                     try {
+                      const toBase64 = (url) => fetch(url).then(r => r.blob()).then(b => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(b); }));
+                      const [imgGov, imgCoracao, imgComplexo] = await Promise.all([
+                        toBase64('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png'),
+                        toBase64('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png'),
+                        toBase64('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg'),
+                      ]);
                       const pdf = new jsPDF("p", "mm", "a4");
                       const pg = pdf.internal.pageSize;
-                      let y = 15;
+                      // Cabeçalho com logos
+                      pdf.addImage(imgGov, 'PNG', 10, 8, 40, 14);
+                      pdf.addImage(imgCoracao, 'PNG', 85, 8, 40, 14);
+                      pdf.addImage(imgComplexo, 'JPEG', 160, 8, 40, 14);
+                      let y = 28;
                       const addLine = (txt, opts = {}) => {
                         const { bold, size, color } = opts;
                         pdf.setFontSize(size || 10);
