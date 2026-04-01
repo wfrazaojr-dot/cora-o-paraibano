@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -62,6 +62,33 @@ export default function TransporteDetalhe() {
     descricao_nao_iniciado: "",
   });
   const [gerandoPDF, setGerandoPDF] = useState(false);
+
+  // Carregar rascunho do localStorage quando paciente carrega
+  const rascunhoKey = pacienteId ? `transporte_rascunho_${pacienteId}` : null;
+
+  const salvarRascunho = () => {
+    if (!rascunhoKey) return;
+    const dados = {
+      viatura: formData.viatura,
+      equipe: formData.equipe,
+      medico: formData.medico,
+      enfermeiro: formData.enfermeiro,
+      condutor: formData.condutor,
+      intercorrencias: formData.intercorrencias,
+    };
+    localStorage.setItem(rascunhoKey, JSON.stringify(dados));
+    alert('Rascunho salvo! Os dados serão restaurados ao retornar a esta página.');
+  };
+
+  useEffect(() => {
+    if (!rascunhoKey) return;
+    const raw = localStorage.getItem(rascunhoKey);
+    if (!raw) return;
+    try {
+      const r = JSON.parse(raw);
+      setFormData(prev => ({ ...prev, ...r }));
+    } catch {}
+  }, [rascunhoKey]);
 
   const { data: paciente, isLoading } = useQuery({
     queryKey: ['paciente', pacienteId],
@@ -654,6 +681,15 @@ export default function TransporteDetalhe() {
                       rows={3}
                     />
                   </div>
+
+                  {/* Botão Salvar Rascunho */}
+                  <Button
+                    variant="outline"
+                    onClick={salvarRascunho}
+                    className="w-full border-blue-400 text-blue-700 hover:bg-blue-50"
+                  >
+                    💾 SALVAR RASCUNHO
+                  </Button>
 
                   {/* Botão Transporte Finalizado (sem intercorrência grave) */}
                   {!formData.showIntercorrencia && (
