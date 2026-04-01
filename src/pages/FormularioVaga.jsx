@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +6,7 @@ import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Loader2, Download, Send } from "lucide-react";
+import { AlertCircle, Loader2, Download, Send, Cloud, CloudOff } from "lucide-react";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import SecaoDadosPessoais from "@/components/formularioVaga/SecaoDadosPessoais";
@@ -55,27 +55,32 @@ export default function FormularioVaga() {
   const [gerandoPDF, setGerandoPDF] = useState(false);
   const [pdfGerado, setPdfGerado] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [salvandoRascunho, setSalvandoRascunho] = useState(false);
+  const [ultimoSalvo, setUltimoSalvo] = useState(null);
+  const debounceRef = useRef(null);
 
-  // Chave única para rascunho no localStorage
-  const rascunhoKey = `formulario_vaga_rascunho_${pacienteId || 'novo'}`;
-
-  // Restaurar rascunho do localStorage ao montar (apenas campos livres, não os do paciente)
-  useEffect(() => {
-    const rascunho = localStorage.getItem(rascunhoKey);
-    if (rascunho) {
-      try {
-        const dados = JSON.parse(rascunho);
-        setFormData(prev => ({ ...prev, ...dados }));
-      } catch {}
+  // Auto-save no servidor (debounced 3s) quando há pacienteId
+  const salvarRascunhoServidor = useCallback(async (dados) => {
+    if (!pacienteId) return;
+    setSalvandoRascunho(true);
+    try {
+      await base44.entities.Paciente.update(pacienteId, {
+        formulario_vaga: { ...dados, _rascunho: true }
+      });
+      setUltimoSalvo(new Date());
+    } finally {
+      setSalvandoRascunho(false);
     }
-  }, [rascunhoKey]);
+  }, [pacienteId]);
 
-  // Salvar rascunho automaticamente a cada mudança no formData
   useEffect(() => {
-    // Não salvar documentos no localStorage (URLs já estão no servidor)
-    const { documentos, ...dadosSemDocs } = formData;
-    localStorage.setItem(rascunhoKey, JSON.stringify(dadosSemDocs));
-  }, [formData, rascunhoKey]);
+    if (!pacienteId) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      salvarRascunhoServidor(formData);
+    }, 3000);
+    return () => clearTimeout(debounceRef.current);
+  }, [formData, pacienteId, salvarRascunhoServidor]);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -446,8 +451,6 @@ Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString(
       }
     },
     onSuccess: () => {
-      // Limpar rascunho ao enviar com sucesso
-      localStorage.removeItem(rascunhoKey);
       alert(`✅ Formulário registrado no sistema com sucesso!\n\nPaciente: ${getNomePaciente()}\nDestinatário CERH: ${getEmailCERH()}\n\nO cliente de e-mail será aberto para você enviar o formulário manualmente com o PDF anexado.`);
       navigate(createPageUrl("Historico"));
     },
@@ -522,10 +525,19 @@ Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString(
             📋 FORMULÁRIO DE SOLICITAÇÃO DE VAGA
           </h1>
           {paciente && (
-            <div className="bg-blue-100 border border-blue-300 rounded-lg p-3 mb-4">
+            <div className="bg-blue-100 border border-blue-300 rounded-lg p-3 mb-4 flex items-center justify-between">
               <p className="text-sm text-blue-900 font-semibold text-center">
                 ⚠️ Preenchendo formulário para: <span className="font-bold">{paciente.nome_completo}</span>
               </p>
+              <div className="flex items-center gap-1 text-xs">
+                {salvandoRascunho ? (
+                  <><Loader2 className="w-3 h-3 animate-spin text-blue-600" /> <span className="text-blue-600">Salvando...</span></>
+                ) : ultimoSalvo ? (
+                  <><Cloud className="w-3 h-3 text-green-600" /> <span className="text-green-700">Salvo {ultimoSalvo.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}</span></>
+                ) : (
+                  <><CloudOff className="w-3 h-3 text-gray-400" /> <span className="text-gray-500">Não salvo</span></>
+                )}
+              </div>
             </div>
           )}
           {/* Alerta com e-mail destino */}
