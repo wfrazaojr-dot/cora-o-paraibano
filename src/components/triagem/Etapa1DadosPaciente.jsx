@@ -153,9 +153,9 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
         <div className="bg-red-50 border-2 border-red-400 rounded-lg p-4 mt-2">
           <p className="text-sm font-bold text-red-800 mb-2">⚠️ ATENÇÃO</p>
           <p className="text-sm text-red-900 leading-relaxed">
-            Em caso de <strong>ECG com elevação de segmento ST</strong>, preencha de imediato este formulário.<br /><br />
-            Em caso de <strong>ECG sem elevação de ST</strong>, preencha este formulário após o primeiro resultado da primeira Troponina quantitativa, incluindo o valor do Limite Superior da Normalidade (LSN) do laboratório. Caso o resultado seja normal, repetir a segunda Troponina e após o resultado iniciar o preenchimento deste formulário.<br /><br />
-            Caso <strong>não tenha troponina</strong>, faça o preenchimento de imediato após um segundo ECG de 12 a 16 derivações.
+            Em caso de <strong>ECG com elevação de segmento ST ou SCA sem supra de muito alto risco ou padrão eletrocardiográfico de alto risco (Isquemia Subendocárdica, Padrão de Winter, Síndrome de Wellens)</strong>, preencha de imediato este formulário, sem aguardar resultado de troponina.<br /><br />
+            Em caso de <strong>ECG sem elevação de ST</strong>, preencha este formulário após o primeiro resultado da primeira Troponina quantitativa, incluindo o valor do Limite Superior da Normalidade (LSN) do laboratório. Caso o resultado seja normal, repetir a segunda Troponina e após o resultado, realizar o preenchimento deste formulário.<br /><br />
+            Caso <strong>não tenha troponina</strong> no serviço, faça o preenchimento de imediato anexando o primeiro e segundo ECG de 12 a 16 derivações.
           </p>
         </div>
       </div>
