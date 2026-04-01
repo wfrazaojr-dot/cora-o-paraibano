@@ -12,6 +12,7 @@ import jsPDF from "jspdf";
 import SecaoDadosPessoais from "@/components/formularioVaga/SecaoDadosPessoais";
 import SecaoDadosUnidade from "@/components/formularioVaga/SecaoDadosUnidade";
 import SecaoDocumentos from "@/components/formularioVaga/SecaoDocumentos";
+import SecaoResumoClinico from "@/components/formularioVaga/SecaoResumoClinico";
 
 export default function FormularioVaga() {
   const navigate = useNavigate();
@@ -575,6 +576,9 @@ Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString(
 
             {/* Dados da Unidade */}
             <SecaoDadosUnidade formData={formData} setFormData={setFormData} paciente={paciente} />
+
+            {/* Resumo Clínico */}
+            {paciente && <SecaoResumoClinico paciente={paciente} />}
 
             {/* Solicitação */}
             <div>
