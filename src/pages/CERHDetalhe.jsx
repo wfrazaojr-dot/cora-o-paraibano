@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Radio, FileText, Save, Heart, Download, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Activity, FileText, Save, Heart, Download, AlertTriangle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
@@ -351,7 +351,7 @@ export default function CERHDetalhe() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-              <Radio className="w-8 h-8 text-indigo-600" />
+              <Activity className="w-8 h-8 text-indigo-600" />
               CERH - Central de Regulação
             </h1>
             <p className="text-gray-600">Busca de vaga e definição de destino</p>
