@@ -32,7 +32,7 @@ export default function NovaTriagem() {
   const [dataHoraInicioTriagem, setDataHoraInicioTriagem] = useState(null);
 
   const urlParams = new URLSearchParams(window.location.search);
-  const idUrl = urlParams.get('id');
+  const idUrl = urlParams.get('id') || urlParams.get('pacienteId');
   const isRetriagem = urlParams.get('retriagem') === 'true';
 
   // Carregar dados do paciente se ID existir na URL

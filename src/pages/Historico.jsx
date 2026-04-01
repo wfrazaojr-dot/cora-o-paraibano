@@ -40,6 +40,7 @@ export default function Historico() {
   const [dataFim, setDataFim] = useState("");
 
   const verificarAcessoPaciente = (paciente) => {
+    if (!paciente) return false;
     // Admin tem acesso a tudo
     if (user?.role === 'admin') {
       return true;
@@ -393,7 +394,7 @@ export default function Historico() {
                                  <p className="font-semibold mb-1">Etapas preenchidas:</p>
                                  {paciente.historico_etapas.map((etapa, idx) => (
                                    <div key={idx} className="text-xs">
-                                     Etapa {etapa.etapa}: {etapa.medico_nome} ({format(new Date(etapa.data_hora), "dd/MM HH:mm", { locale: ptBR })})
+                                     Etapa {etapa.etapa}: {etapa.medico_nome} ({etapa.data_hora ? format(new Date(etapa.data_hora), "dd/MM HH:mm", { locale: ptBR }) : '—'})
                                    </div>
                                  ))}
                                </div>
@@ -415,7 +416,7 @@ export default function Historico() {
                           <div className="text-sm">
                             <span className="text-gray-600">Chegada:</span>{" "}
                             <span className="font-medium">
-                              {format(new Date(paciente.data_hora_chegada), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                              {paciente.data_hora_chegada ? format(new Date(paciente.data_hora_chegada), "dd/MM/yyyy HH:mm", { locale: ptBR }) : '—'}
                             </span>
                           </div>
                           {paciente.tempo_triagem_ecg_minutos && (
