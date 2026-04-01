@@ -426,7 +426,7 @@ export default function CERHDetalhe() {
             )}
 
             {/* Parecer ASSCARDIO */}
-            {paciente.assessoria_cardiologia?.parecer_cardiologista && (
+            {paciente.assessoria_cardiologia && (
               <Card className="border-red-200 bg-red-50">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-red-700">
@@ -435,14 +435,34 @@ export default function CERHDetalhe() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div>
-                    <p className="text-sm font-semibold text-red-800">Cardiologista</p>
-                    <p className="text-sm">{paciente.assessoria_cardiologia.cardiologista_nome} - CRM {paciente.assessoria_cardiologia.cardiologista_crm}</p>
-                  </div>
+                  {paciente.assessoria_cardiologia.data_hora && (
+                    <div>
+                      <p className="text-sm font-semibold text-red-800">Data/Hora do Parecer</p>
+                      <p className="text-sm">{new Date(paciente.assessoria_cardiologia.data_hora).toLocaleString('pt-BR')}</p>
+                    </div>
+                  )}
+                  {paciente.assessoria_cardiologia.cardiologista_nome && (
+                    <div>
+                      <p className="text-sm font-semibold text-red-800">Cardiologista</p>
+                      <p className="text-sm">{paciente.assessoria_cardiologia.cardiologista_nome} - CRM {paciente.assessoria_cardiologia.cardiologista_crm}</p>
+                    </div>
+                  )}
+                  {paciente.assessoria_cardiologia.parecer_cardiologista && (
+                    <div>
+                      <p className="text-sm font-semibold text-red-800">Parecer do Cardiologista</p>
+                      <p className="text-sm whitespace-pre-wrap bg-white p-3 rounded border border-red-100">{paciente.assessoria_cardiologia.parecer_cardiologista}</p>
+                    </div>
+                  )}
                   {paciente.assessoria_cardiologia.diagnostico && (
                     <div>
                       <p className="text-sm font-semibold text-red-800">Diagnóstico</p>
                       <p className="text-sm">{paciente.assessoria_cardiologia.diagnostico}</p>
+                    </div>
+                  )}
+                  {paciente.assessoria_cardiologia.diagnostico_estrategia && (
+                    <div>
+                      <p className="text-sm font-semibold text-red-800">Estratégia Diagnóstica</p>
+                      <p className="text-sm">{paciente.assessoria_cardiologia.diagnostico_estrategia}</p>
                     </div>
                   )}
                   {paciente.assessoria_cardiologia.conduta && (
@@ -451,14 +471,28 @@ export default function CERHDetalhe() {
                       <p className="text-sm">{paciente.assessoria_cardiologia.conduta}</p>
                     </div>
                   )}
-                  {paciente.assessoria_cardiologia.indicacao_hemodinamica && (
-                    <Badge className="bg-red-600">Indicação de Hemodinâmica</Badge>
+                  {paciente.assessoria_cardiologia.enfermeiro_nome && (
+                    <div>
+                      <p className="text-sm font-semibold text-red-800">Enfermeiro(a)</p>
+                      <p className="text-sm">{paciente.assessoria_cardiologia.enfermeiro_nome} - COREN {paciente.assessoria_cardiologia.enfermeiro_coren}</p>
+                    </div>
                   )}
-                  {paciente.assessoria_cardiologia.urgencia && (
-                    <Badge variant="outline" className="border-red-300">
-                      Urgência: {paciente.assessoria_cardiologia.urgencia}
-                    </Badge>
+                  {paciente.assessoria_cardiologia.parecer_enfermeiro && (
+                    <div>
+                      <p className="text-sm font-semibold text-red-800">Parecer do Enfermeiro</p>
+                      <p className="text-sm whitespace-pre-wrap bg-white p-3 rounded border border-red-100">{paciente.assessoria_cardiologia.parecer_enfermeiro}</p>
+                    </div>
                   )}
+                  <div className="flex flex-wrap gap-2">
+                    {paciente.assessoria_cardiologia.indicacao_hemodinamica && (
+                      <Badge className="bg-red-600">Indicação de Hemodinâmica</Badge>
+                    )}
+                    {paciente.assessoria_cardiologia.urgencia && (
+                      <Badge variant="outline" className="border-red-300">
+                        Urgência: {paciente.assessoria_cardiologia.urgencia}
+                      </Badge>
+                    )}
+                  </div>
                   <div className="mt-4">
                     {paciente.relatorio_asscardio_url ? (
                       <Button
