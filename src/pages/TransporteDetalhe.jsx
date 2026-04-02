@@ -298,16 +298,6 @@ export default function TransporteDetalhe() {
               <p className="text-gray-600">Coordenação e registro de transporte</p>
             </div>
           </div>
-          {paciente && (
-            <Button
-              variant="outline"
-              onClick={() => navigate(createPageUrl("NovaTriagem") + `?id=${pacienteId}`)}
-              className="border-blue-300 text-blue-700 hover:bg-blue-50"
-            >
-              <ExternalLink className="w-4 h-4 mr-2" />
-              Ver Paciente
-            </Button>
-          )}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
