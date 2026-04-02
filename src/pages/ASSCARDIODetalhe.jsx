@@ -396,6 +396,15 @@ export default function ASSCARDIODetalhe() {
             </h1>
             <p className="text-blue-700">Enfermeiro + Cardiologista</p>
           </div>
+          {paciente.triagem_medica?.tipo_sca === 'SCACESST' && (
+            <Badge className="bg-red-600 text-white text-sm px-3 py-1">🔴 PRIORIDADE 0 - SCACESST</Badge>
+          )}
+          {paciente.triagem_medica?.tipo_sca === 'SCASESST_COM_TROPONINA' && (
+            <Badge className="bg-orange-500 text-white text-sm px-3 py-1">🟠 PRIORIDADE 1 - SCASESST c/ Troponina</Badge>
+          )}
+          {paciente.triagem_medica?.tipo_sca === 'SCASESST_SEM_TROPONINA' && (
+            <Badge className="bg-yellow-500 text-white text-sm px-3 py-1">🟡 PRIORIDADE 2 - SCASESST s/ Troponina</Badge>
+          )}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
