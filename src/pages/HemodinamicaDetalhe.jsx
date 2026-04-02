@@ -261,6 +261,9 @@ export default function HemodinamicaDetalhe() {
       const file_url = await gerarPDF(paciente);
       if (file_url) {
         await base44.entities.Paciente.update(pacienteId, { relatorio_hemodinamica_url: file_url });
+        // Download automático para a pasta de Downloads
+        const nome = (paciente?.nome_completo || 'Paciente').replace(/\s+/g, '_');
+        downloadPdf(file_url, `Relatorio_Hemodinamica_${nome}_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`);
       }
       setGerandoPDF(false);
     },
