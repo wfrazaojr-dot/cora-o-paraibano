@@ -379,6 +379,7 @@ export default function ASSCARDIODetalhe() {
   }
 
   const heartTotal = calcularHeartTotal();
+  const confirmaTriagemValida = medicoData.confirma_triagem || paciente?.assessoria_cardiologia?.confirma_triagem || false;
 
   return (
     <div className="p-4 md:p-8 bg-gradient-to-br from-blue-50 to-green-50 min-h-screen">
@@ -1088,7 +1089,7 @@ export default function ASSCARDIODetalhe() {
 
                 <Button
                   onClick={() => salvarLaudoMedico.mutate()}
-                  disabled={salvarLaudoMedico.isPending || !medicoData.confirma_triagem}
+                  disabled={salvarLaudoMedico.isPending || !confirmaTriagemValida}
                   className="w-full bg-red-600 hover:bg-red-700 text-white text-lg py-6"
                 >
                   {salvarLaudoMedico.isPending ? "Salvando..." : "🏁 FINALIZAR LAUDO"}
