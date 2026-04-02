@@ -204,7 +204,7 @@ export default function ASSCARDIODetalhe() {
   // Rascunho: carregar do localStorage se paciente ainda não tem assessoria salva
   useEffect(() => {
     if (!rascunhoKey || !paciente) return;
-    if (paciente?.assessoria_cardiologia?.cardiologista_nome || paciente?.assessoria_cardiologia?.parecer_cardiologista) return;
+    if (paciente?.assessoria_cardiologia?.cardiologista_nome || paciente?.assessoria_cardiologia?.parecer_cardiologista || paciente?.assessoria_cardiologia?.confirma_triagem) return;
     const raw = localStorage.getItem(rascunhoKey);
     if (!raw) return;
     try {
