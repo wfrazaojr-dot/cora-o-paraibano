@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Clock, MapPin, Truck, CheckCircle, Eye } from "lucide-react";
+import { AlertTriangle, Clock, MapPin, Truck, Eye, User, Users } from "lucide-react";
 import { differenceInMinutes, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
@@ -115,6 +115,36 @@ export default function CartaoTransporte({ paciente }) {
             </div>
           )}
         </div>
+
+        {/* Equipe */}
+        {(transporte.viatura || transporte.medico || transporte.enfermeiro || transporte.condutor) && (
+          <div className="text-xs bg-gray-50 border border-gray-200 rounded p-2 space-y-1">
+            {transporte.viatura && (
+              <div className="flex items-center gap-1 text-gray-700">
+                <Truck className="w-3 h-3 shrink-0 text-gray-500" />
+                <span className="font-semibold">Viatura:</span> {transporte.viatura}
+              </div>
+            )}
+            {transporte.medico && (
+              <div className="flex items-center gap-1 text-gray-700">
+                <User className="w-3 h-3 shrink-0 text-blue-500" />
+                <span className="font-semibold">Médico:</span> {transporte.medico}
+              </div>
+            )}
+            {transporte.enfermeiro && (
+              <div className="flex items-center gap-1 text-gray-700">
+                <User className="w-3 h-3 shrink-0 text-green-500" />
+                <span className="font-semibold">Enfermeiro:</span> {transporte.enfermeiro}
+              </div>
+            )}
+            {transporte.condutor && (
+              <div className="flex items-center gap-1 text-gray-700">
+                <Users className="w-3 h-3 shrink-0 text-gray-500" />
+                <span className="font-semibold">Condutor:</span> {transporte.condutor}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Intercorrência */}
         {transporte.motivo_intercorrencia && (
