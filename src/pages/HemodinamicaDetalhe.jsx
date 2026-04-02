@@ -342,7 +342,8 @@ Programa Coração Paraibano
   if (!paciente) return <div className="p-8">Paciente não encontrado</div>;
 
   const tipoIcpDefinido = !!paciente?.hemodinamica?.tipo_icp;
-  const estaEmStandby = tipoIcp && tipoIcp !== "imediata" && agendamentoSalvo && !isAgendamentoAtivo();
+  // Standby só se aplica quando a chegada ainda NÃO foi registrada
+  const estaEmStandby = tipoIcp && tipoIcp !== "imediata" && agendamentoSalvo && !isAgendamentoAtivo() && !paciente?.hemodinamica?.data_hora_chegada;
 
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
@@ -757,7 +758,7 @@ Programa Coração Paraibano
                     {format(new Date(agendamentoSalvo), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                   </p>
                   <p className="text-sm text-yellow-600 mt-3">
-                    Os botões de Registrar Chegada e Iniciar Procedimento serão habilitados na data/hora agendada.
+                    Os botões de Registrar Chegada e Iniciar Procedimento serão habilitados na data/hora agendada. Se o paciente chegar antes do horário agendado, registre a chegada para liberar o início do procedimento.
                   </p>
                 </CardContent>
               </Card>
