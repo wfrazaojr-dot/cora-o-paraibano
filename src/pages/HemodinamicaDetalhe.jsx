@@ -51,6 +51,15 @@ export default function HemodinamicaDetalhe() {
   const [dialogoTransferenciaAberto, setDialogoTransferenciaAberto] = useState(false);
   const [dadosTransferenciaTemp, setDadosTransferenciaTemp] = useState(null);
 
+  const downloadPdf = (url, filename) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const { data: paciente, isLoading } = useQuery({
     queryKey: ['paciente', pacienteId],
     queryFn: () => base44.entities.Paciente.list().then(list => list.find(p => p.id === pacienteId)),
@@ -933,7 +942,7 @@ Programa Coração Paraibano
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Button onClick={() => window.open(paciente.relatorio_hemodinamica_url, '_blank')} className="w-full bg-pink-600 hover:bg-pink-700">
+                  <Button onClick={() => downloadPdf(paciente.relatorio_hemodinamica_url, `Relatorio_Hemodinamica_${paciente.nome_completo}.pdf`)} className="w-full bg-pink-600 hover:bg-pink-700">
                     <Download className="w-4 h-4 mr-2" />Baixar Relatório PDF
                   </Button>
                 </CardContent>

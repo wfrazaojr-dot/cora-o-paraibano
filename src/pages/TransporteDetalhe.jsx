@@ -42,6 +42,15 @@ export default function TransporteDetalhe() {
   const pacienteId = urlParams.get('id');
 
   const [showHistoricoModal, setShowHistoricoModal] = useState(false);
+
+  const downloadPdf = (url, filename) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   const [formData, setFormData] = useState({
     central_transporte: "",
     tipo_transporte: "USA CORAÇÃO PARAIBANO",
@@ -141,7 +150,7 @@ export default function TransporteDetalhe() {
         relatorio_transporte_url: fileUrl
       });
       setGerandoPDF(false);
-      window.open(fileUrl, '_blank');
+      downloadPdf(fileUrl, `Relatorio_Transporte_${paciente.nome_completo}.pdf`);
       return fileUrl;
     },
     onSuccess: () => {
@@ -224,7 +233,7 @@ export default function TransporteDetalhe() {
       }
 
       setGerandoPDF(false);
-      window.open(resultado.data.file_url, '_blank');
+      downloadPdf(resultado.data.file_url, `Relatorio_Transporte_Intercorrencia_${paciente.nome_completo}.pdf`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['paciente', pacienteId] });
@@ -361,7 +370,7 @@ export default function TransporteDetalhe() {
                   {paciente.relatorio_transporte_url && (
                     <Button
                       size="sm"
-                      onClick={() => window.open(paciente.relatorio_transporte_url, '_blank')}
+                      onClick={() => downloadPdf(paciente.relatorio_transporte_url, `Relatorio_Transporte_${paciente.nome_completo}.pdf`)}
                       className="w-full bg-yellow-600 hover:bg-yellow-700 mt-2"
                     >
                       <Download className="w-3 h-3 mr-1" />
@@ -840,7 +849,7 @@ export default function TransporteDetalhe() {
                   )}
                   {paciente.relatorio_transporte_url && (
                     <Button
-                      onClick={() => window.open(paciente.relatorio_transporte_url, '_blank')}
+                      onClick={() => downloadPdf(paciente.relatorio_transporte_url, `Relatorio_Transporte_${paciente.nome_completo}.pdf`)}
                       className="w-full bg-yellow-600 hover:bg-yellow-700"
                     >
                       <Download className="w-4 h-4 mr-2" />
