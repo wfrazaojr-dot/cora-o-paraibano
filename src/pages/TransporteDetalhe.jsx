@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Truck, FileText, MapPin, AlertTriangle, Download, CheckCircle, XCircle, Clock, ExternalLink, History, X } from "lucide-react";
+import { ArrowLeft, Truck, FileText, MapPin, AlertTriangle, Download, CheckCircle, XCircle, Clock, ExternalLink, History } from "lucide-react";
 import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
 import { Badge } from "@/components/ui/badge";
@@ -46,7 +46,6 @@ export default function TransporteDetalhe() {
     central_transporte: "",
     tipo_transporte: "USA CORAÇÃO PARAIBANO",
     viatura: "",
-    equipe: "",
     medico: "",
     enfermeiro: "",
     condutor: "",
@@ -55,7 +54,6 @@ export default function TransporteDetalhe() {
     motivo_detalhado: "",
     acoes_tomadas: "",
     showIntercorrencia: false,
-    // Intercorrência antes de iniciar
     showIntercorrenciaNaoIniciado: false,
     motivo_nao_iniciado: "",
     motivo_nao_iniciado_detalhado: "",
@@ -63,21 +61,12 @@ export default function TransporteDetalhe() {
   });
   const [gerandoPDF, setGerandoPDF] = useState(false);
 
-  // Carregar rascunho do localStorage quando paciente carrega
   const rascunhoKey = pacienteId ? `transporte_rascunho_${pacienteId}` : null;
 
   const salvarRascunho = () => {
     if (!rascunhoKey) return;
-    const dados = {
-      viatura: formData.viatura,
-      equipe: formData.equipe,
-      medico: formData.medico,
-      enfermeiro: formData.enfermeiro,
-      condutor: formData.condutor,
-      intercorrencias: formData.intercorrencias,
-    };
-    localStorage.setItem(rascunhoKey, JSON.stringify(dados));
-    alert('Rascunho salvo! Os dados serão restaurados ao retornar a esta página.');
+    localStorage.setItem(rascunhoKey, JSON.stringify({ intercorrencias: formData.intercorrencias }));
+    alert('Rascunho salvo!');
   };
 
   useEffect(() => {
@@ -100,6 +89,7 @@ export default function TransporteDetalhe() {
   const transporteIniciado = !!paciente?.transporte?.data_hora_inicio;
   const transporteFinalizado = !!paciente?.transporte?.data_hora_chegada_destino;
 
+  // Etapa 1: Iniciar transporte - salva viatura/equipe junto
   const iniciarTransporte = useMutation({
     mutationFn: async () => {
       await base44.entities.Paciente.update(pacienteId, {
@@ -107,6 +97,10 @@ export default function TransporteDetalhe() {
           ...paciente?.transporte,
           central_transporte: formData.central_transporte,
           tipo_transporte: formData.tipo_transporte,
+          viatura: formData.viatura || "",
+          medico: formData.medico || "",
+          enfermeiro: formData.enfermeiro || "",
+          condutor: formData.condutor || "",
           data_hora_solicitacao: paciente?.transporte?.data_hora_solicitacao || new Date().toISOString(),
           data_hora_inicio: new Date().toISOString(),
           status_transporte: "Em Deslocamento",
@@ -121,28 +115,23 @@ export default function TransporteDetalhe() {
     }
   });
 
+  // Etapa 2: Finalizar transporte sem intercorrência
   const finalizarTransporte = useMutation({
     mutationFn: async () => {
       setGerandoPDF(true);
       const resultado = await base44.functions.invoke('generateRelatorioTransporte', {
         pacienteId,
         intercorrencias: formData.intercorrencias || null,
-        viatura: formData.viatura || null,
-        equipe: formData.equipe || null,
-        medico: formData.medico || null,
-        enfermeiro: formData.enfermeiro || null,
-        condutor: formData.condutor || null,
+        viatura: paciente.transporte?.viatura || null,
+        medico: paciente.transporte?.medico || null,
+        enfermeiro: paciente.transporte?.enfermeiro || null,
+        condutor: paciente.transporte?.condutor || null,
         status_final: "Concluído"
       });
       await base44.entities.Paciente.update(pacienteId, {
         transporte: {
           ...paciente.transporte,
           intercorrencias: formData.intercorrencias || "",
-          viatura: formData.viatura || "",
-          equipe: formData.equipe || "",
-          medico: formData.medico || "",
-          enfermeiro: formData.enfermeiro || "",
-          condutor: formData.condutor || "",
           data_hora_chegada_destino: new Date().toISOString(),
           status_transporte: "Concluído",
           relatorio_transporte_url: resultado.data.file_url
@@ -151,21 +140,17 @@ export default function TransporteDetalhe() {
         relatorio_transporte_url: resultado.data.file_url
       });
       setGerandoPDF(false);
-      
-      // Download automático do PDF
       const link = document.createElement('a');
       link.href = resultado.data.file_url;
       link.download = `Relatorio_Transporte_${paciente.nome_completo.replace(/\s+/g, '_')}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
-      // Abrir PDF em nova aba
       window.open(resultado.data.file_url, '_blank');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['paciente', pacienteId] });
-      alert("Transporte concluído! Relatório PDF gerado, baixado e aberto.");
+      alert("Transporte concluído! Relatório PDF gerado.");
       navigate(createPageUrl("Dashboard"));
     },
     onError: (err) => {
@@ -192,7 +177,6 @@ export default function TransporteDetalhe() {
         status_final: "Com Intercorrência"
       });
 
-      // Histórico completo da intercorrência
       const registroIntercorrencia = {
         data_hora: dataHoraFim,
         motivo: motivoFinal,
@@ -222,7 +206,6 @@ export default function TransporteDetalhe() {
         relatorio_transporte_url: resultado.data.file_url
       });
 
-      // Notificar via mensagem interna no chat do paciente (CERH e ASSCARDIO monitoram)
       const msgTexto = `⚠️ INTERCORRÊNCIA NO TRANSPORTE\n\nPaciente: ${paciente.nome_completo}\nMotivo: ${motivoFinal}${formData.intercorrencias ? `\nDescrição: ${formData.intercorrencias}` : ""}${formData.acoes_tomadas ? `\nAções tomadas: ${formData.acoes_tomadas}` : ""}\nData/Hora: ${new Date(dataHoraFim).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}\n\nStatus atualizado para: CONCLUÍDO COM INTERCORRÊNCIA`;
 
       await base44.entities.Mensagem.create({
@@ -234,7 +217,6 @@ export default function TransporteDetalhe() {
         data_hora: dataHoraFim
       });
 
-      // Notificação por email para CERH (se houver email de regulação)
       const emailCERH = paciente.regulacao_central?.email_regulador || null;
       if (emailCERH) {
         await base44.integrations.Core.SendEmail({
@@ -270,6 +252,10 @@ export default function TransporteDetalhe() {
           ...paciente?.transporte,
           central_transporte: formData.central_transporte,
           tipo_transporte: formData.tipo_transporte,
+          viatura: formData.viatura || "",
+          medico: formData.medico || "",
+          enfermeiro: formData.enfermeiro || "",
+          condutor: formData.condutor || "",
           data_hora_solicitacao: paciente?.transporte?.data_hora_solicitacao || new Date().toISOString(),
           status_transporte: "Não Iniciado - Intercorrência",
           motivo_nao_iniciado: motivoFinal,
@@ -313,8 +299,8 @@ export default function TransporteDetalhe() {
             </div>
           </div>
           {paciente && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => navigate(createPageUrl("NovaTriagem") + `?id=${pacienteId}`)}
               className="border-blue-300 text-blue-700 hover:bg-blue-50"
             >
@@ -329,7 +315,6 @@ export default function TransporteDetalhe() {
           <div className="lg:col-span-1 space-y-6">
             <DadosPaciente paciente={paciente} />
 
-            {/* Status do Transporte - Visível para todos monitorarem */}
             {transporteIniciado && (
               <Card className={`border-2 ${transporteFinalizado ? (paciente.transporte.status_transporte === "Com Intercorrência" ? "border-red-400 bg-red-50" : "border-green-400 bg-green-50") : "border-yellow-400 bg-yellow-50"}`}>
                 <CardHeader className="pb-2">
@@ -422,17 +407,15 @@ export default function TransporteDetalhe() {
                         <p className="text-sm text-indigo-700 mt-2">{paciente.regulacao_central.observacoes_regulacao}</p>
                       )}
                     </div>
-                    {paciente.regulacao_central.unidade_destino && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => window.open(`https://www.google.com/maps/search/${encodeURIComponent(paciente.regulacao_central.unidade_destino)}`, '_blank')}
-                        className="border-indigo-400 text-indigo-700 hover:bg-indigo-100 flex-shrink-0"
-                      >
-                        <MapPin className="w-3 h-3 mr-1" />
-                        Mapa
-                      </Button>
-                    )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => window.open(`https://www.google.com/maps/search/${encodeURIComponent(paciente.regulacao_central.unidade_destino)}`, '_blank')}
+                      className="border-indigo-400 text-indigo-700 hover:bg-indigo-100 flex-shrink-0"
+                    >
+                      <MapPin className="w-3 h-3 mr-1" />
+                      Mapa
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -455,7 +438,7 @@ export default function TransporteDetalhe() {
               </Card>
             )}
 
-            {/* === ETAPA 1: Configurar e Iniciar Transporte (antes de iniciar) === */}
+            {/* === ETAPA 1: Configurar e Iniciar Transporte === */}
             {!transporteIniciado && (
               <Card className="border-2 border-yellow-400">
                 <CardHeader className="bg-yellow-50">
@@ -508,6 +491,42 @@ export default function TransporteDetalhe() {
                         <SelectItem value="OUTRO">OUTRO</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  <div>
+                    <Label>Viatura</Label>
+                    <Input
+                      value={formData.viatura}
+                      onChange={(e) => setFormData({...formData, viatura: e.target.value})}
+                      placeholder="Identificação da viatura"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <Label>Médico</Label>
+                      <Input
+                        value={formData.medico}
+                        onChange={(e) => setFormData({...formData, medico: e.target.value})}
+                        placeholder="Nome do médico"
+                      />
+                    </div>
+                    <div>
+                      <Label>Enfermeiro</Label>
+                      <Input
+                        value={formData.enfermeiro}
+                        onChange={(e) => setFormData({...formData, enfermeiro: e.target.value})}
+                        placeholder="Nome do enfermeiro"
+                      />
+                    </div>
+                    <div>
+                      <Label>Condutor</Label>
+                      <Input
+                        value={formData.condutor}
+                        onChange={(e) => setFormData({...formData, condutor: e.target.value})}
+                        placeholder="Nome do condutor"
+                      />
+                    </div>
                   </div>
 
                   {!formData.showIntercorrenciaNaoIniciado && (
@@ -605,7 +624,7 @@ export default function TransporteDetalhe() {
               </Card>
             )}
 
-            {/* === ETAPA 2: Transporte em andamento === */}
+            {/* === ETAPA 2: Transporte em andamento - apenas observações e finalização === */}
             {transporteIniciado && !transporteFinalizado && (
               <Card className="border-2 border-yellow-500 bg-yellow-50">
                 <CardHeader className="bg-yellow-100">
@@ -615,6 +634,7 @@ export default function TransporteDetalhe() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-4">
+                  {/* Resumo dos dados do transporte - somente visualização */}
                   <div className="grid grid-cols-2 gap-3 p-3 bg-white rounded-lg border border-yellow-300 text-sm">
                     <div>
                       <p className="text-xs text-gray-500 font-semibold">TIPO</p>
@@ -630,46 +650,30 @@ export default function TransporteDetalhe() {
                         <p className="font-bold text-indigo-700">{paciente.transporte.unidade_destino}</p>
                       </div>
                     )}
-                  </div>
-
-                  <div className="space-y-3">
-                    <div>
-                      <Label>Viatura</Label>
-                      <Input
-                        value={formData.viatura}
-                        onChange={(e) => setFormData({...formData, viatura: e.target.value})}
-                        placeholder="Identificação da viatura"
-                      />
-                    </div>
-                    <div>
-                      <Label>Equipe</Label>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
+                    {paciente.transporte.viatura && (
                       <div>
-                        <Label>Médico</Label>
-                        <Input
-                          value={formData.medico}
-                          onChange={(e) => setFormData({...formData, medico: e.target.value})}
-                          placeholder="Nome do médico"
-                        />
+                        <p className="text-xs text-gray-500 font-semibold">VIATURA</p>
+                        <p className="font-bold">{paciente.transporte.viatura}</p>
                       </div>
+                    )}
+                    {paciente.transporte.medico && (
                       <div>
-                        <Label>Enfermeiro</Label>
-                        <Input
-                          value={formData.enfermeiro}
-                          onChange={(e) => setFormData({...formData, enfermeiro: e.target.value})}
-                          placeholder="Nome do enfermeiro"
-                        />
+                        <p className="text-xs text-gray-500 font-semibold">MÉDICO</p>
+                        <p className="font-bold">{paciente.transporte.medico}</p>
                       </div>
+                    )}
+                    {paciente.transporte.enfermeiro && (
                       <div>
-                        <Label>Condutor</Label>
-                        <Input
-                          value={formData.condutor}
-                          onChange={(e) => setFormData({...formData, condutor: e.target.value})}
-                          placeholder="Nome do condutor"
-                        />
+                        <p className="text-xs text-gray-500 font-semibold">ENFERMEIRO</p>
+                        <p className="font-bold">{paciente.transporte.enfermeiro}</p>
                       </div>
-                    </div>
+                    )}
+                    {paciente.transporte.condutor && (
+                      <div>
+                        <p className="text-xs text-gray-500 font-semibold">CONDUTOR</p>
+                        <p className="font-bold">{paciente.transporte.condutor}</p>
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -682,7 +686,6 @@ export default function TransporteDetalhe() {
                     />
                   </div>
 
-                  {/* Botão Salvar Rascunho */}
                   <Button
                     variant="outline"
                     onClick={salvarRascunho}
@@ -691,7 +694,6 @@ export default function TransporteDetalhe() {
                     💾 SALVAR RASCUNHO
                   </Button>
 
-                  {/* Botão Transporte Finalizado (sem intercorrência grave) */}
                   {!formData.showIntercorrencia && (
                     <Button
                       onClick={() => finalizarTransporte.mutate()}
@@ -703,7 +705,6 @@ export default function TransporteDetalhe() {
                     </Button>
                   )}
 
-                  {/* Separador */}
                   {!formData.showIntercorrencia && (
                     <div className="relative">
                       <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-300" /></div>
@@ -711,7 +712,6 @@ export default function TransporteDetalhe() {
                     </div>
                   )}
 
-                  {/* Botão para intercorrência */}
                   {!formData.showIntercorrencia && (
                     <Button
                       onClick={() => setFormData({...formData, showIntercorrencia: true})}
@@ -723,7 +723,6 @@ export default function TransporteDetalhe() {
                     </Button>
                   )}
 
-                  {/* Formulário de intercorrência */}
                   {formData.showIntercorrencia && (
                     <div className="p-4 bg-red-50 border-2 border-red-300 rounded-lg space-y-3">
                       <div className="flex items-center gap-2 text-red-700 font-semibold">
@@ -765,7 +764,7 @@ export default function TransporteDetalhe() {
                         <Textarea
                           value={formData.acoes_tomadas}
                           onChange={(e) => setFormData({...formData, acoes_tomadas: e.target.value})}
-                          placeholder="Descreva as ações tomadas pela equipe para resolver ou mitigar a intercorrência..."
+                          placeholder="Descreva as ações tomadas pela equipe..."
                           rows={3}
                           className="mt-1 border-red-300"
                         />
@@ -840,17 +839,17 @@ export default function TransporteDetalhe() {
                     </div>
                   )}
                   {paciente.transporte.historico_intercorrencias?.length > 0 && (
-                   <div className="mt-4 pt-4 border-t border-gray-300">
-                     <Button
-                       size="sm"
-                       variant="outline"
-                       onClick={() => setShowHistoricoModal(true)}
-                       className="w-full border-gray-400 text-gray-700 hover:bg-gray-100"
-                     >
-                       <History className="w-4 h-4 mr-2" />
-                       Ver Histórico de Intercorrências ({paciente.transporte.historico_intercorrencias.length})
-                     </Button>
-                   </div>
+                    <div className="mt-4 pt-4 border-t border-gray-300">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setShowHistoricoModal(true)}
+                        className="w-full border-gray-400 text-gray-700 hover:bg-gray-100"
+                      >
+                        <History className="w-4 h-4 mr-2" />
+                        Ver Histórico de Intercorrências ({paciente.transporte.historico_intercorrencias.length})
+                      </Button>
+                    </div>
                   )}
                   {paciente.relatorio_transporte_url && (
                     <Button
