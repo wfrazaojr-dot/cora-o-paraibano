@@ -26,6 +26,32 @@ Deno.serve(async (req) => {
     const pageHeight = doc.internal.pageSize.getHeight();
     let y = 20;
 
+    // Carregar logomarcas
+    const fetchImageBase64 = async (url) => {
+      try {
+        const res = await fetch(url);
+        const buffer = await res.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+        let binary = '';
+        for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+        return btoa(binary);
+      } catch { return null; }
+    };
+
+    const [imgGov, imgCoracao, imgComplexo] = await Promise.all([
+      fetchImageBase64('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png'),
+      fetchImageBase64('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png'),
+      fetchImageBase64('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg')
+    ]);
+
+    // Adicionar logos no cabeçalho
+    const logoH = 14;
+    const logoW = 30;
+    if (imgGov) doc.addImage(imgGov, 'PNG', 20, y - 6, logoW, logoH);
+    if (imgCoracao) doc.addImage(imgCoracao, 'PNG', pageWidth / 2 - logoW / 2, y - 6, logoW, logoH);
+    if (imgComplexo) doc.addImage(imgComplexo, 'JPEG', pageWidth - 20 - logoW, y - 6, logoW, logoH);
+    y += logoH - 2;
+
     const addLine = (text, size = 10, bold = false, color = [0,0,0]) => {
       doc.setFontSize(size);
       doc.setTextColor(...color);
