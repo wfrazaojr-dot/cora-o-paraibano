@@ -44,7 +44,9 @@ export default function HemodinamicaDetalhe() {
     reperfusao_efetiva: false,
     intercorrencias: "",
     desfecho: "Sucesso",
-    observacoes: ""
+    observacoes: "",
+    medico_hemodinamicista_nome: "",
+    medico_hemodinamicista_crm: ""
   });
   const [comparecimento, setComparecimento] = useState("");
   const [gerandoPDF, setGerandoPDF] = useState(false);
@@ -593,6 +595,8 @@ Programa Coração Paraibano
               {formData.icp_realizada && <p><span className="font-semibold">Reperfusão Efetiva:</span> {formData.reperfusao_efetiva ? "Sim" : "Não"}</p>}
               <p><span className="font-semibold">Desfecho:</span> {formData.desfecho}</p>
               {formData.intercorrencias && <p><span className="font-semibold">Intercorrências:</span> {formData.intercorrencias}</p>}
+              {formData.medico_hemodinamicista_nome && <p><span className="font-semibold">Médico Hemodinamicista:</span> {formData.medico_hemodinamicista_nome}</p>}
+              {formData.medico_hemodinamicista_crm && <p><span className="font-semibold">CRM:</span> {formData.medico_hemodinamicista_crm}</p>}
             </div>
           </div>
 
@@ -925,7 +929,18 @@ Programa Coração Paraibano
                     <Label>Observações</Label>
                     <Textarea value={formData.observacoes} onChange={(e) => setFormData({...formData, observacoes: e.target.value})} placeholder="Observações adicionais..." rows={3} />
                   </div>
-                  <Button onClick={() => finalizarCaso.mutate()} disabled={finalizarCaso.isPending || gerandoPDF} className="w-full bg-green-600 hover:bg-green-700">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label>Médico Hemodinamicista</Label>
+                      <Input value={formData.medico_hemodinamicista_nome} onChange={(e) => setFormData({...formData, medico_hemodinamicista_nome: e.target.value})} placeholder="Nome do médico..." />
+                    </div>
+                    <div>
+                      <Label>CRM</Label>
+                      <Input value={formData.medico_hemodinamicista_crm} onChange={(e) => setFormData({...formData, medico_hemodinamicista_crm: e.target.value})} placeholder="Ex: 123456PB" />
+                    </div>
+                  </div>
+                  <Button onClick={() => finalizarCaso.mutate()}
+                    disabled={finalizarCaso.isPending || gerandoPDF} className="w-full bg-green-600 hover:bg-green-700">
                     <Save className="w-4 h-4 mr-2" />
                     {gerandoPDF ? "Gerando PDF..." : finalizarCaso.isPending ? "Finalizando..." : "Finalizar Caso e Gerar PDF"}
                   </Button>
