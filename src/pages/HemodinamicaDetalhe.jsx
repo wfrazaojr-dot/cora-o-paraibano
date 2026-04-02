@@ -70,7 +70,7 @@ export default function HemodinamicaDetalhe() {
     return new Date() >= new Date(agendamentoSalvo);
   };
 
-  const podeRegistrarChegada = tipoIcp === "imediata" || isAgendamentoAtivo();
+  const podeRegistrarChegada = true; // Registrar Chegada sempre habilitado, independente do agendamento
 
   const gerarPDF = async (pacienteData) => {
     if (!relatorioRef.current) return null;
@@ -772,15 +772,9 @@ Programa Coração Paraibano
                 <CardContent className="space-y-3">
                   {!paciente.hemodinamica?.data_hora_chegada && (
                     <>
-                      {!podeRegistrarChegada && (
-                        <div className="flex items-center gap-2 text-yellow-700 bg-yellow-50 p-3 rounded-lg text-sm">
-                          <AlertTriangle className="w-4 h-4" />
-                          Botões habilitados somente na data/hora agendada.
-                        </div>
-                      )}
                       <Button
                         onClick={() => registrarChegada.mutate()}
-                        disabled={registrarChegada.isPending || !podeRegistrarChegada}
+                        disabled={registrarChegada.isPending}
                         className="w-full bg-blue-600 hover:bg-blue-700"
                       >
                         {registrarChegada.isPending ? "Registrando..." : "Registrar Chegada"}
