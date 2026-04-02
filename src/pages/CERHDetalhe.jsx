@@ -378,6 +378,28 @@ export default function CERHDetalhe() {
 
           {/* Coluna Direita */}
           <div className="lg:col-span-2 space-y-6">
+
+            {/* ALERTA: Paciente não compareceu à Hemodinâmica */}
+            {paciente.hemodinamica?.comparecimento_paciente === 'nao_compareceu' && (
+              <Card className="border-2 border-red-500 bg-red-50">
+                <CardContent className="pt-5 pb-5">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="w-7 h-7 text-red-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-lg font-bold text-red-800">⚠️ Paciente NÃO compareceu à Hemodinâmica</p>
+                      <p className="text-sm text-red-700 mt-1">
+                        O paciente não compareceu na data/hora agendada para o procedimento.
+                        {paciente.hemodinamica?.data_hora_agendamento_icp && (
+                          <> Estava agendado para <strong>{format(new Date(paciente.hemodinamica.data_hora_agendamento_icp), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</strong>.</>  
+                        )}
+                      </p>
+                      <p className="text-sm text-red-700 mt-1 font-semibold">Verificar junto à unidade de saúde e reagendar se necessário.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Relatório de Agendamento Hemodinâmica */}
             {paciente.relatorio_agendamento_hemo_url && (
               <Card className="border-2 border-pink-400 bg-pink-50">

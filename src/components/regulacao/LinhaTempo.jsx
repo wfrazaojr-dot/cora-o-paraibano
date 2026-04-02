@@ -93,6 +93,16 @@ export default function LinhaTempo({ paciente }) {
     });
   }
 
+  if (paciente.hemodinamica?.comparecimento_paciente === "nao_compareceu") {
+    eventos.push({
+      tipo: "⚠️ Paciente NÃO compareceu à Hemodinâmica",
+      dataHora: paciente.hemodinamica?.data_hora_agendamento_icp || paciente.updated_date,
+      icone: Activity,
+      cor: "text-red-700",
+      detalhe: "Paciente não compareceu na data/hora agendada para o procedimento."
+    });
+  }
+
   if (paciente.hemodinamica?.data_hora_chegada) {
     eventos.push({
       tipo: "Chegada à Hemodinâmica",

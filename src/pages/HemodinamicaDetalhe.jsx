@@ -831,7 +831,31 @@ Programa Coração Paraibano
               </Card>
             )}
 
-            {/* Confirmação de Comparecimento (para ICP agendada) */}
+            {/* Registro de Não Comparecimento (antes de chegar) */}
+            {tipoIcpDefinido && tipoIcp !== "imediata" && agendamentoSalvo && !paciente.hemodinamica?.data_hora_chegada && !paciente.hemodinamica?.comparecimento_paciente && (
+              <Card className="border-2 border-red-300 bg-red-50">
+                <CardHeader className="bg-red-100">
+                  <CardTitle className="text-red-800 flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5" />
+                    Paciente não compareceu?
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 pt-4">
+                  <p className="text-sm text-gray-700">Se o paciente <strong>não compareceu</strong> na data/hora agendada, registre abaixo para ciência na linha do tempo e na CERH.</p>
+                  <p className="text-xs text-gray-500">Agendado para: <strong>{format(new Date(agendamentoSalvo), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</strong></p>
+                  <Button
+                    onClick={() => { setComparecimento("nao_compareceu"); registrarComparecimento.mutate(); }}
+                    disabled={registrarComparecimento.isPending}
+                    className="w-full bg-red-600 hover:bg-red-700"
+                  >
+                    <XCircle className="w-4 h-4 mr-2" />
+                    {registrarComparecimento.isPending ? "Registrando..." : "Registrar: Paciente NÃO Compareceu"}
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Confirmação de Comparecimento (para ICP agendada - após chegar) */}
             {tipoIcpDefinido && tipoIcp !== "imediata" && paciente.hemodinamica?.data_hora_inicio_procedimento && !paciente.hemodinamica?.comparecimento_paciente && (
               <Card className="border-2 border-blue-300">
                 <CardHeader className="bg-blue-50">
