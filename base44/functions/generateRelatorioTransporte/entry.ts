@@ -10,7 +10,9 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { pacienteId, intercorrencias, motivo_intercorrencia, acoes_tomadas, status_final } = await req.json();
+    const body = await req.json();
+    const { pacienteId, intercorrencias, motivo_intercorrencia, acoes_tomadas, status_final,
+      viatura: viaturaParam, medico: medicoParam, enfermeiro: enfermeiroParam, condutor: condutorParam } = body;
 
     const pacientes = await base44.asServiceRole.entities.Paciente.list();
     const paciente = pacientes.find(p => p.id === pacienteId);
@@ -123,6 +125,19 @@ Deno.serve(async (req) => {
     addKeyValue('Data/Hora Início', fmt(paciente.transporte?.data_hora_inicio));
     addKeyValue('Data/Hora Chegada ao Destino', fmt(paciente.transporte?.data_hora_chegada_destino || new Date().toISOString()));
 
+    // EQUIPE DO TRANSPORTE
+    const viaturaFinal = viaturaParam || paciente.transporte?.viatura;
+    const medicoFinal = medicoParam || paciente.transporte?.medico;
+    const enfermeiroFinal = enfermeiroParam || paciente.transporte?.enfermeiro;
+    const condutorFinal = condutorParam || paciente.transporte?.condutor;
+    if (viaturaFinal || medicoFinal || enfermeiroFinal || condutorFinal) {
+      addSectionTitle('EQUIPE DO TRANSPORTE');
+      if (viaturaFinal) addKeyValue('Viatura', viaturaFinal);
+      if (medicoFinal) addKeyValue('Médico', medicoFinal);
+      if (enfermeiroFinal) addKeyValue('Enfermeiro', enfermeiroFinal);
+      if (condutorFinal) addKeyValue('Condutor', condutorFinal);
+    }
+
     // Calcular tempo de transporte
     if (paciente.transporte?.data_hora_inicio) {
       const inicio = new Date(paciente.transporte.data_hora_inicio);
@@ -178,10 +193,10 @@ Deno.serve(async (req) => {
     doc.text(`Gerado em: ${fmt(new Date().toISOString())}`, 20, pageHeight - 4);
 
     const pdfData = doc.output('arraybuffer');
-    const pdfBlob = new Blob([pdfData], { type: 'application/pdf' });
+    const pdfFile = new File([pdfData], `relatorio_transporte_${pacienteId}.pdf`, { type: 'application/pdf' });
 
-    const uploadResult = await base44.integrations.Core.UploadFile({
-      file: pdfBlob
+    const uploadResult = await base44.asServiceRole.integrations.Core.UploadFile({
+      file: pdfFile
     });
 
     return Response.json({

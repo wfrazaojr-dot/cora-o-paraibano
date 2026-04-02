@@ -128,28 +128,25 @@ export default function TransporteDetalhe() {
         condutor: paciente.transporte?.condutor || null,
         status_final: "Concluído"
       });
+      const fileUrl = resultado.data.file_url;
       await base44.entities.Paciente.update(pacienteId, {
         transporte: {
           ...paciente.transporte,
           intercorrencias: formData.intercorrencias || "",
           data_hora_chegada_destino: new Date().toISOString(),
           status_transporte: "Concluído",
-          relatorio_transporte_url: resultado.data.file_url
+          relatorio_transporte_url: fileUrl
         },
         status: "Aguardando Hemodinâmica",
-        relatorio_transporte_url: resultado.data.file_url
+        relatorio_transporte_url: fileUrl
       });
       setGerandoPDF(false);
-      const link = document.createElement('a');
-      link.href = resultado.data.file_url;
-      link.download = `Relatorio_Transporte_${paciente.nome_completo.replace(/\s+/g, '_')}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.open(resultado.data.file_url, '_blank');
+      window.open(fileUrl, '_blank');
+      return fileUrl;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['paciente', pacienteId] });
+      queryClient.invalidateQueries({ queryKey: ['transportes-monitor'] });
       alert("Transporte concluído! Relatório PDF gerado.");
       navigate(createPageUrl("Dashboard"));
     },
