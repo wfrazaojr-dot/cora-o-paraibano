@@ -134,7 +134,7 @@ export default function ASSCARDIODetalhe() {
   // Médico
   const [medicoData, setMedicoData] = useState({
     confirma_triagem: false,
-    diagnostico_estrategia: "",
+    diagnostico_estrategia: [],
     parecer_cardiologista: "",
     cardiologista_nome: "",
     cardiologista_crm: "",
@@ -183,7 +183,7 @@ export default function ASSCARDIODetalhe() {
     if (ass.cardiologista_nome || ass.parecer_cardiologista || ass.diagnostico_estrategia || ass.confirma_triagem) {
       setMedicoData({
         confirma_triagem: ass.confirma_triagem || false,
-        diagnostico_estrategia: ass.diagnostico_estrategia ? String(ass.diagnostico_estrategia) : "",
+        diagnostico_estrategia: Array.isArray(ass.diagnostico_estrategia) ? ass.diagnostico_estrategia : (ass.diagnostico_estrategia ? [String(ass.diagnostico_estrategia)] : []),
         parecer_cardiologista: ass.parecer_cardiologista || "",
         cardiologista_nome: ass.cardiologista_nome || "",
         cardiologista_crm: ass.cardiologista_crm || "",
@@ -355,7 +355,7 @@ export default function ASSCARDIODetalhe() {
         status: "Aguardando Regulação"
       };
       // Se estratégia 6 (Trombólise + ICP 2-24h), pré-define tipo_icp na hemodinâmica
-      if (String(medicoData.diagnostico_estrategia) === "6") {
+      if (medicoData.diagnostico_estrategia.includes("6")) {
         updateData.hemodinamica = { ...paciente?.hemodinamica, tipo_icp: "trombolise_icp" };
       }
       await base44.entities.Paciente.update(pacienteId, updateData);
@@ -618,7 +618,9 @@ export default function ASSCARDIODetalhe() {
                         "5": "5- Orientação Cardiológica",
                         "6": "6- Trombólise + ICP 2-24h"
                       };
-                      return estrategias[medicoData.diagnostico_estrategia] || 'Não definido';
+                      return medicoData.diagnostico_estrategia.length > 0
+                       ? medicoData.diagnostico_estrategia.map(k => estrategias[k]).filter(Boolean).join(" | ")
+                       : 'Não definido';
                     })()}</p>
                     <div className="mt-3">
                       <p className="font-semibold mb-1">PARECER DO CARDIOLOGISTA:</p>
@@ -1007,33 +1009,30 @@ export default function ASSCARDIODetalhe() {
 
               <div className="space-y-2">
                 <Label className="text-lg font-bold">DIAGNÓSTICO + ESTRATÉGIA:</Label>
-                <RadioGroup value={medicoData.diagnostico_estrategia} onValueChange={(v) => setMedicoData({...medicoData, diagnostico_estrategia: v})}>
-                  <div className="flex items-center space-x-2 bg-red-100 p-3 rounded">
-                    <RadioGroupItem value="1" id="est1" />
-                    <Label htmlFor="est1" className="text-base">☐ 1- IAM supra ST → "Estratégia 1: transferência imediata"</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 bg-orange-100 p-3 rounded">
-                    <RadioGroupItem value="2" id="est2" />
-                    <Label htmlFor="est2" className="text-base">☐ 2- SCA sem supra MUITO alto risco → "Estratégia 1: transferência imediata"</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 bg-yellow-100 p-3 rounded">
-                    <RadioGroupItem value="3" id="est3" />
-                    <Label htmlFor="est3" className="text-base">☐ 3- IAM sem supra/alto risco → "Estratégia 2: Estratégia Invasiva Precoce"</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 bg-green-100 p-3 rounded">
-                    <RadioGroupItem value="4" id="est4" />
-                    <Label htmlFor="est4" className="text-base">☐ 4- SCA intermediário → "Estratégia 3: Estratégia Invasiva Durante o Internamento"</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 bg-blue-100 p-3 rounded">
-                    <RadioGroupItem value="5" id="est5" />
-                    <Label htmlFor="est5" className="text-base">☐ 5- Orientação Cardiológica</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 bg-purple-100 p-3 rounded">
-                    <RadioGroupItem value="6" id="est6" />
-                    <Label htmlFor="est6" className="text-base">☐ 6- Trombólise + ICP 2-24h</Label>
-                  </div>
-                </RadioGroup>
-                {String(medicoData.diagnostico_estrategia) === "6" && <RecomendacoesTrombolise />}
+                <div className="space-y-2">
+                  {[
+                    { value: "1", label: "☐ 1- IAM supra ST → \"Estratégia 1: transferência imediata\"", bg: "bg-red-100" },
+                    { value: "2", label: "☐ 2- SCA sem supra MUITO alto risco → \"Estratégia 1: transferência imediata\"", bg: "bg-orange-100" },
+                    { value: "3", label: "☐ 3- IAM sem supra/alto risco → \"Estratégia 2: Estratégia Invasiva Precoce\"", bg: "bg-yellow-100" },
+                    { value: "4", label: "☐ 4- SCA intermediário → \"Estratégia 3: Estratégia Invasiva Durante o Internamento\"", bg: "bg-green-100" },
+                    { value: "5", label: "☐ 5- Orientação Cardiológica", bg: "bg-blue-100" },
+                    { value: "6", label: "☐ 6- Trombólise + ICP 2-24h", bg: "bg-purple-100" },
+                  ].map(({ value, label, bg }) => (
+                    <div key={value} className={`flex items-center space-x-2 ${bg} p-3 rounded`}>
+                      <Checkbox
+                        id={`est${value}`}
+                        checked={medicoData.diagnostico_estrategia.includes(value)}
+                        onCheckedChange={(checked) => {
+                          const current = medicoData.diagnostico_estrategia;
+                          const updated = checked ? [...current, value] : current.filter(v => v !== value);
+                          setMedicoData({...medicoData, diagnostico_estrategia: updated});
+                        }}
+                      />
+                      <Label htmlFor={`est${value}`} className="text-base cursor-pointer">{label}</Label>
+                    </div>
+                  ))}
+                </div>
+                {medicoData.diagnostico_estrategia.includes("6") && <RecomendacoesTrombolise />}
               </div>
 
               <div>
