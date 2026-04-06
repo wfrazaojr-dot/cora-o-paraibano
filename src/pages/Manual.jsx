@@ -395,13 +395,33 @@ export default function Manual() {
                   <p className="font-semibold text-red-900">⏱️ ECG IAM ≤ 10 minutos</p>
                   <p className="text-red-800">Em casos suspeitos de IAM com ECG</p>
                 </div>
-                <div className="p-3 bg-orange-50 rounded border border-orange-200">
-                  <p className="font-semibold text-orange-900">⏱️ Espera ≤ 15 minutos</p>
-                  <p className="text-orange-800">Da triagem até início do atendimento médico</p>
+                <div className="p-3 bg-red-50 rounded border border-red-200">
+                  <p className="font-semibold text-red-900">⏱️ Porta-ECG (≤10min)</p>
+                  <p className="text-red-800">Classificação de Risco até realização do ECG</p>
                 </div>
                 <div className="p-3 bg-orange-50 rounded border border-orange-200">
-                  <p className="font-semibold text-orange-900">⏱️ Triagem clínica ≤ 20 minutos</p>
-                  <p className="text-orange-800">Tempo total da avaliação médica inicial</p>
+                  <p className="font-semibold text-orange-900">⏱️ Porta Decisão (≤20min)</p>
+                  <p className="text-orange-800">Início da triagem até envio do relatório (Etapa 4)</p>
+                </div>
+                <div className="p-3 bg-orange-50 rounded border border-orange-200">
+                  <p className="font-semibold text-orange-900">⏱️ Regulação (≤15min)</p>
+                  <p className="text-orange-800">Envio do relatório até regulação da vaga pelo CERH</p>
+                </div>
+                <div className="p-3 bg-orange-50 rounded border border-orange-200">
+                  <p className="font-semibold text-orange-900">⏱️ Porta-Telecardio (≤15min)</p>
+                  <p className="text-orange-800">Envio do relatório até parecer do cardiologista</p>
+                </div>
+                <div className="p-3 bg-blue-50 rounded border border-blue-200">
+                  <p className="font-semibold text-blue-900">⏱️ Transporte (≤90min)</p>
+                  <p className="text-blue-800">Início do transporte até chegada ao destino</p>
+                </div>
+                <div className="p-3 bg-pink-50 rounded border border-pink-200">
+                  <p className="font-semibold text-pink-900">⏱️ ICP-Hemodinâmica (≤15min)</p>
+                  <p className="text-pink-800">Chegada na hemodinâmica até início da ICP</p>
+                </div>
+                <div className="p-3 bg-indigo-50 rounded border border-indigo-200">
+                  <p className="font-semibold text-indigo-900">⏱️ FMC-to-device (≤120min)</p>
+                  <p className="text-indigo-800">Início da triagem até chegada na hemodinâmica</p>
                 </div>
                 <div className="p-3 bg-green-50 rounded border border-green-200">
                   <p className="font-semibold text-green-900">⏱️ Janela terapêutica ≤ 12 horas</p>
