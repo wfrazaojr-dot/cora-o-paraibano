@@ -390,10 +390,7 @@ export default function Manual() {
             </CardHeader>
             <CardContent className="p-6">
               <div className="space-y-3 text-sm">
-                <div className="p-3 bg-red-50 rounded border border-red-200">
-                  <p className="font-semibold text-red-900">⏱️ Triagem ≤ 4 minutos</p>
-                  <p className="text-red-800">Do início até conclusão da triagem de enfermagem</p>
-                </div>
+
                 <div className="p-3 bg-red-50 rounded border border-red-200">
                   <p className="font-semibold text-red-900">⏱️ ECG IAM ≤ 10 minutos</p>
                   <p className="text-red-800">Em casos suspeitos de IAM com ECG</p>
