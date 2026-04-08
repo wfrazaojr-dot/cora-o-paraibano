@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart, Activity } from "lucide-react";
+import { Heart, Activity, Truck, AlertTriangle } from "lucide-react";
 
 export default function Protocolos() {
   return (
@@ -446,6 +446,97 @@ export default function Protocolos() {
               </div>
             </CardContent>
           </Card>
+          {/* CUIDADOS PRÉ-TRANSFERÊNCIA */}
+          <Card className="shadow-md">
+            <CardHeader className="bg-orange-50 border-b">
+              <CardTitle className="flex items-center gap-2">
+                <Truck className="w-5 h-5 text-orange-600" />
+                Cuidados Pré-Transferência
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="space-y-6 text-sm text-gray-700">
+
+                {/* 1. Princípio Geral */}
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">1. Princípio Geral</h4>
+                  <p>
+                    A transferência de pacientes para centros terciários com serviço de hemodinâmica deve ser realizada apenas quando o benefício clínico esperado do cateterismo cardíaco superar claramente os riscos do procedimento e do transporte inter-hospitalar. A decisão deve ser individualizada, baseada em critérios clínicos objetivos e alinhada às recomendações de diretrizes mais recentes e conforme a portaria do Ministério da Saúde nº. 2.048/02 e a Resolução da AGEVISA PB nº. 006/2022.
+                  </p>
+                </div>
+
+                {/* 2. Situações que justificam priorização */}
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">2. Situações que Justificam Priorização da Transferência</h4>
+                  <p className="mb-3">
+                    A transferência em Unidade de Suporte Avançado (USA) terrestre ou aérea para avaliação invasiva deve ser priorizada, mesmo na presença de contraindicações relativas, quando o paciente apresentar uma ou mais das seguintes condições:
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1 mb-3">
+                    <li>Isquemia miocárdica em curso ou angina refratária ao tratamento clínico;</li>
+                    <li>Arritmias graves associadas à isquemia miocárdica;</li>
+                    <li>Insuficiência cardíaca aguda de provável etiologia isquêmica;</li>
+                    <li>Choque cardiogênico;</li>
+                    <li>Escore GRACE elevado (&gt;140);</li>
+                    <li>Parada cardiorrespiratória com suspeita de causa coronariana.</li>
+                  </ul>
+                  <p className="mb-3">Nesses cenários, o potencial benefício vital da estratégia invasiva tende a superar os riscos associados ao procedimento.</p>
+
+                  <div className="bg-yellow-50 border border-yellow-300 rounded p-4">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-semibold text-yellow-900 mb-1">Alerta!</p>
+                        <p className="text-yellow-800 text-xs">
+                          A instabilidade hemodinâmica, por si só, constitui indicação de estratégia invasiva urgente e não contraindicação ao cateterismo. Entretanto, quando houver instabilidade clínica extrema que impeça transporte seguro, como choque profundo refratário, hipoxemia grave não corrigível ou risco iminente de óbito durante o deslocamento, a transferência deve ser temporariamente adiada, priorizando estabilização clínica e reavaliação contínua e nova solicitação de vaga e transporte de USA.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Contraindicações */}
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">3. Situações que Contraindicam a Transferência</h4>
+                  <p className="mb-3">
+                    A transferência não é recomendada quando estiver presente qualquer uma das condições abaixo, por representar risco desproporcional ao benefício esperado:
+                  </p>
+                  <div className="bg-red-50 border border-red-200 rounded p-4">
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Coagulopatia grave não corrigida (INR muito elevado ou plaquetopenia significativa);</li>
+                      <li>Sepse ou infecção ativa não controlada, incluindo endocardite infecciosa;</li>
+                      <li>Alergia grave a contraste iodado sem possibilidade de pré-medicação ou uso de alternativa;</li>
+                      <li>Insuficiência renal aguda não dialítica em progressão;</li>
+                      <li>Recusa formal do paciente ou responsável legal após esclarecimento adequado;</li>
+                      <li>Instabilidade clínica extrema que impeça transporte seguro, conforme descrito acima.</li>
+                    </ul>
+                  </div>
+                  <p className="mt-3">Nessas situações, deve-se priorizar estabilização clínica, tratamento da condição de base e reavaliação periódica da indicação de transferência.</p>
+                </div>
+
+                {/* 4. Avaliação Criteriosa */}
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">4. Situações que Exigem Avaliação Criteriosa Antes da Transferência</h4>
+                  <p className="mb-3">
+                    As condições a seguir não contraindicam automaticamente o cateterismo cardíaco, mas exigem análise individualizada da relação risco x benefício e, preferencialmente, discussão prévia com o centro terciário:
+                  </p>
+                  <div className="bg-orange-50 border border-orange-200 rounded p-4">
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Doença renal crônica moderada a grave;</li>
+                      <li>Anemia grave;</li>
+                      <li>Insuficiência cardíaca descompensada;</li>
+                      <li>Arritmias não controladas;</li>
+                      <li>Infecção respiratória aguda ou febre sem foco definido;</li>
+                      <li>Fragilidade clínica importante;</li>
+                      <li>Idade avançada associada a múltiplas comorbidades;</li>
+                      <li>Dificuldade para obtenção de acesso vascular seguro.</li>
+                    </ul>
+                  </div>
+                </div>
+
+              </div>
+            </CardContent>
+          </Card>
+
         </div>
       </div>
     </div>
