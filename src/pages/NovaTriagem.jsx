@@ -38,9 +38,9 @@ export default function NovaTriagem() {
   // Carregar dados do paciente se ID existir na URL
   useEffect(() => {
     if (idUrl) {
-      base44.entities.Paciente.filter({ id: idUrl }).then((pacientes) => {
-        if (pacientes && pacientes.length > 0) {
-          const paciente = pacientes[0];
+      base44.entities.Paciente.list().then((lista) => {
+        const paciente = lista.find(p => p.id === idUrl);
+        if (paciente) {
           setDadosPaciente(paciente);
           setPacienteId(paciente.id);
         }
