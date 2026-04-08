@@ -19,7 +19,6 @@ import LinhaTempo from "@/components/regulacao/LinhaTempo";
 import MonitorTransporte from "@/components/regulacao/MonitorTransporte";
 import ChatInterno from "@/components/ChatInterno";
 import RecomendacoesTrombolise from "@/components/asscardio/RecomendacoesTrombolise";
-import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -29,7 +28,6 @@ export default function ASSCARDIODetalhe() {
   const queryClient = useQueryClient();
   const urlParams = new URLSearchParams(window.location.search);
   const pacienteId = urlParams.get('id');
-  const relatorioRef = useRef(null);
 
   const { data: paciente, isLoading } = useQuery({
     queryKey: ['paciente', pacienteId],
@@ -192,51 +190,67 @@ export default function ASSCARDIODetalhe() {
     }
   }, [paciente]);
 
-  // Rascunho: salvar no localStorage sempre que os dados mudarem
+  // Auto-save
   const rascunhoKey = pacienteId ? `asscardio_rascunho_${pacienteId}` : null;
   const [autoSaveStatus, setAutoSaveStatus] = useState("");
   const autoSaveTimer = useRef(null);
 
+  // Refs para acessar valores mais recentes no callback de auto-save sem re-criar o callback
+  const clinicaRef = useRef(clinica);
+  const ecgSupraRef = useRef(ecgSupra);
+  const ecgSemSupraRef = useRef(ecgSemSupra);
+  const heartScoreRef = useRef(heartScore);
+  const preParecerRef = useRef(preParecer);
+  const medicoDataRef = useRef(medicoData);
+
+  useEffect(() => { clinicaRef.current = clinica; }, [clinica]);
+  useEffect(() => { ecgSupraRef.current = ecgSupra; }, [ecgSupra]);
+  useEffect(() => { ecgSemSupraRef.current = ecgSemSupra; }, [ecgSemSupra]);
+  useEffect(() => { heartScoreRef.current = heartScore; }, [heartScore]);
+  useEffect(() => { preParecerRef.current = preParecer; }, [preParecer]);
+  useEffect(() => { medicoDataRef.current = medicoData; }, [medicoData]);
+
   const salvarRascunhoAuto = useCallback(async () => {
     if (!pacienteId) return;
+    const cl = clinicaRef.current;
+    const es = ecgSupraRef.current;
+    const ess = ecgSemSupraRef.current;
+    const hs = heartScoreRef.current;
+    const pp = preParecerRef.current;
+    const md = medicoDataRef.current;
     try {
       setAutoSaveStatus("Salvando...");
+      const total = hs.historia + hs.ecg + hs.idade + hs.risco + hs.troponina;
       await base44.entities.Paciente.update(pacienteId, {
         assessoria_cardiologia: {
-          ...(paciente?.assessoria_cardiologia || {}),
-          clinica,
-          ecg_supra: ecgSupra,
-          ecg_sem_supra: ecgSemSupra,
-          heart_score: {
-            ...heartScore,
-            total: heartScore.historia + heartScore.ecg + heartScore.idade + heartScore.risco + heartScore.troponina,
-          },
-          pre_parecer: preParecer,
-          diagnostico_estrategia: medicoData.diagnostico_estrategia,
-          parecer_cardiologista: medicoData.parecer_cardiologista,
-          cardiologista_nome: medicoData.cardiologista_nome,
-          cardiologista_crm: medicoData.cardiologista_crm,
-          cardiologista_rqe: medicoData.cardiologista_rqe,
-          confirma_triagem: medicoData.confirma_triagem,
+          clinica: cl,
+          ecg_supra: es,
+          ecg_sem_supra: ess,
+          heart_score: { ...hs, total },
+          pre_parecer: pp,
+          diagnostico_estrategia: md.diagnostico_estrategia,
+          parecer_cardiologista: md.parecer_cardiologista,
+          cardiologista_nome: md.cardiologista_nome,
+          cardiologista_crm: md.cardiologista_crm,
+          cardiologista_rqe: md.cardiologista_rqe,
+          confirma_triagem: md.confirma_triagem,
           _rascunho: true
         }
       });
       setAutoSaveStatus("✓ Rascunho salvo");
-      setTimeout(() => setAutoSaveStatus(""), 2000);
-    } catch {
-      setAutoSaveStatus("Erro ao salvar");
+      setTimeout(() => setAutoSaveStatus(""), 2500);
+    } catch (e) {
+      setAutoSaveStatus("Erro ao salvar: " + e.message);
     }
-  }, [pacienteId, paciente, clinica, ecgSupra, ecgSemSupra, heartScore, preParecer, medicoData]);
+  }, [pacienteId]);
 
   useEffect(() => {
     if (!rascunhoKey) return;
-    const rascunho = { clinica, ecgSupra, ecgSemSupra, heartScore, preParecer, enfermeiroFinalizado, medicoData };
-    localStorage.setItem(rascunhoKey, JSON.stringify(rascunho));
-    // Auto-save no banco com debounce de 4 segundos
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     autoSaveTimer.current = setTimeout(() => {
       salvarRascunhoAuto();
     }, 4000);
+    return () => clearTimeout(autoSaveTimer.current);
   }, [clinica, ecgSupra, ecgSemSupra, heartScore, preParecer, enfermeiroFinalizado, medicoData]);
 
   // Rascunho: carregar do localStorage se paciente ainda não tem assessoria salva
@@ -289,66 +303,169 @@ export default function ASSCARDIODetalhe() {
     setTimeout(() => setAutoSaveStatus(""), 4000);
   };
 
-  const gerarRelatorioPDF = async () => {
-    if (!relatorioRef.current) return null;
+  // Gera PDF com texto puro (jsPDF), sem html2canvas
+  const gerarRelatorioPDF = async (cl, es, ess, hs, pp, md) => {
+    const pdf = new jsPDF("p", "mm", "a4");
+    const W = 210;
+    const margin = 15;
+    const maxW = W - margin * 2;
+    let y = 15;
 
-    try {
-      const canvas = await html2canvas(relatorioRef.current, {
-        scale: 1.8,
-        logging: false,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: '#ffffff',
-        imageTimeout: 15000,
-        removeContainer: true
+    const ln = (text, size = 10, bold = false, color = [0,0,0]) => {
+      pdf.setFontSize(size);
+      pdf.setFont("helvetica", bold ? "bold" : "normal");
+      pdf.setTextColor(...color);
+      const lines = pdf.splitTextToSize(String(text || ""), maxW);
+      lines.forEach(line => {
+        if (y > 275) { pdf.addPage(); y = 15; }
+        pdf.text(line, margin, y);
+        y += size * 0.45;
       });
+      y += 2;
+    };
 
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pdfWidth;
-      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+    const divisor = () => {
+      if (y > 275) { pdf.addPage(); y = 15; }
+      pdf.setDrawColor(180, 180, 180);
+      pdf.line(margin, y, W - margin, y);
+      y += 4;
+    };
 
-      let heightLeft = imgHeight;
-      let position = 0;
+    // Cabeçalho
+    ln("RELATÓRIO DE ASSESSORIA CARDIOLÓGICA - ASSCARDIO", 14, true, [180, 0, 0]);
+    ln("Programa Coração Paraibano", 10, false, [80, 80, 80]);
+    ln(`Data/Hora: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 9, false, [80,80,80]);
+    divisor();
 
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pdfHeight;
-      }
-
-      const pdfBlob = pdf.output('blob');
-      const nomePaciente = (paciente?.nome_completo || 'Paciente').replace(/\s+/g, '_');
-      const nomeArquivo = `Relatorio_ASSCARDIO_${nomePaciente}_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`;
-      const pdfFile = new File([pdfBlob], nomeArquivo, { type: 'application/pdf' });
-
-      const uploadResult = await base44.integrations.Core.UploadFile({ file: pdfFile });
-      return uploadResult.file_url;
-    } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
-      throw error;
+    // Paciente
+    ln("DADOS DO PACIENTE", 11, true);
+    ln(`Nome: ${paciente?.nome_completo || "-"}`);
+    ln(`Idade: ${paciente?.idade || "-"} anos  |  Sexo: ${paciente?.sexo || "-"}`);
+    ln(`Unidade de Saúde: ${paciente?.unidade_saude || "-"}`);
+    ln(`Macrorregião: ${paciente?.macrorregiao || "-"}`);
+    if (paciente?.formulario_vaga?.email_unidade_solicitante) {
+      ln(`E-mail Unidade: ${paciente.formulario_vaga.email_unidade_solicitante}`);
     }
+    divisor();
+
+    // Sinais Vitais
+    if (paciente?.triagem_medica) {
+      const tm = paciente.triagem_medica;
+      ln("SINAIS VITAIS", 11, true);
+      const pa = tm.pa_braco_esquerdo || "";
+      const [pas, pad] = pa.split('/').map(s => s?.trim());
+      if (pas) ln(`PAS: ${pas} mmHg  |  PAD: ${pad || "-"} mmHg`);
+      if (tm.frequencia_cardiaca) ln(`FC: ${tm.frequencia_cardiaca} bpm  |  FR: ${tm.frequencia_respiratoria || "-"} irpm`);
+      if (tm.spo2) ln(`SpO2: ${tm.spo2}%  |  Temp: ${tm.temperatura || "-"} °C`);
+      if (tm.glicemia_capilar) ln(`Glicemia: ${tm.glicemia_capilar} mg/dL`);
+      divisor();
+    }
+
+    // Pré-parecer
+    if (pp) {
+      ln("AVALIAÇÃO DE ENFERMAGEM (PRÉ-PARECER)", 11, true);
+      ln(pp, 10, true, [0, 0, 180]);
+      divisor();
+    }
+
+    // Dados clínicos
+    ln("DADOS CLÍNICOS", 11, true);
+    const clinFields = [
+      cl.dor_tipica && "Dor torácica típica",
+      cl.sudorese && "Sudorese",
+      cl.has && "HAS",
+      cl.dm && "Diabetes Mellitus",
+      cl.tabagismo && "Tabagismo",
+      cl.dislipidemia && "Dislipidemia",
+    ].filter(Boolean);
+    ln(clinFields.length > 0 ? clinFields.join(", ") : "Nenhum dado registrado");
+    divisor();
+
+    // ECG
+    ln("ECG", 11, true);
+    ln(`Supra de ST: ${es.tem_supra === "sim" ? "SIM" : "NÃO"}`);
+    if (es.tem_supra === "sim" && es.parede_supra) ln(`Parede: ${es.parede_supra}`);
+    const derivacoesAtivas = ["d2","d3","avf","v1","v2","v3","v4","v5","v6","d1","avl","t_hiperaguda","v7_v9","v3r_v4r"]
+      .filter(k => es[k]).map(k => k.toUpperCase().replace("_", "-"));
+    if (derivacoesAtivas.length > 0) ln(`Derivações: ${derivacoesAtivas.join(", ")}`);
+    if (es.tem_supra === "nao") {
+      const alteracoes = [
+        ess.infra_st && "Infra ST ≥0.5mm",
+        ess.t_invertida && "Onda T invertida",
+        ess.q_nova && "Onda Q nova",
+        ess.wellens && "Síndrome de Wellens",
+        ess.infra_difusa_avr && "Infra difusa + supra aVR",
+      ].filter(Boolean);
+      if (alteracoes.length > 0) ln(`Alterações: ${alteracoes.join(", ")}`);
+      ln(`Probabilidade: ${ess.probabilidade || "não definida"}`);
+    }
+    divisor();
+
+    // HEART Score
+    if (es.tem_supra !== "sim") {
+      const total = hs.historia + hs.ecg + hs.idade + hs.risco + hs.troponina;
+      const interp = total <= 3 ? "Baixo risco" : total <= 6 ? "Risco intermediário" : "Alto risco";
+      ln("HEART SCORE", 11, true);
+      ln(`H-História: ${hs.historia}  |  E-ECG: ${hs.ecg}  |  A-Idade: ${hs.idade}  |  R-Risco: ${hs.risco}  |  T-Troponina: ${hs.troponina}`);
+      ln(`TOTAL: ${total} pontos — ${interp}`, 11, true);
+      divisor();
+    }
+
+    // Avaliação do Cardiologista
+    ln("AVALIAÇÃO DO CARDIOLOGISTA", 11, true);
+    if (md.cardiologista_nome) {
+      ln(`Dr(a). ${md.cardiologista_nome}`);
+      ln(`CRM: ${md.cardiologista_crm}${md.cardiologista_rqe ? " | RQE: " + md.cardiologista_rqe : ""}`);
+    }
+    ln(`Triagem confirmada: ${md.confirma_triagem ? "Sim" : "Não"}`);
+
+    const estrategiasMap = {
+      "1": "1- IAM supra ST → Estratégia 1: transferência imediata",
+      "2": "2- SCA sem supra MUITO alto risco → Estratégia 1",
+      "3": "3- IAM sem supra/alto risco → Estratégia 2: Invasiva Precoce",
+      "4": "4- SCA intermediário → Estratégia 3: Invasiva no Internamento",
+      "5": "5- Orientação Cardiológica",
+      "6": "6- Trombólise + ICP 2-24h",
+    };
+    if (md.diagnostico_estrategia?.length > 0) {
+      ln("Diagnóstico + Estratégia:", 10, true);
+      md.diagnostico_estrategia.forEach(k => ln(`  • ${estrategiasMap[k] || k}`));
+    }
+
+    if (md.parecer_cardiologista) {
+      y += 2;
+      ln("PARECER DO CARDIOLOGISTA:", 10, true);
+      ln(md.parecer_cardiologista);
+    }
+    divisor();
+
+    // Rodapé
+    ln("Sistema de Triagem de Dor Torácica — Coração Paraibano", 8, false, [120,120,120]);
+    ln("Desenvolvedor: Walber Alves Frazão Júnior — COREN 110.238", 8, false, [120,120,120]);
+    ln(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm:ss", { locale: ptBR })}`, 8, false, [120,120,120]);
+
+    const nomePaciente = (paciente?.nome_completo || 'Paciente').replace(/\s+/g, '_');
+    const nomeArquivo = `Parecer_ASSCARDIO_${nomePaciente}_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`;
+
+    // Download local automático
+    pdf.save(nomeArquivo);
+
+    // Upload para nuvem (para CERH visualizar)
+    const pdfBlob = pdf.output('blob');
+    const pdfFile = new File([pdfBlob], nomeArquivo, { type: 'application/pdf' });
+    const uploadResult = await base44.integrations.Core.UploadFile({ file: pdfFile });
+    return uploadResult.file_url;
   };
 
   const salvarRascunho = useMutation({
     mutationFn: async () => {
+      const total = calcularHeartTotal();
       await base44.entities.Paciente.update(pacienteId, {
         assessoria_cardiologia: {
-          ...paciente?.assessoria_cardiologia,
           clinica,
           ecg_supra: ecgSupra,
           ecg_sem_supra: ecgSemSupra,
-          heart_score: {
-            ...heartScore,
-            total: calcularHeartTotal(),
-            interpretacao: getHeartInterpretacao(calcularHeartTotal())
-          },
+          heart_score: { ...heartScore, total, interpretacao: getHeartInterpretacao(total) },
           pre_parecer: preParecer,
           diagnostico_estrategia: medicoData.diagnostico_estrategia,
           parecer_cardiologista: medicoData.parecer_cardiologista,
@@ -362,7 +479,7 @@ export default function ASSCARDIODetalhe() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['paciente', pacienteId]);
-      setAutoSaveStatus("✓ Rascunho salvo com sucesso!");
+      setAutoSaveStatus("✓ Rascunho salvo!");
       setTimeout(() => setAutoSaveStatus(""), 3000);
     },
     onError: (error) => {
@@ -372,29 +489,26 @@ export default function ASSCARDIODetalhe() {
 
   const salvarLaudoMedico = useMutation({
     mutationFn: async () => {
-      const file_url = await gerarRelatorioPDF();
+      const total = calcularHeartTotal();
+      const file_url = await gerarRelatorioPDF(clinica, ecgSupra, ecgSemSupra, heartScore, preParecer, medicoData);
       const updateData = {
         assessoria_cardiologia: {
           data_hora: new Date().toISOString(),
-          clinica: clinica,
+          clinica,
           ecg_supra: ecgSupra,
           ecg_sem_supra: ecgSemSupra,
-          heart_score: {
-            ...heartScore,
-            total: calcularHeartTotal(),
-            interpretacao: getHeartInterpretacao(calcularHeartTotal())
-          },
+          heart_score: { ...heartScore, total, interpretacao: getHeartInterpretacao(total) },
           pre_parecer: preParecer,
           diagnostico_estrategia: medicoData.diagnostico_estrategia,
           parecer_cardiologista: medicoData.parecer_cardiologista,
           cardiologista_nome: medicoData.cardiologista_nome,
           cardiologista_crm: medicoData.cardiologista_crm,
-          cardiologista_rqe: medicoData.cardiologista_rqe
+          cardiologista_rqe: medicoData.cardiologista_rqe,
+          confirma_triagem: medicoData.confirma_triagem,
         },
         relatorio_asscardio_url: file_url,
         status: "Aguardando Regulação"
       };
-      // Se estratégia 6 (Trombólise + ICP 2-24h), pré-define tipo_icp na hemodinâmica
       if (medicoData.diagnostico_estrategia.includes("6")) {
         updateData.hemodinamica = { ...paciente?.hemodinamica, tipo_icp: "trombolise_icp" };
       }
@@ -518,171 +632,8 @@ export default function ASSCARDIODetalhe() {
 
             {/* Auto-save status */}
             {autoSaveStatus && (
-              <div className="text-xs text-gray-500 text-right italic py-1">{autoSaveStatus}</div>
+              <div className="text-xs text-blue-700 text-right italic py-1 font-medium">{autoSaveStatus}</div>
             )}
-
-            {/* Relatório Visual (Oculto) */}
-            <div style={{ position: 'fixed', top: 0, left: '-9999px', visibility: 'hidden', pointerEvents: 'none', zIndex: -1 }}>
-              <div 
-                ref={relatorioRef} 
-                className="bg-white p-8"
-                style={{ width: '210mm', minHeight: '297mm' }}
-              >
-                {/* Cabeçalho com logos */}
-                <div className="mb-6 pb-4 border-b-2 border-gray-300">
-                  <div className="flex items-center justify-between gap-4 w-full mb-3">
-                    <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" alt="Governo da Paraíba" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
-                    <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" alt="Coração Paraibano" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
-                    <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg" alt="Complexo Regulador" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
-                  </div>
-                  <div className="text-center">
-                    <h1 className="text-xl font-bold text-red-600 flex items-center justify-center gap-2">
-                      <Heart className="w-6 h-6" />
-                      RELATÓRIO ASSESSORIA CARDIOLÓGICA - ASSCARDIO
-                    </h1>
-                    <p className="text-sm text-gray-700 mt-2">
-                      Data: {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Dados do Paciente */}
-                <div className="mb-4">
-                  <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">DADOS DO PACIENTE</h2>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div><span className="font-semibold">Nome:</span> {paciente?.nome_completo}</div>
-                    <div><span className="font-semibold">Idade:</span> {paciente?.idade} anos</div>
-                    <div><span className="font-semibold">Sexo:</span> {paciente?.sexo}</div>
-                    <div><span className="font-semibold">Unidade:</span> {paciente?.unidade_saude || 'Não Informada'}</div>
-                    {paciente?.formulario_vaga?.email_unidade_solicitante && (
-                      <div className="col-span-2"><span className="font-semibold">E-mail da Unidade:</span> {paciente.formulario_vaga.email_unidade_solicitante}</div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Sinais Vitais */}
-                {paciente?.triagem_medica && (
-                  <div className="mb-4">
-                    <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">SINAIS VITAIS</h2>
-                    <div className="grid grid-cols-4 gap-2 text-xs">
-                      {(() => {
-                        const pa = paciente.triagem_medica.pa_braco_esquerdo || "";
-                        const parts = pa.split('/');
-                        const pas = parts[0]?.trim();
-                        const pad = parts[1]?.trim();
-                        return (
-                          <>
-                            {pas && <div><span className="font-semibold">PAS (mm Hg):</span> {pas}</div>}
-                            {pad && <div><span className="font-semibold">PAD (mm Hg):</span> {pad}</div>}
-                          </>
-                        );
-                      })()}
-                      {paciente.triagem_medica.frequencia_cardiaca && <div><span className="font-semibold">FC:</span> {paciente.triagem_medica.frequencia_cardiaca} bpm</div>}
-                      {paciente.triagem_medica.frequencia_respiratoria && <div><span className="font-semibold">FR:</span> {paciente.triagem_medica.frequencia_respiratoria} irpm</div>}
-                      {paciente.triagem_medica.temperatura && <div><span className="font-semibold">Temp:</span> {paciente.triagem_medica.temperatura} °C</div>}
-                      {paciente.triagem_medica.spo2 && <div><span className="font-semibold">SpO2:</span> {paciente.triagem_medica.spo2}%</div>}
-                      {paciente.triagem_medica.glicemia_capilar && <div><span className="font-semibold">Glicemia:</span> {paciente.triagem_medica.glicemia_capilar} mg/dL</div>}
-                    </div>
-                  </div>
-                )}
-
-                {/* Pré-Parecer */}
-                <div className="mb-4">
-                  <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">AVALIAÇÃO DE ENFERMAGEM (PRÉ-PARECER)</h2>
-                  <p className="text-sm font-bold text-blue-900">{preParecer}</p>
-                </div>
-
-                {/* Dados Clínicos */}
-                <div className="mb-4">
-                  <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">DADOS CLÍNICOS</h2>
-                  <div className="grid grid-cols-3 gap-2 text-xs">
-                    <div>• Dor Típica: {clinica.dor_tipica ? 'Sim' : 'Não'}</div>
-                    <div>• Sudorese: {clinica.sudorese ? 'Sim' : 'Não'}</div>
-                    <div>• HAS: {clinica.has ? 'Sim' : 'Não'}</div>
-                    <div>• DM: {clinica.dm ? 'Sim' : 'Não'}</div>
-                    <div>• Tabagismo: {clinica.tabagismo ? 'Sim' : 'Não'}</div>
-                    <div>• Dislipidemia: {clinica.dislipidemia ? 'Sim' : 'Não'}</div>
-                  </div>
-                </div>
-
-                {/* ECG Supra ST */}
-                <div className="mb-4">
-                  <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">ACHADOS DO ECG (SUPRA ST)</h2>
-                  <div className="text-xs space-y-1">
-                    <p><strong>Tem Supra ST:</strong> {ecgSupra.tem_supra === 'sim' ? 'Sim' : 'Não'}</p>
-                    {ecgSupra.tem_supra === 'sim' && <p><strong>Parede:</strong> {ecgSupra.parede_supra}</p>}
-                    <p><strong>Parede Inferior:</strong> D2={ecgSupra.d2?'Sim':'Não'}, D3={ecgSupra.d3?'Sim':'Não'}, aVF={ecgSupra.avf?'Sim':'Não'}</p>
-                    <p><strong>Recíprocos Inferior:</strong> D1/aVL={ecgSupra.reciproco_d1_avl?'Sim':'Não'}, V1-V3={ecgSupra.reciproco_v1_v3?'Sim':'Não'}</p>
-                    <p><strong>Parede Anterior:</strong> V1={ecgSupra.v1?'Sim':'Não'}, V2={ecgSupra.v2?'Sim':'Não'}, V3={ecgSupra.v3?'Sim':'Não'}, V4={ecgSupra.v4?'Sim':'Não'}</p>
-                    <p><strong>Recíprocos Anterior:</strong> D2/D3/aVF={ecgSupra.reciproco_d2_d3_avf?'Sim':'Não'}</p>
-                    <p><strong>Parede Lateral:</strong> D1={ecgSupra.d1?'Sim':'Não'}, aVL={ecgSupra.avl?'Sim':'Não'}, V5={ecgSupra.v5?'Sim':'Não'}, V6={ecgSupra.v6?'Sim':'Não'}</p>
-                    <p><strong>Outros:</strong> T Hiperaguda={ecgSupra.t_hiperaguda?'Sim':'Não'}, V7-V9={ecgSupra.v7_v9?'Sim':'Não'}, V3R/V4R={ecgSupra.v3r_v4r?'Sim':'Não'}</p>
-                  </div>
-                </div>
-
-                {/* ECG Sem Supra */}
-                {ecgSupra.tem_supra === 'nao' && (
-                  <div className="mb-4">
-                    <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">ACHADOS DO ECG (SEM SUPRA ST)</h2>
-                    <div className="text-xs space-y-1">
-                      <p>• Infra ST ≥0.5mm: {ecgSemSupra.infra_st ? 'Sim' : 'Não'}</p>
-                      <p>• T invertida: {ecgSemSupra.t_invertida ? 'Sim' : 'Não'}</p>
-                      <p>• Q nova: {ecgSemSupra.q_nova ? 'Sim' : 'Não'}</p>
-                      <p>• Wellens: {ecgSemSupra.wellens ? 'Sim' : 'Não'}</p>
-                      <p>• Infra difusa+aVR: {ecgSemSupra.infra_difusa_avr ? 'Sim' : 'Não'}</p>
-                      <p><strong>Probabilidade:</strong> {ecgSemSupra.probabilidade}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* HEART Score */}
-                {ecgSupra.tem_supra !== 'sim' && (
-                  <div className="mb-4">
-                    <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">HEART SCORE</h2>
-                    <div className="text-xs space-y-1">
-                      <p>• História: {heartScore.historia} pontos</p>
-                      <p>• ECG: {heartScore.ecg} pontos</p>
-                      <p>• Idade: {heartScore.idade} pontos</p>
-                      <p>• Fatores de Risco: {heartScore.risco} pontos</p>
-                      <p className="font-bold text-base mt-2">TOTAL: {calcularHeartTotal()} pontos - {getHeartInterpretacao(calcularHeartTotal())}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Avaliação do Cardiologista */}
-                <div className="mb-4">
-                  <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">AVALIAÇÃO DO CARDIOLOGISTA</h2>
-                  <div className="text-xs space-y-2">
-                    {medicoData.cardiologista_nome && <p><strong>Cardiologista:</strong> {medicoData.cardiologista_nome} | CRM: {medicoData.cardiologista_crm}{medicoData.cardiologista_rqe ? ` | RQE: ${medicoData.cardiologista_rqe}` : ''}</p>}
-                    <p><strong>Triagem de enfermagem confirmada:</strong> {medicoData.confirma_triagem ? 'Sim' : 'Não'}</p>
-                    <p><strong>Diagnóstico + Estratégia:</strong> {(() => {
-                      const estrategias = {
-                        "1": "1- IAM supra ST → Estratégia 1: transferência imediata",
-                        "2": "2- SCA sem supra MUITO alto risco → Estratégia 1: transferência imediata",
-                        "3": "3- IAM sem supra/alto risco → Estratégia 2: Estratégia Invasiva Precoce",
-                        "4": "4- SCA intermediário → Estratégia 3: Estratégia Invasiva Durante o Internamento",
-                        "5": "5- Orientação Cardiológica",
-                        "6": "6- Trombólise + ICP 2-24h"
-                      };
-                      return medicoData.diagnostico_estrategia.length > 0
-                       ? medicoData.diagnostico_estrategia.map(k => estrategias[k]).filter(Boolean).join(" | ")
-                       : 'Não definido';
-                    })()}</p>
-                    <div className="mt-3">
-                      <p className="font-semibold mb-1">PARECER DO CARDIOLOGISTA:</p>
-                      <p className="whitespace-pre-wrap">{medicoData.parecer_cardiologista}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Rodapé */}
-                <div className="mt-8 pt-4 border-t-2 border-gray-300 text-xs text-gray-600">
-                  <p className="font-semibold">Sistema de Triagem de Dor Torácica</p>
-                  <p>Autor: Walber Alves Frazão Júnior - COREN 110.238</p>
-                  <p>Gerado em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm:ss", { locale: ptBR })}</p>
-                </div>
-              </div>
-            </div>
 
         {/* 1. DECISÃO 1E: RELATO MÉDICO DE SUPRA ST? */}
         <Card className="mb-4 border-2 border-yellow-400 bg-yellow-50">
