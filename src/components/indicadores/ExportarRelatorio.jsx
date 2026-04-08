@@ -85,7 +85,8 @@ export default function ExportarRelatorio({ pacientes, mesSelecionado, anoSeleci
     const rows = dadosFiltrados.map(buildRow);
     const nomeArquivo = `Indicadores_${mesSelecionado < 10 ? "0" + mesSelecionado : mesSelecionado}_${anoSelecionado}`;
 
-    const headers = Object.keys(rows[0] || buildRow({}));
+    if (rows.length === 0) return;
+    const headers = Object.keys(rows[0]);
     const csvRows = [headers.join(";"), ...rows.map(r => headers.map(h => `"${r[h] ?? ""}"`).join(";"))];
     const blob = new Blob(["\uFEFF" + csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);

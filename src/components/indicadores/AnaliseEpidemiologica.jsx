@@ -285,7 +285,7 @@ export default function AnaliseEpidemiologica({ pacientes = [] }) {
                 </div>
                 <ResponsiveContainer width="100%" height={220}>
                   <PieChart>
-                    <Pie data={porSCA} cx="50%" cy="50%" outerRadius={90} dataKey="value" label={e => `${e.name.split(" ")[0]}: ${e.value}`}>
+                    <Pie data={porSCA} cx="50%" cy="50%" outerRadius={90} dataKey="value" label={e => `${e.value}`}>
                       {porSCA.map((e, i) => <Cell key={i} fill={CORES_SCA[e.key]} />)}
                     </Pie>
                     <Tooltip />

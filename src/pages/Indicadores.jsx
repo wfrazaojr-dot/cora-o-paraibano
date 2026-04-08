@@ -231,12 +231,17 @@ export default function Indicadores() {
 
 
 
-  // Distribuição por classificação de risco
+  // Distribuição por classificação de risco (campo triagem_enfermagem.classificacao_risco, lowercase)
   const distribuicaoRisco = useMemo(() => {
-    const cores = ["Vermelha", "Laranja", "Amarela", "Verde", "Azul"];
-    return cores.map(cor => ({
-      name: cor,
-      value: pacientesFiltrados.filter(p => p.classificacao_risco?.cor === cor).length
+    const coresMap = [
+      { label: "Vermelha", value: "vermelha" },
+      { label: "Laranja",  value: "laranja" },
+      { label: "Amarela",  value: "amarela" },
+      { label: "Verde",    value: "verde" },
+    ];
+    return coresMap.map(c => ({
+      name: c.label,
+      value: pacientesFiltrados.filter(p => p.triagem_enfermagem?.classificacao_risco === c.value).length
     })).filter(item => item.value > 0);
   }, [pacientesFiltrados]);
 
