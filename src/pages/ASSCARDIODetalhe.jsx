@@ -363,7 +363,6 @@ export default function ASSCARDIODetalhe() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["paciente", pacienteId]);
       setAutoSaveStatus("✓ Rascunho salvo!");
       setTimeout(() => setAutoSaveStatus(""), 3000);
     },
