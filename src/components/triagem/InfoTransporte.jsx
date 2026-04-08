@@ -193,7 +193,7 @@ export default function InfoTransporte({ dados, onChange }) {
               <div>
                 <p className="font-bold text-red-900 text-sm mb-1">⚠️ Alerta! Transporte Contraindicado</p>
                 <p className="text-red-800 text-sm">
-                  Após o envio desta solicitação, estabilize o paciente e, em seguida, envie e-mail para a Central de Regulação (CERH) da sua Macrorregião, declarando a estabilização clínica para liberação da Vaga e transporte em USA.
+                  Após o envio desta solicitação, estabilize o paciente e, em seguida, atualize este relatório e envie e-mail para Central de Regulação (CERH) da sua Macrorregião, atualizando e declarando a estabilização clínica para liberação da Vaga e transporte em USA com o novo relatório gerado em PDF.
                 </p>
               </div>
             </div>

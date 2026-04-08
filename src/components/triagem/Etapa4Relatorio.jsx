@@ -659,7 +659,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
                   "infeccao_respiratoria", "fragilidade_clinica", "idade_comorbidades", "dificuldade_acesso_vascular"
                 ].some(key => infoTransporte[key] === true) && (
                   <div className="mt-2 bg-red-100 border border-red-600 rounded p-2">
-                    <p className="text-xs font-bold text-red-900">⚠️ ALERTA! TRANSPORTE CONTRAINDICADO — Estabilizar o paciente e comunicar o CERH da Macrorregião por e-mail antes do transporte em USA.</p>
+                    <p className="text-xs font-bold text-red-900">⚠️ ALERTA! TRANSPORTE CONTRAINDICADO — Estabilize o paciente e, em seguida, atualize este relatório e envie e-mail para Central de Regulação (CERH) da sua Macrorregião, atualizando e declarando a estabilização clínica para liberação da Vaga e transporte em USA com o novo relatório gerado em PDF.</p>
                   </div>
                 )}
               </div>
