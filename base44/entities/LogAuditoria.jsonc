@@ -1,0 +1,75 @@
+{
+  "name": "LogAuditoria",
+  "type": "object",
+  "properties": {
+    "usuario_email": {
+      "type": "string",
+      "description": "Email do usu\u00e1rio que realizou a a\u00e7\u00e3o"
+    },
+    "usuario_nome": {
+      "type": "string",
+      "description": "Nome do usu\u00e1rio que realizou a a\u00e7\u00e3o"
+    },
+    "acao": {
+      "type": "string",
+      "enum": [
+        "criar",
+        "atualizar",
+        "deletar",
+        "visualizar",
+        "login",
+        "logout",
+        "gerar_relatorio",
+        "transferir",
+        "concluir"
+      ],
+      "description": "Tipo de a\u00e7\u00e3o realizada"
+    },
+    "entidade": {
+      "type": "string",
+      "description": "Nome da entidade afetada (ex: Paciente, Protocolo)"
+    },
+    "entidade_id": {
+      "type": "string",
+      "description": "ID do registro afetado"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o leg\u00edvel da a\u00e7\u00e3o realizada"
+    },
+    "dados_anteriores": {
+      "type": "object",
+      "description": "Estado anterior do registro (para atualiza\u00e7\u00f5es)"
+    },
+    "dados_novos": {
+      "type": "object",
+      "description": "Novo estado do registro (para atualiza\u00e7\u00f5es)"
+    },
+    "campos_alterados": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Lista dos campos que foram modificados"
+    },
+    "ip_origem": {
+      "type": "string",
+      "description": "Endere\u00e7o IP de origem da requisi\u00e7\u00e3o"
+    },
+    "severidade": {
+      "type": "string",
+      "enum": [
+        "info",
+        "aviso",
+        "critico"
+      ],
+      "default": "info"
+    }
+  },
+  "required": [
+    "usuario_email",
+    "acao",
+    "entidade",
+    "descricao"
+  ]
+}
