@@ -220,12 +220,39 @@ export default function ASSCARDIODetalhe() {
   };
 
   // ─── Geração de PDF ───────────────────────────────────────────────────────
-  const gerarPDF = (pac, es, ess, hs, pp, md) => {
+  const urlParaBase64 = (url) =>
+    fetch(url)
+      .then((r) => r.blob())
+      .then(
+        (blob) =>
+          new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          })
+      )
+      .catch(() => null);
+
+  const gerarPDF = async (pac, es, ess, hs, pp, md) => {
     const pdf = new jsPDF("p", "mm", "a4");
     const W = 210;
     const margin = 15;
     const maxW = W - margin * 2;
     let y = 15;
+
+    // Carregar logos
+    const [logoGov, logoCoracao, logoComplexo] = await Promise.all([
+      urlParaBase64("https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png"),
+      urlParaBase64("https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png"),
+      urlParaBase64("https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png"),
+    ]);
+
+    // Inserir logos no cabeçalho
+    const logoH = 18;
+    if (logoGov) pdf.addImage(logoGov, "PNG", margin, y, 40, logoH);
+    if (logoCoracao) pdf.addImage(logoCoracao, "PNG", W / 2 - 22, y, 44, logoH);
+    if (logoComplexo) pdf.addImage(logoComplexo, "PNG", W - margin - 40, y, 40, logoH);
+    y += logoH + 5;
 
     const ln = (text, size = 10, bold = false, color = [0, 0, 0]) => {
       pdf.setFontSize(size);
@@ -378,7 +405,7 @@ export default function ASSCARDIODetalhe() {
       const pac = pacienteRef.current;
 
       // 1. Gerar PDF
-      const pdf = gerarPDF(pac, ecgSupra, ecgSemSupra, heartScore, preParecer, medicoData);
+      const pdf = await gerarPDF(pac, ecgSupra, ecgSemSupra, heartScore, preParecer, medicoData);
       const nomePaciente = (pac?.nome_completo || "Paciente").replace(/\s+/g, "_");
       const nomeArquivo = `Parecer_ASSCARDIO_${nomePaciente}_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`;
 
