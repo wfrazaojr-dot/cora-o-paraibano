@@ -139,12 +139,16 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
     }
   };
 
+  // Detecta se o paciente já está em etapa avançada (não deve retroceder status)
+  const statusAtual = dadosPaciente.status;
+  const isAtualizacaoRelatorio = statusAtual && !['Em Triagem', undefined, null].includes(statusAtual);
+
   const handleFinalizar = async () => {
     if (!medico.nome || !medico.crm || !medico.celular) {
       alert("Por favor, preencha o nome, CRM e celular do médico");
       return;
     }
-    if (confirmacaoHemodinamica === null) {
+    if (!isAtualizacaoRelatorio && confirmacaoHemodinamica === null) {
       alert("Por favor, responda se o USA está disponível com chegada na Hemodinâmica < 90 minutos.");
       return;
     }
@@ -152,7 +156,20 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
     setGerandoPDF(true);
     try {
       const pdfUrl = await gerarEUploadPDF();
-      
+
+      // Se já está em status avançado, apenas atualiza o relatório sem retroagir status
+      if (isAtualizacaoRelatorio) {
+        await updatePacienteMutation.mutateAsync({
+          medico_nome: medico.nome,
+          medico_crm: medico.crm,
+          medico_celular: medico.celular,
+          relatorio_triagem_url: pdfUrl,
+        });
+        alert("Relatório de triagem atualizado com sucesso! CERH e Transporte já podem visualizar o novo relatório.");
+        navigate(createPageUrl("Dashboard"));
+        return;
+      }
+
       await updatePacienteMutation.mutateAsync({
         medico_nome: medico.nome,
         medico_crm: medico.crm,
@@ -164,6 +181,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         alerta_formulario_vaga: true,
       });
       alert("Atendimento finalizado com sucesso!");
+
       navigate(createPageUrl("Dashboard"));
     } catch (error) {
       console.error("Erro ao finalizar atendimento:", error);
@@ -696,7 +714,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         <Button
           onClick={handleFinalizar}
           className="bg-green-600 hover:bg-green-700"
-          disabled={!medico.nome || !medico.crm || !medico.celular || confirmacaoHemodinamica === null || gerandoPDF}
+          disabled={!medico.nome || !medico.crm || !medico.celular || (!isAtualizacaoRelatorio && confirmacaoHemodinamica === null) || gerandoPDF}
         >
           <CheckCircle className="w-4 h-4 mr-2" />
           {gerandoPDF ? "Finalizando..." : "Finalizar Relatório"}

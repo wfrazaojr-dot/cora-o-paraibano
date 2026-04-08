@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Search, ExternalLink, RefreshCw, Filter, Plus, Loader2 } from "lucide-react";
+import { Search, ExternalLink, RefreshCw, Filter, Plus, Loader2, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Link, useNavigate } from "react-router-dom";
@@ -462,6 +462,28 @@ export default function Historico() {
                             📋 Ver/Reenviar Formulário
                           </Button>
                         )}
+                        {/* Botão Atualizar Info de Transporte - Unidade de Saúde */}
+                        {user?.equipe === 'unidade_saude' && (() => {
+                          const it = paciente.avaliacao_clinica?.info_transporte || {};
+                          const contraIndicado = [
+                            'doenca_renal_cronica','anemia_grave','ic_descompensada','arritmias_nao_controladas',
+                            'infeccao_respiratoria','fragilidade_clinica','idade_comorbidades','dificuldade_acesso_vascular'
+                          ].some(k => it[k] === true);
+                          const statusAvancado = ['Aguardando Transporte','Em Transporte','Aguardando Hemodinâmica'].includes(paciente.status);
+                          if (contraIndicado && statusAvancado) {
+                            return (
+                              <Button
+                                size="sm"
+                                onClick={() => navigate(`${createPageUrl('NovaTriagem')}?id=${paciente.id}`)}
+                                className="bg-red-700 hover:bg-red-800 text-white"
+                              >
+                                <AlertTriangle className="w-4 h-4 mr-1" />
+                                Atualizar Inf. Transporte
+                              </Button>
+                            );
+                          }
+                          return null;
+                        })()}
                         {paciente.relatorio_agendamento_hemo_url && (
                           <Button
                             size="sm"
@@ -487,7 +509,6 @@ export default function Historico() {
                         >
                           <RefreshCw className="w-4 h-4 mr-2" />
                           Retriagem
-                        </Button>
                       </div>
                     </div>
                   </div>
