@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, ArrowLeft, Clock, Building2, AlertCircle } from "lucide-react";
 import { format, differenceInMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { base44 } from "@/api/base44Client";
 import { CIDADES_POR_MACRO } from "@/components/data/cidadesParaiba";
 import { UNIDADES_POR_MACRO_CIDADE } from "@/components/data/unidadesSaude";
 
@@ -196,7 +195,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
             <button
               key={macro}
               type="button"
-              onClick={() => !modoLeitura && setDados(prev => ({...prev, macrorregiao: macro, cidade: "", unidade_saude: ""})) || (setUsarOutraUnidade(false), setOutraUnidade(""))}
+              onClick={() => { if (!modoLeitura) { setDados(prev => ({...prev, macrorregiao: macro, cidade: "", unidade_saude: ""})); setUsarOutraUnidade(false); setOutraUnidade(""); } }}
               className={`flex-1 py-3 rounded-lg border-2 font-bold text-sm transition-colors ${
                 dados.macrorregiao === macro
                   ? "bg-teal-600 border-teal-600 text-white"
@@ -214,7 +213,7 @@ export default function Etapa1DadosPaciente({ dadosPaciente, onProxima, onAnteri
             <select
               id="cidade"
               value={dados.cidade}
-              onChange={(e) => setDados(prev => ({...prev, cidade: e.target.value}))}
+              onChange={(e) => { setDados(prev => ({...prev, cidade: e.target.value, unidade_saude: ""})); setUsarOutraUnidade(false); setOutraUnidade(""); }}
               className="flex h-10 w-full rounded-md border-2 border-teal-400 bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               disabled={modoLeitura}
             >
