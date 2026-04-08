@@ -484,22 +484,17 @@ export default function CERHDetalhe() {
                       <p className="text-sm whitespace-pre-wrap bg-white p-3 rounded border border-red-100">{paciente.assessoria_cardiologia.parecer_cardiologista}</p>
                     </div>
                   )}
-                  {paciente.assessoria_cardiologia.diagnostico && (
-                    <div>
-                      <p className="text-sm font-semibold text-red-800">Diagnóstico</p>
-                      <p className="text-sm">{paciente.assessoria_cardiologia.diagnostico}</p>
-                    </div>
-                  )}
                   {paciente.assessoria_cardiologia.diagnostico_estrategia && (
                     <div>
-                      <p className="text-sm font-semibold text-red-800">Estratégia Diagnóstica</p>
-                      <p className="text-sm">{paciente.assessoria_cardiologia.diagnostico_estrategia}</p>
-                    </div>
-                  )}
-                  {paciente.assessoria_cardiologia.conduta && (
-                    <div>
-                      <p className="text-sm font-semibold text-red-800">Conduta</p>
-                      <p className="text-sm">{paciente.assessoria_cardiologia.conduta}</p>
+                      <p className="text-sm font-semibold text-red-800">Diagnóstico + Estratégia</p>
+                      <p className="text-sm">
+                        {Array.isArray(paciente.assessoria_cardiologia.diagnostico_estrategia)
+                          ? (() => {
+                              const map = { "1": "1- IAM supra ST → Estratégia 1", "2": "2- SCA muito alto risco → Estratégia 1", "3": "3- IAM sem supra/alto risco → Estratégia 2", "4": "4- SCA intermediário → Estratégia 3", "5": "5- Orientação Cardiológica", "6": "6- Trombólise + ICP 2-24h" };
+                              return paciente.assessoria_cardiologia.diagnostico_estrategia.map(k => map[k] || k).join(" | ");
+                            })()
+                          : paciente.assessoria_cardiologia.diagnostico_estrategia}
+                      </p>
                     </div>
                   )}
                   {paciente.assessoria_cardiologia.enfermeiro_nome && (
@@ -527,7 +522,16 @@ export default function CERHDetalhe() {
                   <div className="mt-4">
                     {paciente.relatorio_asscardio_url ? (
                       <Button
-                        onClick={() => window.open(paciente.relatorio_asscardio_url, '_blank')}
+                        onClick={async () => {
+                          const resp = await fetch(paciente.relatorio_asscardio_url);
+                          const blob = await resp.blob();
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `Parecer_ASSCARDIO_${(paciente.nome_completo || 'Paciente').replace(/\s+/g, '_')}.pdf`;
+                          a.click();
+                          URL.revokeObjectURL(url);
+                        }}
                         className="w-full bg-red-600 hover:bg-red-700"
                       >
                         <FileText className="w-4 h-4 mr-2" />

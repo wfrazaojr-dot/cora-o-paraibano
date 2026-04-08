@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -194,11 +194,49 @@ export default function ASSCARDIODetalhe() {
 
   // Rascunho: salvar no localStorage sempre que os dados mudarem
   const rascunhoKey = pacienteId ? `asscardio_rascunho_${pacienteId}` : null;
+  const [autoSaveStatus, setAutoSaveStatus] = useState("");
+  const autoSaveTimer = useRef(null);
+
+  const salvarRascunhoAuto = useCallback(async () => {
+    if (!pacienteId) return;
+    try {
+      setAutoSaveStatus("Salvando...");
+      await base44.entities.Paciente.update(pacienteId, {
+        assessoria_cardiologia: {
+          ...(paciente?.assessoria_cardiologia || {}),
+          clinica,
+          ecg_supra: ecgSupra,
+          ecg_sem_supra: ecgSemSupra,
+          heart_score: {
+            ...heartScore,
+            total: heartScore.historia + heartScore.ecg + heartScore.idade + heartScore.risco + heartScore.troponina,
+          },
+          pre_parecer: preParecer,
+          diagnostico_estrategia: medicoData.diagnostico_estrategia,
+          parecer_cardiologista: medicoData.parecer_cardiologista,
+          cardiologista_nome: medicoData.cardiologista_nome,
+          cardiologista_crm: medicoData.cardiologista_crm,
+          cardiologista_rqe: medicoData.cardiologista_rqe,
+          confirma_triagem: medicoData.confirma_triagem,
+          _rascunho: true
+        }
+      });
+      setAutoSaveStatus("✓ Rascunho salvo");
+      setTimeout(() => setAutoSaveStatus(""), 2000);
+    } catch {
+      setAutoSaveStatus("Erro ao salvar");
+    }
+  }, [pacienteId, paciente, clinica, ecgSupra, ecgSemSupra, heartScore, preParecer, medicoData]);
 
   useEffect(() => {
     if (!rascunhoKey) return;
     const rascunho = { clinica, ecgSupra, ecgSemSupra, heartScore, preParecer, enfermeiroFinalizado, medicoData };
     localStorage.setItem(rascunhoKey, JSON.stringify(rascunho));
+    // Auto-save no banco com debounce de 4 segundos
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      salvarRascunhoAuto();
+    }, 4000);
   }, [clinica, ecgSupra, ecgSemSupra, heartScore, preParecer, enfermeiroFinalizado, medicoData]);
 
   // Rascunho: carregar do localStorage se paciente ainda não tem assessoria salva
@@ -236,18 +274,19 @@ export default function ASSCARDIODetalhe() {
     let parecer = "";
 
     if (ecgSupra.tem_supra === "sim") {
-      parecer = `IAM SUPRA parede ${ecgSupra.parede_supra} - AVALIAÇÃO IMEDIATA`;
+      parecer = `IAM SUPRA parede ${ecgSupra.parede_supra || 'não definida'} - AVALIAÇÃO IMEDIATA`;
     } else if (heartTotal >= 7) {
       parecer = `SCA SEM SUPRA alto risco (HEART ${heartTotal}) - URGENTE`;
     } else if (heartTotal >= 4) {
       parecer = `SCA risco intermediário (HEART ${heartTotal})`;
     } else {
-      parecer = `ECG/clínica baixa probabilidade`;
+      parecer = `ECG/clínica baixa probabilidade (HEART ${heartTotal})`;
     }
 
     setPreParecer(parecer);
     setEnfermeiroFinalizado(true);
-    alert("Pré-parecer gerado! Aguardando avaliação médica.");
+    setAutoSaveStatus("✓ Pré-parecer gerado! Aguardando avaliação médica.");
+    setTimeout(() => setAutoSaveStatus(""), 4000);
   };
 
   const gerarRelatorioPDF = async () => {
@@ -323,10 +362,11 @@ export default function ASSCARDIODetalhe() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['paciente', pacienteId]);
-      alert("Rascunho salvo com sucesso! Você pode continuar depois.");
+      setAutoSaveStatus("✓ Rascunho salvo com sucesso!");
+      setTimeout(() => setAutoSaveStatus(""), 3000);
     },
     onError: (error) => {
-      alert("Erro ao salvar rascunho: " + error.message);
+      setAutoSaveStatus("Erro ao salvar: " + error.message);
     }
   });
 
@@ -362,11 +402,10 @@ export default function ASSCARDIODetalhe() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['paciente', pacienteId]);
-      alert("Laudo finalizado com sucesso! Relatório disponível para o CERH.");
       navigate(createPageUrl("Dashboard"));
     },
     onError: (error) => {
-      alert("Erro ao salvar laudo: " + error.message);
+      setAutoSaveStatus("Erro ao finalizar: " + error.message);
     }
   });
 
@@ -430,13 +469,15 @@ export default function ASSCARDIODetalhe() {
                 </CardHeader>
                 <CardContent className="pt-2">
                   <Button
-                    onClick={() => {
+                    onClick={async () => {
+                      const resp = await fetch(paciente.relatorio_asscardio_url);
+                      const blob = await resp.blob();
+                      const url = URL.createObjectURL(blob);
                       const a = document.createElement('a');
-                      a.href = paciente.relatorio_asscardio_url;
+                      a.href = url;
                       a.download = `Parecer_ASSCARDIO_${(paciente.nome_completo || 'Paciente').replace(/\s+/g, '_')}.pdf`;
-                      document.body.appendChild(a);
                       a.click();
-                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
                     }}
                     className="w-full bg-red-600 hover:bg-red-700 text-white"
                   >
@@ -475,8 +516,13 @@ export default function ASSCARDIODetalhe() {
               </Card>
             )}
 
+            {/* Auto-save status */}
+            {autoSaveStatus && (
+              <div className="text-xs text-gray-500 text-right italic py-1">{autoSaveStatus}</div>
+            )}
+
             {/* Relatório Visual (Oculto) */}
-            <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', pointerEvents: 'none' }}>
+            <div style={{ position: 'fixed', top: 0, left: '-9999px', visibility: 'hidden', pointerEvents: 'none', zIndex: -1 }}>
               <div 
                 ref={relatorioRef} 
                 className="bg-white p-8"
@@ -589,7 +635,7 @@ export default function ASSCARDIODetalhe() {
                   </div>
                 )}
 
-                {/* HEART Score - apenas quando NÃO tem supra ST */}
+                {/* HEART Score */}
                 {ecgSupra.tem_supra !== 'sim' && (
                   <div className="mb-4">
                     <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">HEART SCORE</h2>
