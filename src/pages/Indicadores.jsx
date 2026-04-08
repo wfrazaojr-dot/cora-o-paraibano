@@ -4,7 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { TrendingUp, Clock, Activity, AlertTriangle, CheckCircle, Target, Heart } from "lucide-react";
+import { TrendingUp, Clock, Activity, AlertTriangle, CheckCircle, Target, Heart, BarChart2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AnaliseEpidemiologica from "@/components/indicadores/AnaliseEpidemiologica";
 import { format, differenceInMinutes, startOfMonth, endOfMonth, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import ExportarRelatorio from "@/components/indicadores/ExportarRelatorio";
@@ -286,6 +288,21 @@ export default function Indicadores() {
           </p>
         </div>
 
+        <Tabs defaultValue="qualidade" className="w-full">
+        <TabsList className="mb-6">
+          <TabsTrigger value="qualidade" className="flex items-center gap-2">
+            <Target className="w-4 h-4" /> Indicadores de Qualidade
+          </TabsTrigger>
+          <TabsTrigger value="epidemiologia" className="flex items-center gap-2">
+            <BarChart2 className="w-4 h-4" /> Análise Epidemiológica
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="epidemiologia">
+          <AnaliseEpidemiologica pacientes={pacientes} />
+        </TabsContent>
+
+        <TabsContent value="qualidade">
         {/* Filtros */}
         <Card className="shadow-md mb-6">
           <CardContent className="p-6">
@@ -791,6 +808,8 @@ export default function Indicadores() {
             </div>
           </CardContent>
         </Card>
+        </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
