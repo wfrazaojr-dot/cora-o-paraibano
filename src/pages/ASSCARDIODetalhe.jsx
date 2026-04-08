@@ -86,6 +86,7 @@ export default function ASSCARDIODetalhe() {
 
   const [autoSaveStatus, setAutoSaveStatus] = useState("");
   const autoSaveTimer = useRef(null);
+  const initialLoadDone = useRef(false);
 
   // Refs para evitar stale closures no auto-save
   const ecgSupraRef = useRef(ecgSupra);
@@ -102,10 +103,14 @@ export default function ASSCARDIODetalhe() {
   useEffect(() => { medicoDataRef.current = medicoData; }, [medicoData]);
   useEffect(() => { pacienteRef.current = paciente; }, [paciente]);
 
-  // Carregar dados salvos ao receber paciente
+  // Carregar dados salvos ao receber paciente — apenas UMA VEZ
   useEffect(() => {
-    if (!paciente?.assessoria_cardiologia) return;
+    if (initialLoadDone.current) return;
+    if (!paciente) return;
+    initialLoadDone.current = true;
+
     const ass = paciente.assessoria_cardiologia;
+    if (!ass) return;
 
     if (ass.ecg_supra) setEcgSupra(ass.ecg_supra);
     if (ass.ecg_sem_supra) setEcgSemSupra(ass.ecg_sem_supra);
@@ -125,7 +130,6 @@ export default function ASSCARDIODetalhe() {
 
     setMedicoData({
       confirma_triagem: ass.confirma_triagem || false,
-      // SEMPRE converte string → array ao carregar
       diagnostico_estrategia: stringParaArray(ass.diagnostico_estrategia),
       parecer_cardiologista: ass.parecer_cardiologista || "",
       cardiologista_nome: ass.cardiologista_nome || "",
@@ -134,23 +138,23 @@ export default function ASSCARDIODetalhe() {
     });
   }, [paciente]);
 
-  // Pré-preencher HEART Score da triagem
+  // Pré-preencher HEART Score da triagem (só se não houver rascunho salvo)
   useEffect(() => {
-    if (!paciente?.assessoria_cardiologia?.heart_score) {
-      const triagem = paciente?.triagem_medica || {};
-      let historia = 0;
-      if (triagem.historia_clinica?.includes("Altamente suspeita")) historia = 2;
-      else if (triagem.historia_clinica?.includes("Moderadamente")) historia = 1;
-      let ecg = 0;
-      if (triagem.ecg_classificacao?.includes("Depressão significativa")) ecg = 2;
-      else if (triagem.ecg_classificacao?.includes("inespecífica")) ecg = 1;
-      const idade = paciente?.idade || 0;
-      let pontoIdade = idade >= 65 ? 2 : idade >= 45 ? 1 : 0;
-      const qtdFatores = (triagem.fatores_risco || []).length;
-      let risco = qtdFatores >= 3 ? 2 : qtdFatores >= 1 ? 1 : 0;
-      setHeartScore((prev) => ({ ...prev, historia, ecg, idade: pontoIdade, risco }));
-    }
-  }, [paciente]);
+    if (paciente?.assessoria_cardiologia?.heart_score) return;
+    if (!paciente) return;
+    const triagem = paciente?.triagem_medica || {};
+    let historia = 0;
+    if (triagem.historia_clinica?.includes("Altamente suspeita")) historia = 2;
+    else if (triagem.historia_clinica?.includes("Moderadamente")) historia = 1;
+    let ecg = 0;
+    if (triagem.ecg_classificacao?.includes("Depressão significativa")) ecg = 2;
+    else if (triagem.ecg_classificacao?.includes("inespecífica")) ecg = 1;
+    const idade = paciente?.idade || 0;
+    let pontoIdade = idade >= 65 ? 2 : idade >= 45 ? 1 : 0;
+    const qtdFatores = (triagem.fatores_risco || []).length;
+    let risco = qtdFatores >= 3 ? 2 : qtdFatores >= 1 ? 1 : 0;
+    setHeartScore((prev) => ({ ...prev, historia, ecg, idade: pontoIdade, risco }));
+  }, [paciente?.id]);
 
   // ─── Auto-save a cada 4 segundos de inatividade ───────────────────────────
   const salvarRascunhoAuto = useCallback(async () => {
