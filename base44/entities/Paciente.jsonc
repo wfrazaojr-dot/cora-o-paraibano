@@ -371,6 +371,38 @@
             },
             "marcapasso_transcutaneo": {
               "type": "boolean"
+            },
+            "doenca_renal_cronica": {
+              "type": "boolean",
+              "description": "Doen\u00e7a renal cr\u00f4nica moderada a grave"
+            },
+            "anemia_grave": {
+              "type": "boolean",
+              "description": "Anemia grave"
+            },
+            "ic_descompensada": {
+              "type": "boolean",
+              "description": "Insufici\u00eancia card\u00edaca descompensada"
+            },
+            "arritmias_nao_controladas": {
+              "type": "boolean",
+              "description": "Arritmias n\u00e3o controladas"
+            },
+            "infeccao_respiratoria": {
+              "type": "boolean",
+              "description": "Infec\u00e7\u00e3o respirat\u00f3ria aguda ou febre sem foco definido"
+            },
+            "fragilidade_clinica": {
+              "type": "boolean",
+              "description": "Fragilidade cl\u00ednica importante"
+            },
+            "idade_comorbidades": {
+              "type": "boolean",
+              "description": "Idade avan\u00e7ada associada a m\u00faltiplas comorbidades"
+            },
+            "dificuldade_acesso_vascular": {
+              "type": "boolean",
+              "description": "Dificuldade para obten\u00e7\u00e3o de acesso vascular seguro"
             }
           }
         }
@@ -598,20 +630,18 @@
             "ate_72h",
             "trombolise_icp"
           ],
-          "description": "Tipo de ICP: imediata, \u226424h, \u226472h ou Tromb\u00f3lise e ICP 2-24h"
+          "description": "Tipo de ICP"
         },
         "data_hora_agendamento_icp": {
           "type": "string",
-          "format": "date-time",
-          "description": "Data e hora agendada para ICP n\u00e3o imediata"
+          "format": "date-time"
         },
         "comparecimento_paciente": {
           "type": "string",
           "enum": [
             "compareceu",
             "nao_compareceu"
-          ],
-          "description": "Se o paciente compareceu na data agendada"
+          ]
         },
         "data_hora_chegada": {
           "type": "string",
@@ -718,7 +748,7 @@
     },
     "relatorio_agendamento_hemo_url": {
       "type": "string",
-      "description": "URL do relat\u00f3rio PDF de Agendamento de Hemodin\u00e2mica (\u226424h ou \u226472h)"
+      "description": "URL do relat\u00f3rio PDF de Agendamento de Hemodin\u00e2mica"
     },
     "alerta_formulario_vaga": {
       "type": "boolean",

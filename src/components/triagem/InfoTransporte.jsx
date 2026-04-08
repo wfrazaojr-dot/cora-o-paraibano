@@ -2,7 +2,18 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Truck } from "lucide-react";
+import { Truck, AlertTriangle } from "lucide-react";
+
+const CONTRAIND_FIELDS = [
+  { key: "doenca_renal_cronica", label: "Doença renal crônica moderada a grave" },
+  { key: "anemia_grave", label: "Anemia grave" },
+  { key: "ic_descompensada", label: "Insuficiência cardíaca descompensada" },
+  { key: "arritmias_nao_controladas", label: "Arritmias não controladas" },
+  { key: "infeccao_respiratoria", label: "Infecção respiratória aguda ou febre sem foco definido" },
+  { key: "fragilidade_clinica", label: "Fragilidade clínica importante" },
+  { key: "idade_comorbidades", label: "Idade avançada associada a múltiplas comorbidades" },
+  { key: "dificuldade_acesso_vascular", label: "Dificuldade para obtenção de acesso vascular seguro" },
+];
 
 const glasgowOptions = [3,4,5,6,7,8,9,10,11,12,13,14,15];
 const vmModos = ["VCV", "PCV", "CPAP", "PSV"];
@@ -162,6 +173,32 @@ export default function InfoTransporte({ dados, onChange }) {
       <div className="flex items-center gap-6">
         <Label className="text-sm font-semibold">Marcapasso Transcutâneo</Label>
         <SimNao fieldName="marcapasso_transcutaneo" value={d.marcapasso_transcutaneo} onChange={(v) => onChange("marcapasso_transcutaneo", v)} />
+      </div>
+
+      {/* Contraindicações ao Transporte */}
+      <div className="border-2 border-red-300 rounded-lg p-4 bg-red-50 space-y-3">
+        <h4 className="text-sm font-bold text-red-900">⚠️ Contraindicações ao Transporte (avalie cada item)</h4>
+        <div className="space-y-2">
+          {CONTRAIND_FIELDS.map(({ key, label }) => (
+            <div key={key} className="flex items-center justify-between gap-4">
+              <Label className="text-sm text-gray-800">{label}</Label>
+              <SimNao fieldName={key} value={d[key]} onChange={(v) => onChange(key, v)} />
+            </div>
+          ))}
+        </div>
+        {CONTRAIND_FIELDS.some(({ key }) => d[key] === true) && (
+          <div className="mt-4 bg-red-100 border-2 border-red-600 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-6 h-6 text-red-700 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold text-red-900 text-sm mb-1">⚠️ Alerta! Transporte Contraindicado</p>
+                <p className="text-red-800 text-sm">
+                  Após o envio desta solicitação, estabilize o paciente e, em seguida, envie e-mail para a Central de Regulação (CERH) da sua Macrorregião, declarando a estabilização clínica para liberação da Vaga e transporte em USA.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

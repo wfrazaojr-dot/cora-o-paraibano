@@ -609,6 +609,43 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
               {infoTransporte.dva && infoTransporte.dva_drogas?.length > 0 && <div className="col-span-2"><span className="font-semibold">Drogas DVA:</span> {infoTransporte.dva_drogas.join(", ")}</div>}
               {infoTransporte.marcapasso_transcutaneo !== undefined && <div><span className="font-semibold">Marcapasso Transcutâneo:</span> {infoTransporte.marcapasso_transcutaneo ? "Sim" : "Não"}</div>}
             </div>
+            {/* Contraindicações ao Transporte no PDF */}
+            {[
+              { key: "doenca_renal_cronica", label: "Doença renal crônica moderada a grave" },
+              { key: "anemia_grave", label: "Anemia grave" },
+              { key: "ic_descompensada", label: "Insuficiência cardíaca descompensada" },
+              { key: "arritmias_nao_controladas", label: "Arritmias não controladas" },
+              { key: "infeccao_respiratoria", label: "Infecção respiratória aguda ou febre sem foco definido" },
+              { key: "fragilidade_clinica", label: "Fragilidade clínica importante" },
+              { key: "idade_comorbidades", label: "Idade avançada associada a múltiplas comorbidades" },
+              { key: "dificuldade_acesso_vascular", label: "Dificuldade para obtenção de acesso vascular seguro" },
+            ].some(({ key }) => infoTransporte[key] !== undefined) && (
+              <div className="mt-2 border-t border-gray-300 pt-2">
+                <p className="text-xs font-bold text-red-800 mb-1">Contraindicações ao Transporte:</p>
+                <div className="grid grid-cols-2 gap-1 text-xs">
+                  {[
+                    { key: "doenca_renal_cronica", label: "Doença renal crônica moderada a grave" },
+                    { key: "anemia_grave", label: "Anemia grave" },
+                    { key: "ic_descompensada", label: "Insuficiência cardíaca descompensada" },
+                    { key: "arritmias_nao_controladas", label: "Arritmias não controladas" },
+                    { key: "infeccao_respiratoria", label: "Infecção respiratória aguda ou febre sem foco definido" },
+                    { key: "fragilidade_clinica", label: "Fragilidade clínica importante" },
+                    { key: "idade_comorbidades", label: "Idade avançada associada a múltiplas comorbidades" },
+                    { key: "dificuldade_acesso_vascular", label: "Dificuldade para obtenção de acesso vascular seguro" },
+                  ].filter(({ key }) => infoTransporte[key] !== undefined).map(({ key, label }) => (
+                    <div key={key}><span className="font-semibold">{label}:</span> {infoTransporte[key] ? "Sim" : "Não"}</div>
+                  ))}
+                </div>
+                {[
+                  "doenca_renal_cronica", "anemia_grave", "ic_descompensada", "arritmias_nao_controladas",
+                  "infeccao_respiratoria", "fragilidade_clinica", "idade_comorbidades", "dificuldade_acesso_vascular"
+                ].some(key => infoTransporte[key] === true) && (
+                  <div className="mt-2 bg-red-100 border border-red-600 rounded p-2">
+                    <p className="text-xs font-bold text-red-900">⚠️ ALERTA! TRANSPORTE CONTRAINDICADO — Estabilizar o paciente e comunicar o CERH da Macrorregião por e-mail antes do transporte em USA.</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 

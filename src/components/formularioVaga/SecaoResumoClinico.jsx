@@ -128,6 +128,46 @@ export default function SecaoResumoClinico({ paciente }) {
               )}
               {it.marcapasso_transcutaneo !== undefined && <div><span className="font-semibold text-gray-600">Marcapasso Transcutâneo:</span> <span>{it.marcapasso_transcutaneo ? "Sim" : "Não"}</span></div>}
             </div>
+            {/* Contraindicações ao Transporte */}
+            {[
+              { key: "doenca_renal_cronica", label: "Doença renal crônica moderada a grave" },
+              { key: "anemia_grave", label: "Anemia grave" },
+              { key: "ic_descompensada", label: "Insuficiência cardíaca descompensada" },
+              { key: "arritmias_nao_controladas", label: "Arritmias não controladas" },
+              { key: "infeccao_respiratoria", label: "Infecção respiratória aguda ou febre sem foco definido" },
+              { key: "fragilidade_clinica", label: "Fragilidade clínica importante" },
+              { key: "idade_comorbidades", label: "Idade avançada associada a múltiplas comorbidades" },
+              { key: "dificuldade_acesso_vascular", label: "Dificuldade para obtenção de acesso vascular seguro" },
+            ].some(({ key }) => it[key] !== undefined) && (
+              <div className="mt-3 border-t border-orange-200 pt-3">
+                <p className="text-xs font-bold text-red-700 mb-2">Contraindicações ao Transporte:</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-1 text-sm">
+                  {[
+                    { key: "doenca_renal_cronica", label: "Doença renal crônica moderada a grave" },
+                    { key: "anemia_grave", label: "Anemia grave" },
+                    { key: "ic_descompensada", label: "Insuficiência cardíaca descompensada" },
+                    { key: "arritmias_nao_controladas", label: "Arritmias não controladas" },
+                    { key: "infeccao_respiratoria", label: "Infecção respiratória aguda ou febre sem foco definido" },
+                    { key: "fragilidade_clinica", label: "Fragilidade clínica importante" },
+                    { key: "idade_comorbidades", label: "Idade avançada associada a múltiplas comorbidades" },
+                    { key: "dificuldade_acesso_vascular", label: "Dificuldade para obtenção de acesso vascular seguro" },
+                  ].filter(({ key }) => it[key] !== undefined).map(({ key, label }) => (
+                    <div key={key}>
+                      <span className={`font-semibold ${it[key] ? "text-red-700" : "text-gray-600"}`}>{label}:</span>{" "}
+                      <span className={it[key] ? "text-red-700 font-bold" : "text-gray-700"}>{it[key] ? "Sim" : "Não"}</span>
+                    </div>
+                  ))}
+                </div>
+                {[
+                  "doenca_renal_cronica", "anemia_grave", "ic_descompensada", "arritmias_nao_controladas",
+                  "infeccao_respiratoria", "fragilidade_clinica", "idade_comorbidades", "dificuldade_acesso_vascular"
+                ].some(key => it[key] === true) && (
+                  <div className="mt-2 bg-red-50 border border-red-500 rounded p-2">
+                    <p className="text-xs font-bold text-red-800">⚠️ Alerta! Transporte Contraindicado — estabilizar paciente e comunicar CERH por e-mail antes do transporte.</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
