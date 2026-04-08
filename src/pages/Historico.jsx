@@ -509,7 +509,8 @@ export default function Historico() {
                         >
                           <RefreshCw className="w-4 h-4 mr-2" />
                           Retriagem
-                      </div>
+                          </Button>
+                          </div>
                     </div>
                   </div>
                 ))}
