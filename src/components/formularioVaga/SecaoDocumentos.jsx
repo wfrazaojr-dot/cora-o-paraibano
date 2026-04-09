@@ -1,7 +1,16 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FileUp, X } from "lucide-react";
+import { FileUp, X, Eye, Loader2 } from "lucide-react";
 
-export default function SecaoDocumentos({ formData, handleFileUpload, removerDocumento, uploadingFiles }) {
+export default function SecaoDocumentos({ formData, handleFileUpload, removerDocumento, uploadingFiles, visualizarDocumento }) {
+  const [loadingIdx, setLoadingIdx] = useState(null);
+
+  const handleVisualizar = async (doc, idx) => {
+    if (!doc.file_uri) return;
+    setLoadingIdx(idx);
+    await visualizarDocumento(doc.file_uri);
+    setLoadingIdx(null);
+  };
   return (
     <div>
       <h3 className="text-base font-bold mb-3 border-b pb-2 text-blue-900">DOCUMENTOS DO PACIENTE (máx. 4 arquivos)</h3>
@@ -25,21 +34,21 @@ export default function SecaoDocumentos({ formData, handleFileUpload, removerDoc
       {formData.documentos.length > 0 && (
         <div className="space-y-2">
           {formData.documentos.map((doc, idx) => {
-            const isImage = doc.file_url && /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(doc.file_url);
             return (
               <div key={idx} className="bg-green-50 border border-green-200 rounded-lg p-3">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between">
                   <span className="text-sm text-green-900 font-medium truncate flex-1">{doc.nome || `Documento ${idx + 1}`}</span>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => removerDocumento(idx)} className="text-red-600 hover:text-red-800 ml-2">
-                    <X className="w-4 h-4" />
-                  </Button>
+                  <div className="flex items-center gap-1 ml-2">
+                    {doc.file_uri && (
+                      <Button type="button" variant="ghost" size="sm" onClick={() => handleVisualizar(doc, idx)} disabled={loadingIdx === idx} className="text-blue-600 hover:text-blue-800">
+                        {loadingIdx === idx ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
+                      </Button>
+                    )}
+                    <Button type="button" variant="ghost" size="sm" onClick={() => removerDocumento(idx)} className="text-red-600 hover:text-red-800">
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-                {isImage && (
-                  <img src={doc.file_url} alt={doc.nome || `Documento ${idx + 1}`} className="max-h-48 max-w-full rounded border border-green-300 object-contain" />
-                )}
-                {!isImage && doc.file_url && (
-                  <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline">Visualizar arquivo</a>
-                )}
               </div>
             );
           })}

@@ -176,11 +176,16 @@ export default function FormularioVaga() {
       return;
     }
     setUploadingFiles(true);
-    const results = await Promise.all(files.map(file => base44.integrations.Core.UploadFile({ file })));
-    const fileUrls = results.map((r, i) => ({ file_url: r.file_url, nome: files[i].name }));
-    setFormData(prev => ({ ...prev, documentos: [...prev.documentos, ...fileUrls] }));
+    const results = await Promise.all(files.map(file => base44.integrations.Core.UploadPrivateFile({ file })));
+    const fileUris = results.map((r, i) => ({ file_uri: r.file_uri, nome: files[i].name }));
+    setFormData(prev => ({ ...prev, documentos: [...prev.documentos, ...fileUris] }));
     toast.success(`${files.length} arquivo(s) enviado(s) com sucesso!`);
     setUploadingFiles(false);
+  };
+
+  const visualizarDocumento = async (file_uri) => {
+    const { signed_url } = await base44.integrations.Core.CreateFileSignedUrl({ file_uri, expires_in: 300 });
+    window.open(signed_url, '_blank');
   };
 
   const removerDocumento = (index) => {
@@ -418,7 +423,7 @@ export default function FormularioVaga() {
         const idPaciente = pacienteId || "Sem ID";
 
         const documentosLinks = formData.documentos.length > 0
-          ? "\n\n📎 DOCUMENTOS ANEXADOS:\n" + formData.documentos.map((doc, idx) => `${idx + 1}. ${doc.nome || `Documento ${idx + 1}`}\n   🔗 ${doc.file_url}`).join("\n")
+          ? "\n\n📎 DOCUMENTOS ANEXADOS (acesso restrito ao sistema):\n" + formData.documentos.map((doc, idx) => `${idx + 1}. ${doc.nome || `Documento ${idx + 1}`}`).join("\n")
           : "";
 
         const emailBody = `FORMULÁRIO DE SOLICITAÇÃO DE VAGA - Sistema Coração Paraibano
@@ -475,7 +480,7 @@ Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString(
     const assunto = encodeURIComponent(`[VAGA] ${getNomePaciente()} | ${classificacaoLocal} | ${paciente?.status || "Aguardando Regulação"} | ${getUnidade()}`);
     const linkPDF = pdfUrl ? `\n\n🔗 Link do Formulário PDF (para download):\n${pdfUrl}\n` : "\n\n⚠️ Gere e baixe o PDF antes de enviar e o anexe neste e-mail.\n";
     const documentosLinksEmail = formData.documentos.length > 0
-      ? "\n\n📎 DOCUMENTOS ANEXADOS:\n" + formData.documentos.map((doc, idx) => `${idx + 1}. ${doc.nome || `Documento ${idx + 1}`}\n   🔗 ${doc.file_url}`).join("\n")
+      ? "\n\n📎 DOCUMENTOS ANEXADOS (acesso restrito ao sistema):\n" + formData.documentos.map((doc, idx) => `${idx + 1}. ${doc.nome || `Documento ${idx + 1}`}`).join("\n")
       : "";
     const corpo = encodeURIComponent(
       `Prezados,\n\nSegue solicitação de vaga do paciente ${getNomePaciente()}.\n\nID no Sistema: ${pacienteId || "Sem ID"}\nStatus Atual: ${paciente?.status || "Aguardando Regulação"}\nClassificação: ${classificacaoLocal}\nMacrorregião: ${getMacro()}\nUnidade: ${getUnidade()}\nEspecialidade: ${formData.especialidade_solicitada}\nHipótese Diagnóstica: ${formData.hipotese_diagnostica}${linkPDF}${documentosLinksEmail}\n\nAtenciosamente,\n${user?.full_name || ""}\n${getUnidade()}`
@@ -613,6 +618,7 @@ Enviado por: ${user?.full_name} (${user?.email}) em ${new Date().toLocaleString(
               handleFileUpload={handleFileUpload}
               removerDocumento={removerDocumento}
               uploadingFiles={uploadingFiles}
+              visualizarDocumento={visualizarDocumento}
             />
 
             {/* Botões de Ação */}
