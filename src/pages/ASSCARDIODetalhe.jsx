@@ -782,7 +782,7 @@ export default function ASSCARDIODetalhe() {
                     onClick={gerarPreParecer}
                     className="w-full bg-green-600 hover:bg-green-700 text-white text-lg py-6"
                   >
-                    ✅ GERAR PRÉ-PARECER DE ENFERMAGEM
+                    ✅ GERAR PARECER DE CARDIOLOGIA
                   </Button>
                 </CardContent>
               </Card>

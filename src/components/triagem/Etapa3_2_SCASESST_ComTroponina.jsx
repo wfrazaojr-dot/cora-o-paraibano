@@ -176,18 +176,12 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
     }
   };
 
-  const tiposExamesMNM = [
-    "Troponina US (0h)",
-    "Troponina US (1h)",
-    "Troponina Convencional (0h)",
-    "Troponina Convencional (2h)",
-    "Outros"
-  ];
+  const tiposExamesMNM = [];
 
   const adicionarResultadoExame = () => {
     setDados(prev => ({
       ...prev,
-      resultados_exames: [...prev.resultados_exames, { tipo: "", resultado: "" }]
+      resultados_exames_mnm: [...prev.resultados_exames_mnm, { tipo: "", resultado: "" }]
     }));
   };
 
@@ -407,63 +401,6 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
           </Button>
         </div>
 
-      </div>
-
-      {/* Resultados de Exames MNM */}
-      <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-orange-900 mb-4 flex items-center gap-2">
-          <TestTube className="w-5 h-5" />
-          Resultados de Exames - MNM
-        </h3>
-
-        <div className="space-y-3 mb-4">
-          {dados.resultados_exames_mnm.map((resultado, index) => (
-            <div key={index} className="bg-white p-3 rounded border flex gap-2 items-end">
-              <div className="flex-1">
-                <Label className="text-xs mb-1 block">Tipo de Exame</Label>
-                <select
-                  value={resultado.tipo}
-                  onChange={(e) => atualizarResultadoExameMNM(index, "tipo", e.target.value)}
-                  className="w-full h-9 rounded-md border border-input px-3 text-sm"
-                >
-                  <option value="">Selecione...</option>
-                  {tiposExamesMNM.map((tipo) => (
-                    <option key={tipo} value={tipo}>{tipo}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex-1">
-                <Label className="text-xs mb-1 block">Resultado</Label>
-                <Input
-                  placeholder="Ex: 0.05, positivo, normal..."
-                  value={resultado.resultado}
-                  onChange={(e) => atualizarResultadoExameMNM(index, "resultado", e.target.value)}
-                />
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => removerResultadoExameMNM(index)}
-                className="text-red-600"
-              >
-                Remover
-              </Button>
-            </div>
-          ))}
-        </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => setDados(prev => ({
-            ...prev,
-            resultados_exames_mnm: [...prev.resultados_exames_mnm, { tipo: "", resultado: "" }]
-          }))}
-          className="w-full"
-        >
-          + Adicionar Resultado de Exame
-        </Button>
       </div>
 
       {/* Exames Solicitados e Resultados */}
@@ -717,11 +654,12 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
               const examesSelecionados = dados.exames_solicitados || [];
               const isUS = examesSelecionados.includes("Troponina US 0h") || examesSelecionados.includes("Troponina US 1h");
               const isConvencional = examesSelecionados.includes("Troponina Convencional 0h") || examesSelecionados.includes("Troponina Convencional 3h");
-              const unidade = isConvencional ? "ng/mL" : "ng/L";
-              const tipo1Placeholder = isConvencional ? "Ex: Troponina Convencional 0h" : "Ex: Troponina US 0h";
-              const tipo2Placeholder = isConvencional ? "Ex: Troponina Convencional 3h" : "Ex: Troponina US 1h";
-              const tipo1Label = isConvencional ? "Tipo (ex: Troponina Convencional 0h)" : "Tipo (ex: Troponina US 0h)";
-              const tipo2Label = isConvencional ? "Tipo (ex: Troponina Convencional 3h)" : "Tipo (ex: Troponina US 1h)";
+              const opcoesTipo1 = isConvencional
+                ? ["Troponina Convencional 0h", "Troponina Convencional 2h"]
+                : ["Troponina US 0h", "Troponina Convencional 2h"];
+              const opcoesTipo2 = isConvencional
+                ? ["Troponina Convencional 2h", "Troponina Convencional 4h"]
+                : ["Troponina US 1h", "Troponina Convencional 4h"];
 
               return (
                 <div className="space-y-4 mb-4 bg-white p-4 rounded border border-amber-200">
@@ -742,21 +680,24 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
                     <Label className="text-sm font-semibold mb-3 block text-blue-800">1ª Medida de Troponina</Label>
                     <div className="grid md:grid-cols-2 gap-3">
                       <div>
-                        <Label className="text-xs mb-1 block">{tipo1Label}</Label>
-                        <Input
+                        <Label className="text-xs mb-1 block">Tipo</Label>
+                        <select
                           value={dados.tipo_troponina_1}
                           onChange={(e) => setDados(prev => ({...prev, tipo_troponina_1: e.target.value}))}
-                          placeholder={tipo1Placeholder}
-                        />
+                          className="w-full h-9 rounded-md border border-input px-3 text-sm"
+                        >
+                          <option value="">Selecione...</option>
+                          {opcoesTipo1.map(op => <option key={op} value={op}>{op}</option>)}
+                        </select>
                       </div>
                       <div>
-                        <Label className="text-xs mb-1 block">Valor * {(isUS || isConvencional) && <span className="text-blue-700 font-semibold">({unidade})</span>}</Label>
+                        <Label className="text-xs mb-1 block">Valor * <span className="text-blue-700 font-semibold">(ng/L ou ng/ml)</span></Label>
                         <Input
                           type="number"
                           step="0.001"
                           value={dados.valor_troponina_paciente}
                           onChange={(e) => setDados(prev => ({...prev, valor_troponina_paciente: e.target.value}))}
-                          placeholder={`Ex: 0.08 ${isUS || isConvencional ? unidade : ''}`}
+                          placeholder="Ex: 0.08"
                           required
                         />
                       </div>
@@ -767,21 +708,24 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
                     <Label className="text-sm font-semibold mb-3 block text-blue-800">2ª Medida de Troponina</Label>
                     <div className="grid md:grid-cols-2 gap-3">
                       <div>
-                        <Label className="text-xs mb-1 block">{tipo2Label}</Label>
-                        <Input
+                        <Label className="text-xs mb-1 block">Tipo</Label>
+                        <select
                           value={dados.tipo_troponina_2}
                           onChange={(e) => setDados(prev => ({...prev, tipo_troponina_2: e.target.value}))}
-                          placeholder={tipo2Placeholder}
-                        />
+                          className="w-full h-9 rounded-md border border-input px-3 text-sm"
+                        >
+                          <option value="">Selecione...</option>
+                          {opcoesTipo2.map(op => <option key={op} value={op}>{op}</option>)}
+                        </select>
                       </div>
                       <div>
-                        <Label className="text-xs mb-1 block">Valor {(isUS || isConvencional) && <span className="text-blue-700 font-semibold">({unidade})</span>}</Label>
+                        <Label className="text-xs mb-1 block">Valor <span className="text-blue-700 font-semibold">(ng/L ou ng/ml)</span></Label>
                         <Input
                           type="number"
                           step="0.001"
                           value={dados.valor_troponina_paciente_2}
                           onChange={(e) => setDados(prev => ({...prev, valor_troponina_paciente_2: e.target.value}))}
-                          placeholder={`Ex: 0.15 ${isUS || isConvencional ? unidade : ''}`}
+                          placeholder="Ex: 0.15"
                         />
                       </div>
                     </div>
@@ -801,7 +745,7 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
                 <div className="bg-amber-50 border-2 border-amber-400 p-4 rounded mb-4">
                   <p className="text-sm font-bold text-amber-900 mb-1">📊 Cálculo automático para HEART Score:</p>
                   <p className="text-sm text-amber-800">
-                    Maior valor: <strong>{maiorValor} ng/L</strong> ({usandoMedida}) ÷ LSN <strong>{lsn}</strong> = <strong>{proporcao.toFixed(3)}x</strong> o limite superior
+                    Maior valor: <strong>{maiorValor} ng/L ou ng/ml</strong> ({usandoMedida}) ÷ LSN <strong>{lsn}</strong> = <strong>{proporcao.toFixed(3)}x</strong> o limite superior
                   </p>
                   <p className="text-xs text-amber-700 mt-1 italic">
                     {proporcao <= 0 ? "Normal (0 pts)" : proporcao <= 3 ? "1 a 3x → 1 ponto" : "> 3x → 2 pontos"}
@@ -842,8 +786,6 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
           )}
         </div>
       </div>
-
-
 
       <InfoTransporte
         dados={dados.info_transporte}

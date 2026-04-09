@@ -11,13 +11,18 @@ import { ptBR } from "date-fns/locale";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import TempoDor from "./TempoDor";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 
 export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId }) {
   const navigate = useNavigate();
   const relatorioRef = useRef(null);
   const queryClient = useQueryClient();
+
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
   const [gerandoPDF, setGerandoPDF] = useState(false);
   const [medico, setMedico] = useState({
     nome: dadosPaciente.medico_nome || "",
@@ -182,7 +187,12 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
       });
       alert("Atendimento finalizado com sucesso!");
 
-      navigate(createPageUrl("Dashboard"));
+      // Unidade de saúde vai para Painel Assistencial; outros para Painel de Regulação
+      if (user?.equipe === 'unidade_saude' || !user?.equipe) {
+        navigate(createPageUrl("Historico"));
+      } else {
+        navigate(createPageUrl("Dashboard"));
+      }
     } catch (error) {
       console.error("Erro ao finalizar atendimento:", error);
       alert("Erro ao finalizar atendimento. Tente novamente.");

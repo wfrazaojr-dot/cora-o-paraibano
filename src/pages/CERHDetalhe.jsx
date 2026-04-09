@@ -488,12 +488,12 @@ export default function CERHDetalhe() {
                     <div>
                       <p className="text-sm font-semibold text-red-800">Diagnóstico + Estratégia</p>
                       <p className="text-sm">
-                        {Array.isArray(paciente.assessoria_cardiologia.diagnostico_estrategia)
-                          ? (() => {
-                              const map = { "1": "1- IAM supra ST → Estratégia 1", "2": "2- SCA muito alto risco → Estratégia 1", "3": "3- IAM sem supra/alto risco → Estratégia 2", "4": "4- SCA intermediário → Estratégia 3", "5": "5- Orientação Cardiológica", "6": "6- Trombólise + ICP 2-24h" };
-                              return paciente.assessoria_cardiologia.diagnostico_estrategia.map(k => map[k] || k).join(" | ");
-                            })()
-                          : paciente.assessoria_cardiologia.diagnostico_estrategia}
+                        {(() => {
+                          const map = { "1": "1- IAM supra ST → Estratégia 1: transferência imediata", "2": "2- SCA muito alto risco → Estratégia 1", "3": "3- IAM sem supra/alto risco → Estratégia 2: Invasiva Precoce", "4": "4- SCA intermediário → Estratégia 3: Invasiva no Internamento", "5": "5- Orientação Cardiológica", "6": "6- Trombólise + ICP 2-24h" };
+                          const raw = paciente.assessoria_cardiologia.diagnostico_estrategia;
+                          const arr = Array.isArray(raw) ? raw : (typeof raw === 'string' ? raw.split(',').filter(Boolean) : []);
+                          return arr.map(k => map[k] || k).join(" | ") || raw;
+                        })()}
                       </p>
                     </div>
                   )}
