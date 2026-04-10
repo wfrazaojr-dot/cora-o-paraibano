@@ -23,12 +23,13 @@ const corClassificacao = {
 
 const statusColors = {
   "Em Triagem": "bg-gray-100 text-gray-800 border-gray-300",
-  "Aguardando Médico": "bg-yellow-100 text-yellow-800 border-yellow-300",
-  "Em Atendimento": "bg-blue-100 text-blue-800 border-blue-300",
+  "Aguardando Assessoria": "bg-purple-100 text-purple-800 border-purple-300",
   "Aguardando Regulação": "bg-orange-100 text-orange-800 border-orange-300",
-  "Transferido": "bg-purple-100 text-purple-800 border-purple-300",
-  "Alta": "bg-green-100 text-green-800 border-green-300",
-  "Óbito": "bg-red-100 text-red-800 border-red-300"
+  "Aguardando Transporte": "bg-yellow-100 text-yellow-800 border-yellow-300",
+  "Em Transporte": "bg-blue-100 text-blue-800 border-blue-300",
+  "Aguardando Hemodinâmica": "bg-pink-100 text-pink-800 border-pink-300",
+  "Em Procedimento": "bg-indigo-100 text-indigo-800 border-indigo-300",
+  "Concluído": "bg-green-100 text-green-800 border-green-300"
 };
 
 export default function Historico() {
@@ -148,9 +149,14 @@ export default function Historico() {
   // Contadores por status
   const contadores = {
     todos: pacientes.length,
-    "Em Atendimento": pacientes.filter(p => p.status === "Em Atendimento").length,
-    "Aguardando Médico": pacientes.filter(p => p.status === "Aguardando Médico").length,
+    "Em Triagem": pacientes.filter(p => p.status === "Em Triagem").length,
+    "Aguardando Assessoria": pacientes.filter(p => p.status === "Aguardando Assessoria").length,
     "Aguardando Regulação": pacientes.filter(p => p.status === "Aguardando Regulação").length,
+    "Aguardando Transporte": pacientes.filter(p => p.status === "Aguardando Transporte").length,
+    "Em Transporte": pacientes.filter(p => p.status === "Em Transporte").length,
+    "Aguardando Hemodinâmica": pacientes.filter(p => p.status === "Aguardando Hemodinâmica").length,
+    "Em Procedimento": pacientes.filter(p => p.status === "Em Procedimento").length,
+    "Concluído": pacientes.filter(p => p.status === "Concluído").length,
   };
 
   if (!user) {
@@ -272,26 +278,29 @@ export default function Historico() {
                    <SelectItem value="todos">
                      📊 Todos os Status ({contadores.todos})
                    </SelectItem>
-                   <SelectItem value="Em Atendimento">
-                     🔵 Em Atendimento ({contadores["Em Atendimento"]})
+                   <SelectItem value="Em Triagem">
+                     ⚪ Em Triagem ({contadores["Em Triagem"]})
                    </SelectItem>
-                   <SelectItem value="Aguardando Médico">
-                     🟡 Aguardando Médico ({contadores["Aguardando Médico"]})
+                   <SelectItem value="Aguardando Assessoria">
+                     🟣 Aguardando Assessoria ({contadores["Aguardando Assessoria"]})
                    </SelectItem>
                    <SelectItem value="Aguardando Regulação">
                      🟠 Aguardando Regulação ({contadores["Aguardando Regulação"]})
                    </SelectItem>
-                   <SelectItem value="Em Triagem">
-                     ⚪ Em Triagem
+                   <SelectItem value="Aguardando Transporte">
+                     🟡 Aguardando Transporte ({contadores["Aguardando Transporte"]})
                    </SelectItem>
-                   <SelectItem value="Transferido">
-                     🟣 Transferido
+                   <SelectItem value="Em Transporte">
+                     🔵 Em Transporte ({contadores["Em Transporte"]})
                    </SelectItem>
-                   <SelectItem value="Alta">
-                     🟢 Alta
+                   <SelectItem value="Aguardando Hemodinâmica">
+                     🩷 Aguardando Hemodinâmica ({contadores["Aguardando Hemodinâmica"]})
                    </SelectItem>
-                   <SelectItem value="Óbito">
-                     🔴 Óbito
+                   <SelectItem value="Em Procedimento">
+                     🟤 Em Procedimento ({contadores["Em Procedimento"]})
+                   </SelectItem>
+                   <SelectItem value="Concluído">
+                     🟢 Concluído ({contadores["Concluído"]})
                    </SelectItem>
                  </SelectContent>
                </Select>
