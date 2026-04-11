@@ -88,6 +88,30 @@ export default function ASSCARDIODetalhe() {
   const [autoSaveStatus, setAutoSaveStatus] = useState("");
   const initialLoadDone = useRef(false);
 
+  // Hidrata os estados com os dados já salvos no banco
+  useEffect(() => {
+    if (!paciente || initialLoadDone.current) return;
+    const ac = paciente.assessoria_cardiologia || {};
+    if (ac.ecg_supra) setEcgSupra((prev) => ({ ...prev, ...ac.ecg_supra }));
+    if (ac.ecg_sem_supra) setEcgSemSupra((prev) => ({ ...prev, ...ac.ecg_sem_supra }));
+    if (ac.heart_score) setHeartScore((prev) => ({ ...prev, ...ac.heart_score }));
+    if (ac.pre_parecer) {
+      setPreParecer(ac.pre_parecer);
+      setEnfermeiroFinalizado(true);
+    }
+    if (ac.diagnostico_estrategia || ac.parecer_cardiologista || ac.cardiologista_nome) {
+      setMedicoData({
+        confirma_triagem: ac.confirma_triagem || false,
+        diagnostico_estrategia: stringParaArray(ac.diagnostico_estrategia),
+        parecer_cardiologista: ac.parecer_cardiologista || "",
+        cardiologista_nome: ac.cardiologista_nome || "",
+        cardiologista_crm: ac.cardiologista_crm || "",
+        cardiologista_rqe: ac.cardiologista_rqe || "",
+      });
+    }
+    initialLoadDone.current = true;
+  }, [paciente]);
+
   // Auto-save: salva 1.5s após última alteração de estado
   useEffect(() => {
     if (!pacienteId || !initialLoadDone.current) return;
