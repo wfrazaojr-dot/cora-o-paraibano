@@ -169,6 +169,7 @@ export default function ASSCARDIODetalhe() {
   // ─── Auto-save a cada 4 segundos de inatividade ───────────────────────────
   const salvarRascunhoAuto = useCallback(async () => {
     if (!pacienteId) return;
+    if (!initialLoadDone.current) return; // Nunca salva antes de carregar dados do banco
     const es = ecgSupraRef.current;
     const ess = ecgSemSupraRef.current;
     const hs = heartScoreRef.current;
