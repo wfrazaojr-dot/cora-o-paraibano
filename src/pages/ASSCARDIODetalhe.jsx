@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Heart, ChevronDown, ChevronUp, Calendar, Save, FileDown } from "lucide-react";
+import { ArrowLeft, Heart, ChevronDown, ChevronUp, Calendar, FileDown } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
@@ -46,6 +46,7 @@ export default function ASSCARDIODetalhe() {
     queryFn: () =>
       base44.entities.Paciente.list().then((list) => list.find((p) => p.id === pacienteId)),
     enabled: !!pacienteId,
+    refetchInterval: 30000,
   });
 
   const [bloco1Open, setBloco1Open] = useState(true);
@@ -390,35 +391,6 @@ export default function ASSCARDIODetalhe() {
 
     return pdf;
   };
-
-  // ─── Salvar Rascunho (botão manual) ──────────────────────────────────────
-  const salvarRascunho = useMutation({
-    mutationFn: async () => {
-      const total = calcularHeartTotal();
-      await base44.entities.Paciente.update(pacienteId, {
-        assessoria_cardiologia: {
-          ecg_supra: ecgSupra,
-          ecg_sem_supra: ecgSemSupra,
-          heart_score: { ...heartScore, total, interpretacao: getHeartInterpretacao(total) },
-          pre_parecer: preParecer,
-          diagnostico_estrategia: arrayParaString(medicoData.diagnostico_estrategia),
-          parecer_cardiologista: medicoData.parecer_cardiologista,
-          cardiologista_nome: medicoData.cardiologista_nome,
-          cardiologista_crm: medicoData.cardiologista_crm,
-          cardiologista_rqe: medicoData.cardiologista_rqe,
-          confirma_triagem: medicoData.confirma_triagem,
-          _rascunho: true,
-        },
-      });
-    },
-    onSuccess: () => {
-      setAutoSaveStatus("✓ Rascunho salvo!");
-      setTimeout(() => setAutoSaveStatus(""), 3000);
-    },
-    onError: (error) => {
-      setAutoSaveStatus("Erro ao salvar rascunho: " + error.message);
-    },
-  });
 
   // ─── Finalizar Laudo (gera PDF + download + upload + salva) ──────────────
   const salvarLaudoMedico = useMutation({
@@ -925,16 +897,6 @@ export default function ASSCARDIODetalhe() {
                   </div>
 
                   <div className="flex flex-col gap-3 pt-2">
-                    <Button
-                      onClick={() => salvarRascunho.mutate()}
-                      disabled={salvarRascunho.isPending}
-                      variant="outline"
-                      className="w-full border-2 border-orange-400 text-orange-700 hover:bg-orange-50 text-lg py-4"
-                    >
-                      <Save className="w-5 h-5 mr-2" />
-                      {salvarRascunho.isPending ? "Salvando..." : "💾 SALVAR RASCUNHO"}
-                    </Button>
-
                     <Button
                       onClick={() => salvarLaudoMedico.mutate()}
                       disabled={salvarLaudoMedico.isPending || !confirmaTriagemValida}

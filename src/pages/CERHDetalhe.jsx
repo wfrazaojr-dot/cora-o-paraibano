@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Activity, FileText, Save, Heart, Download, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Activity, FileText, Heart, Download, AlertTriangle, Save } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import DadosPaciente from "@/components/regulacao/DadosPaciente";
 import LinhaTempo from "@/components/regulacao/LinhaTempo";
@@ -45,7 +45,8 @@ export default function CERHDetalhe() {
   const { data: paciente, isLoading } = useQuery({
     queryKey: ['paciente', pacienteId],
     queryFn: () => base44.entities.Paciente.list().then(list => list.find(p => p.id === pacienteId)),
-    enabled: !!pacienteId
+    enabled: !!pacienteId,
+    refetchInterval: 30000,
   });
 
   useEffect(() => {
@@ -111,32 +112,6 @@ export default function CERHDetalhe() {
       throw error;
     }
   };
-
-  const salvarRascunho = useMutation({
-    mutationFn: async () => {
-      const unidadeDestino = formData.unidade_destino === "outro" ? formData.unidade_destino_outro : formData.unidade_destino;
-      const regulacaoData = {
-        medico_regulador_nome: formData.medico_regulador_nome,
-        medico_regulador_crm: formData.medico_regulador_crm,
-        conduta_inicial: formData.conduta_inicial,
-        conduta_inicial_outros: formData.conduta_inicial_outros,
-        conduta_final: formData.conduta_final,
-        unidade_destino: unidadeDestino,
-        enfermeiro_regulador_nome: formData.enfermeiro_nome,
-        enfermeiro_regulador_coren: formData.enfermeiro_coren,
-        senha_ses: formData.senha_ses,
-        observacoes_regulacao: formData.observacoes_regulacao,
-        data_hora: new Date().toISOString()
-      };
-      await base44.entities.Paciente.update(pacienteId, {
-        regulacao_central: regulacaoData
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['paciente', pacienteId]);
-      alert("Rascunho salvo com sucesso! Você pode continuar depois.");
-    }
-  });
 
   const salvarRegulacao = useMutation({
     mutationFn: async () => {
@@ -795,15 +770,6 @@ export default function CERHDetalhe() {
                 </div>
 
                 <div className="flex gap-3">
-                  <Button
-                    onClick={() => salvarRascunho.mutate()}
-                    disabled={salvarRascunho.isPending}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    {salvarRascunho.isPending ? "Salvando..." : "Salvar Rascunho"}
-                  </Button>
                   <Button
                     onClick={() => salvarRegulacao.mutate()}
                     disabled={salvarRegulacao.isPending}
