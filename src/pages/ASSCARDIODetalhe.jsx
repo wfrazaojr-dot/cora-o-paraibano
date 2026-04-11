@@ -86,23 +86,7 @@ export default function ASSCARDIODetalhe() {
   });
 
   const [autoSaveStatus, setAutoSaveStatus] = useState("");
-  const autoSaveTimer = useRef(null);
   const initialLoadDone = useRef(false);
-
-  // Refs para evitar stale closures no auto-save
-  const ecgSupraRef = useRef(ecgSupra);
-  const ecgSemSupraRef = useRef(ecgSemSupra);
-  const heartScoreRef = useRef(heartScore);
-  const preParecerRef = useRef(preParecer);
-  const medicoDataRef = useRef(medicoData);
-  const pacienteRef = useRef(paciente);
-
-  useEffect(() => { ecgSupraRef.current = ecgSupra; }, [ecgSupra]);
-  useEffect(() => { ecgSemSupraRef.current = ecgSemSupra; }, [ecgSemSupra]);
-  useEffect(() => { heartScoreRef.current = heartScore; }, [heartScore]);
-  useEffect(() => { preParecerRef.current = preParecer; }, [preParecer]);
-  useEffect(() => { medicoDataRef.current = medicoData; }, [medicoData]);
-  useEffect(() => { pacienteRef.current = paciente; }, [paciente]);
 
   // Carregar dados salvos ao receber paciente — apenas UMA VEZ
   useEffect(() => {
@@ -166,17 +150,10 @@ export default function ASSCARDIODetalhe() {
     setHeartScore((prev) => ({ ...prev, historia, ecg, idade: pontoIdade, risco }));
   }, [paciente?.id]);
 
-  // ─── Auto-save a cada 4 segundos de inatividade ───────────────────────────
-  const salvarRascunhoAuto = useCallback(async () => {
-    if (!pacienteId) return;
-    if (!initialLoadDone.current) return; // Nunca salva antes de carregar dados do banco
-    const es = ecgSupraRef.current;
-    const ess = ecgSemSupraRef.current;
-    const hs = heartScoreRef.current;
-    const pp = preParecerRef.current;
-    const md = medicoDataRef.current;
+  // Auto-save: salva 1.5s após última alteração de estado
+  const salvarDados = useCallback(async (es, ess, hs, pp, md) => {
+    if (!pacienteId || !initialLoadDone.current) return;
     const total = hs.historia + hs.ecg + hs.idade + hs.risco + hs.troponina;
-
     setAutoSaveStatus("Salvando...");
     try {
       await base44.entities.Paciente.update(pacienteId, {
@@ -197,57 +174,17 @@ export default function ASSCARDIODetalhe() {
       setAutoSaveStatus("✓ Rascunho salvo");
       setTimeout(() => setAutoSaveStatus(""), 3000);
     } catch (e) {
-      setAutoSaveStatus("Erro auto-save: " + e.message);
+      setAutoSaveStatus("Erro ao salvar: " + e.message);
     }
   }, [pacienteId]);
 
-  // ─── Handler para confirma_triagem com save imediato ────────────────────────
-  const handleConfirmaTriagem = useCallback(async (checked) => {
-    const newMedicoData = { ...medicoDataRef.current, confirma_triagem: checked };
-    setMedicoData(newMedicoData);
-    medicoDataRef.current = newMedicoData;
-    // Salva imediatamente sem depender de timer
-    const es = ecgSupraRef.current;
-    const ess = ecgSemSupraRef.current;
-    const hs = heartScoreRef.current;
-    const pp = preParecerRef.current;
-    const md = newMedicoData;
-    const total = hs.historia + hs.ecg + hs.idade + hs.risco + hs.troponina;
-    setAutoSaveStatus("Salvando...");
-    await base44.entities.Paciente.update(pacienteId, {
-      assessoria_cardiologia: {
-        ecg_supra: es,
-        ecg_sem_supra: ess,
-        heart_score: { ...hs, total },
-        pre_parecer: pp,
-        diagnostico_estrategia: arrayParaString(md.diagnostico_estrategia),
-        parecer_cardiologista: md.parecer_cardiologista,
-        cardiologista_nome: md.cardiologista_nome,
-        cardiologista_crm: md.cardiologista_crm,
-        cardiologista_rqe: md.cardiologista_rqe,
-        confirma_triagem: checked,
-        _rascunho: true,
-      },
-    });
-    setAutoSaveStatus("✓ Confirmação salva");
-    setTimeout(() => setAutoSaveStatus(""), 3000);
-  }, [pacienteId]);
-
-  // Auto-save por inatividade (4s) + periódico (30s)
   useEffect(() => {
-    if (!pacienteId) return;
-    clearTimeout(autoSaveTimer.current);
-    autoSaveTimer.current = setTimeout(salvarRascunhoAuto, 4000);
-    return () => clearTimeout(autoSaveTimer.current);
-  }, [ecgSupra, ecgSemSupra, heartScore, preParecer, medicoData, salvarRascunhoAuto]);
-
-  useEffect(() => {
-    if (!pacienteId) return;
-    const intervalId = setInterval(() => {
-      salvarRascunhoAuto();
-    }, 30000);
-    return () => clearInterval(intervalId);
-  }, [pacienteId, salvarRascunhoAuto]);
+    if (!pacienteId || !initialLoadDone.current) return;
+    const timer = setTimeout(() => {
+      salvarDados(ecgSupra, ecgSemSupra, heartScore, preParecer, medicoData);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [ecgSupra, ecgSemSupra, heartScore, preParecer, medicoData, pacienteId, salvarDados]);
 
   // ─── Cálculos ────────────────────────────────────────────────────────────
   const calcularHeartTotal = () =>
@@ -429,7 +366,7 @@ export default function ASSCARDIODetalhe() {
   const salvarLaudoMedico = useMutation({
     mutationFn: async () => {
       const total = calcularHeartTotal();
-      const pac = pacienteRef.current;
+      const pac = paciente;
 
       // 1. Gerar PDF
       const pdf = await gerarPDF(pac, ecgSupra, ecgSemSupra, heartScore, preParecer, medicoData);
@@ -834,7 +771,7 @@ export default function ASSCARDIODetalhe() {
                     <Checkbox
                       id="confirma"
                       checked={medicoData.confirma_triagem}
-                      onCheckedChange={handleConfirmaTriagem}
+                      onCheckedChange={(checked) => setMedicoData({ ...medicoData, confirma_triagem: checked })}
                     />
                     <Label htmlFor="confirma" className="text-lg font-semibold">
                       ✓ Confirmo a triagem de enfermagem
