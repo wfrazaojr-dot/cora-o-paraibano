@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -88,103 +88,36 @@ export default function ASSCARDIODetalhe() {
   const [autoSaveStatus, setAutoSaveStatus] = useState("");
   const initialLoadDone = useRef(false);
 
-  // Carregar dados salvos ao receber paciente — apenas UMA VEZ
-  useEffect(() => {
-    if (initialLoadDone.current) return;
-    if (!paciente) return;
-    initialLoadDone.current = true;
-
-    const ass = paciente.assessoria_cardiologia;
-
-    // Para Prioridade 2 (sem troponina), ativar seção do cardiologista automaticamente
-    if (paciente.triagem_medica?.tipo_sca === "SCASESST_SEM_TROPONINA") {
-      setEnfermeiroFinalizado(true);
-      if (!ass?.pre_parecer) {
-        setPreParecer("SCASESST SEM Troponina — Avaliação cardiológica necessária");
-      }
-    }
-
-    if (!ass) return;
-
-    if (ass.ecg_supra) setEcgSupra(ass.ecg_supra);
-    if (ass.ecg_sem_supra) setEcgSemSupra(ass.ecg_sem_supra);
-    if (ass.heart_score) {
-      setHeartScore({
-        historia: ass.heart_score.historia || 0,
-        ecg: ass.heart_score.ecg || 0,
-        idade: ass.heart_score.idade || 0,
-        risco: ass.heart_score.risco || 0,
-        troponina: ass.heart_score.troponina || 0,
-      });
-    }
-    if (ass.pre_parecer) {
-      setPreParecer(ass.pre_parecer);
-      setEnfermeiroFinalizado(true);
-    }
-
-    setMedicoData({
-      confirma_triagem: ass.confirma_triagem || false,
-      diagnostico_estrategia: stringParaArray(ass.diagnostico_estrategia),
-      parecer_cardiologista: ass.parecer_cardiologista || "",
-      cardiologista_nome: ass.cardiologista_nome || "",
-      cardiologista_crm: ass.cardiologista_crm || "",
-      cardiologista_rqe: ass.cardiologista_rqe || "",
-    });
-  }, [paciente]);
-
-  // Pré-preencher HEART Score da triagem (só se não houver rascunho salvo)
-  useEffect(() => {
-    if (paciente?.assessoria_cardiologia?.heart_score) return;
-    if (!paciente) return;
-    const triagem = paciente?.triagem_medica || {};
-    let historia = 0;
-    if (triagem.historia_clinica?.includes("Altamente suspeita")) historia = 2;
-    else if (triagem.historia_clinica?.includes("Moderadamente")) historia = 1;
-    let ecg = 0;
-    if (triagem.ecg_classificacao?.includes("Depressão significativa")) ecg = 2;
-    else if (triagem.ecg_classificacao?.includes("inespecífica")) ecg = 1;
-    const idade = paciente?.idade || 0;
-    let pontoIdade = idade >= 65 ? 2 : idade >= 45 ? 1 : 0;
-    const qtdFatores = (triagem.fatores_risco || []).length;
-    let risco = qtdFatores >= 3 ? 2 : qtdFatores >= 1 ? 1 : 0;
-    setHeartScore((prev) => ({ ...prev, historia, ecg, idade: pontoIdade, risco }));
-  }, [paciente?.id]);
-
   // Auto-save: salva 1.5s após última alteração de estado
-  const salvarDados = useCallback(async (es, ess, hs, pp, md) => {
-    if (!pacienteId || !initialLoadDone.current) return;
-    const total = hs.historia + hs.ecg + hs.idade + hs.risco + hs.troponina;
-    setAutoSaveStatus("Salvando...");
-    try {
-      await base44.entities.Paciente.update(pacienteId, {
-        assessoria_cardiologia: {
-          ecg_supra: es,
-          ecg_sem_supra: ess,
-          heart_score: { ...hs, total },
-          pre_parecer: pp,
-          diagnostico_estrategia: arrayParaString(md.diagnostico_estrategia),
-          parecer_cardiologista: md.parecer_cardiologista,
-          cardiologista_nome: md.cardiologista_nome,
-          cardiologista_crm: md.cardiologista_crm,
-          cardiologista_rqe: md.cardiologista_rqe,
-          confirma_triagem: md.confirma_triagem,
-          _rascunho: true,
-        },
-      });
-      setAutoSaveStatus("✓ Rascunho salvo");
-      setTimeout(() => setAutoSaveStatus(""), 3000);
-    } catch (e) {
-      setAutoSaveStatus("Erro ao salvar: " + e.message);
-    }
-  }, [pacienteId]);
-
   useEffect(() => {
     if (!pacienteId || !initialLoadDone.current) return;
-    const timer = setTimeout(() => {
-      salvarDados(ecgSupra, ecgSemSupra, heartScore, preParecer, medicoData);
+    const total = heartScore.historia + heartScore.ecg + heartScore.idade + heartScore.risco + heartScore.troponina;
+    const timer = setTimeout(async () => {
+      setAutoSaveStatus("Salvando...");
+      try {
+        await base44.entities.Paciente.update(pacienteId, {
+          assessoria_cardiologia: {
+            ecg_supra: ecgSupra,
+            ecg_sem_supra: ecgSemSupra,
+            heart_score: { ...heartScore, total },
+            pre_parecer: preParecer,
+            diagnostico_estrategia: arrayParaString(medicoData.diagnostico_estrategia),
+            parecer_cardiologista: medicoData.parecer_cardiologista,
+            cardiologista_nome: medicoData.cardiologista_nome,
+            cardiologista_crm: medicoData.cardiologista_crm,
+            cardiologista_rqe: medicoData.cardiologista_rqe,
+            confirma_triagem: medicoData.confirma_triagem,
+            _rascunho: true,
+          },
+        });
+        setAutoSaveStatus("✓ Rascunho salvo");
+        setTimeout(() => setAutoSaveStatus(""), 3000);
+      } catch (e) {
+        setAutoSaveStatus("Erro ao salvar: " + e.message);
+      }
     }, 1500);
     return () => clearTimeout(timer);
-  }, [ecgSupra, ecgSemSupra, heartScore, preParecer, medicoData, pacienteId, salvarDados]);
+  }, [ecgSupra, ecgSemSupra, heartScore, preParecer, medicoData, pacienteId]);
 
   // ─── Cálculos ────────────────────────────────────────────────────────────
   const calcularHeartTotal = () =>
