@@ -201,20 +201,52 @@ export default function ASSCARDIODetalhe() {
   }, [pacienteId]);
 
   // ─── Handler para confirma_triagem com save imediato ────────────────────────
-  const handleConfirmaTriagem = useCallback((checked) => {
+  const handleConfirmaTriagem = useCallback(async (checked) => {
     const newMedicoData = { ...medicoDataRef.current, confirma_triagem: checked };
     setMedicoData(newMedicoData);
     medicoDataRef.current = newMedicoData;
-    clearTimeout(autoSaveTimer.current);
-    autoSaveTimer.current = setTimeout(salvarRascunhoAuto, 100);
-  }, [salvarRascunhoAuto]);
+    // Salva imediatamente sem depender de timer
+    const es = ecgSupraRef.current;
+    const ess = ecgSemSupraRef.current;
+    const hs = heartScoreRef.current;
+    const pp = preParecerRef.current;
+    const md = newMedicoData;
+    const total = hs.historia + hs.ecg + hs.idade + hs.risco + hs.troponina;
+    setAutoSaveStatus("Salvando...");
+    await base44.entities.Paciente.update(pacienteId, {
+      assessoria_cardiologia: {
+        ecg_supra: es,
+        ecg_sem_supra: ess,
+        heart_score: { ...hs, total },
+        pre_parecer: pp,
+        diagnostico_estrategia: arrayParaString(md.diagnostico_estrategia),
+        parecer_cardiologista: md.parecer_cardiologista,
+        cardiologista_nome: md.cardiologista_nome,
+        cardiologista_crm: md.cardiologista_crm,
+        cardiologista_rqe: md.cardiologista_rqe,
+        confirma_triagem: checked,
+        _rascunho: true,
+      },
+    });
+    setAutoSaveStatus("✓ Confirmação salva");
+    setTimeout(() => setAutoSaveStatus(""), 3000);
+  }, [pacienteId]);
 
+  // Auto-save por inatividade (4s) + periódico (30s)
   useEffect(() => {
     if (!pacienteId) return;
     clearTimeout(autoSaveTimer.current);
     autoSaveTimer.current = setTimeout(salvarRascunhoAuto, 4000);
     return () => clearTimeout(autoSaveTimer.current);
   }, [ecgSupra, ecgSemSupra, heartScore, preParecer, medicoData, salvarRascunhoAuto]);
+
+  useEffect(() => {
+    if (!pacienteId) return;
+    const intervalId = setInterval(() => {
+      salvarRascunhoAuto();
+    }, 30000);
+    return () => clearInterval(intervalId);
+  }, [pacienteId, salvarRascunhoAuto]);
 
   // ─── Cálculos ────────────────────────────────────────────────────────────
   const calcularHeartTotal = () =>
