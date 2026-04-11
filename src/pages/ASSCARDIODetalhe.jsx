@@ -110,6 +110,15 @@ export default function ASSCARDIODetalhe() {
     initialLoadDone.current = true;
 
     const ass = paciente.assessoria_cardiologia;
+
+    // Para Prioridade 2 (sem troponina), ativar seção do cardiologista automaticamente
+    if (paciente.triagem_medica?.tipo_sca === "SCASESST_SEM_TROPONINA") {
+      setEnfermeiroFinalizado(true);
+      if (!ass?.pre_parecer) {
+        setPreParecer("SCASESST SEM Troponina — Avaliação cardiológica necessária");
+      }
+    }
+
     if (!ass) return;
 
     if (ass.ecg_supra) setEcgSupra(ass.ecg_supra);
@@ -189,6 +198,15 @@ export default function ASSCARDIODetalhe() {
       setAutoSaveStatus("Erro auto-save: " + e.message);
     }
   }, [pacienteId]);
+
+  // ─── Handler para confirma_triagem com save imediato ────────────────────────
+  const handleConfirmaTriagem = useCallback((checked) => {
+    const newMedicoData = { ...medicoDataRef.current, confirma_triagem: checked };
+    setMedicoData(newMedicoData);
+    medicoDataRef.current = newMedicoData;
+    clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(salvarRascunhoAuto, 100);
+  }, [salvarRascunhoAuto]);
 
   useEffect(() => {
     if (!pacienteId) return;
@@ -811,7 +829,7 @@ export default function ASSCARDIODetalhe() {
                     <Checkbox
                       id="confirma"
                       checked={medicoData.confirma_triagem}
-                      onCheckedChange={(c) => setMedicoData({ ...medicoData, confirma_triagem: c })}
+                      onCheckedChange={handleConfirmaTriagem}
                     />
                     <Label htmlFor="confirma" className="text-lg font-semibold">
                       ✓ Confirmo a triagem de enfermagem
