@@ -391,7 +391,7 @@ export default function ASSCARDIODetalhe() {
       ln(`Dr(a). ${md.cardiologista_nome}`);
       ln(`CRM: ${md.cardiologista_crm}${md.cardiologista_rqe ? " | RQE: " + md.cardiologista_rqe : ""}`);
     }
-    ln(`Triagem confirmada: ${md.confirma_triagem ? "Sim" : "Não"}`);
+    ln(`Triagem de Enfermagem Confirmada: ${md.confirma_triagem ? "Sim" : "Não"}`);
 
     const estrategiasMap = {
       "1": "1- IAM supra ST → Estratégia 1: transferência imediata",
