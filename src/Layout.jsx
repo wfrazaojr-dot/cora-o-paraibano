@@ -385,7 +385,7 @@ export default function Layout({ children, currentPageName }) {
               </div>
             </header>
 
-            <div className="flex-1 overflow-auto">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden" style={{WebkitOverflowScrolling: 'touch'}}>
               {children}
             </div>
           </main>

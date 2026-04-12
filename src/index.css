@@ -2,6 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Mobile & Touch Optimizations ── */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+/* Garantir que áreas de rolagem funcionem bem no mobile */
+.overflow-auto,
+.overflow-y-auto,
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Botões e elementos clicáveis com área de toque mínima (44px) */
+button, a, [role="button"] {
+  min-height: 36px;
+  touch-action: manipulation;
+}
+
+/* Evitar zoom acidental em inputs no iOS */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+@media (max-width: 640px) {
+  /* Ajuste de fonte base para mobile */
+  html {
+    font-size: 15px;
+  }
+}
+
 
 /* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
