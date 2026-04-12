@@ -106,7 +106,7 @@ export default function Dashboard() {
     p.status === "Aguardando Assessoria"
   );
   const aguardandoCERH = pacientesRegulacao.filter(p => 
-    p.status === "Aguardando Regulação" || !p.regulacao_central?.medico_regulador_nome
+    p.status === "Aguardando Regulação"
   );
   const aguardandoTransporte = pacientesRegulacao.filter(p => 
     p.status === "Aguardando Transporte"
