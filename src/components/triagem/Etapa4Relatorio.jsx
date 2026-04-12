@@ -731,7 +731,7 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
         <Button
           onClick={gerarPDF}
           className="w-full bg-blue-600 hover:bg-blue-700"
-          disabled={gerandoPDF || (!modoLeitura && (!medico.nome || !medico.crm || !medico.celular))}
+          disabled={gerandoPDF}
         >
           <Download className="w-4 h-4 mr-2" />
           {gerandoPDF ? "Gerando PDF..." : "Baixar Relatório em PDF"}
