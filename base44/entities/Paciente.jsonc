@@ -3,12 +3,10 @@
   "type": "object",
   "properties": {
     "unidade_saude": {
-      "type": "string",
-      "description": "Nome da unidade de sa\u00fade"
+      "type": "string"
     },
     "cidade": {
-      "type": "string",
-      "description": "Cidade onde est\u00e1 a unidade de sa\u00fade"
+      "type": "string"
     },
     "macrorregiao": {
       "type": "string",
@@ -16,8 +14,7 @@
         "Macro 1",
         "Macro 2",
         "Macro 3"
-      ],
-      "description": "Macrorregi\u00e3o de sa\u00fade da Para\u00edba"
+      ]
     },
     "hemodinamica_macro_responsavel": {
       "type": "string",
@@ -25,12 +22,10 @@
         "Macro 1",
         "Macro 2",
         "Macro 3"
-      ],
-      "description": "Macrorregi\u00e3o respons\u00e1vel pelo agendamento/procedimento de hemodin\u00e2mica"
+      ]
     },
     "historico_transferencias_hemo": {
       "type": "array",
-      "description": "Hist\u00f3rico de transfer\u00eancias entre hemodin\u00e2micas",
       "items": {
         "type": "object",
         "properties": {
@@ -54,25 +49,21 @@
       }
     },
     "nome_completo": {
-      "type": "string",
-      "description": "Nome completo do paciente"
+      "type": "string"
     },
     "data_nascimento": {
       "type": "string",
-      "format": "date",
-      "description": "Data de nascimento do paciente"
+      "format": "date"
     },
     "idade": {
-      "type": "number",
-      "description": "Idade do paciente"
+      "type": "number"
     },
     "sexo": {
       "type": "string",
       "enum": [
         "Masculino",
         "Feminino"
-      ],
-      "description": "Sexo do paciente"
+      ]
     },
     "uso_inibidor_fosfodiesterase": {
       "type": "boolean"
@@ -319,7 +310,6 @@
         },
         "info_transporte": {
           "type": "object",
-          "description": "Informa\u00e7\u00f5es para transporte preenchidas na Etapa 3",
           "properties": {
             "glasgow": {
               "type": "string"
@@ -373,36 +363,28 @@
               "type": "boolean"
             },
             "doenca_renal_cronica": {
-              "type": "boolean",
-              "description": "Doen\u00e7a renal cr\u00f4nica moderada a grave"
+              "type": "boolean"
             },
             "anemia_grave": {
-              "type": "boolean",
-              "description": "Anemia grave"
+              "type": "boolean"
             },
             "ic_descompensada": {
-              "type": "boolean",
-              "description": "Insufici\u00eancia card\u00edaca descompensada"
+              "type": "boolean"
             },
             "arritmias_nao_controladas": {
-              "type": "boolean",
-              "description": "Arritmias n\u00e3o controladas"
+              "type": "boolean"
             },
             "infeccao_respiratoria": {
-              "type": "boolean",
-              "description": "Infec\u00e7\u00e3o respirat\u00f3ria aguda ou febre sem foco definido"
+              "type": "boolean"
             },
             "fragilidade_clinica": {
-              "type": "boolean",
-              "description": "Fragilidade cl\u00ednica importante"
+              "type": "boolean"
             },
             "idade_comorbidades": {
-              "type": "boolean",
-              "description": "Idade avan\u00e7ada associada a m\u00faltiplas comorbidades"
+              "type": "boolean"
             },
             "dificuldade_acesso_vascular": {
-              "type": "boolean",
-              "description": "Dificuldade para obten\u00e7\u00e3o de acesso vascular seguro"
+              "type": "boolean"
             }
           }
         }
@@ -430,6 +412,9 @@
           "type": "string"
         },
         "cardiologista_crm": {
+          "type": "string"
+        },
+        "cardiologista_rqe": {
           "type": "string"
         },
         "parecer_cardiologista": {
@@ -467,6 +452,126 @@
             "Urgente",
             "Eletivo"
           ]
+        },
+        "confirma_triagem": {
+          "type": "boolean"
+        },
+        "pre_parecer": {
+          "type": "string"
+        },
+        "_rascunho": {
+          "type": "boolean"
+        },
+        "ecg_supra": {
+          "type": "object",
+          "properties": {
+            "d2": {
+              "type": "boolean"
+            },
+            "d3": {
+              "type": "boolean"
+            },
+            "avf": {
+              "type": "boolean"
+            },
+            "reciproco_d1_avl": {
+              "type": "boolean"
+            },
+            "reciproco_v1_v3": {
+              "type": "boolean"
+            },
+            "v1": {
+              "type": "boolean"
+            },
+            "v2": {
+              "type": "boolean"
+            },
+            "v3": {
+              "type": "boolean"
+            },
+            "v4": {
+              "type": "boolean"
+            },
+            "reciproco_d2_d3_avf": {
+              "type": "boolean"
+            },
+            "d1": {
+              "type": "boolean"
+            },
+            "avl": {
+              "type": "boolean"
+            },
+            "v5": {
+              "type": "boolean"
+            },
+            "v6": {
+              "type": "boolean"
+            },
+            "t_hiperaguda": {
+              "type": "boolean"
+            },
+            "v7_v9": {
+              "type": "boolean"
+            },
+            "v3r_v4r": {
+              "type": "boolean"
+            },
+            "tem_supra": {
+              "type": "string"
+            },
+            "parede_supra": {
+              "type": "string"
+            }
+          }
+        },
+        "ecg_sem_supra": {
+          "type": "object",
+          "properties": {
+            "infra_st": {
+              "type": "boolean"
+            },
+            "t_invertida": {
+              "type": "boolean"
+            },
+            "q_nova": {
+              "type": "boolean"
+            },
+            "wellens": {
+              "type": "boolean"
+            },
+            "infra_difusa_avr": {
+              "type": "boolean"
+            },
+            "probabilidade": {
+              "type": "string"
+            }
+          }
+        },
+        "heart_score": {
+          "type": "object",
+          "properties": {
+            "historia": {
+              "type": "number"
+            },
+            "ecg": {
+              "type": "number"
+            },
+            "idade": {
+              "type": "number"
+            },
+            "risco": {
+              "type": "number"
+            },
+            "troponina": {
+              "type": "number"
+            },
+            "total": {
+              "type": "number"
+            },
+            "interpretacao": {
+              "type": "string"
+            }
+          }
         }
       }
     },
@@ -629,8 +734,7 @@
             "ate_24h",
             "ate_72h",
             "trombolise_icp"
-          ],
-          "description": "Tipo de ICP"
+          ]
         },
         "data_hora_agendamento_icp": {
           "type": "string",
@@ -743,12 +847,10 @@
       "type": "string"
     },
     "relatorio_hemodinamica_url": {
-      "type": "string",
-      "description": "URL do relat\u00f3rio PDF da Hemodin\u00e2mica"
+      "type": "string"
     },
     "relatorio_agendamento_hemo_url": {
-      "type": "string",
-      "description": "URL do relat\u00f3rio PDF de Agendamento de Hemodin\u00e2mica"
+      "type": "string"
     },
     "alerta_formulario_vaga": {
       "type": "boolean",
@@ -756,7 +858,6 @@
     },
     "formulario_vaga": {
       "type": "object",
-      "description": "Dados do formul\u00e1rio de solicita\u00e7\u00e3o de vaga enviado pela unidade de sa\u00fade",
       "properties": {
         "data_envio": {
           "type": "string",
@@ -805,8 +906,7 @@
           "type": "string"
         },
         "email_unidade_solicitante": {
-          "type": "string",
-          "description": "E-mail da unidade de sa\u00fade que enviou o formul\u00e1rio"
+          "type": "string"
         },
         "unidade_solicitante": {
           "type": "string"
