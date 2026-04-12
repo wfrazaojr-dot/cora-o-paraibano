@@ -136,7 +136,8 @@ export default function NovaTriagem() {
           </div>;
         }
       case 4:
-        return <Etapa4Relatorio dadosPaciente={dadosPaciente} onAnterior={handleEtapaAnterior} pacienteId={pacienteId} />;
+        const etapa4Leitura = !!idUrl && !isRetriagem && !!dadosPaciente.relatorio_triagem_url;
+        return <Etapa4Relatorio dadosPaciente={dadosPaciente} onAnterior={handleEtapaAnterior} pacienteId={pacienteId} modoLeitura={etapa4Leitura} />;
       default:
         return <div>Etapa não encontrada</div>;
     }

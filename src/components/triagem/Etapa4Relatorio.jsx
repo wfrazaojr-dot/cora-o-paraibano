@@ -14,7 +14,7 @@ import TempoDor from "./TempoDor";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 
-export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId }) {
+export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId, modoLeitura = false }) {
   const navigate = useNavigate();
   const relatorioRef = useRef(null);
   const queryClient = useQueryClient();
@@ -144,7 +144,6 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
     }
   };
 
-  // Detecta se o paciente já está em etapa avançada (não deve retroceder status)
   const statusAtual = dadosPaciente.status;
   const isAtualizacaoRelatorio = statusAtual && !['Em Triagem', undefined, null].includes(statusAtual);
 
@@ -160,7 +159,6 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
 
     setGerandoPDF(true);
 
-    // 1. Tentar gerar e fazer upload do PDF (falha não bloqueia o salvamento)
     let pdfUrl = null;
     try {
       pdfUrl = await gerarEUploadPDF();
@@ -168,21 +166,17 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
       console.error("Erro ao gerar PDF (continuando salvamento):", pdfError);
     }
 
-    // 2. Salvar os dados do paciente independentemente do PDF
     try {
-      // Dados base para salvar (inclui avaliacao_clinica para garantir que Etapa3_3 foi salva)
       const dadosParaSalvar = {
         medico_nome: medico.nome,
         medico_crm: medico.crm,
         medico_celular: medico.celular,
       };
 
-      // Inclui avaliacao_clinica se existir no dadosPaciente (garante que dados do Etapa3_3 foram persistidos)
       if (dadosPaciente.avaliacao_clinica) {
         dadosParaSalvar.avaliacao_clinica = dadosPaciente.avaliacao_clinica;
       }
 
-      // Inclui URL do PDF se gerado com sucesso
       if (pdfUrl) {
         dadosParaSalvar.relatorio_triagem_url = pdfUrl;
       }
@@ -253,6 +247,17 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
       {/* Tempo de Dor */}
       <TempoDor dataHoraInicioSintomas={dadosPaciente.data_hora_inicio_sintomas} />
 
+      {/* Banner modo leitura */}
+      {modoLeitura && (
+        <div className="bg-red-50 border-2 border-red-400 rounded-lg p-4 flex items-center gap-3">
+          <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
+          <div>
+            <p className="font-bold text-red-900">Relatório já finalizado — modo somente leitura</p>
+            <p className="text-sm text-red-700">Para editar, acesse via função <strong>Retriagem</strong> no Painel Assistencial.</p>
+          </div>
+        </div>
+      )}
+
       {/* Identificação do Médico */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
         <h3 className="font-bold text-lg mb-4">Identificação do Médico Responsável</h3>
@@ -265,6 +270,8 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
               onChange={(e) => setMedico({...medico, nome: e.target.value})}
               placeholder="Nome do médico"
               required
+              readOnly={modoLeitura}
+              disabled={modoLeitura}
             />
           </div>
           <div className="space-y-2">
@@ -275,6 +282,8 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
               onChange={(e) => setMedico({...medico, crm: e.target.value})}
               placeholder="Número do CRM"
               required
+              readOnly={modoLeitura}
+              disabled={modoLeitura}
             />
           </div>
           <div className="space-y-2">
@@ -285,13 +294,15 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
               onChange={(e) => setMedico({...medico, celular: e.target.value})}
               placeholder="(83) 99999-9999"
               required
+              readOnly={modoLeitura}
+              disabled={modoLeitura}
             />
           </div>
         </div>
       </div>
 
       {/* Disponibilidade de USA */}
-      <div className="bg-orange-50 border-2 border-orange-300 rounded-lg p-6">
+      <div className={`bg-orange-50 border-2 border-orange-300 rounded-lg p-6 ${modoLeitura ? 'opacity-60 pointer-events-none' : ''}`}>
         <div className="flex items-center gap-3 mb-4">
           <Truck className="w-6 h-6 text-orange-600" />
           <h3 className="font-bold text-lg text-orange-900">USA Disponível com chegada na Hemodinâmica &lt; 90 minutos?</h3>
@@ -301,16 +312,18 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
             <Button
               type="button"
               variant={confirmacaoHemodinamica === true ? "default" : "outline"}
-              onClick={() => setConfirmacaoHemodinamica(true)}
+              onClick={() => !modoLeitura && setConfirmacaoHemodinamica(true)}
               className={confirmacaoHemodinamica === true ? "bg-green-600 hover:bg-green-700" : ""}
+              disabled={modoLeitura}
             >
               Sim
             </Button>
             <Button
               type="button"
               variant={confirmacaoHemodinamica === false ? "default" : "outline"}
-              onClick={() => setConfirmacaoHemodinamica(false)}
+              onClick={() => !modoLeitura && setConfirmacaoHemodinamica(false)}
               className={confirmacaoHemodinamica === false ? "bg-red-600 hover:bg-red-700" : ""}
+              disabled={modoLeitura}
             >
               Não
             </Button>
@@ -328,8 +341,6 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
               </AlertDescription>
             </Alert>
           )}
-
-
         </div>
       </div>
 
@@ -427,7 +438,6 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         <div className="mb-4">
           <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">ECG</h2>
           
-          {/* Imagens do ECG */}
           {dadosPaciente.triagem_medica?.ecg_files?.length > 0 && (
             <div className="mb-3">
               <p className="font-semibold text-xs mb-2">Imagens do ECG:</p>
@@ -659,7 +669,6 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
               {infoTransporte.dva && infoTransporte.dva_drogas?.length > 0 && <div className="col-span-2"><span className="font-semibold">Drogas DVA:</span> {infoTransporte.dva_drogas.join(", ")}</div>}
               {infoTransporte.marcapasso_transcutaneo !== undefined && <div><span className="font-semibold">Marcapasso Transcutâneo:</span> {infoTransporte.marcapasso_transcutaneo ? "Sim" : "Não"}</div>}
             </div>
-            {/* Contraindicações ao Transporte no PDF */}
             {[
               { key: "doenca_renal_cronica", label: "Doença renal crônica moderada a grave" },
               { key: "anemia_grave", label: "Anemia grave" },
@@ -722,13 +731,13 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
         <Button
           onClick={gerarPDF}
           className="w-full bg-blue-600 hover:bg-blue-700"
-          disabled={gerandoPDF || !medico.nome || !medico.crm || !medico.celular}
+          disabled={gerandoPDF || (!modoLeitura && (!medico.nome || !medico.crm || !medico.celular))}
         >
           <Download className="w-4 h-4 mr-2" />
           {gerandoPDF ? "Gerando PDF..." : "Baixar Relatório em PDF"}
         </Button>
 
-        {!medico.nome || !medico.crm || !medico.celular ? (
+        {!modoLeitura && (!medico.nome || !medico.crm || !medico.celular) ? (
           <Alert className="border-orange-500 bg-orange-50">
             <AlertCircle className="h-4 w-4 text-orange-600" />
             <AlertDescription className="text-orange-800">
@@ -743,14 +752,16 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
           <ArrowLeft className="w-4 h-4 mr-2" />
           Etapa Anterior
         </Button>
-        <Button
-          onClick={handleFinalizar}
-          className="bg-green-600 hover:bg-green-700"
-          disabled={!medico.nome || !medico.crm || !medico.celular || (!isAtualizacaoRelatorio && confirmacaoHemodinamica === null) || gerandoPDF}
-        >
-          <CheckCircle className="w-4 h-4 mr-2" />
-          {gerandoPDF ? "Finalizando..." : "Finalizar Relatório"}
-        </Button>
+        {!modoLeitura && (
+          <Button
+            onClick={handleFinalizar}
+            className="bg-green-600 hover:bg-green-700"
+            disabled={!medico.nome || !medico.crm || !medico.celular || (!isAtualizacaoRelatorio && confirmacaoHemodinamica === null) || gerandoPDF}
+          >
+            <CheckCircle className="w-4 h-4 mr-2" />
+            {gerandoPDF ? "Finalizando..." : "Finalizar Relatório"}
+          </Button>
+        )}
       </div>
 
       {/* Alerta FORMULÁRIO/VAGA */}
