@@ -103,7 +103,7 @@ export default function Dashboard() {
   const prioridade1 = pacientesRegulacao.filter(p => p.prioridade === 1);
   const prioridade2 = pacientesRegulacao.filter(p => p.prioridade === 2);
   const aguardandoASSCARDIO = pacientesRegulacao.filter(p => 
-    p.status === "Aguardando Assessoria" || !p.assessoria_cardiologia?.cardiologista_nome
+    p.status === "Aguardando Assessoria"
   );
   const aguardandoCERH = pacientesRegulacao.filter(p => 
     p.status === "Aguardando Regulação" || !p.regulacao_central?.medico_regulador_nome
