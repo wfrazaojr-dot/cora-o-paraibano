@@ -50,39 +50,28 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
 
   const gerarPDF = async () => {
     if (!relatorioRef.current) return;
-
     setGerandoPDF(true);
     try {
       const canvas = await html2canvas(relatorioRef.current, {
-        scale: 1.8,
-        logging: false,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: '#ffffff',
-        imageTimeout: 15000,
-        removeContainer: true
+        scale: 1.8, logging: false, useCORS: true, allowTaint: false,
+        backgroundColor: '#ffffff', imageTimeout: 15000, removeContainer: true
       });
-
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       const imgWidth = pdfWidth;
       const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-
       let heightLeft = imgHeight;
       let position = 0;
-
       pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
       heightLeft -= pdfHeight;
-
       while (heightLeft > 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
         pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
         heightLeft -= pdfHeight;
       }
-
       const pdfBlob = pdf.output('blob');
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
@@ -101,41 +90,29 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
 
   const gerarEUploadPDF = async () => {
     if (!relatorioRef.current) return null;
-
     try {
       const canvas = await html2canvas(relatorioRef.current, {
-        scale: 1.8,
-        logging: false,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: '#ffffff',
-        imageTimeout: 15000,
-        removeContainer: true
+        scale: 1.8, logging: false, useCORS: true, allowTaint: false,
+        backgroundColor: '#ffffff', imageTimeout: 15000, removeContainer: true
       });
-
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       const imgWidth = pdfWidth;
       const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-
       let heightLeft = imgHeight;
       let position = 0;
-
       pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
       heightLeft -= pdfHeight;
-
       while (heightLeft > 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
         pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
         heightLeft -= pdfHeight;
       }
-
       const pdfBlob = pdf.output('blob');
       const pdfFile = new File([pdfBlob], `Relatorio_${dadosPaciente.nome_completo?.replace(/ /g, "_")}_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`, { type: 'application/pdf' });
-
       const uploadResult = await base44.integrations.Core.UploadFile({ file: pdfFile });
       return uploadResult.file_url;
     } catch (error) {
@@ -156,31 +133,25 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
       alert("Por favor, responda se o USA está disponível com chegada na Hemodinâmica < 90 minutos.");
       return;
     }
-
     setGerandoPDF(true);
-
     let pdfUrl = null;
     try {
       pdfUrl = await gerarEUploadPDF();
     } catch (pdfError) {
       console.error("Erro ao gerar PDF (continuando salvamento):", pdfError);
     }
-
     try {
       const dadosParaSalvar = {
         medico_nome: medico.nome,
         medico_crm: medico.crm,
         medico_celular: medico.celular,
       };
-
       if (dadosPaciente.avaliacao_clinica) {
         dadosParaSalvar.avaliacao_clinica = dadosPaciente.avaliacao_clinica;
       }
-
       if (pdfUrl) {
         dadosParaSalvar.relatorio_triagem_url = pdfUrl;
       }
-
       if (isAtualizacaoRelatorio) {
         await updatePacienteMutation.mutateAsync(dadosParaSalvar);
         alert(pdfUrl
@@ -191,19 +162,15 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
         setGerandoPDF(false);
         return;
       }
-
       dadosParaSalvar.tempo_deslocamento_minutos = confirmacaoHemodinamica ? 60 : 120;
       dadosParaSalvar.usa_disponivel_menos_90min = confirmacaoHemodinamica;
       dadosParaSalvar.status = "Aguardando Assessoria";
       dadosParaSalvar.alerta_formulario_vaga = true;
-
       await updatePacienteMutation.mutateAsync(dadosParaSalvar);
-
       alert(pdfUrl
         ? "Atendimento finalizado com sucesso!"
         : "Atendimento finalizado! (PDF não gerado - use o botão 'Baixar PDF' para tentar novamente)"
       );
-
       if (user?.equipe === 'unidade_saude' || !user?.equipe) {
         navigate(createPageUrl("Historico"));
       } else {
@@ -218,24 +185,11 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
 
   return (
     <div className="space-y-6">
-      {/* Header com as 3 logos */}
       <div className="bg-white border rounded-lg p-4 mb-4 shadow-sm">
         <div className="flex items-center justify-between gap-4 w-full">
-          <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" 
-            alt="Secretaria de Estado da Saúde" 
-            className="h-16 md:h-20 w-auto object-contain"
-          />
-          <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" 
-            alt="Coração Paraibano" 
-            className="h-16 md:h-20 w-auto object-contain"
-          />
-          <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg" 
-            alt="Complexo Regulador" 
-            className="h-16 md:h-20 w-auto object-contain"
-          />
+          <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" alt="Secretaria de Estado da Saúde" className="h-16 md:h-20 w-auto object-contain" />
+          <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" alt="Coração Paraibano" className="h-16 md:h-20 w-auto object-contain" />
+          <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg" alt="Complexo Regulador" className="h-16 md:h-20 w-auto object-contain" />
         </div>
       </div>
 
@@ -244,10 +198,8 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
         <p className="text-gray-600">Revisão completa do atendimento</p>
       </div>
 
-      {/* Tempo de Dor */}
       <TempoDor dataHoraInicioSintomas={dadosPaciente.data_hora_inicio_sintomas} />
 
-      {/* Banner modo leitura */}
       {modoLeitura && (
         <div className="bg-red-50 border-2 border-red-400 rounded-lg p-4 flex items-center gap-3">
           <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
@@ -258,50 +210,24 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
         </div>
       )}
 
-      {/* Identificação do Médico */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
         <h3 className="font-bold text-lg mb-4">Identificação do Médico Responsável</h3>
         <div className="grid md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="medico_nome">Nome Completo *</Label>
-            <Input
-              id="medico_nome"
-              value={medico.nome}
-              onChange={(e) => setMedico({...medico, nome: e.target.value})}
-              placeholder="Nome do médico"
-              required
-              readOnly={modoLeitura}
-              disabled={modoLeitura}
-            />
+            <Input id="medico_nome" value={medico.nome} onChange={(e) => setMedico({...medico, nome: e.target.value})} placeholder="Nome do médico" readOnly={modoLeitura} disabled={modoLeitura} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="medico_crm">CRM *</Label>
-            <Input
-              id="medico_crm"
-              value={medico.crm}
-              onChange={(e) => setMedico({...medico, crm: e.target.value})}
-              placeholder="Número do CRM"
-              required
-              readOnly={modoLeitura}
-              disabled={modoLeitura}
-            />
+            <Input id="medico_crm" value={medico.crm} onChange={(e) => setMedico({...medico, crm: e.target.value})} placeholder="Número do CRM" readOnly={modoLeitura} disabled={modoLeitura} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="medico_celular">Celular com DDD *</Label>
-            <Input
-              id="medico_celular"
-              value={medico.celular}
-              onChange={(e) => setMedico({...medico, celular: e.target.value})}
-              placeholder="(83) 99999-9999"
-              required
-              readOnly={modoLeitura}
-              disabled={modoLeitura}
-            />
+            <Input id="medico_celular" value={medico.celular} onChange={(e) => setMedico({...medico, celular: e.target.value})} placeholder="(83) 99999-9999" readOnly={modoLeitura} disabled={modoLeitura} />
           </div>
         </div>
       </div>
 
-      {/* Disponibilidade de USA */}
       <div className={`bg-orange-50 border-2 border-orange-300 rounded-lg p-6 ${modoLeitura ? 'opacity-60 pointer-events-none' : ''}`}>
         <div className="flex items-center gap-3 mb-4">
           <Truck className="w-6 h-6 text-orange-600" />
@@ -309,26 +235,9 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
         </div>
         <div className="space-y-4">
           <div className="flex gap-4">
-            <Button
-              type="button"
-              variant={confirmacaoHemodinamica === true ? "default" : "outline"}
-              onClick={() => !modoLeitura && setConfirmacaoHemodinamica(true)}
-              className={confirmacaoHemodinamica === true ? "bg-green-600 hover:bg-green-700" : ""}
-              disabled={modoLeitura}
-            >
-              Sim
-            </Button>
-            <Button
-              type="button"
-              variant={confirmacaoHemodinamica === false ? "default" : "outline"}
-              onClick={() => !modoLeitura && setConfirmacaoHemodinamica(false)}
-              className={confirmacaoHemodinamica === false ? "bg-red-600 hover:bg-red-700" : ""}
-              disabled={modoLeitura}
-            >
-              Não
-            </Button>
+            <Button type="button" variant={confirmacaoHemodinamica === true ? "default" : "outline"} onClick={() => !modoLeitura && setConfirmacaoHemodinamica(true)} className={confirmacaoHemodinamica === true ? "bg-green-600 hover:bg-green-700" : ""} disabled={modoLeitura}>Sim</Button>
+            <Button type="button" variant={confirmacaoHemodinamica === false ? "default" : "outline"} onClick={() => !modoLeitura && setConfirmacaoHemodinamica(false)} className={confirmacaoHemodinamica === false ? "bg-red-600 hover:bg-red-700" : ""} disabled={modoLeitura}>Não</Button>
           </div>
-
           {confirmacaoHemodinamica === true && dadosPaciente.data_hora_inicio_triagem && (
             <Alert className="bg-blue-100 border-blue-400">
               <AlertCircle className="h-5 w-5 text-blue-600" />
@@ -344,33 +253,12 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
         </div>
       </div>
 
-      {/* Relatório Visual */}
-      <div 
-        ref={relatorioRef} 
-        className="bg-white border-2 border-gray-300 rounded-lg p-4 shadow-lg"
-        style={{ maxWidth: "210mm" }}
-      >
-        {/* Cabeçalho com logos */}
+      <div ref={relatorioRef} className="bg-white border-2 border-gray-300 rounded-lg p-4 shadow-lg" style={{ maxWidth: "210mm" }}>
         <div className="mb-4">
           <div className="flex items-center justify-between gap-3 w-full mb-3">
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" 
-              alt="Secretaria de Estado da Saúde" 
-              className="h-12 w-auto object-contain"
-              crossOrigin="anonymous"
-            />
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" 
-              alt="Coração Paraibano" 
-              className="h-12 w-auto object-contain"
-              crossOrigin="anonymous"
-            />
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg" 
-              alt="Complexo Regulador" 
-              className="h-12 w-auto object-contain"
-              crossOrigin="anonymous"
-            />
+            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" alt="Secretaria de Estado da Saúde" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
+            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png" alt="Coração Paraibano" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
+            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/006e0d9aa_LogoComplexoregulador.jpg" alt="Complexo Regulador" className="h-12 w-auto object-contain" crossOrigin="anonymous" />
           </div>
           <div className="text-center pb-2 border-b-2 border-red-600">
             <div className="flex items-center justify-center gap-2 mb-1">
@@ -389,7 +277,6 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
           </div>
         </div>
 
-        {/* Dados do Paciente */}
         <div className="mb-4">
           <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">DADOS DO PACIENTE</h2>
           <div className="grid grid-cols-2 gap-2 text-xs">
@@ -401,17 +288,13 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
           </div>
         </div>
 
-        {/* Classificação */}
         <div className="mb-4">
           <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">CLASSIFICAÇÃO</h2>
-          <div className={`rounded p-2 border ${
-            dadosPaciente.triagem_medica?.tipo_sca === 'SCACESST' ? 'bg-red-50 border-red-500' : 'bg-yellow-50 border-yellow-500'
-          }`}>
+          <div className={`rounded p-2 border ${dadosPaciente.triagem_medica?.tipo_sca === 'SCACESST' ? 'bg-red-50 border-red-500' : 'bg-yellow-50 border-yellow-500'}`}>
             <p className="text-xs"><span className="font-semibold">SCA:</span> {dadosPaciente.triagem_medica?.tipo_sca || "-"}</p>
           </div>
         </div>
 
-        {/* Sinais Vitais */}
         <div className="mb-4">
           <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">SINAIS VITAIS</h2>
           <div className="grid grid-cols-4 gap-2 text-xs">
@@ -434,10 +317,8 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
           </div>
         </div>
 
-        {/* ECG */}
         <div className="mb-4">
           <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">ECG</h2>
-          
           {dadosPaciente.triagem_medica?.ecg_files?.length > 0 && (
             <div className="mb-3">
               <p className="font-semibold text-xs mb-2">Imagens do ECG:</p>
@@ -445,23 +326,15 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
                 {dadosPaciente.triagem_medica.ecg_files.map((fileUrl, index) => (
                   <div key={index} className="border border-gray-300 rounded overflow-hidden">
                     {!fileUrl.toLowerCase().endsWith('.pdf') ? (
-                      <img
-                        src={fileUrl}
-                        alt={`ECG ${index + 1}`}
-                        className="w-full h-auto object-contain bg-gray-50"
-                        crossOrigin="anonymous"
-                      />
+                      <img src={fileUrl} alt={`ECG ${index + 1}`} className="w-full h-auto object-contain bg-gray-50" crossOrigin="anonymous" />
                     ) : (
-                      <div className="p-2 bg-gray-100 text-xs text-center">
-                        ECG {index + 1} (PDF) - Visualizar arquivo separadamente
-                      </div>
+                      <div className="p-2 bg-gray-100 text-xs text-center">ECG {index + 1} (PDF) - Visualizar arquivo separadamente</div>
                     )}
                   </div>
                 ))}
               </div>
             </div>
           )}
-          
           {dadosPaciente.triagem_medica?.alteracoes_ecg?.length > 0 && (
             <div className="text-xs mb-2">
               <p className="font-semibold mb-1">Alterações:</p>
@@ -474,7 +347,6 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
           )}
         </div>
 
-        {/* Tempo Restante de Janela Terapêutica */}
         {tempoDorMinutos !== null && (
           <div className="mb-3 bg-red-50 border-2 border-red-500 rounded p-3">
             <div className="flex items-center gap-2 mb-2">
@@ -488,7 +360,6 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
                 const tempoRestanteHoras = Math.floor(Math.abs(tempoRestanteMinutos) / 60);
                 const tempoRestanteMin = Math.abs(tempoRestanteMinutos) % 60;
                 const foraJanela = tempoRestanteMinutos < 0;
-
                 return (
                   <>
                     <p className={`text-3xl font-bold mb-2 ${foraJanela ? 'text-red-700' : 'text-red-600'}`}>
@@ -519,7 +390,6 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
           </div>
         )}
 
-        {/* Tempo Porta-Agulha */}
         {dadosPaciente.data_hora_inicio_triagem && (
           <div className="mb-3 bg-orange-50 border-2 border-orange-500 rounded p-3">
             <h2 className="text-base font-bold text-orange-900 mb-2">TEMPO PORTA-AGULHA</h2>
@@ -529,19 +399,12 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
               const tempoRestantePortaAgulha = metaMinutos - tempoPortaAgulhaMinutos;
               const foraMetaPortaAgulha = tempoRestantePortaAgulha < 0;
               const minutosPortaAgulha = Math.floor(Math.abs(tempoPortaAgulhaMinutos));
-
               return (
                 <div className={`rounded p-2 border ${foraMetaPortaAgulha ? 'bg-red-100 border-red-600' : 'bg-green-100 border-green-600'}`}>
                   <div className="text-center">
-                    <p className={`text-2xl font-bold mb-1 ${foraMetaPortaAgulha ? 'text-red-700' : 'text-green-700'}`}>
-                      {minutosPortaAgulha} min
-                    </p>
-                    <p className="text-xs font-semibold mb-1">
-                      {foraMetaPortaAgulha ? '⚠️ Excedido' : '✓ Restante: ' + Math.abs(tempoRestantePortaAgulha) + ' min'}
-                    </p>
-                    <p className="text-xs text-gray-600">
-                      Meta: {metaMinutos}min | Triagem: {format(new Date(dadosPaciente.data_hora_inicio_triagem), "dd/MM/yy HH:mm", { locale: ptBR })}
-                    </p>
+                    <p className={`text-2xl font-bold mb-1 ${foraMetaPortaAgulha ? 'text-red-700' : 'text-green-700'}`}>{minutosPortaAgulha} min</p>
+                    <p className="text-xs font-semibold mb-1">{foraMetaPortaAgulha ? '⚠️ Excedido' : '✓ Restante: ' + Math.abs(tempoRestantePortaAgulha) + ' min'}</p>
+                    <p className="text-xs text-gray-600">Meta: {metaMinutos}min | Triagem: {format(new Date(dadosPaciente.data_hora_inicio_triagem), "dd/MM/yy HH:mm", { locale: ptBR })}</p>
                   </div>
                 </div>
               );
@@ -549,22 +412,12 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
           </div>
         )}
 
-        {/* Avaliação Clínica */}
         <div className="mb-4">
           <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">AVALIAÇÃO CLÍNICA</h2>
           <div className="space-y-2 text-xs">
-            <div>
-              <p className="font-semibold">Antecedentes:</p>
-              <p className="text-gray-700">{dadosPaciente.avaliacao_clinica?.antecedentes || "-"}</p>
-            </div>
-            <div>
-              <p className="font-semibold">Quadro Atual:</p>
-              <p className="text-gray-700">{dadosPaciente.avaliacao_clinica?.quadro_atual || "-"}</p>
-            </div>
-            <div>
-              <p className="font-semibold">Hipótese:</p>
-              <p className="text-gray-700">{dadosPaciente.avaliacao_clinica?.hipotese_diagnostica || "-"}</p>
-            </div>
+            <div><p className="font-semibold">Antecedentes:</p><p className="text-gray-700">{dadosPaciente.avaliacao_clinica?.antecedentes || "-"}</p></div>
+            <div><p className="font-semibold">Quadro Atual:</p><p className="text-gray-700">{dadosPaciente.avaliacao_clinica?.quadro_atual || "-"}</p></div>
+            <div><p className="font-semibold">Hipótese:</p><p className="text-gray-700">{dadosPaciente.avaliacao_clinica?.hipotese_diagnostica || "-"}</p></div>
           </div>
           {dadosPaciente.avaliacao_clinica?.heart_score?.total > 0 && (
             <div className="mt-2 bg-blue-50 border border-blue-500 rounded p-2">
@@ -573,7 +426,6 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
           )}
         </div>
 
-        {/* Prescrição */}
         {dadosPaciente.avaliacao_clinica?.prescricao_medicamentos?.length > 0 && (
           <div className="mb-3">
             <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">PRESCRIÇÃO</h2>
@@ -598,7 +450,6 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
           </div>
         )}
 
-        {/* Exames Solicitados e Resultados */}
         {dadosPaciente.avaliacao_clinica?.exames_solicitados?.length > 0 && (
           <div className="mb-3">
             <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">EXAMES SOLICITADOS E RESULTADOS</h2>
@@ -620,36 +471,26 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
             </table>
             {dadosPaciente.avaliacao_clinica?.observacoes_exames && (
               <div className="mt-2 text-xs">
-                {dadosPaciente.avaliacao_clinica.observacoes_exames.exames_nao_realizados && (
-                  <p>• Exames não Realizados</p>
-                )}
-                {dadosPaciente.avaliacao_clinica.observacoes_exames.exames_nao_liberados && (
-                  <p>• Exames Não Liberados até o Momento</p>
-                )}
-                {dadosPaciente.avaliacao_clinica.observacoes_exames.outros && (
-                  <p>• Outros: {dadosPaciente.avaliacao_clinica.observacoes_exames.outros}</p>
-                )}
+                {dadosPaciente.avaliacao_clinica.observacoes_exames.exames_nao_realizados && <p>• Exames não Realizados</p>}
+                {dadosPaciente.avaliacao_clinica.observacoes_exames.exames_nao_liberados && <p>• Exames Não Liberados até o Momento</p>}
+                {dadosPaciente.avaliacao_clinica.observacoes_exames.outros && <p>• Outros: {dadosPaciente.avaliacao_clinica.observacoes_exames.outros}</p>}
               </div>
             )}
           </div>
         )}
 
-        {/* USA Disponível */}
         {confirmacaoHemodinamica !== null && (
           <div className="mb-3">
             <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">USA DISPONÍVEL</h2>
             <div className={`p-2 rounded border text-xs ${confirmacaoHemodinamica ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'}`}>
               <p><span className="font-semibold">USA com chegada &lt; 90min:</span> {confirmacaoHemodinamica ? 'Sim' : 'Não'}</p>
               {confirmacaoHemodinamica && dadosPaciente.data_hora_inicio_triagem && (
-                <p className="text-blue-700 font-semibold">
-                  Limite: {format(new Date(new Date(dadosPaciente.data_hora_inicio_triagem).getTime() + 120 * 60 * 1000), "dd/MM HH:mm", { locale: ptBR })}
-                </p>
+                <p className="text-blue-700 font-semibold">Limite: {format(new Date(new Date(dadosPaciente.data_hora_inicio_triagem).getTime() + 120 * 60 * 1000), "dd/MM HH:mm", { locale: ptBR })}</p>
               )}
             </div>
           </div>
         )}
 
-        {/* Informações para Transporte */}
         {Object.keys(infoTransporte).length > 0 && (
           <div className="mb-3">
             <h2 className="text-lg font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-300">INFORMAÇÕES PARA TRANSPORTE</h2>
@@ -695,12 +536,11 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
                     <div key={key}><span className="font-semibold">{label}:</span> {infoTransporte[key] ? "Sim" : "Não"}</div>
                   ))}
                 </div>
-                {[
-                  "doenca_renal_cronica", "anemia_grave", "ic_descompensada", "arritmias_nao_controladas",
+                {["doenca_renal_cronica", "anemia_grave", "ic_descompensada", "arritmias_nao_controladas",
                   "infeccao_respiratoria", "fragilidade_clinica", "idade_comorbidades", "dificuldade_acesso_vascular"
                 ].some(key => infoTransporte[key] === true) && (
                   <div className="mt-2 bg-red-100 border border-red-600 rounded p-2">
-                    <p className="text-xs font-bold text-red-900">⚠️ ALERTA! TRANSPORTE CONTRAINDICADO — Estabilize o paciente e, em seguida, atualize este relatório e envie e-mail para Central de Regulação (CERH) da sua Macrorregião, atualizando e declarando a estabilização clínica para liberação da Vaga e transporte em USA com o novo relatório gerado em PDF.</p>
+                    <p className="text-xs font-bold text-red-900">⚠️ ALERTA! TRANSPORTE CONTRAINDICADO — Estabilize o paciente e, em seguida, atualize este relatório e envie e-mail para Central de Regulação (CERH) da sua Macrorregião.</p>
                   </div>
                 )}
               </div>
@@ -708,7 +548,6 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
           </div>
         )}
 
-        {/* Médico Responsável */}
         <div className="mt-4 bg-green-50 border border-green-500 rounded p-2">
           <h3 className="font-bold text-xs mb-1">MÉDICO RESPONSÁVEL</h3>
           <div className="text-xs space-y-1">
@@ -718,7 +557,6 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
           </div>
         </div>
 
-        {/* Rodapé */}
         <div className="mt-8 pt-4 border-t-2 border-gray-300 text-xs text-gray-600">
           <p className="font-semibold">Sistema de Triagem de Dor Torácica</p>
           <p>Autor: Walber Alves Frazão Júnior - COREN 110.238</p>
@@ -726,25 +564,19 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
         </div>
       </div>
 
-      {/* Botões de Ação */}
       <div className="flex flex-col gap-4">
-        <Button
-          onClick={gerarPDF}
-          className="w-full bg-blue-600 hover:bg-blue-700"
-          disabled={gerandoPDF}
-        >
+        <Button onClick={gerarPDF} className="w-full bg-blue-600 hover:bg-blue-700" disabled={gerandoPDF}>
           <Download className="w-4 h-4 mr-2" />
           {gerandoPDF ? "Gerando PDF..." : "Baixar Relatório em PDF"}
         </Button>
-
-        {!modoLeitura && (!medico.nome || !medico.crm || !medico.celular) ? (
+        {!modoLeitura && (!medico.nome || !medico.crm || !medico.celular) && (
           <Alert className="border-orange-500 bg-orange-50">
             <AlertCircle className="h-4 w-4 text-orange-600" />
             <AlertDescription className="text-orange-800">
-              Preencha todos os dados do médico (nome, CRM e celular) para gerar o PDF e finalizar o atendimento
+              Preencha todos os dados do médico (nome, CRM e celular) para finalizar o atendimento
             </AlertDescription>
           </Alert>
-        ) : null}
+        )}
       </div>
 
       <div className="flex justify-between pt-4">
@@ -764,15 +596,14 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
         )}
       </div>
 
-      {/* Alerta FORMULÁRIO/VAGA */}
       <div className="mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-6 shadow-lg">
         <div className="flex items-start gap-3">
           <AlertCircle className="w-6 h-6 text-yellow-600 mt-1 flex-shrink-0" />
           <div>
             <h3 className="text-lg font-bold text-yellow-900 mb-2">⚠️ ALERTA IMPORTANTE</h3>
             <p className="text-yellow-900 font-semibold leading-relaxed">
-              PARA ACELERAR O PROCESSO DE AUTORIZAÇÃO DE VAGA, ACESSE NO PAINEL DE NAVEGAÇÃO O ITEM 
-              <span className="font-bold text-yellow-950"> FORMULÁRIO/VAGA</span>, PREENCHA, ADICIONE OS DOCUMENTOS DO PACIENTE, 
+              PARA ACELERAR O PROCESSO DE AUTORIZAÇÃO DE VAGA, ACESSE NO PAINEL DE NAVEGAÇÃO O ITEM
+              <span className="font-bold text-yellow-950"> FORMULÁRIO/VAGA</span>, PREENCHA, ADICIONE OS DOCUMENTOS DO PACIENTE,
               ENVIE E AGUARDE E-MAIL DA SES COM A ATUALIZAÇÃO DO CASO E/OU SENHA PARA INTERNAÇÃO.
             </p>
             <p className="text-yellow-800 font-bold mt-3 text-center">🙏 A SES AGRADECE!</p>
