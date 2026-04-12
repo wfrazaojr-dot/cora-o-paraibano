@@ -7,9 +7,10 @@ import { createPageUrl } from '@/utils';
 export default function NotificacoesCenter() {
   const [notificacoes, setNotificacoes] = useState([]);
   const navigate = useNavigate();
+  const isAsscardio = window.location.pathname.toLowerCase().includes('asscardio');
 
   useEffect(() => {
-    // Subscrever a mudanças em pacientes
+    if (isAsscardio) return;
     const unsubscribe = base44.entities.Paciente.subscribe((event) => {
       if (event.type === 'create' || event.type === 'update') {
         verificarNotificacoes(event.data, event.type);
@@ -17,7 +18,7 @@ export default function NotificacoesCenter() {
     });
 
     return unsubscribe;
-  }, []);
+  }, [isAsscardio]);
 
   const verificarNotificacoes = async (paciente, tipoEvento) => {
     try {
