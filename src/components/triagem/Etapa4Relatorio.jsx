@@ -159,43 +159,65 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId 
     }
 
     setGerandoPDF(true);
+
+    // 1. Tentar gerar e fazer upload do PDF (falha não bloqueia o salvamento)
+    let pdfUrl = null;
     try {
-      const pdfUrl = await gerarEUploadPDF();
+      pdfUrl = await gerarEUploadPDF();
+    } catch (pdfError) {
+      console.error("Erro ao gerar PDF (continuando salvamento):", pdfError);
+    }
 
-      // Se já está em status avançado, apenas atualiza o relatório sem retroagir status
-      if (isAtualizacaoRelatorio) {
-        await updatePacienteMutation.mutateAsync({
-          medico_nome: medico.nome,
-          medico_crm: medico.crm,
-          medico_celular: medico.celular,
-          relatorio_triagem_url: pdfUrl,
-        });
-        alert("Relatório de triagem atualizado com sucesso! CERH e Transporte já podem visualizar o novo relatório.");
-        navigate(createPageUrl("Dashboard"));
-        return;
-      }
-
-      await updatePacienteMutation.mutateAsync({
+    // 2. Salvar os dados do paciente independentemente do PDF
+    try {
+      // Dados base para salvar (inclui avaliacao_clinica para garantir que Etapa3_3 foi salva)
+      const dadosParaSalvar = {
         medico_nome: medico.nome,
         medico_crm: medico.crm,
         medico_celular: medico.celular,
-        tempo_deslocamento_minutos: confirmacaoHemodinamica ? 60 : 120,
-        usa_disponivel_menos_90min: confirmacaoHemodinamica,
-        status: "Aguardando Assessoria",
-        relatorio_triagem_url: pdfUrl,
-        alerta_formulario_vaga: true,
-      });
-      alert("Atendimento finalizado com sucesso!");
+      };
 
-      // Unidade de saúde vai para Painel Assistencial; outros para Painel de Regulação
+      // Inclui avaliacao_clinica se existir no dadosPaciente (garante que dados do Etapa3_3 foram persistidos)
+      if (dadosPaciente.avaliacao_clinica) {
+        dadosParaSalvar.avaliacao_clinica = dadosPaciente.avaliacao_clinica;
+      }
+
+      // Inclui URL do PDF se gerado com sucesso
+      if (pdfUrl) {
+        dadosParaSalvar.relatorio_triagem_url = pdfUrl;
+      }
+
+      if (isAtualizacaoRelatorio) {
+        await updatePacienteMutation.mutateAsync(dadosParaSalvar);
+        alert(pdfUrl
+          ? "Relatório de triagem atualizado com sucesso! CERH e Transporte já podem visualizar o novo relatório."
+          : "Dados salvos com sucesso! (PDF não gerado - tente baixar manualmente)"
+        );
+        navigate(createPageUrl("Dashboard"));
+        setGerandoPDF(false);
+        return;
+      }
+
+      dadosParaSalvar.tempo_deslocamento_minutos = confirmacaoHemodinamica ? 60 : 120;
+      dadosParaSalvar.usa_disponivel_menos_90min = confirmacaoHemodinamica;
+      dadosParaSalvar.status = "Aguardando Assessoria";
+      dadosParaSalvar.alerta_formulario_vaga = true;
+
+      await updatePacienteMutation.mutateAsync(dadosParaSalvar);
+
+      alert(pdfUrl
+        ? "Atendimento finalizado com sucesso!"
+        : "Atendimento finalizado! (PDF não gerado - use o botão 'Baixar PDF' para tentar novamente)"
+      );
+
       if (user?.equipe === 'unidade_saude' || !user?.equipe) {
         navigate(createPageUrl("Historico"));
       } else {
         navigate(createPageUrl("Dashboard"));
       }
     } catch (error) {
-      console.error("Erro ao finalizar atendimento:", error);
-      alert("Erro ao finalizar atendimento. Tente novamente.");
+      console.error("Erro ao salvar dados do atendimento:", error);
+      alert("Erro ao salvar dados do atendimento: " + error.message + ". Tente novamente.");
     }
     setGerandoPDF(false);
   };
