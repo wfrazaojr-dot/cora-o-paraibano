@@ -116,12 +116,13 @@ export default function NovaTriagem() {
         return <Etapa2TriagemMedica dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={etapa2Leitura} permitirNavegacao={true} />;
       case 3:
         const tipoSca = dadosPaciente.triagem_medica?.tipo_sca;
+        const etapa3Leitura = !!(idUrl && !isRetriagem);
         if (tipoSca === "SCACESST") {
-          return <Etapa3_1_SCACESST dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={false} />;
+          return <Etapa3_1_SCACESST dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={etapa3Leitura} />;
         } else if (tipoSca === "SCASESST_COM_TROPONINA") {
-          return <Etapa3_2_SCASESST_ComTroponina dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={false} />;
+          return <Etapa3_2_SCASESST_ComTroponina dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={etapa3Leitura} />;
         } else if (tipoSca === "SCASESST_SEM_TROPONINA") {
-          return <Etapa3_3_SCASESST_SemTroponina dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={false} />;
+          return <Etapa3_3_SCASESST_SemTroponina dadosPaciente={dadosPaciente} onProxima={handleProximaEtapa} onAnterior={handleEtapaAnterior} modoLeitura={etapa3Leitura} />;
         } else {
           return <div className="text-center py-8">
             <p className="text-gray-600 mb-4">Tipo de SCA não definido</p>

@@ -108,6 +108,7 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Triagem Médica Cardiológica</h2>
         <p className="text-gray-600">Dados vitais, ECG e classificação inicial</p>
       </div>
+      <div className={modoLeitura ? 'pointer-events-none select-none opacity-70' : ''}>
 
       {/* Sinais Vitais */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
@@ -309,6 +310,8 @@ export default function Etapa2TriagemMedica({ dadosPaciente, onProxima, onAnteri
       </div>
 
 
+
+      </div>
 
       {modoLeitura && (
         <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6">

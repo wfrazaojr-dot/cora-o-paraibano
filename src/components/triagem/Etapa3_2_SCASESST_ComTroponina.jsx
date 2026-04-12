@@ -259,6 +259,7 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Avaliação Clínica - SCASESST com Troponina</h2>
         <p className="text-gray-600">Paciente SEM Supra de ST COM exame de Troponina</p>
       </div>
+      <div className={modoLeitura ? 'pointer-events-none select-none opacity-70' : ''}>
 
       {/* Tempo de Dor */}
       <TempoDor dataHoraInicioSintomas={dadosPaciente.data_hora_inicio_sintomas} />
@@ -794,6 +795,8 @@ export default function Etapa3_2_SCASESST_ComTroponina({ dadosPaciente, onProxim
           info_transporte: { ...prev.info_transporte, [campo]: valor }
         }))}
       />
+
+      </div>
 
       {modoLeitura && (
         <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6">
