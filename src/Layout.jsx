@@ -138,6 +138,11 @@ export default function Layout({ children, currentPageName }) {
           icon: History,
         },
         {
+          title: "Gestão de Trombólise",
+          url: createPageUrl("GestaoTrombolise"),
+          icon: Pill,
+        },
+        {
           title: "Protocolos",
           url: createPageUrl("Protocolos"),
           icon: BookOpen,
