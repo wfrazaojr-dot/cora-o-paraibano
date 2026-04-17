@@ -57,6 +57,31 @@ export default function Indicadores() {
     return [{ name: "IAM", value: iam }, { name: "TEP", value: tep }, { name: "AVC", value: avc }];
   }, [registrosTrombolise, anoSelecionado]);
 
+  const tromboliticosPorTipo = useMemo(() => {
+    const doAno = registrosTrombolise.filter(r => new Date(r.created_date).getFullYear() === anoSelecionado);
+    const tenecto40 = doAno.filter(r => r.medicamento === "TENECTEPLASE (Ampola 40mg)").length;
+    const tenecto50 = doAno.filter(r => r.medicamento === "TENECTEPLASE (Ampola 50mg)").length;
+    const alteplase = doAno.filter(r => r.medicamento === "ALTEPLASE (Ampola 100mg)").length;
+    const totalTenecto = tenecto40 + tenecto50;
+    const totalGeral = doAno.length;
+    return {
+      tenecto40,
+      tenecto50,
+      totalTenecto,
+      alteplase,
+      totalGeral,
+      graficoPorTipo: [
+        { name: "TENECTEPLASE 40mg", value: tenecto40, fill: "#DC2626" },
+        { name: "TENECTEPLASE 50mg", value: tenecto50, fill: "#EA580C" },
+        { name: "ALTEPLASE 100mg", value: alteplase, fill: "#2563EB" },
+      ],
+      graficoPorClasse: [
+        { name: "TENECTEPLASE", value: totalTenecto, fill: "#DC2626" },
+        { name: "ALTEPLASE", value: alteplase, fill: "#2563EB" },
+      ],
+    };
+  }, [registrosTrombolise, anoSelecionado]);
+
   const { data: pacientes = [], isLoading } = useQuery({
     queryKey: ['pacientes', user?.email],
     queryFn: async () => {
@@ -843,18 +868,34 @@ export default function Indicadores() {
         </Card>
         </TabsContent>
         <TabsContent value="trombolise">
+          {/* Filtro de Ano */}
+          <div className="mb-4 flex items-center gap-4">
+            <label className="text-sm font-medium text-gray-700">Ano:</label>
+            <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {anos.map(ano => (
+                  <SelectItem key={ano} value={ano.toString()}>{ano}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Totais por indicação */}
           <Card className="shadow-md mb-6">
             <CardHeader className="bg-red-50 border-b">
               <CardTitle className="flex items-center gap-2">
                 <Pill className="w-5 h-5 text-red-600" />
-                Medicamentos Trombolíticos — Ano {anoSelecionado}
+                Registros de Trombólise — Ano {anoSelecionado}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div className="bg-red-50 rounded-lg p-4 text-center border border-red-200">
                   <p className="text-xs text-gray-500 font-medium">Total no Ano</p>
-                  <p className="text-3xl font-bold text-red-700">{registrosTrombolise.filter(r => new Date(r.created_date).getFullYear() === anoSelecionado).length}</p>
+                  <p className="text-3xl font-bold text-red-700">{tromboliticosPorTipo.totalGeral}</p>
                 </div>
                 {trombolisPorIndicacao.map((t) => (
                   <div key={t.name} className="bg-gray-50 rounded-lg p-4 text-center border">
@@ -873,6 +914,99 @@ export default function Indicadores() {
                   <Bar dataKey="total" name="Registros" fill="#DC2626" />
                 </BarChart>
               </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Uso por Tipo de Medicamento */}
+          <Card className="shadow-md mb-6">
+            <CardHeader className="bg-blue-50 border-b">
+              <CardTitle className="flex items-center gap-2">
+                <Pill className="w-5 h-5 text-blue-600" />
+                Uso por Tipo de Trombolítico — Ano {anoSelecionado}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              {/* Totais por classe */}
+              <p className="text-sm font-semibold text-gray-700 mb-3">Total por Classe de Medicamento</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div className="rounded-xl border-2 border-red-300 bg-red-50 p-5 text-center">
+                  <p className="text-xs text-gray-600 font-medium uppercase tracking-wide mb-1">TENECTEPLASE</p>
+                  <p className="text-4xl font-bold text-red-700">{tromboliticosPorTipo.totalTenecto}</p>
+                  <p className="text-xs text-gray-500 mt-1">usos no ano</p>
+                  <div className="mt-3 space-y-1">
+                    <div className="flex justify-between text-xs text-gray-600 bg-white rounded px-3 py-1.5 border border-red-200">
+                      <span>Ampola 40mg</span>
+                      <span className="font-bold text-red-700">{tromboliticosPorTipo.tenecto40}</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-600 bg-white rounded px-3 py-1.5 border border-orange-200">
+                      <span>Ampola 50mg</span>
+                      <span className="font-bold text-orange-700">{tromboliticosPorTipo.tenecto50}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="rounded-xl border-2 border-blue-300 bg-blue-50 p-5 text-center">
+                  <p className="text-xs text-gray-600 font-medium uppercase tracking-wide mb-1">ALTEPLASE</p>
+                  <p className="text-4xl font-bold text-blue-700">{tromboliticosPorTipo.alteplase}</p>
+                  <p className="text-xs text-gray-500 mt-1">usos no ano</p>
+                  <div className="mt-3 space-y-1">
+                    <div className="flex justify-between text-xs text-gray-600 bg-white rounded px-3 py-1.5 border border-blue-200">
+                      <span>Ampola 100mg</span>
+                      <span className="font-bold text-blue-700">{tromboliticosPorTipo.alteplase}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Gráficos lado a lado */}
+              {tromboliticosPorTipo.totalGeral > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700 mb-2 text-center">Por Classe</p>
+                    <ResponsiveContainer width="100%" height={220}>
+                      <PieChart>
+                        <Pie
+                          data={tromboliticosPorTipo.graficoPorClasse}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={80}
+                          dataKey="value"
+                          label={({ name, value }) => `${name}: ${value}`}
+                          labelLine={false}
+                        >
+                          {tromboliticosPorTipo.graficoPorClasse.map((entry, i) => (
+                            <Cell key={i} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700 mb-2 text-center">Por Apresentação</p>
+                    <ResponsiveContainer width="100%" height={220}>
+                      <PieChart>
+                        <Pie
+                          data={tromboliticosPorTipo.graficoPorTipo.filter(d => d.value > 0)}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={80}
+                          dataKey="value"
+                          label={({ name, value }) => `${value}`}
+                          labelLine={false}
+                        >
+                          {tromboliticosPorTipo.graficoPorTipo.filter(d => d.value > 0).map((entry, i) => (
+                            <Cell key={i} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(v, n, p) => [v, p.payload.name]} />
+                        <Legend formatter={(v, entry) => entry.payload.name} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center text-gray-500 py-8">Nenhum registro de trombolítico no ano {anoSelecionado}.</div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
