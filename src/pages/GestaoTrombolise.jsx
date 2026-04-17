@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Activity, Plus, FileText, Search, X, Pill, Printer } from "lucide-react";
+import { Activity, Plus, FileText, Search, X, Pill, Printer, AlertTriangle } from "lucide-react";
+import AlertaIntercorrencias from "@/components/trombolise/AlertaIntercorrencias";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
@@ -45,6 +46,12 @@ const emptyForm = {
   profissional_administrou_nome: "",
   profissional_administrou_coren: "",
   observacoes: "",
+  tem_intercorrencia: false,
+  tipo_intercorrencia: "",
+  descricao_intercorrencia: "",
+  conduta_intercorrencia: "",
+  intercorrencia_data_hora: "",
+  intercorrencia_gravidade: "",
 };
 
 export default function GestaoTrombolise() {
@@ -461,6 +468,84 @@ export default function GestaoTrombolise() {
                   </div>
                 </div>
 
+                {/* Intercorrências */}
+                <div className={`border-2 rounded-xl p-4 ${form.tem_intercorrencia ? "border-red-400 bg-red-50" : "border-gray-200"}`}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <AlertTriangle className={`w-5 h-5 ${form.tem_intercorrencia ? "text-red-600" : "text-gray-400"}`} />
+                    <h3 className="font-semibold text-gray-800">Intercorrências</h3>
+                    <label className="flex items-center gap-2 ml-auto cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={form.tem_intercorrencia}
+                        onChange={(e) => setForm({ ...form, tem_intercorrencia: e.target.checked })}
+                        className="w-4 h-4 accent-red-600"
+                      />
+                      <span className="text-sm font-medium text-red-700">Houve intercorrência</span>
+                    </label>
+                  </div>
+
+                  {form.tem_intercorrencia && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label>Tipo de Intercorrência *</Label>
+                          <Select value={form.tipo_intercorrencia} onValueChange={(v) => setForm({ ...form, tipo_intercorrencia: v })}>
+                            <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+                            <SelectContent>
+                              {[
+                                "Reação alérgica / anafilaxia",
+                                "Sangramento maior (intracraniano)",
+                                "Sangramento maior (outros sítios)",
+                                "Sangramento menor",
+                                "Hipotensão grave",
+                                "Arritmia pós-trombólise",
+                                "Falha de reperfusão",
+                                "Erro de dose",
+                                "Erro de diluição",
+                                "Atraso na administração",
+                                "Outro",
+                              ].map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label>Gravidade</Label>
+                          <Select value={form.intercorrencia_gravidade} onValueChange={(v) => setForm({ ...form, intercorrencia_gravidade: v })}>
+                            <SelectTrigger><SelectValue placeholder="Selecione a gravidade" /></SelectTrigger>
+                            <SelectContent>
+                              {["Leve", "Moderada", "Grave", "Crítica"].map((g) => (
+                                <SelectItem key={g} value={g}>{g}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label>Data/Hora da Intercorrência</Label>
+                          <Input type="datetime-local" value={form.intercorrencia_data_hora} onChange={(e) => setForm({ ...form, intercorrencia_data_hora: e.target.value })} />
+                        </div>
+                      </div>
+                      <div>
+                        <Label>Descrição da Intercorrência</Label>
+                        <textarea
+                          className="w-full border border-input rounded-md p-3 text-sm resize-none h-20"
+                          value={form.descricao_intercorrencia}
+                          onChange={(e) => setForm({ ...form, descricao_intercorrencia: e.target.value })}
+                          placeholder="Descreva detalhadamente o que ocorreu..."
+                        />
+                      </div>
+                      <div>
+                        <Label>Conduta Tomada</Label>
+                        <textarea
+                          className="w-full border border-input rounded-md p-3 text-sm resize-none h-20"
+                          value={form.conduta_intercorrencia}
+                          onChange={(e) => setForm({ ...form, conduta_intercorrencia: e.target.value })}
+                          placeholder="Descreva a conduta adotada..."
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 {/* Observações */}
                 <div>
                   <Label>Observações</Label>
@@ -487,6 +572,9 @@ export default function GestaoTrombolise() {
             </CardContent>
           </Card>
         )}
+
+        {/* Alerta de Intercorrências */}
+        <AlertaIntercorrencias registros={registros} />
 
         {/* Filtros */}
         <div className="flex flex-col sm:flex-row gap-3 mb-4">
@@ -535,7 +623,7 @@ export default function GestaoTrombolise() {
                   <div key={registro.id} className="p-4 hover:bg-gray-50 transition-colors">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <Badge className={
                             registro.indicacao === "IAM" ? "bg-red-600" :
                             registro.indicacao === "TEP" ? "bg-orange-600" :
@@ -543,6 +631,17 @@ export default function GestaoTrombolise() {
                           }>
                             {registro.indicacao}
                           </Badge>
+                          {registro.tem_intercorrencia && (
+                            <Badge className={
+                              registro.intercorrencia_gravidade === "Crítica" ? "bg-red-800" :
+                              registro.intercorrencia_gravidade === "Grave" ? "bg-red-600" :
+                              registro.intercorrencia_gravidade === "Moderada" ? "bg-orange-500" :
+                              "bg-yellow-500"
+                            }>
+                              <AlertTriangle className="w-3 h-3 mr-1" />
+                              {registro.intercorrencia_gravidade || "Intercorrência"}
+                            </Badge>
+                          )}
                           <span className="font-semibold text-gray-900">{registro.paciente_nome}</span>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-gray-600 mt-1">
