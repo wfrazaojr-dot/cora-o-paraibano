@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Trash2, Database, Users, Activity, AlertTriangle, UserCog, Eye, Stethoscope, ClipboardList, TrendingUp, TrendingDown, Clock, Building2, Award, BarChart3, FileText, Download } from "lucide-react";
+import { Shield, Trash2, Database, Users, Activity, AlertTriangle, UserCog, Eye, Stethoscope, ClipboardList, TrendingUp, TrendingDown, Clock, Building2, Award, BarChart3, FileText, Download, Pill } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -76,7 +76,7 @@ export default function Administracao() {
   const [filtroRole, setFiltroRole] = useState("todos");
   const [unidadeFiltro, setUnidadeFiltro] = useState("todas");
   const [usuarioFiltro, setUsuarioFiltro] = useState("todos");
-  const [abaAtiva, setAbaAtiva] = useState("usuarios"); // "usuarios", "indicadores", "profissionais", "sistema", "notificacoes"
+  const [abaAtiva, setAbaAtiva] = useState("usuarios"); // "usuarios", "indicadores", "profissionais", "sistema", "notificacoes", "trombolise"
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -92,6 +92,12 @@ export default function Administracao() {
   const { data: todosPacientes = [] } = useQuery({
     queryKey: ['todosPacientes'],
     queryFn: () => base44.entities.Paciente.list("-created_date"),
+    enabled: user?.role === 'admin',
+  });
+
+  const { data: registrosTrombolise = [] } = useQuery({
+    queryKey: ['registrosTrombolise-admin'],
+    queryFn: () => base44.entities.RegistroTrombolise.list("-created_date"),
     enabled: user?.role === 'admin',
   });
 
@@ -597,6 +603,17 @@ export default function Administracao() {
           >
             <AlertTriangle className="w-4 h-4 inline mr-2" />
             Notificações
+          </button>
+          <button
+            onClick={() => setAbaAtiva("trombolise")}
+            className={`px-6 py-3 font-semibold transition-colors ${
+              abaAtiva === "trombolise"
+                ? "text-red-600 border-b-2 border-red-600"
+                : "text-gray-600 hover:text-gray-900"
+            }`}
+          >
+            <Pill className="w-4 h-4 inline mr-2" />
+            Trombólise
           </button>
           </div>
 
@@ -1438,6 +1455,81 @@ export default function Administracao() {
                         )}
                       </Button>
                     </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* ABA: TROMBÓLISE */}
+        {abaAtiva === "trombolise" && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="shadow-md border-l-4 border-l-red-500">
+                <CardContent className="p-4">
+                  <p className="text-xs text-gray-600 mb-1">Total de Registros</p>
+                  <p className="text-2xl font-bold text-red-700">{registrosTrombolise.length}</p>
+                </CardContent>
+              </Card>
+              {["IAM", "TEP", "AVC"].map((ind) => (
+                <Card key={ind} className="shadow-md border-l-4 border-l-orange-400">
+                  <CardContent className="p-4">
+                    <p className="text-xs text-gray-600 mb-1">{ind}</p>
+                    <p className="text-2xl font-bold text-orange-700">{registrosTrombolise.filter(r => r.indicacao === ind).length}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <Card className="shadow-lg">
+              <CardHeader className="bg-red-50 border-b">
+                <CardTitle className="flex items-center gap-2">
+                  <Pill className="w-5 h-5 text-red-600" />
+                  Todos os Registros de Trombólise
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                {registrosTrombolise.length === 0 ? (
+                  <div className="text-center py-10 text-gray-500">Nenhum registro encontrado.</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-100 border-b">
+                        <tr>
+                          <th className="text-left p-3 font-semibold text-gray-700">Data</th>
+                          <th className="text-left p-3 font-semibold text-gray-700">Indicação</th>
+                          <th className="text-left p-3 font-semibold text-gray-700">Paciente</th>
+                          <th className="text-left p-3 font-semibold text-gray-700">Medicamento</th>
+                          <th className="text-left p-3 font-semibold text-gray-700">Lote</th>
+                          <th className="text-left p-3 font-semibold text-gray-700">Unidade</th>
+                          <th className="text-left p-3 font-semibold text-gray-700">Cardiologista</th>
+                          <th className="text-left p-3 font-semibold text-gray-700">Prescritor</th>
+                          <th className="text-left p-3 font-semibold text-gray-700">Enf. Responsável</th>
+                          <th className="text-left p-3 font-semibold text-gray-700">Adm. por</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {registrosTrombolise.map((r) => (
+                          <tr key={r.id} className="border-b hover:bg-gray-50">
+                            <td className="p-3 text-xs">{r.created_date ? new Date(r.created_date).toLocaleDateString('pt-BR') : '—'}</td>
+                            <td className="p-3">
+                              <span className={`px-2 py-1 rounded text-xs font-bold ${r.indicacao === 'IAM' ? 'bg-red-100 text-red-800' : r.indicacao === 'TEP' ? 'bg-orange-100 text-orange-800' : 'bg-purple-100 text-purple-800'}`}>
+                                {r.indicacao}
+                              </span>
+                            </td>
+                            <td className="p-3 font-medium">{r.paciente_nome}</td>
+                            <td className="p-3 text-xs">{r.medicamento}</td>
+                            <td className="p-3 text-xs">{r.numero_lote || '—'}</td>
+                            <td className="p-3 text-xs">{r.unidade_saude || '—'}</td>
+                            <td className="p-3 text-xs">{r.cardiologista_indicou_nome ? `${r.cardiologista_indicou_nome} (${r.cardiologista_indicou_crm})` : 'Emergência'}</td>
+                            <td className="p-3 text-xs">{r.medico_prescritor_nome} ({r.medico_prescritor_crm})</td>
+                            <td className="p-3 text-xs">{r.enfermeiro_responsavel_nome ? `${r.enfermeiro_responsavel_nome} (${r.enfermeiro_responsavel_coren})` : '—'}</td>
+                            <td className="p-3 text-xs">{r.profissional_administrou_nome ? `${r.profissional_administrou_nome} (${r.profissional_administrou_coren})` : '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </CardContent>

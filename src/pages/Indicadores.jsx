@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { TrendingUp, Clock, Activity, AlertTriangle, CheckCircle, Target, Heart, BarChart2 } from "lucide-react";
+import { TrendingUp, Clock, Activity, AlertTriangle, CheckCircle, Target, Heart, BarChart2, Pill } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AnaliseEpidemiologica from "@/components/indicadores/AnaliseEpidemiologica";
 import { format, differenceInMinutes, startOfMonth, endOfMonth, isWithinInterval } from "date-fns";
@@ -31,6 +31,31 @@ export default function Indicadores() {
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
+
+  const { data: registrosTrombolise = [] } = useQuery({
+    queryKey: ["registros-trombolise-indicadores"],
+    queryFn: () => base44.entities.RegistroTrombolise.list("-created_date"),
+    enabled: !!user,
+    initialData: [],
+  });
+
+  const trombolisPorMes = useMemo(() => {
+    return Array.from({ length: 12 }, (_, i) => {
+      const mes = i + 1;
+      const total = registrosTrombolise.filter((r) => {
+        const d = new Date(r.created_date);
+        return d.getFullYear() === anoSelecionado && d.getMonth() + 1 === mes;
+      }).length;
+      return { mes: ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"][i], total };
+    });
+  }, [registrosTrombolise, anoSelecionado]);
+
+  const trombolisPorIndicacao = useMemo(() => {
+    const iam = registrosTrombolise.filter((r) => r.indicacao === "IAM" && new Date(r.created_date).getFullYear() === anoSelecionado).length;
+    const tep = registrosTrombolise.filter((r) => r.indicacao === "TEP" && new Date(r.created_date).getFullYear() === anoSelecionado).length;
+    const avc = registrosTrombolise.filter((r) => r.indicacao === "AVC" && new Date(r.created_date).getFullYear() === anoSelecionado).length;
+    return [{ name: "IAM", value: iam }, { name: "TEP", value: tep }, { name: "AVC", value: avc }];
+  }, [registrosTrombolise, anoSelecionado]);
 
   const { data: pacientes = [], isLoading } = useQuery({
     queryKey: ['pacientes', user?.email],
@@ -300,6 +325,9 @@ export default function Indicadores() {
           </TabsTrigger>
           <TabsTrigger value="epidemiologia" className="flex items-center gap-2">
             <BarChart2 className="w-4 h-4" /> Análise Epidemiológica
+          </TabsTrigger>
+          <TabsTrigger value="trombolise" className="flex items-center gap-2">
+            <Pill className="w-4 h-4" /> Trombólise
           </TabsTrigger>
         </TabsList>
 
@@ -814,6 +842,41 @@ export default function Indicadores() {
           </CardContent>
         </Card>
         </TabsContent>
+        <TabsContent value="trombolise">
+          <Card className="shadow-md mb-6">
+            <CardHeader className="bg-red-50 border-b">
+              <CardTitle className="flex items-center gap-2">
+                <Pill className="w-5 h-5 text-red-600" />
+                Medicamentos Trombolíticos — Ano {anoSelecionado}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-red-50 rounded-lg p-4 text-center border border-red-200">
+                  <p className="text-xs text-gray-500 font-medium">Total no Ano</p>
+                  <p className="text-3xl font-bold text-red-700">{registrosTrombolise.filter(r => new Date(r.created_date).getFullYear() === anoSelecionado).length}</p>
+                </div>
+                {trombolisPorIndicacao.map((t) => (
+                  <div key={t.name} className="bg-gray-50 rounded-lg p-4 text-center border">
+                    <p className="text-xs text-gray-500 font-medium">{t.name}</p>
+                    <p className="text-3xl font-bold text-gray-700">{t.value}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm font-semibold text-gray-700 mb-3">Uso por Mês</p>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={trombolisPorMes}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="mes" />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip />
+                  <Bar dataKey="total" name="Registros" fill="#DC2626" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         </Tabs>
       </div>
     </div>

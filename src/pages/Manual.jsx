@@ -431,6 +431,71 @@ export default function Manual() {
             </CardContent>
           </Card>
 
+          {/* Gestão de Trombólise */}
+          <Card className="shadow-md">
+            <CardHeader className="bg-red-50 border-b">
+              <CardTitle className="flex items-center gap-2">
+                <Heart className="w-5 h-5 text-red-600" />
+                Gestão de Trombólise
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="space-y-4 text-sm text-gray-700">
+                <p>
+                  O módulo de <strong>Gestão de Trombólise</strong> permite o registro, controle e geração de relatórios
+                  de medicamentos trombolíticos utilizados, garantindo segurança na prescrição e rastreabilidade completa.
+                </p>
+
+                <div className="border-l-4 border-red-500 pl-4">
+                  <h4 className="font-semibold mb-2">💊 Medicamentos Disponíveis</h4>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>TENECTEPLASE (Ampola 40mg)</li>
+                    <li>TENECTEPLASE (Ampola 50mg)</li>
+                    <li>ALTEPLASE (Ampola 100mg)</li>
+                  </ul>
+                </div>
+
+                <div className="border-l-4 border-orange-500 pl-4">
+                  <h4 className="font-semibold mb-2">📋 Indicações Clínicas</h4>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li><strong>IAM</strong> — Infarto Agudo do Miocárdio (quando transporte &gt;90min ou ICP indisponível)</li>
+                    <li><strong>TEP</strong> — Tromboembolismo Pulmonar</li>
+                    <li><strong>AVC</strong> — Acidente Vascular Cerebral Isquêmico</li>
+                  </ul>
+                </div>
+
+                <div className="border-l-4 border-yellow-500 pl-4">
+                  <h4 className="font-semibold mb-2">⚠️ Importante</h4>
+                  <p>
+                    A trombólise pode ser realizada em situações de emergência <strong>sem a necessidade de parecer formal
+                    do cardiologista da ASSCARDIO</strong>. O campo do cardiologista é opcional no registro.
+                    O médico presente na unidade de saúde pode prescrever e indicar quando clinicamente necessário.
+                  </p>
+                </div>
+
+                <div className="border-l-4 border-blue-500 pl-4">
+                  <h4 className="font-semibold mb-2">📄 Dados Registrados</h4>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>Indicação clínica, dados do paciente e data de chegada</li>
+                    <li>Cardiologista indicador (opcional) e médico prescritor com CRM</li>
+                    <li>Medicamento, número do lote, dose, diluição e via de administração</li>
+                    <li>Enfermeiro responsável do setor e profissional que administrou (com COREN)</li>
+                    <li>Geração de PDF com cabeçalho oficial para impressão</li>
+                  </ul>
+                </div>
+
+                <div className="border-l-4 border-green-500 pl-4">
+                  <h4 className="font-semibold mb-2">📊 Controle e Indicadores</h4>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>Tabela completa de todos os registros em <strong>Administração → Trombólise</strong></li>
+                    <li>Gráfico mensal/anual de uso em <strong>Indicadores → Trombólise</strong></li>
+                    <li>Rastreabilidade por unidade, cardiologista, prescritor e lote</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Chat Interno */}
           <Card className="shadow-md">
             <CardHeader className="bg-teal-50 border-b">

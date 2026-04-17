@@ -1,0 +1,122 @@
+{
+  "name": "RegistroTrombolise",
+  "type": "object",
+  "properties": {
+    "indicacao": {
+      "type": "string",
+      "enum": [
+        "IAM",
+        "TEP",
+        "AVC"
+      ],
+      "description": "Indica\u00e7\u00e3o cl\u00ednica para tromb\u00f3lise"
+    },
+    "paciente_nome": {
+      "type": "string",
+      "description": "Nome completo do paciente"
+    },
+    "paciente_data_nascimento": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de nascimento do paciente"
+    },
+    "paciente_prontuario": {
+      "type": "string",
+      "description": "N\u00famero do prontu\u00e1rio"
+    },
+    "unidade_saude": {
+      "type": "string",
+      "description": "Unidade de sa\u00fade onde foi realizada a tromb\u00f3lise"
+    },
+    "data_hora_chegada": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de chegada do paciente na unidade"
+    },
+    "cardiologista_indicou_nome": {
+      "type": "string",
+      "description": "Nome do cardiologista que indicou (opcional)"
+    },
+    "cardiologista_indicou_crm": {
+      "type": "string",
+      "description": "CRM do cardiologista que indicou (opcional)"
+    },
+    "medico_prescritor_nome": {
+      "type": "string",
+      "description": "Nome do m\u00e9dico que prescreveu"
+    },
+    "medico_prescritor_crm": {
+      "type": "string",
+      "description": "CRM do m\u00e9dico que prescreveu"
+    },
+    "medicamento": {
+      "type": "string",
+      "enum": [
+        "TENECTEPLASE (Ampola 40mg)",
+        "TENECTEPLASE (Ampola 50mg)",
+        "ALTEPLASE (Ampola 100mg)"
+      ],
+      "description": "Medicamento trombol\u00edtico utilizado"
+    },
+    "numero_lote": {
+      "type": "string",
+      "description": "N\u00famero do lote do medicamento"
+    },
+    "dose": {
+      "type": "string",
+      "description": "Dose administrada"
+    },
+    "diluicao": {
+      "type": "string",
+      "description": "Dilui\u00e7\u00e3o do medicamento"
+    },
+    "via_administracao": {
+      "type": "string",
+      "description": "Via de administra\u00e7\u00e3o (ex: IV)"
+    },
+    "data_hora_prescricao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da prescri\u00e7\u00e3o"
+    },
+    "horario_administracao": {
+      "type": "string",
+      "description": "Hor\u00e1rio para administrar o medicamento"
+    },
+    "enfermeiro_responsavel_nome": {
+      "type": "string",
+      "description": "Nome do enfermeiro respons\u00e1vel do setor"
+    },
+    "enfermeiro_responsavel_coren": {
+      "type": "string",
+      "description": "COREN do enfermeiro respons\u00e1vel"
+    },
+    "profissional_administrou_nome": {
+      "type": "string",
+      "description": "Nome do profissional que administrou"
+    },
+    "profissional_administrou_coren": {
+      "type": "string",
+      "description": "COREN do profissional que administrou"
+    },
+    "paciente_id": {
+      "type": "string",
+      "description": "ID do paciente vinculado (opcional)"
+    },
+    "relatorio_pdf_url": {
+      "type": "string",
+      "description": "URL do PDF gerado"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es adicionais"
+    }
+  },
+  "required": [
+    "indicacao",
+    "paciente_nome",
+    "medicamento",
+    "medico_prescritor_nome",
+    "medico_prescritor_crm"
+  ]
+}

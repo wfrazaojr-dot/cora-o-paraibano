@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Activity, Plus, History, BookOpen, FileText, Users, AlertCircle, TrendingUp, Shield, LogOut, Truck, ClipboardList } from "lucide-react";
+import { Activity, Plus, History, BookOpen, FileText, Users, AlertCircle, TrendingUp, Shield, LogOut, Truck, ClipboardList, Pill } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -90,6 +90,11 @@ export default function Layout({ children, currentPageName }) {
           title: "Monitor Transportes",
           url: createPageUrl("MonitorTransportes"),
           icon: Truck,
+        },
+        {
+          title: "Gestão de Trombólise",
+          url: createPageUrl("GestaoTrombolise"),
+          icon: Pill,
         },
         {
           title: "Logs de Auditoria",

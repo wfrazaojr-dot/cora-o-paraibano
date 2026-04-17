@@ -9,6 +9,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { setupIframeMessaging } from './lib/iframe-messaging';
 import PageNotFound from './lib/PageNotFound';
 import LogsAuditoria from './pages/LogsAuditoria';
+import GestaoTrombolise from './pages/GestaoTrombolise';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -54,6 +55,7 @@ const AuthenticatedApp = () => {
           <Route key={path} path={`/${path}`} element={<Page />} handle={{ pageName: path }} />
         ))}
         <Route path="/LogsAuditoria" element={<LogsAuditoria />} />
+        <Route path="/GestaoTrombolise" element={<LayoutWrapper currentPageName="GestaoTrombolise"><GestaoTrombolise /></LayoutWrapper>} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </LayoutWrapper>
