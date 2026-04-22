@@ -1,14 +1,23 @@
+// Dados das Unidades de Saúde da Paraíba por Macrorregião e Cidade
+// Fonte: Planilha oficial unidades_saude_pb.xlsx
+
 export const UNIDADES_POR_MACRO_CIDADE = {
   "Macro 1": {
     "Alhandra": ["Unidade Mista de Alhandra"],
     "Bananeiras": ["Hospital Municipal Dr. Clovis Bezerra C."],
-    "Bayeux": ["Hospital Materno Infantil João Marsicano", "UPA Municipal Bayeux"],
+    "Bayeux": [
+      "Hospital Materno Infantil João Marsicano",
+      "UPA Municipal Bayeux"
+    ],
     "Belém": ["Hospital Distrital Luiz Alexandriano da Silva (Estadual)"],
     "Cabedelo": ["Hospital Municipal Pe. Alfredo Barbosa"],
     "Caaporã": ["Hospital Geral Ana Virgínia"],
     "Cacimba de Dentro": ["Hospital Luiz Olegário da S. (Municipal)"],
     "Conde": ["Pronto Atendimento Jarbas Maribondo"],
-    "Guarabira": ["Hospital Regional de Guarabira Antônio Paulino Filho", "UPA 24h Guarabira"],
+    "Guarabira": [
+      "Hospital Regional de Guarabira Antônio Paulino Filho",
+      "UPA 24h Guarabira"
+    ],
     "Ingá": ["UPA Municipal Maria das Mercês L. da Silva"],
     "Itabaiana": ["Hospital Regional de Itabaiana"],
     "João Pessoa": [
@@ -62,7 +71,10 @@ export const UNIDADES_POR_MACRO_CIDADE = {
     "Juazeirinho": ["Hospital Municipal de Juazeirinho"],
     "Lagoa Seca": ["Hospital Geral Municipal Ana Maria Coutinho R."],
     "Massaranduba": ["Hospital e Maternidade Municipal Santa Terezinha"],
-    "Monteiro": ["Hospital Regional Santa Filomena", "UPA 24h Municipal Joaquim Pires Barbosa Henrique"],
+    "Monteiro": [
+      "Hospital Regional Santa Filomena",
+      "UPA 24h Municipal Joaquim Pires Barbosa Henrique"
+    ],
     "Natuba": ["Hospital e Maternidade Napoleão Laureano"],
     "Picuí": ["Hospital Regional Felipe Tiago Gomes"],
     "Pocinhos": ["Hospital e Maternidade Regional Dr. Antônio Luiz Coutinho"],
@@ -80,7 +92,10 @@ export const UNIDADES_POR_MACRO_CIDADE = {
     "Belém do Brejo do Cruz": ["Hospital Geral Germano Lacerda da Cunha"],
     "Bonito de Santa Fé": ["Hospital Municipal Honorina Tavares de A."],
     "Brejo do Cruz": ["Hospital Municipal Dr. Odilon M. F."],
-    "Cajazeiras": ["Hospital Regional de Cajazeiras", "UPA 24h Estadual Valéria Macambira G."],
+    "Cajazeiras": [
+      "Hospital Regional de Cajazeiras",
+      "UPA 24h Estadual Valéria Macambira G."
+    ],
     "Catolé do Rocha": ["Hospital Regional de Catolé do Rocha Américo Maia de V."],
     "Conceição": ["Hospital e Maternidade Caçula Leite (Estadual)"],
     "Coremas": ["Hospital e Maternidade Estevam Marinho"],
@@ -94,9 +109,18 @@ export const UNIDADES_POR_MACRO_CIDADE = {
       "UPA 24h Municipal João Bosco de A."
     ],
     "Paulista": ["Hospital Municipal Emerentina Dantas"],
-    "Piancó": ["Hospital Regional de Piancó Wenceslau Lopes", "UPA 24h Municipal Piancó"],
-    "Pombal": ["Hospital Regional de Pombal Sen. Ruy Carneiro", "UPA 24h Municipal Pombal"],
-    "Princesa Isabel": ["Hospital Dep. José Pereira Lima", "UPA 24h Estadual Princesa Isabel"],
+    "Piancó": [
+      "Hospital Regional de Piancó Wenceslau Lopes",
+      "UPA 24h Municipal Piancó"
+    ],
+    "Pombal": [
+      "Hospital Regional de Pombal Sen. Ruy Carneiro",
+      "UPA 24h Municipal Pombal"
+    ],
+    "Princesa Isabel": [
+      "Hospital Dep. José Pereira Lima",
+      "UPA 24h Estadual Princesa Isabel"
+    ],
     "Santa Luzia": ["Hospital e Maternidade Sinha Carneiro (Estadual)"],
     "São Bento": ["Hospital e Maternidade Dr. Jarques Lúcio da Silva"],
     "São Mamede": ["Casa de Saúde e Matern. N. Senhora da Conceição"],
@@ -106,6 +130,11 @@ export const UNIDADES_POR_MACRO_CIDADE = {
     ],
     "Tavares": ["Hospital José Leite da Silva"],
     "Teixeira": ["Unidade Mista de Saúde Sanch."],
-    "Uiraúna": ["Casa de Saúde Padre Costa", "Hospital Menino Jesus Apaseu."]
+    "Uiraúna": [
+      "Casa de Saúde Padre Costa",
+      "Hospital Menino Jesus Apaseu"
+    ]
   }
 };
+
+export default UNIDADES_POR_MACRO_CIDADE;
