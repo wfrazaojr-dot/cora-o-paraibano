@@ -7,8 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Activity, Plus, FileText, Search, X, Pill, Printer, AlertTriangle } from "lucide-react";
+import { Activity, Plus, FileText, Search, X, Pill, Printer, AlertTriangle, Download } from "lucide-react";
 import AlertaIntercorrencias from "@/components/trombolise/AlertaIntercorrencias";
+import SeletorUnidadeSaude from "@/components/common/SeletorUnidadeSaude";
+import ExportarDados from "@/components/common/ExportarDados";
+import { useAuditoria } from "@/hooks/useAuditoria";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +31,8 @@ const emptyForm = {
   paciente_nome: "",
   paciente_data_nascimento: "",
   paciente_prontuario: "",
+  macrorregiao: "",
+  cidade: "",
   unidade_saude: "",
   data_hora_chegada: "",
   cardiologista_indicou_nome: "",
@@ -68,6 +73,8 @@ export default function GestaoTrombolise() {
     queryFn: () => base44.auth.me(),
   });
 
+  const { registrar } = useAuditoria(user);
+
   const { data: registros = [], isLoading } = useQuery({
     queryKey: ["registros-trombolise"],
     queryFn: () => base44.entities.RegistroTrombolise.list("-created_date"),
@@ -76,17 +83,29 @@ export default function GestaoTrombolise() {
 
   const criarMutation = useMutation({
     mutationFn: (dados) => base44.entities.RegistroTrombolise.create(dados),
-    onSuccess: () => {
+    onSuccess: async (novoRegistro) => {
       queryClient.invalidateQueries({ queryKey: ["registros-trombolise"] });
       setMostrarFormulario(false);
       setForm(emptyForm);
       alert("✅ Registro de trombólise salvo com sucesso!");
+      await registrar({
+        acao: "criar",
+        entidade: "RegistroTrombolise",
+        entidade_id: novoRegistro?.id,
+        descricao: `Criou registro de trombólise para ${novoRegistro?.paciente_nome} — ${novoRegistro?.medicamento} — ${novoRegistro?.unidade_saude || ""}`,
+        dados_novos: novoRegistro,
+        severidade: "info",
+      });
     },
   });
 
   const handleSalvar = () => {
     if (!form.indicacao || !form.paciente_nome || !form.medicamento || !form.medico_prescritor_nome || !form.medico_prescritor_crm) {
       alert("Preencha os campos obrigatórios: Indicação, Nome do Paciente, Medicamento, Médico Prescritor e CRM.");
+      return;
+    }
+    if (!form.unidade_saude) {
+      alert("Selecione a Macrorregião, Cidade e Unidade de Saúde.");
       return;
     }
     criarMutation.mutate(form);
@@ -97,18 +116,37 @@ export default function GestaoTrombolise() {
     const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     const margin = 15;
     const pageWidth = 210;
-    let y = 15;
+    let y = 8;
 
-    // Cabeçalho
-    doc.setFillColor(220, 38, 38);
-    doc.rect(0, 0, pageWidth, 28, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(13);
-    doc.setFont("helvetica", "bold");
-    doc.text("SECRETARIA DE ESTADO DA SAÚDE DA PARAÍBA", pageWidth / 2, 10, { align: "center" });
-    doc.text("PROGRAMA CORAÇÃO PARAIBANO", pageWidth / 2, 17, { align: "center" });
-    doc.setFontSize(10);
-    doc.text("COMPLEXO REGULADOR ESTADUAL", pageWidth / 2, 23, { align: "center" });
+    // Cabeçalho com logos
+    const LOGO_GOV = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png";
+    const LOGO_CORACAO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/fa5f3a17e_LOGOCORAAOPARAIBANO.png";
+    const LOGO_PBSAUDE = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png";
+
+    const loadImg = (url) => new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        const c = document.createElement("canvas");
+        c.width = img.width; c.height = img.height;
+        c.getContext("2d").drawImage(img, 0, 0);
+        resolve(c.toDataURL("image/png"));
+      };
+      img.onerror = () => resolve(null);
+      img.src = url;
+    });
+
+    const [imgGov, imgCoracao, imgPbsaude] = await Promise.all([loadImg(LOGO_GOV), loadImg(LOGO_CORACAO), loadImg(LOGO_PBSAUDE)]);
+    const logoH = 18;
+    const logoW = 44;
+    if (imgGov) doc.addImage(imgGov, "PNG", margin, y, logoW, logoH);
+    if (imgCoracao) doc.addImage(imgCoracao, "PNG", pageWidth / 2 - logoW / 2, y, logoW, logoH);
+    if (imgPbsaude) doc.addImage(imgPbsaude, "PNG", pageWidth - margin - logoW, y, logoW, logoH);
+
+    y = 30;
+    doc.setDrawColor(220, 38, 38);
+    doc.setLineWidth(0.5);
+    doc.line(margin, y, pageWidth - margin, y);
 
     y = 36;
     doc.setTextColor(0, 0, 0);
@@ -294,7 +332,7 @@ export default function GestaoTrombolise() {
             <p className="text-gray-600 mt-1">Controle de prescrição e administração de trombolíticos</p>
           </div>
           <Button
-            onClick={() => { setMostrarFormulario(true); setForm({ ...emptyForm, data_hora_prescricao: new Date().toISOString().slice(0, 16), data_hora_chegada: new Date().toISOString().slice(0, 16) }); }}
+            onClick={() => { setMostrarFormulario(true); setForm({ ...emptyForm, data_hora_prescricao: new Date().toISOString().slice(0, 16), data_hora_chegada: new Date().toISOString().slice(0, 16), macrorregiao: "", cidade: "", unidade_saude: "" }); }}
             className="bg-red-600 hover:bg-red-700"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -370,9 +408,15 @@ export default function GestaoTrombolise() {
                       <Label>Número do Prontuário</Label>
                       <Input value={form.paciente_prontuario} onChange={(e) => setForm({ ...form, paciente_prontuario: e.target.value })} placeholder="Nº prontuário" />
                     </div>
-                    <div>
-                      <Label>Unidade de Saúde</Label>
-                      <Input value={form.unidade_saude} onChange={(e) => setForm({ ...form, unidade_saude: e.target.value })} placeholder="Unidade de saúde" />
+                    <div className="md:col-span-2">
+                      <SeletorUnidadeSaude
+                        macrorregiao={form.macrorregiao}
+                        cidade={form.cidade}
+                        unidade={form.unidade_saude}
+                        onMacroChange={(v) => setForm({ ...form, macrorregiao: v, cidade: "", unidade_saude: "" })}
+                        onCidadeChange={(v) => setForm({ ...form, cidade: v, unidade_saude: "" })}
+                        onUnidadeChange={(v) => setForm({ ...form, unidade_saude: v })}
+                      />
                     </div>
                     <div>
                       <Label>Data/Hora de Chegada</Label>
@@ -575,6 +619,26 @@ export default function GestaoTrombolise() {
 
         {/* Alerta de Intercorrências */}
         <AlertaIntercorrencias registros={registros} />
+
+        {/* Exportar */}
+        <div className="flex justify-end mb-2">
+          <ExportarDados
+            dados={registrosFiltrados}
+            titulo="Registros de Trombólise — Coração Paraibano"
+            nomeArquivo="trombolise"
+            colunas={[
+              { header: "Paciente", key: "paciente_nome" },
+              { header: "Indicação", key: "indicacao" },
+              { header: "Medicamento", key: "medicamento" },
+              { header: "Unidade", key: "unidade_saude" },
+              { header: "Médico", key: "medico_prescritor_nome" },
+              { header: "CRM", key: "medico_prescritor_crm" },
+              { header: "Lote", key: "numero_lote" },
+              { header: "Data", key: "created_date", format: (v) => v ? format(new Date(v), "dd/MM/yyyy HH:mm") : "-" },
+              { header: "Intercorrência", key: "tem_intercorrencia", format: (v) => v ? "Sim" : "Não" },
+            ]}
+          />
+        </div>
 
         {/* Filtros */}
         <div className="flex flex-col sm:flex-row gap-3 mb-4">

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Search, ExternalLink, RefreshCw, Filter, Plus, Loader2, AlertTriangle } from "lucide-react";
+import ExportarDados from "@/components/common/ExportarDados";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Link, useNavigate } from "react-router-dom";
@@ -187,7 +188,22 @@ export default function Historico() {
               {user?.role === 'admin' && <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">ADMINISTRADOR</span>}
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            <ExportarDados
+              dados={pacientesFiltrados}
+              titulo="Painel Assistencial — Coração Paraibano"
+              nomeArquivo="historico_pacientes"
+              colunas={[
+                { header: "Paciente", key: "nome_completo" },
+                { header: "Idade", key: "idade" },
+                { header: "Sexo", key: "sexo" },
+                { header: "Status", key: "status" },
+                { header: "Unidade", key: "unidade_saude" },
+                { header: "Macrorregião", key: "macrorregiao" },
+                { header: "Chegada", key: "data_hora_chegada", format: (v) => v ? format(new Date(v), "dd/MM/yyyy HH:mm") : "-" },
+                { header: "Criado por", key: "created_by" },
+              ]}
+            />
             <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
               {isFetching ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
               Atualizar
