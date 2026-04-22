@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Activity, Plus, History, BookOpen, FileText, Users, AlertCircle, TrendingUp, Shield, LogOut, Truck, ClipboardList, Pill } from "lucide-react";
+import { Activity, Plus, History, BookOpen, FileText, Users, AlertCircle, TrendingUp, Shield, LogOut, Truck, ClipboardList, Pill, FlaskConical } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -97,6 +97,11 @@ export default function Layout({ children, currentPageName }) {
           icon: Pill,
         },
         {
+          title: "Relatório Farmacêutico",
+          url: createPageUrl("RelatorioFarmacia"),
+          icon: FlaskConical,
+        },
+        {
           title: "Logs de Auditoria",
           url: createPageUrl("LogsAuditoria"),
           icon: ClipboardList,
@@ -141,6 +146,11 @@ export default function Layout({ children, currentPageName }) {
           title: "Gestão de Trombólise",
           url: createPageUrl("GestaoTrombolise"),
           icon: Pill,
+        },
+        {
+          title: "Relatório Farmacêutico",
+          url: createPageUrl("RelatorioFarmacia"),
+          icon: FlaskConical,
         },
         {
           title: "Protocolos",
