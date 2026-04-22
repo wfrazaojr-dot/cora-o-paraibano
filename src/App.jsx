@@ -56,8 +56,8 @@ const AuthenticatedApp = () => {
           <Route key={path} path={`/${path}`} element={<Page />} handle={{ pageName: path }} />
         ))}
         <Route path="/LogsAuditoria" element={<LogsAuditoria />} />
-        <Route path="/GestaoTrombolise" element={<LayoutWrapper currentPageName="GestaoTrombolise"><GestaoTrombolise /></LayoutWrapper>} />
-        <Route path="/RelatorioFarmacia" element={<LayoutWrapper currentPageName="RelatorioFarmacia"><RelatorioFarmacia /></LayoutWrapper>} />
+        <Route path="/GestaoTrombolise" element={<GestaoTrombolise />} />
+        <Route path="/RelatorioFarmacia" element={<RelatorioFarmacia />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </LayoutWrapper>
