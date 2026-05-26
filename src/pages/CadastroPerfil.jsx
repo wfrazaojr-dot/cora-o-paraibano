@@ -59,14 +59,23 @@ export default function CadastroPerfil() {
   const [form, setForm] = useState({
     perfil: "",
     nome_completo: "",
+    email: "",
     cpf: "",
     funcao: "",
     registro_tipo: "",
     registro_numero: "",
     matricula: "",
+    telefone: "",
   });
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState("");
+
+  // Pré-preencher e-mail com o do GOV.BR
+  useEffect(() => {
+    if (user?.email && !form.email) {
+      setForm(prev => ({ ...prev, email: user.email, nome_completo: prev.nome_completo || user.full_name || "" }));
+    }
+  }, [user]);
 
   // Redirecionar para login se não autenticado
   useEffect(() => {
@@ -101,8 +110,8 @@ export default function CadastroPerfil() {
     e.preventDefault();
     setErro("");
 
-    if (!form.perfil || !form.nome_completo || !form.cpf || !form.funcao) {
-      setErro("Preencha todos os campos obrigatórios.");
+    if (!form.perfil || !form.nome_completo || !form.email || !form.cpf || !form.funcao) {
+      setErro("Preencha todos os campos obrigatórios, incluindo o e-mail.");
       return;
     }
     if (precisaRegistro && (!form.registro_numero)) {
@@ -143,7 +152,9 @@ export default function CadastroPerfil() {
 
     await base44.auth.updateMe({
       nome_completo: form.nome_completo,
+      email_cadastro: form.email,
       cpf: form.cpf,
+      telefone: form.telefone || null,
       perfil: form.perfil,
       funcao: form.funcao,
       equipe: equipeMap[form.perfil] || "unidade_saude",
@@ -173,13 +184,14 @@ export default function CadastroPerfil() {
 
 
           <CardDescription className="text-gray-600 mt-3">
-            Para concluir seu cadastro, preencha os dados abaixo.<br />
-            Seu acesso será liberado após aprovação do Administrador Manager.
+            Preencha seus dados para solicitar acesso ao sistema.<br />
+            Após o envio, aguarde a aprovação do Administrador Manager.<br />
+            <span className="text-blue-700 font-medium">Você receberá um e-mail assim que seu acesso for liberado.</span>
           </CardDescription>
           {user && (
-            <div className="mt-2 text-sm text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
+            <div className="mt-2 text-sm text-green-700 bg-green-50 rounded-lg px-3 py-2 border border-green-200">
               <User className="inline w-4 h-4 mr-1" />
-              Logado como: <strong>{user.email}</strong>
+              Autenticado via GOV.BR: <strong>{user.email}</strong>
             </div>
           )}
         </CardHeader>
@@ -212,6 +224,21 @@ export default function CadastroPerfil() {
               />
             </div>
 
+            {/* E-mail */}
+            <div>
+              <Label>E-mail de Contato *</Label>
+              <Input
+                className="mt-1"
+                type="email"
+                placeholder="seu@email.gov.br"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Este e-mail será usado para notificá-lo quando seu acesso for aprovado.
+              </p>
+            </div>
+
             {/* CPF */}
             <div>
               <Label>CPF *</Label>
@@ -221,6 +248,17 @@ export default function CadastroPerfil() {
                 value={form.cpf}
                 onChange={(e) => setForm({ ...form, cpf: formatCPF(e.target.value) })}
                 maxLength={14}
+              />
+            </div>
+
+            {/* Telefone */}
+            <div>
+              <Label>Telefone / WhatsApp</Label>
+              <Input
+                className="mt-1"
+                placeholder="(83) 9 9999-9999"
+                value={form.telefone}
+                onChange={(e) => setForm({ ...form, telefone: e.target.value })}
               />
             </div>
 

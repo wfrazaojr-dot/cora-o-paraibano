@@ -106,7 +106,22 @@ export default function GerenciarAcessos() {
         ? `Status alterado para "${statusLabel}" — Motivo: ${motivo}`
         : `Status alterado para "${statusLabel}"`;
       if (usuarioAlvo) await registrarLog("atualizar", usuarioAlvo, descricao);
-      return base44.entities.User.update(userId, updateData);
+      const result = await base44.entities.User.update(userId, updateData);
+
+      // Enviar e-mail automático ao ativar
+      if (status === "ATIVO" && usuarioAlvo) {
+        const emailDestino = usuarioAlvo.email_cadastro || usuarioAlvo.email;
+        const nomeUsuario = usuarioAlvo.full_name || usuarioAlvo.nome_completo || "Profissional";
+        const perfilLabel = PERFIL_LABELS[usuarioAlvo.perfil] || usuarioAlvo.perfil || "";
+        if (emailDestino) {
+          await base44.integrations.Core.SendEmail({
+            to: emailDestino,
+            subject: "✅ Acesso Aprovado — Sistema Coração Paraibano",
+            body: `Olá, ${nomeUsuario}!\n\nSeu cadastro no Sistema Coração Paraibano foi APROVADO e seu acesso está liberado.\n\nPerfil: ${perfilLabel}\n\nPara acessar o sistema, utilize o link abaixo e faça login com seu GOV.BR:\nhttps://coracaoparaibano.base44.app\n\nEm caso de dúvidas, entre em contato com o Administrador Manager do sistema.\n\nAtenciosamente,\nEquipe Coração Paraibano\nSecretaria de Estado de Saúde da Paraíba`,
+          });
+        }
+      }
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['usuarios-gerenciar'] });
