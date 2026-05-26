@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectGroup, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, XCircle, Lock, Search, Users, RefreshCw, ShieldCheck, FileSpreadsheet, FileText, Trash2, History, ChevronDown, ChevronUp } from "lucide-react";
@@ -296,9 +296,21 @@ export default function GerenciarAcessos() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos os Perfis</SelectItem>
-                {Object.entries(PERFIL_LABELS).map(([v, l]) => (
-                  <SelectItem key={v} value={v}>{l}</SelectItem>
-                ))}
+                <SelectGroup>
+                  <SelectLabel className="text-xs text-gray-500 font-semibold uppercase tracking-wide px-2 py-1">Perfis Base</SelectLabel>
+                  <SelectItem value="UNIDADE_SAUDE">Unidade de Saúde</SelectItem>
+                  <SelectItem value="CERH">CERH</SelectItem>
+                  <SelectItem value="ASSCARDIO">ASSCARDIO</SelectItem>
+                  <SelectItem value="TRANSPORTE">Transporte</SelectItem>
+                  <SelectItem value="HEMODINAMICA">Hemodinâmica</SelectItem>
+                </SelectGroup>
+                <SelectGroup>
+                  <SelectLabel className="text-xs text-gray-500 font-semibold uppercase tracking-wide px-2 py-1">Administradores</SelectLabel>
+                  <SelectItem value="ADMINISTRADOR_MANAGER">ADM Manager</SelectItem>
+                  <SelectItem value="ADMINISTRADOR_CERH">ADM CERH</SelectItem>
+                  <SelectItem value="ADMINISTRADOR_CARDIOLOGIA">ADM Cardiologia</SelectItem>
+                  <SelectItem value="ADMINISTRADOR_TRANSPORTE">ADM Transporte</SelectItem>
+                </SelectGroup>
               </SelectContent>
             </Select>
           </div>
