@@ -61,6 +61,11 @@ export default function RelatorioFarmacia() {
   const [gerandoPDF, setGerandoPDF] = useState(false);
   const [exportandoSheets, setExportandoSheets] = useState(false);
 
+  const { data: user, isLoading: loadingUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: registros = [], isLoading } = useQuery({
     queryKey: ["registros-trombolise"],
     queryFn: () => base44.entities.RegistroTrombolise.list("-created_date"),
@@ -113,6 +118,30 @@ export default function RelatorioFarmacia() {
 
     return { totais, lotes, completos, pendentes };
   }, [registrosFiltrados]);
+
+  const isDev = user?.email?.toLowerCase() === "wfrazaojr@gmail.com";
+  const isDevRole = user?.role === 'DESENVOLVEDOR' || user?.role === 'admin';
+
+  if (loadingUser) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Activity className="w-8 h-8 text-red-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isDev && !isDevRole) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
+        <div className="bg-white rounded-xl shadow-lg p-10 max-w-md w-full text-center border-l-4 border-red-600">
+          <AlertCircle className="w-16 h-16 text-red-600 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Acesso Negado</h2>
+          <p className="text-gray-600">Você não tem permissão para acessar o <strong>Relatório Farmacêutico</strong>.</p>
+          <p className="text-sm text-gray-400 mt-3">Esta área é restrita ao Desenvolvedor do sistema.</p>
+        </div>
+      </div>
+    );
+  }
 
   const loadImg = (url) => new Promise((resolve) => {
     const img = new Image();
