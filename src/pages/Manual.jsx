@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Users, Stethoscope, FileText, Activity, AlertTriangle, Radio, Heart, Truck, Building2 } from "lucide-react";
+import { BookOpen, Users, Stethoscope, FileText, Activity, AlertTriangle, Radio, Heart, Truck, Building2, LogIn, ShieldCheck, UserCheck } from "lucide-react";
 
 export default function Manual() {
   return (
@@ -12,6 +12,66 @@ export default function Manual() {
         </div>
 
         <div className="space-y-6">
+
+          {/* NOVO: Acesso ao Sistema */}
+          <Card className="shadow-md border-l-4 border-l-blue-500">
+            <CardHeader className="bg-blue-50 border-b">
+              <CardTitle className="flex items-center gap-2">
+                <LogIn className="w-5 h-5 text-blue-600" />
+                🆕 Como Acessar o Sistema (Novo Fluxo)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="space-y-4 text-sm text-gray-700">
+                <div className="p-3 bg-blue-50 rounded border border-blue-200">
+                  <p className="font-semibold text-blue-900 mb-1">O acesso ao sistema é feito exclusivamente via GOV.BR</p>
+                  <p className="text-blue-800">Não há mais login com e-mail e senha diretamente no sistema. A autenticação é centralizada pela plataforma federal de identidade digital.</p>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex gap-3">
+                    <div className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">1</div>
+                    <div>
+                      <p className="font-semibold">Faça login com sua conta GOV.BR</p>
+                      <p className="text-gray-600">Utilize seu CPF e senha do GOV.BR para autenticar. Caso não possua conta, acesse gov.br/contagovbr para criar.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">2</div>
+                    <div>
+                      <p className="font-semibold">Complete seu cadastro no sistema</p>
+                      <p className="text-gray-600">No primeiro acesso, você será redirecionado para preencher seu perfil: nome completo, CPF, perfil de atuação (Unidade de Saúde, ASSCARDIO, CERH, etc.), função e registro profissional (CRM, COREN ou matrícula).</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="w-6 h-6 rounded-full bg-yellow-600 text-white text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">3</div>
+                    <div>
+                      <p className="font-semibold">Aguarde aprovação do Administrador Manager</p>
+                      <p className="text-gray-600">Após o cadastro, sua conta ficará com status <strong>PENDENTE</strong>. Um <strong>Administrador Manager</strong> deverá aprovar (ativar) seu acesso antes que você possa utilizar o sistema.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="w-6 h-6 rounded-full bg-green-600 text-white text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">4</div>
+                    <div>
+                      <p className="font-semibold">Acesso liberado!</p>
+                      <p className="text-gray-600">Com o status <strong>ATIVO</strong>, você será direcionado automaticamente para o painel correspondente ao seu perfil.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-yellow-50 rounded border border-yellow-200 mt-2">
+                  <p className="font-semibold text-yellow-900">⚠️ Status de Acesso</p>
+                  <ul className="list-disc pl-5 mt-1 text-yellow-800 space-y-1">
+                    <li><strong>PENDENTE:</strong> Cadastro realizado, aguardando aprovação do gestor</li>
+                    <li><strong>ATIVO:</strong> Acesso liberado e funcionando normalmente</li>
+                    <li><strong>INATIVO:</strong> Acesso suspenso temporariamente pelo gestor</li>
+                    <li><strong>BLOQUEADO:</strong> Acesso bloqueado com justificativa pelo gestor</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Visão Geral */}
           <Card className="shadow-md">
             <CardHeader className="bg-blue-50 border-b">
@@ -120,15 +180,27 @@ export default function Manual() {
                 </div>
 
                 <div className="border-l-4 border-red-500 pl-4">
-                  <h4 className="font-semibold mb-2">👨‍⚕️ Administrador</h4>
+                  <h4 className="font-semibold mb-2">🛡️ Administrador Manager</h4>
                   <p className="text-gray-700 mb-2">
-                    Acesso completo a todas as funcionalidades do sistema.
+                    Responsável pela gestão de acessos e supervisão geral do sistema.
                   </p>
                   <ul className="list-disc pl-5 space-y-1 text-gray-700">
-                    <li>Visualização de todos os painéis e indicadores</li>
-                    <li>Gestão de usuários e profissionais</li>
-                    <li>Configuração de notificações</li>
-                    <li>Acesso total ao histórico de todos os pacientes</li>
+                    <li>Aprovação, inativação ou bloqueio de usuários em <strong>Gerenciar Acessos</strong></li>
+                    <li>Visualização do Painel de Regulação e Indicadores</li>
+                    <li>Acesso aos Logs de Auditoria</li>
+                    <li>Monitor de Transportes</li>
+                  </ul>
+                </div>
+
+                <div className="border-l-4 border-purple-500 pl-4">
+                  <h4 className="font-semibold mb-2">🛠️ Desenvolvedor</h4>
+                  <p className="text-gray-700 mb-2">
+                    Acesso completo a todas as funcionalidades do sistema para fins de desenvolvimento e suporte.
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                    <li>Acesso irrestrito a todos os módulos</li>
+                    <li>Gestão de usuários, profissionais e configurações</li>
+                    <li>Logs de auditoria, indicadores e administração</li>
                   </ul>
                 </div>
               </div>
@@ -320,10 +392,11 @@ export default function Manual() {
             <CardContent className="p-6">
               <div className="space-y-4 text-sm">
                 <div>
-                  <h4 className="font-semibold mb-2">🏠 Painel Inicial</h4>
+                  <h4 className="font-semibold mb-2">🏠 Acesso Automático por Perfil</h4>
                   <ul className="list-disc pl-5 text-gray-700">
-                    <li>Seleção de equipe ao fazer primeiro acesso (Unidade, CERH, ASSCARDIO)</li>
-                    <li>Resumo das funcionalidades disponíveis por perfil</li>
+                    <li>Após o login, o sistema redireciona automaticamente para o painel correto de acordo com o perfil do usuário</li>
+                    <li>Não é mais necessário selecionar equipe manualmente</li>
+                    <li>Usuários com acesso PENDENTE, INATIVO ou BLOQUEADO são direcionados para a tela de status</li>
                   </ul>
                 </div>
 
@@ -561,12 +634,13 @@ export default function Manual() {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">🔐 Acesso por Perfil com Senha</h4>
+                  <h4 className="font-semibold mb-2">🔐 Autenticação via GOV.BR e Controle de Acesso</h4>
                   <ul className="list-disc pl-5">
-                    <li>Senha específica por perfil: ASSCARDIO, CERH, Hemodinâmica e Transporte</li>
-                    <li>Cada perfil possui uma senha própria de acesso definida pelo administrador</li>
-                    <li>Registro automático de quem preencheu cada etapa</li>
-                    <li>Rastreabilidade completa do atendimento</li>
+                    <li>Login centralizado via GOV.BR (identidade federal)</li>
+                    <li>Cadastro de perfil profissional obrigatório no primeiro acesso</li>
+                    <li>Aprovação manual pelo Administrador Manager antes do acesso ser liberado</li>
+                    <li>Rastreabilidade completa com e-mail e nome vinculados a cada ação</li>
+                    <li>Logs de auditoria registram todas as operações do sistema</li>
                   </ul>
                 </div>
               </div>
@@ -585,7 +659,7 @@ export default function Manual() {
               <div className="space-y-3 text-sm text-gray-700">
                 <p className="font-semibold">Menu lateral contém:</p>
                 <ul className="list-disc pl-5">
-                  <li><strong>Painel Inicial:</strong> Tela de boas-vindas e seleção de equipe</li>
+                  <li><strong>Acesso Automático:</strong> Redirecionamento automático ao perfil do usuário após login</li>
                   <li><strong>Painel Assistencial:</strong> Histórico de pacientes (Unidades de Saúde)</li>
                   <li><strong>Painel de Regulação:</strong> Dashboard de casos (CERH/ASSCARDIO/Transporte)</li>
                   <li><strong>Indicadores:</strong> Métricas e estatísticas (Administradores)</li>
@@ -594,7 +668,8 @@ export default function Manual() {
                   <li><strong>Manual:</strong> Esta página de ajuda</li>
                   <li><strong>Monitor Transportes:</strong> Gestão de transportes em tempo real (Transporte)</li>
                   <li><strong>Formulário/Vaga:</strong> Solicitação de vaga SES</li>
-                  <li><strong>Administração:</strong> Gestão de usuários e configurações (Administradores)</li>
+                  <li><strong>Gerenciar Acessos:</strong> Aprovação e gestão de usuários (Administrador Manager)</li>
+                  <li><strong>Administração:</strong> Gestão de profissionais e configurações (Administradores)</li>
                 </ul>
                 
                 <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
