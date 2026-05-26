@@ -44,29 +44,41 @@ const AuthenticatedApp = () => {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
       navigateToLogin();
       return null;
     }
   }
 
-  // Render the main app
+  // Usuário não autenticado: redirecionar para login GOV.BR
+  if (!isAuthenticated) {
+    navigateToLogin();
+    return null;
+  }
+
+  // Render the main app — rotas públicas (sem Layout/sidebar) ficam fora do LayoutWrapper
   return (
-    <LayoutWrapper currentPageName={mainPageKey}>
-      <Routes>
-        <Route path="/" element={<MainPage />} handle={{ pageName: mainPageKey }} />
-        {Object.entries(Pages).map(([path, Page]) => (
-          <Route key={path} path={`/${path}`} element={<Page />} handle={{ pageName: path }} />
-        ))}
-        <Route path="/LogsAuditoria" element={<LogsAuditoria />} />
-        <Route path="/GestaoTrombolise" element={<GestaoTrombolise />} />
-        <Route path="/RelatorioFarmacia" element={<RelatorioFarmacia />} />
-        <Route path="/CadastroPerfil" element={<CadastroPerfil />} />
-        <Route path="/AcessoPendente" element={<AcessoPendente />} />
-        <Route path="/GerenciarAcessos" element={<LayoutWrapper currentPageName="GerenciarAcessos"><GerenciarAcessos /></LayoutWrapper>} />
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
-    </LayoutWrapper>
+    <Routes>
+      {/* Rotas sem sidebar: cadastro e acesso pendente */}
+      <Route path="/CadastroPerfil" element={<CadastroPerfil />} />
+      <Route path="/AcessoPendente" element={<AcessoPendente />} />
+
+      {/* Rotas com sidebar */}
+      <Route path="/*" element={
+        <LayoutWrapper currentPageName={mainPageKey}>
+          <Routes>
+            <Route path="/" element={<MainPage />} handle={{ pageName: mainPageKey }} />
+            {Object.entries(Pages).map(([path, Page]) => (
+              <Route key={path} path={`/${path}`} element={<Page />} handle={{ pageName: path }} />
+            ))}
+            <Route path="/LogsAuditoria" element={<LogsAuditoria />} />
+            <Route path="/GestaoTrombolise" element={<GestaoTrombolise />} />
+            <Route path="/RelatorioFarmacia" element={<RelatorioFarmacia />} />
+            <Route path="/GerenciarAcessos" element={<LayoutWrapper currentPageName="GerenciarAcessos"><GerenciarAcessos /></LayoutWrapper>} />
+            <Route path="*" element={<PageNotFound />} />
+          </Routes>
+        </LayoutWrapper>
+      } />
+    </Routes>
   );
 };
 
