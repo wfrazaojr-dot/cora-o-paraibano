@@ -202,7 +202,7 @@ export default function GerenciarAcessos() {
                     {/* Info do usuário */}
                     <div className="flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-gray-900">{usuario.full_name || "(Sem nome)"}</span>
+                        <span className="font-semibold text-gray-900">{usuario.full_name || usuario.nome_completo || "(Sem nome)"}</span>
                         <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${cfg.color}`}>
                           {cfg.label}
                         </span>
@@ -282,7 +282,7 @@ export default function GerenciarAcessos() {
           </DialogHeader>
           <div className="space-y-3">
             <p className="text-sm text-gray-700">
-              Você está prestes a bloquear o acesso de <strong>{dialogBloqueio?.full_name}</strong>.
+              Você está prestes a bloquear o acesso de <strong>{dialogBloqueio?.full_name || dialogBloqueio?.nome_completo || dialogBloqueio?.email}</strong>.
             </p>
             <div>
               <Label htmlFor="motivo">Motivo do bloqueio (opcional)</Label>
