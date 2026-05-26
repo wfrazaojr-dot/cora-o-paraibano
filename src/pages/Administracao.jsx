@@ -8,7 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Trash2, Database, Users, Activity, AlertTriangle, UserCog, Eye, Stethoscope, ClipboardList, TrendingUp, TrendingDown, Clock, Building2, Award, BarChart3, FileText, Download, Pill } from "lucide-react";
+import { Shield, Trash2, Database, Users, Activity, AlertTriangle, UserCog, Eye, Stethoscope, ClipboardList, TrendingUp, TrendingDown, Clock, Building2, Award, BarChart3, FileText, Download, Pill, FileSpreadsheet } from "lucide-react";
+import * as XLSX from "xlsx";
+import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -1465,6 +1467,55 @@ export default function Administracao() {
         {/* ABA: TROMBÓLISE */}
         {abaAtiva === "trombolise" && (
           <div className="space-y-6">
+
+            {/* Botão exportar */}
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                className="border-green-600 text-green-700 hover:bg-green-50"
+                disabled={registrosTrombolise.length === 0}
+                onClick={() => {
+                  const linhas = registrosTrombolise.map((r) => ({
+                    "Data Registro": r.created_date ? format(new Date(r.created_date), "dd/MM/yyyy HH:mm") : "",
+                    "Indicação": r.indicacao || "",
+                    "Paciente": r.paciente_nome || "",
+                    "Dt. Nascimento": r.paciente_data_nascimento ? r.paciente_data_nascimento : "",
+                    "Prontuário": r.paciente_prontuario || "",
+                    "Unidade de Saúde": r.unidade_saude || "",
+                    "Data/Hora Chegada": r.data_hora_chegada ? format(new Date(r.data_hora_chegada), "dd/MM/yyyy HH:mm") : "",
+                    "Medicamento": r.medicamento || "",
+                    "Lote": r.numero_lote || "",
+                    "Dose": r.dose || "",
+                    "Diluição": r.diluicao || "",
+                    "Via": r.via_administracao || "",
+                    "Data/Hora Prescrição": r.data_hora_prescricao ? format(new Date(r.data_hora_prescricao), "dd/MM/yyyy HH:mm") : "",
+                    "Horário Adm.": r.horario_administracao || "",
+                    "Cardiologista (Indicação)": r.cardiologista_indicou_nome || "",
+                    "CRM Cardiologista": r.cardiologista_indicou_crm || "",
+                    "Médico Prescritor": r.medico_prescritor_nome || "",
+                    "CRM Médico Prescritor": r.medico_prescritor_crm || "",
+                    "Enfermeiro Responsável": r.enfermeiro_responsavel_nome || "",
+                    "COREN Enfermeiro": r.enfermeiro_responsavel_coren || "",
+                    "Profissional que Administrou": r.profissional_administrou_nome || "",
+                    "COREN Profissional": r.profissional_administrou_coren || "",
+                    "Intercorrência": r.tem_intercorrencia ? "Sim" : "Não",
+                    "Tipo Intercorrência": r.tipo_intercorrencia || "",
+                    "Gravidade": r.intercorrencia_gravidade || "",
+                    "Descrição Intercorrência": r.descricao_intercorrencia || "",
+                    "Conduta Intercorrência": r.conduta_intercorrencia || "",
+                    "Observações": r.observacoes || "",
+                  }));
+                  const ws = XLSX.utils.json_to_sheet(linhas);
+                  const wb = XLSX.utils.book_new();
+                  XLSX.utils.book_append_sheet(wb, ws, "Registros Trombólise");
+                  XLSX.writeFile(wb, `Relacao_Pacientes_Trombolise_${format(new Date(), "dd-MM-yyyy")}.xlsx`);
+                }}
+              >
+                <FileSpreadsheet className="w-4 h-4 mr-2" />
+                Exportar Relação de Pacientes (.xlsx)
+              </Button>
+            </div>
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card className="shadow-md border-l-4 border-l-red-500">
                 <CardContent className="p-4">

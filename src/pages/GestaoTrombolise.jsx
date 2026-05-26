@@ -7,8 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Activity, Plus, FileText, Search, X, Pill, Printer, AlertTriangle, Download, FileSpreadsheet } from "lucide-react";
-import * as XLSX from "xlsx";
+import { Activity, Plus, FileText, Search, X, Pill, Printer, AlertTriangle, Download } from "lucide-react";
 import AlertaIntercorrencias from "@/components/trombolise/AlertaIntercorrencias";
 import SeletorUnidadeSaude from "@/components/common/SeletorUnidadeSaude";
 import ExportarDados from "@/components/common/ExportarDados";
@@ -68,46 +67,6 @@ export default function GestaoTrombolise() {
   const [busca, setBusca] = useState("");
   const [filtroIndicacao, setFiltroIndicacao] = useState("todas");
   const [gerandoPDF, setGerandoPDF] = useState(false);
-  const [exportandoXLSX, setExportandoXLSX] = useState(false);
-
-  const exportarRelacaoPacientes = () => {
-    setExportandoXLSX(true);
-    const linhas = registrosFiltrados.map((r) => ({
-      "Paciente": r.paciente_nome || "",
-      "Dt. Nascimento": r.paciente_data_nascimento ? format(new Date(r.paciente_data_nascimento + "T12:00:00"), "dd/MM/yyyy") : "",
-      "Prontuário": r.paciente_prontuario || "",
-      "Indicação": r.indicacao || "",
-      "Medicamento": r.medicamento || "",
-      "Lote": r.numero_lote || "",
-      "Dose": r.dose || "",
-      "Diluição": r.diluicao || "",
-      "Via": r.via_administracao || "",
-      "Unidade de Saúde": r.unidade_saude || "",
-      "Data/Hora Chegada": r.data_hora_chegada ? format(new Date(r.data_hora_chegada), "dd/MM/yyyy HH:mm") : "",
-      "Cardiologista (Indicação)": r.cardiologista_indicou_nome || "",
-      "CRM Cardiologista": r.cardiologista_indicou_crm || "",
-      "Médico Prescritor": r.medico_prescritor_nome || "",
-      "CRM Médico Prescritor": r.medico_prescritor_crm || "",
-      "Enfermeiro Responsável": r.enfermeiro_responsavel_nome || "",
-      "COREN Enfermeiro": r.enfermeiro_responsavel_coren || "",
-      "Profissional que Administrou": r.profissional_administrou_nome || "",
-      "COREN Profissional": r.profissional_administrou_coren || "",
-      "Data/Hora Prescrição": r.data_hora_prescricao ? format(new Date(r.data_hora_prescricao), "dd/MM/yyyy HH:mm") : "",
-      "Horário Adm.": r.horario_administracao || "",
-      "Intercorrência": r.tem_intercorrencia ? "Sim" : "Não",
-      "Tipo Intercorrência": r.tipo_intercorrencia || "",
-      "Gravidade": r.intercorrencia_gravidade || "",
-      "Descrição Intercorrência": r.descricao_intercorrencia || "",
-      "Conduta Intercorrência": r.conduta_intercorrencia || "",
-      "Observações": r.observacoes || "",
-      "Data Registro": r.created_date ? format(new Date(r.created_date), "dd/MM/yyyy HH:mm") : "",
-    }));
-    const ws = XLSX.utils.json_to_sheet(linhas);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Pacientes Trombólise");
-    XLSX.writeFile(wb, `Relacao_Pacientes_Trombolise_${format(new Date(), "dd-MM-yyyy")}.xlsx`);
-    setExportandoXLSX(false);
-  };
 
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
@@ -680,18 +639,7 @@ export default function GestaoTrombolise() {
         <AlertaIntercorrencias registros={registros} />
 
         {/* Exportar */}
-        <div className="flex justify-end gap-2 mb-2">
-          <Button
-            onClick={exportarRelacaoPacientes}
-            disabled={exportandoXLSX || registrosFiltrados.length === 0}
-            variant="outline"
-            className="border-green-600 text-green-700 hover:bg-green-50"
-          >
-            {exportandoXLSX
-              ? <Activity className="w-4 h-4 animate-spin mr-2" />
-              : <FileSpreadsheet className="w-4 h-4 mr-2" />}
-            Exportar Relação de Pacientes (.xlsx)
-          </Button>
+        <div className="flex justify-end mb-2">
           <ExportarDados
             dados={registrosFiltrados}
             titulo="Registros de Trombólise — Coração Paraibano"
