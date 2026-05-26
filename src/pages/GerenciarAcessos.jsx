@@ -47,6 +47,7 @@ export default function GerenciarAcessos() {
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("todos");
   const [filtroPerfil, setFiltroPerfil] = useState("todos");
+  const [filtroEquipe, setFiltroEquipe] = useState("todos");
   const [dialogBloqueio, setDialogBloqueio] = useState(null);
   const [motivoBloqueio, setMotivoBloqueio] = useState("");
   const [dialogExcluir, setDialogExcluir] = useState(null);
@@ -146,7 +147,8 @@ export default function GerenciarAcessos() {
       u.cpf?.includes(busca);
     const matchStatus = filtroStatus === "todos" || u.status_acesso === filtroStatus || (!u.status_acesso && filtroStatus === "PENDENTE");
     const matchPerfil = filtroPerfil === "todos" || u.perfil === filtroPerfil;
-    return matchBusca && matchStatus && matchPerfil;
+    const matchEquipe = filtroEquipe === "todos" || u.equipe === filtroEquipe;
+    return matchBusca && matchStatus && matchPerfil && matchEquipe;
   });
 
   // Excluir o próprio desenvolvedor da lista
@@ -288,6 +290,19 @@ export default function GerenciarAcessos() {
                 <SelectItem value="ATIVO">Ativo</SelectItem>
                 <SelectItem value="INATIVO">Inativo</SelectItem>
                 <SelectItem value="BLOQUEADO">Bloqueado</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filtroEquipe} onValueChange={setFiltroEquipe}>
+              <SelectTrigger className="w-full md:w-52">
+                <SelectValue placeholder="Equipe / Setor" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os Setores</SelectItem>
+                <SelectItem value="unidade_saude">🏥 Unidade de Saúde</SelectItem>
+                <SelectItem value="cerh">CERH</SelectItem>
+                <SelectItem value="asscardio">ASSCARDIO</SelectItem>
+                <SelectItem value="transporte">Transporte</SelectItem>
+                <SelectItem value="hemodinamica">Hemodinâmica</SelectItem>
               </SelectContent>
             </Select>
             <Select value={filtroPerfil} onValueChange={setFiltroPerfil}>
