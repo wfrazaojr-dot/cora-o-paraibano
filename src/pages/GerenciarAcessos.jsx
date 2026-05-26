@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, XCircle, Lock, Search, Users, RefreshCw, ShieldCheck, FileSpreadsheet, FileText, Trash2 } from "lucide-react";
+import { CheckCircle2, XCircle, Lock, Search, Users, RefreshCw, ShieldCheck, FileSpreadsheet, FileText, Trash2, History, ChevronDown, ChevronUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import * as XLSX from "xlsx";
@@ -50,6 +50,7 @@ export default function GerenciarAcessos() {
   const [dialogBloqueio, setDialogBloqueio] = useState(null);
   const [motivoBloqueio, setMotivoBloqueio] = useState("");
   const [dialogExcluir, setDialogExcluir] = useState(null);
+  const [historicoExpandido, setHistoricoExpandido] = useState({});
 
   const { data: currentUser } = useQuery({
     queryKey: ['currentUser'],
@@ -62,8 +63,32 @@ export default function GerenciarAcessos() {
     enabled: !!currentUser,
   });
 
+  const { data: logsAuditoria = [] } = useQuery({
+    queryKey: ['logs-acesso'],
+    queryFn: () => base44.entities.LogAuditoria.filter({ entidade: "User" }, "-created_date", 500),
+    enabled: !!currentUser,
+  });
+
+  const registrarLog = async (acao, usuario, descricao) => {
+    await base44.entities.LogAuditoria.create({
+      usuario_email: currentUser?.email || "",
+      usuario_nome: currentUser?.full_name || currentUser?.email || "",
+      acao,
+      entidade: "User",
+      entidade_id: usuario.id,
+      descricao,
+      severidade: acao === "deletar" ? "critico" : "aviso",
+    });
+    queryClient.invalidateQueries({ queryKey: ['logs-acesso'] });
+  };
+
   const deleteMutation = useMutation({
-    mutationFn: (userId) => base44.entities.User.delete(userId),
+    mutationFn: async (usuario) => {
+      await registrarLog("deletar", usuario,
+        `Usuário "${usuario.full_name || usuario.email}" foi EXCLUÍDO do sistema.`
+      );
+      return base44.entities.User.delete(usuario.id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['usuarios-gerenciar'] });
       setDialogExcluir(null);
@@ -71,10 +96,15 @@ export default function GerenciarAcessos() {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ userId, status, motivo }) => {
+    mutationFn: async ({ userId, status, motivo, usuarioAlvo }) => {
       const updateData = { status_acesso: status };
       if (motivo) updateData.motivo_bloqueio = motivo;
       if (status === "ATIVO") updateData.motivo_bloqueio = null;
+      const statusLabel = { ATIVO: "ATIVO", INATIVO: "INATIVO", BLOQUEADO: "BLOQUEADO" }[status] || status;
+      const descricao = motivo
+        ? `Status alterado para "${statusLabel}" — Motivo: ${motivo}`
+        : `Status alterado para "${statusLabel}"`;
+      if (usuarioAlvo) await registrarLog("atualizar", usuarioAlvo, descricao);
       return base44.entities.User.update(userId, updateData);
     },
     onSuccess: () => {
@@ -337,6 +367,38 @@ export default function GerenciarAcessos() {
                           Motivo: {usuario.motivo_bloqueio}
                         </p>
                       )}
+
+                      {/* Histórico de ações */}
+                      {(() => {
+                        const logsUsuario = logsAuditoria.filter(l => l.entidade_id === usuario.id);
+                        if (logsUsuario.length === 0) return null;
+                        const expandido = historicoExpandido[usuario.id];
+                        return (
+                          <div className="mt-2">
+                            <button
+                              className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium"
+                              onClick={() => setHistoricoExpandido(prev => ({ ...prev, [usuario.id]: !prev[usuario.id] }))}
+                            >
+                              <History className="w-3 h-3" />
+                              {logsUsuario.length} registro(s) de alteração
+                              {expandido ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                            </button>
+                            {expandido && (
+                              <div className="mt-2 space-y-1 border-l-2 border-blue-200 pl-3">
+                                {logsUsuario.map(log => (
+                                  <div key={log.id} className="text-xs text-gray-600">
+                                    <span className="text-gray-400">{new Date(log.created_date).toLocaleString("pt-BR")}</span>
+                                    {" · "}
+                                    <span className="font-medium text-gray-700">{log.usuario_nome || log.usuario_email}</span>
+                                    {" · "}
+                                    <span>{log.descricao}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Ações */}
@@ -349,7 +411,7 @@ export default function GerenciarAcessos() {
                             <Button
                               size="sm"
                               className="bg-green-600 hover:bg-green-700 text-white gap-1"
-                              onClick={() => updateStatusMutation.mutate({ userId: usuario.id, status: "ATIVO" })}
+                              onClick={() => updateStatusMutation.mutate({ userId: usuario.id, status: "ATIVO", usuarioAlvo: usuario })}
                               disabled={updateStatusMutation.isPending}
                             >
                               <CheckCircle2 className="w-4 h-4" />
@@ -361,7 +423,7 @@ export default function GerenciarAcessos() {
                               size="sm"
                               variant="outline"
                               className="border-gray-400 text-gray-700 gap-1"
-                              onClick={() => updateStatusMutation.mutate({ userId: usuario.id, status: "INATIVO" })}
+                              onClick={() => updateStatusMutation.mutate({ userId: usuario.id, status: "INATIVO", usuarioAlvo: usuario })}
                               disabled={updateStatusMutation.isPending}
                             >
                               <XCircle className="w-4 h-4" />
@@ -418,7 +480,7 @@ export default function GerenciarAcessos() {
             <Button variant="outline" onClick={() => setDialogExcluir(null)}>Cancelar</Button>
             <Button
               className="bg-red-700 hover:bg-red-800 text-white"
-              onClick={() => deleteMutation.mutate(dialogExcluir.id)}
+              onClick={() => deleteMutation.mutate(dialogExcluir)}
               disabled={deleteMutation.isPending}
             >
               {deleteMutation.isPending ? "Excluindo..." : "Confirmar Exclusão"}
@@ -455,7 +517,8 @@ export default function GerenciarAcessos() {
               onClick={() => updateStatusMutation.mutate({
                 userId: dialogBloqueio.id,
                 status: "BLOQUEADO",
-                motivo: motivoBloqueio
+                motivo: motivoBloqueio,
+                usuarioAlvo: dialogBloqueio
               })}
               disabled={updateStatusMutation.isPending}
             >
