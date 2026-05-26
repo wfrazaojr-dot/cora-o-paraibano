@@ -146,7 +146,7 @@ export default function CadastroPerfil() {
       cpf: form.cpf,
       perfil: form.perfil,
       funcao: form.funcao,
-      role: roleMap[form.perfil] || "user",
+
       equipe: equipeMap[form.perfil] || "unidade_saude",
       registro_profissional_tipo: precisaRegistro ? registroTipoPorFuncao[form.funcao] : null,
       registro_profissional_numero: precisaRegistro ? form.registro_numero : null,
