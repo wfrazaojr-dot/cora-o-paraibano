@@ -95,13 +95,17 @@ export default function Indicadores() {
   });
 
   const pacientesFiltrados = useMemo(() => {
-    const inicioMes = startOfMonth(new Date(anoSelecionado, mesSelecionado - 1));
-    const fimMes = endOfMonth(new Date(anoSelecionado, mesSelecionado - 1));
-    
     return pacientes.filter(p => {
       if (!p.data_hora_chegada) return false;
       const dataChegada = new Date(p.data_hora_chegada);
-      if (!isWithinInterval(dataChegada, { start: inicioMes, end: fimMes })) return false;
+      if (mesSelecionado === 0) {
+        // "Todos": filtra apenas pelo ano
+        if (dataChegada.getFullYear() !== anoSelecionado) return false;
+      } else {
+        const inicioMes = startOfMonth(new Date(anoSelecionado, mesSelecionado - 1));
+        const fimMes = endOfMonth(new Date(anoSelecionado, mesSelecionado - 1));
+        if (!isWithinInterval(dataChegada, { start: inicioMes, end: fimMes })) return false;
+      }
       if (macrorregiao !== "todas" && p.macrorregiao !== macrorregiao) return false;
       if (tipoScaFiltro !== "todos" && p.triagem_medica?.tipo_sca !== tipoScaFiltro) return false;
       return true;
@@ -304,6 +308,7 @@ export default function Indicadores() {
   };
 
   const meses = [
+    { value: 0, label: "Todos" },
     { value: 1, label: "Janeiro" },
     { value: 2, label: "Fevereiro" },
     { value: 3, label: "Março" },
