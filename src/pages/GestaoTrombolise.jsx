@@ -339,9 +339,9 @@ export default function GestaoTrombolise() {
           <div>
             <div className="flex items-center gap-3">
               <Pill className="w-8 h-8 text-red-600" />
-              <h1 className="text-3xl font-bold text-gray-900">Gestão de Trombólise</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Trombólise</h1>
             </div>
-            <p className="text-gray-600 mt-1">Controle de prescrição e administração de trombolíticos</p>
+            <p className="text-gray-600 mt-1">Prescrição e registro de administração de trombolíticos — os registros completos ficam disponíveis no Painel de Administração e no Relatório Farmacêutico</p>
           </div>
           <Button
             onClick={() => { setMostrarFormulario(true); setForm({ ...emptyForm, data_hora_prescricao: new Date().toISOString().slice(0, 16), data_hora_chegada: new Date().toISOString().slice(0, 16), macrorregiao: "", cidade: "", unidade_saude: "" }); }}

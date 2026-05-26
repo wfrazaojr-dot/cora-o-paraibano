@@ -504,20 +504,34 @@ export default function Manual() {
             </CardContent>
           </Card>
 
-          {/* Gestão de Trombólise */}
+          {/* Trombólise */}
           <Card className="shadow-md">
             <CardHeader className="bg-red-50 border-b">
               <CardTitle className="flex items-center gap-2">
                 <Heart className="w-5 h-5 text-red-600" />
-                Gestão de Trombólise
+                Trombólise
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <div className="space-y-4 text-sm text-gray-700">
                 <p>
-                  O módulo de <strong>Gestão de Trombólise</strong> permite o registro, controle e geração de relatórios
-                  de medicamentos trombolíticos utilizados, garantindo segurança na prescrição e rastreabilidade completa.
+                  O módulo de <strong>Trombólise</strong> é utilizado pelas Unidades de Saúde para registrar e gerar a
+                  prescrição de medicamentos trombolíticos. Cada registro fica salvo automaticamente e pode ser
+                  auditado no <strong>Painel de Administração (aba Trombólise)</strong> e consultado no
+                  <strong> Relatório Farmacêutico</strong>.
                 </p>
+
+                <div className="border-l-4 border-blue-500 pl-4">
+                  <h4 className="font-semibold mb-2">🔄 Fluxo da Página</h4>
+                  <ol className="list-decimal pl-5 space-y-1">
+                    <li>A Unidade de Saúde preenche o formulário de prescrição e clica em <strong>Salvar Registro</strong></li>
+                    <li>O registro é salvo no banco de dados e fica visível na lista da própria página</li>
+                    <li>Clicando em <strong>Gerar PDF</strong>, o sistema gera a prescrição impressa com cabeçalho oficial</li>
+                    <li>O status do registro é atualizado automaticamente para <em>TROMBÓLISE EM ANDAMENTO</em></li>
+                    <li>Administradores visualizam todos os registros no <strong>Painel de Administração → aba Trombólise</strong></li>
+                    <li>O <strong>Relatório Farmacêutico</strong> consolida os dados para auditoria e controle de estoque</li>
+                  </ol>
+                </div>
 
                 <div className="border-l-4 border-red-500 pl-4">
                   <h4 className="font-semibold mb-2">💊 Medicamentos Disponíveis</h4>
@@ -546,8 +560,8 @@ export default function Manual() {
                   </p>
                 </div>
 
-                <div className="border-l-4 border-blue-500 pl-4">
-                  <h4 className="font-semibold mb-2">📄 Dados Registrados</h4>
+                <div className="border-l-4 border-blue-400 pl-4">
+                  <h4 className="font-semibold mb-2">📄 Dados Registrados na Prescrição</h4>
                   <ul className="list-disc pl-5 space-y-1">
                     <li>Indicação clínica, dados do paciente e data de chegada</li>
                     <li>Cardiologista indicador (opcional) e médico prescritor com CRM</li>
@@ -558,10 +572,10 @@ export default function Manual() {
                 </div>
 
                 <div className="border-l-4 border-green-500 pl-4">
-                  <h4 className="font-semibold mb-2">📊 Controle e Indicadores</h4>
+                  <h4 className="font-semibold mb-2">📊 Auditoria e Controle</h4>
                   <ul className="list-disc pl-5 space-y-1">
-                    <li>Tabela completa de todos os registros em <strong>Administração → Trombólise</strong></li>
-                    <li>Gráfico mensal/anual de uso em <strong>Indicadores → Trombólise</strong></li>
+                    <li><strong>Painel de Administração → aba Trombólise:</strong> tabela completa de todos os registros para auditoria administrativa</li>
+                    <li><strong>Relatório Farmacêutico:</strong> consolidação por medicamento, unidade, lote e período para controle de estoque</li>
                     <li>Rastreabilidade por unidade, cardiologista, prescritor e lote</li>
                   </ul>
                 </div>
@@ -668,8 +682,10 @@ export default function Manual() {
                   <li><strong>Manual:</strong> Esta página de ajuda</li>
                   <li><strong>Monitor Transportes:</strong> Gestão de transportes em tempo real (Transporte)</li>
                   <li><strong>Formulário/Vaga:</strong> Solicitação de vaga SES</li>
+                  <li><strong>Trombólise:</strong> Prescrição e registro de trombolíticos (Unidades de Saúde)</li>
+                  <li><strong>Relatório Farmacêutico:</strong> Consolidação de registros por medicamento/unidade/lote (Adm. Cardiologia / Desenvolvedor)</li>
                   <li><strong>Gerenciar Acessos:</strong> Aprovação e gestão de usuários (Administrador Manager)</li>
-                  <li><strong>Administração:</strong> Gestão de profissionais e configurações (Administradores)</li>
+                  <li><strong>Administração:</strong> Gestão de profissionais, indicadores e registros completos de trombólise (Administradores)</li>
                 </ul>
                 
                 <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
