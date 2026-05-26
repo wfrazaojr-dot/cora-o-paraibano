@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { CheckCircle2, User, ClipboardList } from "lucide-react";
+import { User, ClipboardList } from "lucide-react";
 
 const PERFIS_OPCOES = [
   { value: "UNIDADE_SAUDE", label: "Unidade de Saúde" },
@@ -171,13 +171,7 @@ export default function CadastroPerfil() {
           </div>
           <CardTitle className="text-2xl text-gray-900">Cadastro Complementar</CardTitle>
 
-          {/* Confirmação de autenticação GOV.BR */}
-          <div className="mt-3 flex items-center justify-center gap-2 bg-green-50 border border-green-200 rounded-lg px-4 py-2">
-            <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
-            <span className="text-sm text-green-800 font-medium">
-              Autenticação GOV.BR realizada com sucesso
-            </span>
-          </div>
+
 
           <CardDescription className="text-gray-600 mt-3">
             Para concluir seu cadastro, preencha os dados abaixo.<br />
