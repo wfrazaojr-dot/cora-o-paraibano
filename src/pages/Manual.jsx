@@ -441,12 +441,15 @@ export default function Manual() {
 
                 <div>
                   <h4 className="font-semibold mb-2">📊 Indicadores</h4>
-                  <p className="text-gray-700 mb-2">Apenas Administradores:</p>
+                  <p className="text-gray-700 mb-2">Para Administradores e perfis com acesso gerencial:</p>
                   <ul className="list-disc pl-5 text-gray-700">
-                    <li>Métricas gerais do sistema</li>
-                    <li>Desempenho por unidade</li>
-                    <li>Tempos médios de atendimento</li>
-                    <li>Taxa de cumprimento de metas</li>
+                    <li>Indicadores de Qualidade: Porta-ECG, Porta Decisão, Regulação, Porta-Telecardio, Transporte, ICP-Hemodinâmica e FMC-to-device</li>
+                    <li>Filtros por <strong>mês</strong> (incluindo opção "Todos" para visão anual), <strong>ano</strong>, <strong>macrorregião</strong> e <strong>tipo de SCA</strong></li>
+                    <li>Análise Epidemiológica com dados demográficos dos pacientes</li>
+                    <li>Painel de Trombólise com estatísticas de uso por medicamento e indicação</li>
+                    <li>Exportação de dados em CSV</li>
+                    <li>Distribuição por classificação de risco (vermelha, laranja, amarela, verde)</li>
+                    <li>Gráficos de ICP por tipo e macrorregião</li>
                   </ul>
                 </div>
               </div>

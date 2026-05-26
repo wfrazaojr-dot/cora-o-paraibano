@@ -83,7 +83,8 @@ export default function ExportarRelatorio({ pacientes, mesSelecionado, anoSeleci
 
   const exportar = () => {
     const rows = dadosFiltrados.map(buildRow);
-    const nomeArquivo = `Indicadores_${mesSelecionado < 10 ? "0" + mesSelecionado : mesSelecionado}_${anoSelecionado}`;
+    const nomeMes = mesSelecionado === 0 ? "Todos" : (mesSelecionado < 10 ? "0" + mesSelecionado : mesSelecionado);
+    const nomeArquivo = `Indicadores_${nomeMes}_${anoSelecionado}`;
 
     if (rows.length === 0) return;
     const headers = Object.keys(rows[0]);
