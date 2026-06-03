@@ -39,11 +39,12 @@ export default function StatusGuard({ children }) {
   if (isDev || isAdmin) return <>{children}</>;
 
   // SEGURANÇA: Rejeitar qualquer acesso que NÃO seja via GOV.BR
-  const authMethod = user.auth_method;
+  const authMethod = user.data?.auth_method || user.auth_method;
   if (authMethod !== "GOVBR") {
-    // Forçar logout se tentou contornar o GOV.BR
+    // Forçar logout imediato se tentou contornar o GOV.BR
+    console.warn("Acesso não-GOV.BR detectado para usuário:", user.email);
     base44.auth.logout();
-    return <Navigate to="/" replace />;
+    return null;
   }
 
   // Usuário sem cadastro completo → vai para cadastro
