@@ -1,0 +1,36 @@
+{
+  "name": "ConfiguracaoNotificacoes",
+  "type": "object",
+  "properties": {
+    "notificar_chegada_paciente": {
+      "type": "boolean",
+      "default": true,
+      "description": "Notificar quando um novo paciente chega"
+    },
+    "notificar_iamecg": {
+      "type": "boolean",
+      "default": true,
+      "description": "Notificar quando paciente tem IAM-ECG"
+    },
+    "notificar_classificacao_vermelha": {
+      "type": "boolean",
+      "default": true,
+      "description": "Notificar para classifica\u00e7\u00e3o de prioridade vermelha"
+    },
+    "notificar_heart_score_alto": {
+      "type": "boolean",
+      "default": true,
+      "description": "Notificar quando HEART score \u00e9 alto (7-10 pontos)"
+    },
+    "notificar_status_mudanca": {
+      "type": "boolean",
+      "default": false,
+      "description": "Notificar quando status do paciente muda"
+    },
+    "unidade_saude": {
+      "type": "string",
+      "description": "Unidade de sa\u00fade (vazio = configura\u00e7\u00e3o global)"
+    }
+  },
+  "required": []
+}

@@ -96,5 +96,16 @@
       "default": false,
       "description": "Indica se o usu\u00e1rio completou o cadastro complementar"
     }
-  }
+  },
+  "required": [
+    "cpf",
+    "perfil",
+    "funcao",
+    "registro_profissional_tipo",
+    "registro_profissional_numero",
+    "matricula",
+    "equipe",
+    "macrorregiao",
+    "motivo_bloqueio"
+  ]
 }

@@ -1,0 +1,43 @@
+{
+  "name": "Profissional",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome completo do profissional"
+    },
+    "registro": {
+      "type": "string",
+      "description": "N\u00famero de registro (CRM ou COREN)"
+    },
+    "pin": {
+      "type": "string",
+      "description": "PIN de 4 d\u00edgitos"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "Email do profissional"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "M\u00e9dico",
+        "Enfermeiro"
+      ],
+      "description": "Tipo de profissional"
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true,
+      "description": "Se o profissional est\u00e1 ativo no sistema"
+    }
+  },
+  "required": [
+    "nome",
+    "registro",
+    "pin",
+    "email",
+    "tipo"
+  ]
+}

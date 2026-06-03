@@ -16,6 +16,7 @@ import AcessoPendente from './pages/AcessoPendente';
 import GerenciarAcessos from './pages/GerenciarAcessos';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import StatusGuard from '@/components/StatusGuard';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -49,7 +50,7 @@ const AuthenticatedApp = () => {
     }
   }
 
-  // Usuário não autenticado: redirecionar para login GOV.BR
+  // Usuário não autenticado: redirecionar para login GOV.BR (única forma de entrar)
   if (!isAuthenticated) {
     navigateToLogin();
     return null;
@@ -62,8 +63,9 @@ const AuthenticatedApp = () => {
       <Route path="/CadastroPerfil" element={<CadastroPerfil />} />
       <Route path="/AcessoPendente" element={<AcessoPendente />} />
 
-      {/* Rotas com sidebar */}
+      {/* Rotas com sidebar — protegidas pelo StatusGuard (exige status_acesso ATIVO) */}
       <Route path="/*" element={
+        <StatusGuard>
         <LayoutWrapper currentPageName={mainPageKey}>
           <Routes>
             <Route path="/" element={<MainPage />} handle={{ pageName: mainPageKey }} />
@@ -77,6 +79,7 @@ const AuthenticatedApp = () => {
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </LayoutWrapper>
+        </StatusGuard>
       } />
     </Routes>
   );
