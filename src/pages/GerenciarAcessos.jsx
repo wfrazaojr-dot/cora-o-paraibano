@@ -155,12 +155,15 @@ export default function GerenciarAcessos() {
     );
   }
 
+  const getStatusEfetivo = (u) => u.status_acesso || (u.cadastro_completo ? "PENDENTE" : null);
+
   const usuariosFiltrados = usuarios.filter(u => {
     const matchBusca = !busca ||
       u.full_name?.toLowerCase().includes(busca.toLowerCase()) ||
       u.email?.toLowerCase().includes(busca.toLowerCase()) ||
       u.cpf?.includes(busca);
-    const matchStatus = filtroStatus === "todos" || u.status_acesso === filtroStatus || (!u.status_acesso && filtroStatus === "PENDENTE");
+    const statusEfetivo = getStatusEfetivo(u);
+    const matchStatus = filtroStatus === "todos" || statusEfetivo === filtroStatus;
     const matchPerfil = filtroPerfil === "todos" || u.perfil === filtroPerfil;
     const matchEquipe = filtroEquipe === "todos" || u.equipe === filtroEquipe;
     return matchBusca && matchStatus && matchPerfil && matchEquipe;
@@ -360,7 +363,7 @@ export default function GerenciarAcessos() {
       ) : (
         <div className="space-y-3">
           {usuariosExibidos.map((usuario) => {
-            const statusAtual = usuario.status_acesso || (usuario.cadastro_completo ? "PENDENTE" : "user");
+            const statusAtual = getStatusEfetivo(usuario) || "user";
             const cfg = STATUS_CONFIG[statusAtual] || STATUS_CONFIG["PENDENTE"];
 
             return (
