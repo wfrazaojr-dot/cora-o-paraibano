@@ -9,63 +9,34 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const rolesPermitidos = ['admin', 'ADMINISTRADOR_MANAGER', 'ADMINISTRADOR_CERH', 'ADMINISTRADOR_CARDIOLOGIA', 'ADMINISTRADOR_TRANSPORTE', 'DESENVOLVEDOR'];
+    const ROLES_PERMITIDOS = ['admin', 'ADMINISTRADOR_MANAGER', 'ADMINISTRADOR_CERH', 'ADMINISTRADOR_CARDIOLOGIA', 'ADMINISTRADOR_TRANSPORTE', 'DESENVOLVEDOR'];
     const isDev = user.email?.toLowerCase() === 'wfrazaojr@gmail.com';
 
-    if (!isDev && !rolesPermitidos.includes(user.role)) {
+    if (!isDev && !ROLES_PERMITIDOS.includes(user.role)) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const [todosUsuarios, todasSolicitacoes] = await Promise.all([
-      base44.asServiceRole.entities.User.list(),
-      base44.asServiceRole.entities.SolicitacaoAcesso.list('-created_date', 200),
-    ]);
+    // Buscar todos os usuários e solicitações
+    const allUsers = await base44.asServiceRole.entities.User.list();
+    const solicAcessos = await base44.asServiceRole.entities.SolicitacaoAcesso.list();
 
-    const camposUser = (u) => ({
-      id: u.id,
-      email: u.email,
-      full_name: u.full_name,
-      role: u.role,
-      status_acesso: u.status_acesso,
-      cadastro_completo: u.cadastro_completo,
-      nome_completo: u.nome_completo,
-      cpf: u.cpf,
-      telefone: u.telefone,
-      perfil: u.perfil,
-      funcao: u.funcao,
-      equipe: u.equipe,
-      registro_profissional_tipo: u.registro_profissional_tipo,
-      registro_profissional_numero: u.registro_profissional_numero,
-      matricula: u.matricula,
-      unidade_saude: u.unidade_saude,
-      motivo_bloqueio: u.motivo_bloqueio,
-      email_cadastro: u.email_cadastro,
-      created_date: u.created_date,
-      updated_date: u.updated_date,
+    // Enriquecer usuários com dados da SolicitacaoAcesso quando disponível
+    const usuariosEnriquecidos = allUsers.map(u => {
+      const solic = solicAcessos.find(s => s.email?.toLowerCase() === u.email?.toLowerCase());
+      return {
+        ...u,
+        full_name: solic?.nome_completo || u.full_name,
+        cpf: solic?.cpf || u.cpf,
+        funcao: solic?.funcao || u.funcao,
+        perfil: solic?.perfil || u.perfil,
+        telefone: solic?.telefone || u.telefone,
+      };
     });
 
-    // Roles administrativos que nunca devem aparecer como "pendentes"
-    const rolesAdminOuEspeciais = ['admin', 'ADMINISTRADOR_MANAGER', 'ADMINISTRADOR_CERH', 'ADMINISTRADOR_CARDIOLOGIA', 'ADMINISTRADOR_TRANSPORTE', 'DESENVOLVEDOR'];
-
-    // Pendentes: completou cadastro, não tem status ATIVO/BLOQUEADO/INATIVO, e não é admin/gestor
-    const pendentes = todosUsuarios
-      .filter(u =>
-        u.email?.toLowerCase() !== 'wfrazaojr@gmail.com' &&
-        !rolesAdminOuEspeciais.includes(u.role) &&
-        u.cadastro_completo === true &&
-        u.status_acesso !== 'ATIVO' &&
-        u.status_acesso !== 'BLOQUEADO' &&
-        u.status_acesso !== 'INATIVO'
-      )
-      .map(camposUser);
-
-    const todos = todosUsuarios
-      .filter(u => u.email?.toLowerCase() !== 'wfrazaojr@gmail.com')
-      .map(camposUser);
-
-    const solicPendentes = todasSolicitacoes.filter(s => s.status === 'PENDENTE');
-
-    return Response.json({ pendentes, todos, solicPendentes });
+    return Response.json({
+      solicPendentes: solicAcessos.filter(s => s.status === "PENDENTE") || [],
+      todos: usuariosEnriquecidos || [],
+    });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
