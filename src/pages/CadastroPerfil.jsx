@@ -329,12 +329,7 @@ export default function CadastroPerfil({ modoSolicitacao = false }) {
             Após o envio, o Administrador Manager analisará seu pedido.<br />
             <span className="text-orange-600 font-medium">⏱ Aguarde até 72 horas para novo acesso.</span>
           </CardDescription>
-          {emailExibido && (
-            <div className="mt-3 text-sm text-green-700 bg-green-50 rounded-lg px-3 py-2 border border-green-200">
-              <User className="inline w-4 h-4 mr-1" />
-              ✅ Autenticado via GOV.BR: <strong>{emailExibido}</strong>
-            </div>
-          )}
+
         </CardHeader>
 
         <CardContent className="pt-6">
