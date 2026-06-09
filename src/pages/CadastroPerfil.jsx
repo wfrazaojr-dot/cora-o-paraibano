@@ -468,6 +468,17 @@ export default function CadastroPerfil() {
             </div>
 
             <div>
+              <Label>E-mail *</Label>
+              <Input
+                className="mt-1"
+                type="email"
+                placeholder="seu.email@exemplo.com"
+                value={form.email}
+                onChange={e => setForm({ ...form, email: e.target.value })}
+              />
+            </div>
+
+            <div>
               <Label>CPF *</Label>
               <Input
                 className="mt-1"
