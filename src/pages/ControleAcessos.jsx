@@ -161,11 +161,14 @@ export default function ControleAcessos() {
           throw new Error("ID inválido");
         }
       },
-      onSuccess: () => {
+      onSuccess: async () => {
         setDialogBloqueio(null);
         setMotivoBloqueio("");
-        queryClient.invalidateQueries({ queryKey: ["controle-acessos"] });
-        queryClient.invalidateQueries({ queryKey: ["logs-acesso"] });
+        // Limpar cache e refetch para garantir que a UI reflete o novo status
+        await queryClient.invalidateQueries({ queryKey: ["controle-acessos"] });
+        await queryClient.invalidateQueries({ queryKey: ["logs-acesso"] });
+        // Refetch imediato para atualizar dados na tela
+        refetch();
       },
       onError: (error) => {
         console.error("❌ Erro ao atualizar:", error.message);
