@@ -220,9 +220,6 @@ export default function CadastroPerfil({ modoSolicitacao = false }) {
             <p className="text-gray-700 leading-relaxed">
               Seu cadastro foi enviado com sucesso e está aguardando aprovação em até 72h do Administrador Manager da Secretaria de estado da saúde da PB. Mantenha ativo seu acesso pelo GOV.BR.
             </p>
-            <p className="text-xs text-gray-500 mt-2">
-              Você pode fechar esta página. Quando aprovado, acesse novamente pelo link do sistema.
-            </p>
           </CardContent>
         </Card>
       </div>
