@@ -1,0 +1,114 @@
+{
+  "name": "SolicitacaoAcesso",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "description": "E-mail do solicitante (GOV.BR)"
+    },
+    "nome_completo": {
+      "type": "string",
+      "description": "Nome completo"
+    },
+    "cpf": {
+      "type": "string",
+      "description": "CPF do solicitante"
+    },
+    "telefone": {
+      "type": "string",
+      "description": "Telefone de contato"
+    },
+    "perfil": {
+      "type": "string",
+      "enum": [
+        "UNIDADE_SAUDE",
+        "CERH",
+        "ASSCARDIO",
+        "TRANSPORTE",
+        "HEMODINAMICA",
+        "ADMINISTRADOR_MANAGER",
+        "ADMINISTRADOR_CERH",
+        "ADMINISTRADOR_CARDIOLOGIA",
+        "ADMINISTRADOR_TRANSPORTE"
+      ],
+      "description": "Perfil solicitado"
+    },
+    "funcao": {
+      "type": "string",
+      "enum": [
+        "medico",
+        "enfermeiro",
+        "assistente_social",
+        "operador_frota",
+        "administrativo"
+      ],
+      "description": "Fun\u00e7\u00e3o do profissional"
+    },
+    "registro_profissional_tipo": {
+      "type": "string",
+      "description": "Tipo: CRM, COREN, CRESS"
+    },
+    "registro_profissional_numero": {
+      "type": "string",
+      "description": "N\u00famero do registro profissional"
+    },
+    "matricula": {
+      "type": "string",
+      "description": "Matr\u00edcula (para adm/frota)"
+    },
+    "unidade_saude": {
+      "type": "string",
+      "description": "Unidade de sa\u00fade (quando aplic\u00e1vel)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PENDENTE",
+        "APROVADO",
+        "REJEITADO"
+      ],
+      "default": "PENDENTE",
+      "description": "Status da solicita\u00e7\u00e3o"
+    },
+    "observacoes_admin": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es do administrador ao processar"
+    }
+  },
+  "required": [
+    "email",
+    "nome_completo",
+    "perfil",
+    "funcao"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "user_condition": {
+        "role": [
+          "admin",
+          "ADMINISTRADOR_MANAGER",
+          "DESENVOLVEDOR"
+        ]
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": [
+          "admin",
+          "ADMINISTRADOR_MANAGER",
+          "DESENVOLVEDOR"
+        ]
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": [
+          "admin",
+          "ADMINISTRADOR_MANAGER",
+          "DESENVOLVEDOR"
+        ]
+      }
+    }
+  }
+}

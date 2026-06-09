@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectGroup, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, XCircle, Lock, Search, Users, RefreshCw, ShieldCheck, FileSpreadsheet, FileText, Trash2, History, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle2, XCircle, Lock, Search, Users, RefreshCw, ShieldCheck, FileSpreadsheet, FileText, Trash2, History, ChevronDown, ChevronUp, Bell, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import * as XLSX from "xlsx";
@@ -52,6 +52,7 @@ export default function GerenciarAcessos() {
   const [motivoBloqueio, setMotivoBloqueio] = useState("");
   const [dialogExcluir, setDialogExcluir] = useState(null);
   const [historicoExpandido, setHistoricoExpandido] = useState({});
+  const [abaAtiva, setAbaAtiva] = useState("usuarios");
 
   const { data: currentUser } = useQuery({
     queryKey: ['currentUser'],
@@ -68,6 +69,31 @@ export default function GerenciarAcessos() {
     queryKey: ['logs-acesso'],
     queryFn: () => base44.entities.LogAuditoria.filter({ entidade: "User" }, "-created_date", 500),
     enabled: !!currentUser,
+  });
+
+  const { data: solicitacoes = [], refetch: refetchSolicitacoes } = useQuery({
+    queryKey: ['solicitacoes-acesso'],
+    queryFn: () => base44.entities.SolicitacaoAcesso.list("-created_date", 200),
+    enabled: !!currentUser,
+  });
+
+  const processarSolicitacaoMutation = useMutation({
+    mutationFn: async ({ solicitacao, acao }) => {
+      await base44.entities.SolicitacaoAcesso.update(solicitacao.id, { status: acao === "aprovar" ? "APROVADO" : "REJEITADO" });
+      if (acao === "aprovar") {
+        // Convidar usuário para o app
+        await base44.users.inviteUser(solicitacao.email, "user");
+        // Notificar por e-mail
+        await base44.integrations.Core.SendEmail({
+          to: solicitacao.email,
+          subject: "✅ Acesso Aprovado — Sistema Coração Paraibano",
+          body: `Olá, ${solicitacao.nome_completo}!\n\nSua solicitação de acesso ao Sistema Coração Paraibano foi APROVADA.\n\nVocê foi convidado para o sistema. Acesse pelo link abaixo e faça login com seu GOV.BR:\nhttps://coracaoparaibano.base44.app\n\nApós o login, complete seu cadastro e aguarde a ativação final pelo Administrador.\n\nAtenciosamente,\nEquipe Coração Paraibano`,
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['solicitacoes-acesso'] });
+    },
   });
 
   const registrarLog = async (acao, usuario, descricao) => {
@@ -272,6 +298,102 @@ export default function GerenciarAcessos() {
           </Button>
         </div>
       </div>
+
+      {/* Abas */}
+      <div className="flex gap-2 mb-6 border-b border-gray-200">
+        <button
+          onClick={() => setAbaAtiva("solicitacoes")}
+          className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${abaAtiva === "solicitacoes" ? "border-red-600 text-red-700" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+        >
+          <Bell className="w-4 h-4" />
+          Solicitações de Acesso
+          {solicitacoes.filter(s => s.status === "PENDENTE").length > 0 && (
+            <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
+              {solicitacoes.filter(s => s.status === "PENDENTE").length}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setAbaAtiva("usuarios")}
+          className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${abaAtiva === "usuarios" ? "border-red-600 text-red-700" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+        >
+          <Users className="w-4 h-4" />
+          Usuários Cadastrados
+        </button>
+      </div>
+
+      {/* Painel de Solicitações */}
+      {abaAtiva === "solicitacoes" && (
+        <div className="space-y-3 mb-6">
+          {solicitacoes.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center text-gray-500">
+                <UserPlus className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                <p>Nenhuma solicitação de acesso recebida.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            solicitacoes.map(sol => (
+              <Card key={sol.id} className={`border ${sol.status === "PENDENTE" ? "border-yellow-300 bg-yellow-50" : sol.status === "APROVADO" ? "border-green-300 bg-green-50" : "border-gray-200"}`}>
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-gray-900">{sol.nome_completo}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${sol.status === "PENDENTE" ? "bg-yellow-100 text-yellow-800 border-yellow-300" : sol.status === "APROVADO" ? "bg-green-100 text-green-800 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}`}>
+                          {sol.status}
+                        </span>
+                        {sol.perfil && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                            {PERFIL_LABELS[sol.perfil] || sol.perfil}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-600 mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                        <span>{sol.email}</span>
+                        {sol.cpf && <span>CPF: {sol.cpf}</span>}
+                        {sol.funcao && <span>Função: {FUNCAO_LABELS[sol.funcao] || sol.funcao}</span>}
+                        {sol.registro_profissional_tipo && sol.registro_profissional_numero && (
+                          <span>{sol.registro_profissional_tipo}: {sol.registro_profissional_numero}</span>
+                        )}
+                        {sol.telefone && <span>Tel: {sol.telefone}</span>}
+                      </div>
+                      <div className="text-xs text-gray-400 mt-1">
+                        Solicitado em: {new Date(sol.created_date).toLocaleString("pt-BR")}
+                      </div>
+                    </div>
+                    {sol.status === "PENDENTE" && (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700 text-white gap-1"
+                          onClick={() => processarSolicitacaoMutation.mutate({ solicitacao: sol, acao: "aprovar" })}
+                          disabled={processarSolicitacaoMutation.isPending}
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                          Aprovar & Convidar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-red-300 text-red-700 hover:bg-red-50 gap-1"
+                          onClick={() => processarSolicitacaoMutation.mutate({ solicitacao: sol, acao: "rejeitar" })}
+                          disabled={processarSolicitacaoMutation.isPending}
+                        >
+                          <XCircle className="w-4 h-4" />
+                          Rejeitar
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+      )}
+
+      {abaAtiva !== "usuarios" ? null : <>
 
       {/* Contadores */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -507,6 +629,8 @@ export default function GerenciarAcessos() {
           })}
         </div>
       )}
+
+      </> /* fim aba usuarios */}
 
       {/* Dialog de Exclusão */}
       <Dialog open={!!dialogExcluir} onOpenChange={() => setDialogExcluir(null)}>

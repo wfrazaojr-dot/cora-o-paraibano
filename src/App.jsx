@@ -13,6 +13,7 @@ import GestaoTrombolise from './pages/GestaoTrombolise';
 import RelatorioFarmacia from './pages/RelatorioFarmacia';
 import CadastroPerfil from './pages/CadastroPerfil';
 import AcessoPendente from './pages/AcessoPendente';
+import SolicitarAcesso from './pages/SolicitarAcesso';
 import GerenciarAcessos from './pages/GerenciarAcessos';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -62,6 +63,7 @@ const AuthenticatedApp = () => {
       {/* Rotas sem sidebar: cadastro e acesso pendente */}
       <Route path="/CadastroPerfil" element={<CadastroPerfil />} />
       <Route path="/AcessoPendente" element={<AcessoPendente />} />
+      <Route path="/SolicitarAcesso" element={<SolicitarAcesso />} />
 
       {/* Rotas com sidebar — protegidas pelo StatusGuard (exige status_acesso ATIVO) */}
       <Route path="/*" element={
