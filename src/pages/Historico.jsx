@@ -41,28 +41,20 @@ export default function Historico() {
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
 
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const verificarAcessoPaciente = (paciente) => {
     if (!paciente) return false;
-    // Admin tem acesso a tudo
-    if (user?.role === 'admin') {
-      return true;
-    }
-    
-    // Unidade de saúde só acessa pacientes que criou
-    if (user?.equipe === 'unidade_saude') {
-      return paciente.created_by === user.email;
-    }
-    
-    // CERH e ASSCARDIO têm acesso a todos
+    if (user?.role === 'admin') return true;
+    if (user?.equipe === 'unidade_saude') return paciente.created_by === user.email;
     return true;
   };
 
   const verificarProfissional = (url) => {
-    // Admin e Unidade de Saúde têm acesso direto sem verificação de profissional
-    if (user?.role === 'admin' || user?.equipe === 'unidade_saude') {
-      return true;
-    }
-    
+    if (user?.role === 'admin' || user?.equipe === 'unidade_saude') return true;
     const profissionalLogado = sessionStorage.getItem("profissional_logado");
     if (!profissionalLogado) {
       sessionStorage.setItem("redirect_after_pin", url);
@@ -74,34 +66,17 @@ export default function Historico() {
 
   const handleVerDetalhes = (pacienteId) => {
     const paciente = pacientes.find(p => p.id === pacienteId);
-    if (!verificarAcessoPaciente(paciente)) {
-      alert("Você não tem permissão para acessar este paciente.");
-      return;
-    }
-    
+    if (!verificarAcessoPaciente(paciente)) { alert("Você não tem permissão para acessar este paciente."); return; }
     const url = `${createPageUrl("NovaTriagem")}?id=${pacienteId}`;
-    if (verificarProfissional(url)) {
-      navigate(url);
-    }
+    if (verificarProfissional(url)) navigate(url);
   };
 
   const handleRetriagem = (pacienteId) => {
     const paciente = pacientes.find(p => p.id === pacienteId);
-    if (!verificarAcessoPaciente(paciente)) {
-      alert("Você não tem permissão para acessar este paciente.");
-      return;
-    }
-    
+    if (!verificarAcessoPaciente(paciente)) { alert("Você não tem permissão para acessar este paciente."); return; }
     const url = `${createPageUrl("NovaTriagem")}?id=${pacienteId}&retriagem=true`;
-    if (verificarProfissional(url)) {
-      navigate(url);
-    }
+    if (verificarProfissional(url)) navigate(url);
   };
-
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-  });
 
   const { data: pacientes = [], isLoading, refetch, isFetching } = useQuery({
     queryKey: ['pacientes', user?.email, user?.equipe],
