@@ -197,14 +197,11 @@ export default function GerenciarAcessos() {
 
   const getStatusEfetivo = (u) => u.status_acesso || (u.cadastro_completo ? "PENDENTE" : "PENDENTE");
 
-  // Usuários pendentes já filtrados pela função backend
-  const usuariosPendentes = usuariosData?.pendentes || [];
-
   // Solicitações externas pendentes (já filtradas pela função backend)
   const solicPendentes = usuariosData?.solicPendentes || [];
 
-  // Total unificado para o badge
-  const totalPendentes = usuariosPendentes.length + solicPendentes.length;
+  // Total para o badge
+  const totalPendentes = solicPendentes.length;
 
   // Lista "Todos os Usuários" com filtros
   const usuariosExibidos = usuarios
@@ -339,82 +336,7 @@ export default function GerenciarAcessos() {
       {abaAtiva === "pendentes" && (
         <div className="space-y-6">
 
-          {/* Bloco 1: Usuários cadastrados via GOV.BR aguardando aprovação */}
-          <div>
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              Usuários cadastrados via GOV.BR — aguardando aprovação
-              <span className="bg-yellow-100 text-yellow-800 border border-yellow-300 text-xs px-2 py-0.5 rounded-full font-bold">
-                {usuariosPendentes.length}
-              </span>
-            </h2>
-
-            {usuariosPendentes.length === 0 ? (
-              <Card>
-                <CardContent className="py-8 text-center text-gray-400">
-                  <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-green-400" />
-                  <p className="text-sm">Nenhum usuário aguardando aprovação.</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-3">
-                {usuariosPendentes.map(u => (
-                  <Card key={u.id} className="border border-yellow-300 bg-yellow-50">
-                    <CardContent className="pt-4 pb-4">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-semibold text-gray-900">{u.full_name || u.nome_completo || "(Sem nome)"}</span>
-                            <span className="text-xs px-2 py-0.5 rounded-full border font-medium bg-yellow-100 text-yellow-800 border-yellow-300">
-                              {u.cadastro_completo ? "Cadastro completo" : "Sem cadastro completo"}
-                            </span>
-                            {u.perfil && (
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-                                {PERFIL_LABELS[u.perfil] || u.perfil}
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-sm text-gray-600 mt-1 flex flex-wrap gap-x-4 gap-y-1">
-                            <span>{u.email}</span>
-                            {u.cpf && <span>CPF: {u.cpf}</span>}
-                            {u.funcao && <span>Função: {FUNCAO_LABELS[u.funcao] || u.funcao}</span>}
-                            {u.registro_profissional_tipo && u.registro_profissional_numero && (
-                              <span>{u.registro_profissional_tipo}: {u.registro_profissional_numero}</span>
-                            )}
-                            {u.telefone && <span>Tel: {u.telefone}</span>}
-                            {u.unidade_saude && <span>Unidade: {u.unidade_saude}</span>}
-                          </div>
-                          <div className="text-xs text-gray-400 mt-1">
-                            Cadastro em: {u.created_date ? new Date(u.created_date).toLocaleString("pt-BR") : "—"}
-                          </div>
-                        </div>
-                        <div className="flex gap-2 shrink-0">
-                          <Button
-                            size="sm"
-                            className="bg-green-600 hover:bg-green-700 text-white gap-1"
-                            onClick={() => updateStatusMutation.mutate({ userId: u.id, status: "ATIVO", usuarioAlvo: u })}
-                            disabled={updateStatusMutation.isPending}
-                          >
-                            <CheckCircle2 className="w-4 h-4" /> Aprovar
-                          </Button>
-                          <Button
-                            size="sm" variant="outline"
-                            className="border-red-300 text-red-700 hover:bg-red-50 gap-1"
-                            onClick={() => processarSolicMutation.mutate({ sol: u, acao: "rejeitar", tipo: "govbr" })}
-                            disabled={processarSolicMutation.isPending || updateStatusMutation.isPending}
-                          >
-                            <XCircle className="w-4 h-4" /> Rejeitar
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Bloco 2: Solicitações externas (entidade SolicitacaoAcesso) */}
+          {/* Solicitações externas (entidade SolicitacaoAcesso) */}
           <div>
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
               <AlertCircle className="w-4 h-4" />
