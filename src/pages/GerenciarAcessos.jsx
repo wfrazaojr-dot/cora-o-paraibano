@@ -127,21 +127,40 @@ export default function GerenciarAcessos() {
         status: acao === "aprovar" ? "APROVADO" : "REJEITADO",
       });
       if (acao === "aprovar") {
-        await base44.users.inviteUser(sol.email, sol.perfil || "user");
-        await new Promise(r => setTimeout(r, 2000));
+        // Verificar se o usuário já existe (logou via GOV.BR antes da aprovação)
         const todos = await base44.entities.User.list();
-        const criado = todos.find(u => u.email?.toLowerCase() === sol.email?.toLowerCase());
-        if (criado) {
-          await base44.entities.User.update(criado.id, {
+        const usuarioExistente = todos.find(u => u.email?.toLowerCase() === sol.email?.toLowerCase());
+
+        if (usuarioExistente) {
+          // Usuário já existe: apenas atualizar os dados e ativar
+          await base44.entities.User.update(usuarioExistente.id, {
             nome_completo: sol.nome_completo, cpf: sol.cpf, telefone: sol.telefone,
             perfil: sol.perfil, funcao: sol.funcao,
             equipe: EQUIPE_MAP[sol.perfil] || "unidade_saude",
             registro_profissional_tipo: sol.registro_profissional_tipo,
             registro_profissional_numero: sol.registro_profissional_numero,
             matricula: sol.matricula, status_acesso: "ATIVO",
-            cadastro_completo: true, auth_method: "GOVBR",
+            cadastro_completo: true,
           });
+        } else {
+          // Usuário ainda não existe: convidar e aguardar criação
+          await base44.users.inviteUser(sol.email, sol.perfil || "user");
+          await new Promise(r => setTimeout(r, 2000));
+          const todosApos = await base44.entities.User.list();
+          const criado = todosApos.find(u => u.email?.toLowerCase() === sol.email?.toLowerCase());
+          if (criado) {
+            await base44.entities.User.update(criado.id, {
+              nome_completo: sol.nome_completo, cpf: sol.cpf, telefone: sol.telefone,
+              perfil: sol.perfil, funcao: sol.funcao,
+              equipe: EQUIPE_MAP[sol.perfil] || "unidade_saude",
+              registro_profissional_tipo: sol.registro_profissional_tipo,
+              registro_profissional_numero: sol.registro_profissional_numero,
+              matricula: sol.matricula, status_acesso: "ATIVO",
+              cadastro_completo: true,
+            });
+          }
         }
+
         await base44.integrations.Core.SendEmail({
           to: sol.email,
           subject: "✅ Acesso Aprovado — Sistema Coração Paraibano",
@@ -171,6 +190,28 @@ export default function GerenciarAcessos() {
         ? `Status alterado para "${status}" — Motivo: ${motivo}`
         : `Status alterado para "${status}"`;
       if (usuarioAlvo) await registrarLog("atualizar", usuarioAlvo, descricao);
+
+      // Se ativando, sincronizar SolicitacaoAcesso correspondente (se houver)
+      if (status === "ATIVO" && usuarioAlvo?.email) {
+        const solics = await base44.entities.SolicitacaoAcesso.filter({ email: usuarioAlvo.email, status: "PENDENTE" });
+        for (const sol of (solics || [])) {
+          // Copiar dados do perfil para o User se ainda não tiver
+          const dadosPerfil = {};
+          if (!usuarioAlvo.perfil && sol.perfil)   dadosPerfil.perfil  = sol.perfil;
+          if (!usuarioAlvo.funcao && sol.funcao)    dadosPerfil.funcao  = sol.funcao;
+          if (!usuarioAlvo.cpf   && sol.cpf)        dadosPerfil.cpf     = sol.cpf;
+          if (!usuarioAlvo.telefone && sol.telefone) dadosPerfil.telefone = sol.telefone;
+          if (!usuarioAlvo.equipe && sol.perfil)    dadosPerfil.equipe  = EQUIPE_MAP[sol.perfil] || "unidade_saude";
+          if (!usuarioAlvo.registro_profissional_tipo && sol.registro_profissional_tipo)
+            dadosPerfil.registro_profissional_tipo = sol.registro_profissional_tipo;
+          if (!usuarioAlvo.registro_profissional_numero && sol.registro_profissional_numero)
+            dadosPerfil.registro_profissional_numero = sol.registro_profissional_numero;
+          if (Object.keys(dadosPerfil).length > 0)
+            Object.assign(updateData, dadosPerfil);
+          await base44.entities.SolicitacaoAcesso.update(sol.id, { status: "APROVADO" });
+        }
+      }
+
       const result = await base44.entities.User.update(userId, updateData);
       if (status === "ATIVO" && usuarioAlvo) {
         const emailDest = usuarioAlvo.email_cadastro || usuarioAlvo.email;
