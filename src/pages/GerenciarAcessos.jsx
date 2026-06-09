@@ -263,9 +263,10 @@ export default function GerenciarAcessos() {
 
   const getStatusEfetivo = (u) => u.status_acesso || (u.cadastro_completo ? "PENDENTE" : "PENDENTE");
 
-  // Usuários sem status ATIVO (ainda não aprovados) — excluindo dev
+  // Usuários sem status ATIVO (ainda não aprovados) — excluindo dev e admin/colaboradores
   const usuariosPendentes = usuarios.filter(u =>
     u.email?.toLowerCase() !== DEV_EMAIL &&
+    u.role !== "admin" &&
     u.status_acesso !== "ATIVO" &&
     u.status_acesso !== "BLOQUEADO" &&
     u.status_acesso !== "INATIVO"
