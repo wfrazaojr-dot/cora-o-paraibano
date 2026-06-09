@@ -104,6 +104,7 @@ export default function CadastroPerfil({ modoSolicitacao = false }) {
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState("");
   const [etapa, setEtapa] = useState("FORMULARIO"); // FORMULARIO | REVISAO | SUCESSO
+  const [dadosSalvos, setDadosSalvos] = useState(null); // Preserva dados após envio bem-sucedido
 
   // Pré-preencher com dados do GOV.BR
   useEffect(() => {
@@ -185,6 +186,18 @@ export default function CadastroPerfil({ modoSolicitacao = false }) {
       });
       setLoading(false);
       if (response?.data?.success) {
+        // Preservar dados antes de limpar o formulário
+        setDadosSalvos({
+          nome_completo: form.nome_completo,
+          cpf: form.cpf,
+          email: emailExibido,
+          telefone: form.telefone,
+          perfil: form.perfil,
+          funcao: form.funcao,
+          unidade_saude: form.unidade_saude,
+          registro_numero: form.registro_numero,
+          matricula: form.matricula,
+        });
         setEtapa("SUCESSO");
       } else {
         setErro(response?.data?.error || "Erro ao registrar solicitação. Tente novamente.");
@@ -212,9 +225,9 @@ export default function CadastroPerfil({ modoSolicitacao = false }) {
   };
 
   // Tela de sucesso
-  if (etapa === "SUCESSO") {
-    const registroOuMatriculaLabel = precisaMatricula ? "Matrícula" : (precisaRegistro ? REGISTRO_TIPO_MAP[form.funcao] : "");
-    const registroOuMatriculaValor = precisaMatricula ? form.matricula : (precisaRegistro ? form.registro_numero : "");
+  if (etapa === "SUCESSO" && dadosSalvos) {
+    const registroOuMatriculaLabel = dadosSalvos.matricula ? "Matrícula" : (precisaRegistro ? REGISTRO_TIPO_MAP[dadosSalvos.funcao] : "");
+    const registroOuMatriculaValor = dadosSalvos.matricula || dadosSalvos.registro_numero;
     
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-blue-50 flex items-center justify-center p-4">
@@ -237,35 +250,35 @@ export default function CadastroPerfil({ modoSolicitacao = false }) {
               <div className="space-y-2 text-sm text-gray-700">
                 <div className="flex justify-between border-b pb-2">
                   <span className="font-medium">Nome Completo:</span>
-                  <span className="font-semibold text-gray-900">{form.nome_completo}</span>
+                  <span className="font-semibold text-gray-900">{dadosSalvos.nome_completo}</span>
                 </div>
                 <div className="flex justify-between border-b pb-2">
                   <span className="font-medium">CPF:</span>
-                  <span className="text-gray-900">{form.cpf}</span>
+                  <span className="text-gray-900">{dadosSalvos.cpf}</span>
                 </div>
                 <div className="flex justify-between border-b pb-2">
                   <span className="font-medium">E-mail:</span>
-                  <span className="text-gray-900">{emailExibido}</span>
+                  <span className="text-gray-900">{dadosSalvos.email}</span>
                 </div>
                 <div className="flex justify-between border-b pb-2">
                   <span className="font-medium">Telefone:</span>
-                  <span className="text-gray-900">{form.telefone || "—"}</span>
+                  <span className="text-gray-900">{dadosSalvos.telefone || "—"}</span>
                 </div>
                 <div className="flex justify-between border-b pb-2">
                   <span className="font-medium">Perfil:</span>
-                  <span className="text-gray-900">{PERFIS_OPCOES.find(p => p.value === form.perfil)?.label}</span>
+                  <span className="text-gray-900">{PERFIS_OPCOES.find(p => p.value === dadosSalvos.perfil)?.label}</span>
                 </div>
                 <div className="flex justify-between border-b pb-2">
                   <span className="font-medium">Função:</span>
-                  <span className="font-semibold text-gray-900">{FUNCAO_LABELS[form.funcao] || form.funcao}</span>
+                  <span className="font-semibold text-gray-900">{FUNCAO_LABELS[dadosSalvos.funcao] || dadosSalvos.funcao}</span>
                 </div>
-                {form.perfil === "UNIDADE_SAUDE" && form.unidade_saude && (
+                {dadosSalvos.perfil === "UNIDADE_SAUDE" && dadosSalvos.unidade_saude && (
                   <div className="flex justify-between border-b pb-2">
                     <span className="font-medium">Unidade de Saúde:</span>
-                    <span className="text-gray-900">{form.unidade_saude}</span>
+                    <span className="text-gray-900">{dadosSalvos.unidade_saude}</span>
                   </div>
                 )}
-                {registroOuMatriculaLabel && (
+                {registroOuMatriculaLabel && registroOuMatriculaValor && (
                   <div className="flex justify-between">
                     <span className="font-medium">{registroOuMatriculaLabel}:</span>
                     <span className="text-gray-900">{registroOuMatriculaValor}</span>
