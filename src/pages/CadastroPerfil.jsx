@@ -191,12 +191,14 @@ export default function CadastroPerfil({ modoSolicitacao = false }) {
   const [dadosSalvos, setDadosSalvos] = useState(null); // Preserva dados após envio bem-sucedido
   const [pdfExportado, setPdfExportado] = useState(false); // Controla se o PDF foi exportado
 
-  // Pré-preencher APENAS email do GOV.BR — nome_completo deve ser digitado pelo usuário
+  // ⚠️ POLÍTICA CRÍTICA: NUNCA pré-preencher nome_completo automaticamente
+  // Somente email do GOV.BR é preenchido automaticamente
+  // Tudo que importa é o que o usuário digita explicitamente no formulário
   useEffect(() => {
-    if (user?.email) {
+    if (user?.email && !form.email) {
       setForm(prev => ({
         ...prev,
-        email: prev.email || user.email,
+        email: user.email, // APENAS email é auto-preenchido
       }));
     }
   }, [user]);
@@ -254,23 +256,26 @@ export default function CadastroPerfil({ modoSolicitacao = false }) {
     e.preventDefault();
     setLoading(true);
 
+    // ✅ GARANTIA ABSOLUTA: Salvar EXATAMENTE o que o usuário digitou
+    const dadosParaSalvar = {
+      email: emailExibido,
+      nome_completo: form.nome_completo.trim(), // Valor digitado pelo usuário
+      cpf: form.cpf.trim(),
+      telefone: form.telefone?.trim() || null,
+      perfil: form.perfil,
+      funcao: form.funcao,
+      registro_profissional_tipo: precisaRegistro ? REGISTRO_TIPO_MAP[form.funcao] : null,
+      registro_profissional_numero: precisaRegistro ? form.registro_numero?.trim() : null,
+      matricula: precisaMatricula ? form.matricula?.trim() : null,
+      equipe: EQUIPE_MAP[form.perfil] || "unidade_saude",
+      unidade_saude: form.unidade_saude?.trim() || null,
+    };
+
     if (modoSolicitacao) {
-      const response = await base44.functions.invoke("registrarSolicitacaoAcesso", {
-        email: emailExibido,
-        nome_completo: form.nome_completo,
-        cpf: form.cpf,
-        telefone: form.telefone || null,
-        perfil: form.perfil,
-        funcao: form.funcao,
-        registro_profissional_tipo: precisaRegistro ? REGISTRO_TIPO_MAP[form.funcao] : null,
-        registro_profissional_numero: precisaRegistro ? form.registro_numero : null,
-        matricula: precisaMatricula ? form.matricula : null,
-        equipe: EQUIPE_MAP[form.perfil] || "unidade_saude",
-        unidade_saude: form.unidade_saude || null,
-      });
+      const response = await base44.functions.invoke("registrarSolicitacaoAcesso", dadosParaSalvar);
       setLoading(false);
       if (response?.data?.success) {
-        // Preservar dados antes de limpar o formulário
+        // ✅ Preservar EXATAMENTE o que foi salvo
         setDadosSalvos({
           nome_completo: form.nome_completo,
           cpf: form.cpf,
@@ -287,20 +292,18 @@ export default function CadastroPerfil({ modoSolicitacao = false }) {
         setErro(response?.data?.error || "Erro ao registrar solicitação. Tente novamente.");
       }
     } else {
-      // ⚠️ CRÍTICO: Usar full_name (não nome_completo) para sincronizar com o User entity
-      // O User foi criado pelo GOV.BR callback com um nome extraído do email
-      // Aqui garantimos sobrescrever com o nome completo digitado no formulário
+      // ⚠️ GARANTIA CRÍTICA: full_name recebe EXATAMENTE o nome digitado
       await base44.auth.updateMe({
-        full_name: form.nome_completo, // SOBRESCREVER o nome criado automaticamente
-        email_cadastro: form.email || emailExibido,
-        cpf: form.cpf,
-        telefone: form.telefone || null,
-        perfil: form.perfil,
-        funcao: form.funcao,
-        equipe: EQUIPE_MAP[form.perfil] || "unidade_saude",
-        registro_profissional_tipo: precisaRegistro ? REGISTRO_TIPO_MAP[form.funcao] : null,
-        registro_profissional_numero: precisaRegistro ? form.registro_numero : null,
-        matricula: precisaMatricula ? form.matricula : null,
+        full_name: dadosParaSalvar.nome_completo, // Valor exato digitado
+        email_cadastro: dadosParaSalvar.email,
+        cpf: dadosParaSalvar.cpf,
+        telefone: dadosParaSalvar.telefone,
+        perfil: dadosParaSalvar.perfil,
+        funcao: dadosParaSalvar.funcao,
+        equipe: dadosParaSalvar.equipe,
+        registro_profissional_tipo: dadosParaSalvar.registro_profissional_tipo,
+        registro_profissional_numero: dadosParaSalvar.registro_profissional_numero,
+        matricula: dadosParaSalvar.matricula,
         status_acesso: "PENDENTE",
         auth_method: "GOVBR",
         cadastro_completo: true,
