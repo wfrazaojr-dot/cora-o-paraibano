@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { User, ClipboardList, CheckCircle2 } from "lucide-react";
+import { User, ClipboardList, CheckCircle2, Download } from "lucide-react";
+import { jsPDF } from "jspdf";
 
 const PERFIS_OPCOES = [
   { value: "UNIDADE_SAUDE", label: "Unidade de Saúde" },
@@ -67,6 +68,89 @@ function formatCPF(value) {
   return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
 }
 
+// Função para gerar PDF com os dados do cadastro
+function gerarPDFCadastro(form, emailExibido, precisaRegistro, precisaMatricula) {
+  const doc = new jsPDF();
+  
+  // Configuração básica
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 15;
+  let yPosition = 20;
+  
+  // Título
+  doc.setFontSize(18);
+  doc.setTextColor(220, 38, 38); // Vermelho (vermelho da marca)
+  doc.text("Coração Paraibano", margin, yPosition);
+  
+  // Subtítulo
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
+  doc.text("Solicitação de Acesso ao Sistema", margin, yPosition + 10);
+  
+  // Data e hora
+  doc.setFontSize(9);
+  doc.setTextColor(100, 100, 100);
+  const now = new Date().toLocaleString('pt-BR');
+  doc.text(`Gerado em: ${now}`, margin, yPosition + 18);
+  
+  yPosition += 30;
+  
+  // Linha separadora
+  doc.setDrawColor(200, 200, 200);
+  doc.line(margin, yPosition, pageWidth - margin, yPosition);
+  yPosition += 8;
+  
+  // Dados do usuário
+  const dados = [
+    { label: "Nome Completo", valor: form.nome_completo },
+    { label: "CPF", valor: form.cpf },
+    { label: "E-mail", valor: emailExibido },
+    { label: "Telefone", valor: form.telefone || "—" },
+    { label: "Perfil", valor: PERFIS_OPCOES.find(p => p.value === form.perfil)?.label || form.perfil },
+    { label: "Função", valor: FUNCAO_LABELS[form.funcao] || form.funcao },
+  ];
+  
+  if (form.perfil === "UNIDADE_SAUDE" && form.unidade_saude) {
+    dados.push({ label: "Unidade de Saúde", valor: form.unidade_saude });
+  }
+  
+  if (precisaRegistro && form.registro_numero) {
+    dados.push({ label: REGISTRO_TIPO_MAP[form.funcao], valor: form.registro_numero });
+  }
+  
+  if (precisaMatricula && form.matricula) {
+    dados.push({ label: "Matrícula", valor: form.matricula });
+  }
+  
+  doc.setFontSize(10);
+  dados.forEach((item) => {
+    doc.setTextColor(0, 0, 0);
+    doc.setFont(undefined, "bold");
+    doc.text(`${item.label}:`, margin, yPosition);
+    
+    doc.setTextColor(50, 50, 50);
+    doc.setFont(undefined, "normal");
+    doc.text(item.valor, margin + 50, yPosition);
+    
+    yPosition += 7;
+  });
+  
+  yPosition += 10;
+  doc.setDrawColor(200, 200, 200);
+  doc.line(margin, yPosition, pageWidth - margin, yPosition);
+  yPosition += 8;
+  
+  // Rodapé
+  doc.setFontSize(8);
+  doc.setTextColor(120, 120, 120);
+  doc.text("Este documento foi gerado automaticamente pelo Sistema Coração Paraibano.", margin, yPosition);
+  doc.text("Mantenha este arquivo para controle pessoal. A aprovação será enviada via e-mail.", margin, yPosition + 5);
+  
+  // Salvar PDF
+  const fileName = `Cadastro_${form.nome_completo.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`;
+  doc.save(fileName);
+}
+
 /**
  * CadastroPerfil — funciona em dois modos:
  *
@@ -105,6 +189,7 @@ export default function CadastroPerfil({ modoSolicitacao = false }) {
   const [erro, setErro] = useState("");
   const [etapa, setEtapa] = useState("FORMULARIO"); // FORMULARIO | REVISAO | SUCESSO
   const [dadosSalvos, setDadosSalvos] = useState(null); // Preserva dados após envio bem-sucedido
+  const [pdfExportado, setPdfExportado] = useState(false); // Controla se o PDF foi exportado
 
   // Pré-preencher APENAS email do GOV.BR — nome_completo deve ser digitado pelo usuário
   useEffect(() => {
@@ -302,6 +387,11 @@ export default function CadastroPerfil({ modoSolicitacao = false }) {
     const registroOuMatriculaLabel = precisaMatricula ? "Matrícula" : registroLabel;
     const registroOuMatriculaValor = precisaMatricula ? form.matricula : form.registro_numero;
 
+    const handleExportarPDF = () => {
+      gerarPDFCadastro(form, emailExibido, precisaRegistro, precisaMatricula);
+      setPdfExportado(true);
+    };
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-blue-50 flex items-center justify-center p-4">
         <Card className="w-full max-w-xl shadow-xl">
@@ -364,22 +454,39 @@ export default function CadastroPerfil({ modoSolicitacao = false }) {
               )}
             </div>
 
+            {pdfExportado && (
+              <p className="text-sm text-green-600 bg-green-50 rounded p-3 mb-4 flex items-center gap-2">
+                ✓ PDF salvo no seu desktop com sucesso!
+              </p>
+            )}
+
             {erro && (
               <p className="text-sm text-red-600 bg-red-50 rounded p-3 mb-4">{erro}</p>
             )}
 
-            <div className="flex gap-3">
-              <Button
-                onClick={() => setEtapa("FORMULARIO")}
-                variant="outline"
-                className="flex-1"
-                disabled={loading}
-              >
-                EDITAR
-              </Button>
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setEtapa("FORMULARIO")}
+                  variant="outline"
+                  className="flex-1"
+                  disabled={loading}
+                >
+                  EDITAR
+                </Button>
+                <Button
+                  onClick={handleExportarPDF}
+                  variant="outline"
+                  className="flex-1 border-blue-300 text-blue-700 hover:bg-blue-50"
+                  disabled={loading}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  SALVAR E EXPORTAR PDF
+                </Button>
+              </div>
               <Button
                 onClick={handleEnviarFormulario}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                className="w-full bg-red-600 hover:bg-red-700 text-white"
                 disabled={loading}
               >
                 {loading ? "Enviando..." : "ENVIAR FORMULÁRIO"}
