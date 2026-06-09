@@ -100,43 +100,61 @@ Deno.serve(async (req) => {
     }
 
     // ── Atualizar status de usuário existente (ativar/inativar/bloquear) ──
-    if (userId && status) {
-      const updateData = { status_acesso: status };
-      if (motivo) updateData.motivo_bloqueio = motivo;
-      if (status === "ATIVO") updateData.motivo_bloqueio = null;
+     if (userId && status) {
+       const todosUsuarios = await base44.asServiceRole.entities.User.list();
+       const usuarioAlvo = todosUsuarios.find(u => u.id === userId);
+       if (!usuarioAlvo) {
+         return Response.json({ error: 'Usuário não encontrado' }, { status: 404 });
+       }
 
-      await base44.asServiceRole.entities.User.update(userId, {
-       ...updateData,
-       cadastro_completo: true
-      });
+       const statusAnterior = usuarioAlvo.status_acesso;
+       const updateData = { status_acesso: status, cadastro_completo: true };
+       if (motivo) updateData.motivo_bloqueio = motivo;
+       if (status === "ATIVO") updateData.motivo_bloqueio = null;
 
-      // Se aprovando, sincronizar SolicitacaoAcesso pendente do mesmo email
-      if (status === "ATIVO") {
-        const todosUsuarios = await base44.asServiceRole.entities.User.list();
-        const usuarioAlvo = todosUsuarios.find(u => u.id === userId);
-        if (usuarioAlvo?.email) {
-          const solics = await base44.asServiceRole.entities.SolicitacaoAcesso.filter({ email: usuarioAlvo.email, status: "PENDENTE" });
-          for (const sol of (solics || [])) {
-            // ✅ POLÍTICA ABSOLUTA: Sincronizar full_name com sol.nome_completo (do formulário, NUNCA do email)
-            const nomeFinal = sol.nome_completo?.trim();
-            console.log(`[SINCRONIZAÇÃO] Atualizando User ${userId} com nome: "${nomeFinal}" (SolicitacaoAcesso: ${sol.id})`);
+       // ✅ ATUALIZAR USER
+       await base44.asServiceRole.entities.User.update(userId, updateData);
+       console.log(`[STATUS UPDATE] User ${userId} mudou de ${statusAnterior} para ${status}`);
 
-            const dadosPerfil = { full_name: nomeFinal };
-            if (!usuarioAlvo.perfil && sol.perfil)      dadosPerfil.perfil   = sol.perfil;
-            if (!usuarioAlvo.funcao && sol.funcao)      dadosPerfil.funcao   = sol.funcao;
-            if (!usuarioAlvo.equipe && sol.perfil)      dadosPerfil.equipe   = EQUIPE_MAP[sol.perfil] || "unidade_saude";
-            if (!usuarioAlvo.cpf   && sol.cpf)          dadosPerfil.cpf      = sol.cpf?.trim() || null;
-            if (!usuarioAlvo.telefone && sol.telefone)  dadosPerfil.telefone = sol.telefone?.trim() || null;
-            if (Object.keys(dadosPerfil).length > 0) {
-              await base44.asServiceRole.entities.User.update(userId, dadosPerfil);
-            }
-            await base44.asServiceRole.entities.SolicitacaoAcesso.update(sol.id, { status: "APROVADO" });
-          }
-        }
-      }
+       // ✅ REGISTRAR AUDITORIA
+       try {
+         await base44.asServiceRole.functions.invoke("registrarLog", {
+           acao: "atualizar",
+           entidade: "User",
+           entidade_id: userId,
+           descricao: `Status alterado de ${statusAnterior} para ${status}${motivo ? ` — Motivo: ${motivo}` : ''}`,
+           dados_anteriores: { status_acesso: statusAnterior },
+           dados_novos: { status_acesso: status },
+           severidade: status === "BLOQUEADO" ? "critico" : "aviso"
+         });
+       } catch (auditError) {
+         console.error(`[AUDITORIA] Falha ao registrar log: ${auditError.message}`);
+       }
 
-      return Response.json({ success: true });
-    }
+       // Se aprovando (ATIVO), sincronizar com SolicitacaoAcesso
+       if (status === "ATIVO" && usuarioAlvo?.email) {
+         const solics = await base44.asServiceRole.entities.SolicitacaoAcesso.filter({ email: usuarioAlvo.email, status: "PENDENTE" });
+         for (const sol of (solics || [])) {
+           const nomeFinal = sol.nome_completo?.trim();
+           console.log(`[SINCRONIZAÇÃO] Atualizando User ${userId} com nome: "${nomeFinal}" (SolicitacaoAcesso: ${sol.id})`);
+
+           const dadosPerfil = {};
+           if (!usuarioAlvo.full_name && nomeFinal)      dadosPerfil.full_name  = nomeFinal;
+           if (!usuarioAlvo.perfil && sol.perfil)        dadosPerfil.perfil     = sol.perfil;
+           if (!usuarioAlvo.funcao && sol.funcao)        dadosPerfil.funcao     = sol.funcao;
+           if (!usuarioAlvo.equipe && sol.perfil)        dadosPerfil.equipe     = EQUIPE_MAP[sol.perfil] || "unidade_saude";
+           if (!usuarioAlvo.cpf && sol.cpf)              dadosPerfil.cpf        = sol.cpf?.trim() || null;
+           if (!usuarioAlvo.telefone && sol.telefone)    dadosPerfil.telefone   = sol.telefone?.trim() || null;
+           if (!usuarioAlvo.unidade_saude && sol.unidade_saude) dadosPerfil.unidade_saude = sol.unidade_saude?.trim() || null;
+           if (Object.keys(dadosPerfil).length > 0) {
+             await base44.asServiceRole.entities.User.update(userId, dadosPerfil);
+           }
+           await base44.asServiceRole.entities.SolicitacaoAcesso.update(sol.id, { status: "APROVADO" });
+         }
+       }
+
+       return Response.json({ success: true });
+     }
 
     return Response.json({ error: 'Parâmetros inválidos' }, { status: 400 });
 

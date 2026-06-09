@@ -138,27 +138,22 @@ export default function ControleAcessos() {
   });
 
   // Atualizar status de usuário ativo (ativar/inativar/bloquear)
-  const updateStatusMutation = useMutation({
-    mutationFn: async ({ userId, status, motivo, usuarioAlvo }) => {
-      base44.entities.LogAuditoria.create({
-        usuario_email: currentUser?.email || "",
-        usuario_nome:  currentUser?.full_name || currentUser?.email || "",
-        acao: "atualizar", entidade: "User", entidade_id: usuarioAlvo?.id,
-        descricao: motivo ? `Status → "${status}" — Motivo: ${motivo}` : `Status → "${status}"`,
-        severidade: "aviso",
-      }).catch(() => {});
-
-      const res = await base44.functions.invoke("processarSolicitacaoAcesso", {
-        userId, status, motivo: motivo || null,
-      });
-      if (!res.data?.success) throw new Error(res.data?.error || "Erro ao atualizar status");
-    },
-    onSuccess: () => {
-      recarregar();
-      setDialogBloqueio(null);
-      setMotivoBloqueio("");
-    },
-  });
+   const updateStatusMutation = useMutation({
+     mutationFn: async ({ userId, status, motivo, usuarioAlvo }) => {
+       const res = await base44.functions.invoke("processarSolicitacaoAcesso", {
+         userId, status, motivo: motivo || null,
+       });
+       if (!res.data?.success) throw new Error(res.data?.error || "Erro ao atualizar status");
+     },
+     onSuccess: () => {
+       setDialogBloqueio(null);
+       setMotivoBloqueio("");
+       refetch(); // ✅ Recarregar dados após sucesso
+     },
+     onError: (error) => {
+       console.error("Erro ao atualizar status:", error.message);
+     },
+   });
 
   // Excluir usuário permanentemente
   const deleteMutation = useMutation({
