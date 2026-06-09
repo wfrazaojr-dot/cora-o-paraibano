@@ -106,13 +106,12 @@ export default function CadastroPerfil({ modoSolicitacao = false }) {
   const [etapa, setEtapa] = useState("FORMULARIO"); // FORMULARIO | REVISAO | SUCESSO
   const [dadosSalvos, setDadosSalvos] = useState(null); // Preserva dados após envio bem-sucedido
 
-  // Pré-preencher com dados do GOV.BR
+  // Pré-preencher APENAS email do GOV.BR — nome_completo deve ser digitado pelo usuário
   useEffect(() => {
-    if (user?.email || user?.full_name) {
+    if (user?.email) {
       setForm(prev => ({
         ...prev,
         email: prev.email || user.email,
-        nome_completo: prev.nome_completo || user.full_name || "",
       }));
     }
   }, [user]);
