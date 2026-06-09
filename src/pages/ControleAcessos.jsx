@@ -71,7 +71,7 @@ export default function ControleAcessos() {
     queryFn:  () => base44.auth.me(),
   });
 
-  const { data: dadosAcesso, isLoading, refetch } = useQuery({
+  const { data: dadosAcesso, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ["controle-acessos"],
     queryFn:  async () => {
       const res = await base44.functions.invoke("listarUsuariosPendentes", {});
@@ -79,6 +79,7 @@ export default function ControleAcessos() {
     },
     enabled:   !!currentUser,
     staleTime: 0,
+    gcTime: 0,
   });
 
   const { data: logsAuditoria = [] } = useQuery({
@@ -284,9 +285,9 @@ export default function ControleAcessos() {
           <p className="text-gray-600 text-sm mt-1">Aprovação e gerenciamento de usuários do sistema</p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" size="sm" onClick={recarregar} className="gap-2">
-            <RefreshCw className="w-4 h-4" /> Atualizar
-          </Button>
+           <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isRefetching} className="gap-2">
+             <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin' : ''}`} /> {isRefetching ? 'Atualizando...' : 'Atualizar'}
+           </Button>
           <Button variant="outline" size="sm" onClick={exportarExcel} className="gap-2 border-green-400 text-green-700 hover:bg-green-50">
             <FileSpreadsheet className="w-4 h-4" /> Excel
           </Button>

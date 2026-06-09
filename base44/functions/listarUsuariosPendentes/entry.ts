@@ -20,9 +20,8 @@ Deno.serve(async (req) => {
     const allUsers = await base44.asServiceRole.entities.User.list();
     const solicAcessos = await base44.asServiceRole.entities.SolicitacaoAcesso.list();
 
-    // Enriquecer usuários com dados da SolicitacaoAcesso quando disponível
+    // Enriquecher usuários com dados da SolicitacaoAcesso quando disponível
     const usuariosEnriquecidos = allUsers
-      .filter(u => u.status_acesso) // Mostrar apenas usuários com status_acesso definido
       .map(u => {
         const solic = solicAcessos.find(s => s.email?.toLowerCase() === u.email?.toLowerCase());
         return {
@@ -32,6 +31,15 @@ Deno.serve(async (req) => {
           funcao: solic?.funcao || u.funcao,
           perfil: solic?.perfil || u.perfil,
           telefone: solic?.telefone || u.telefone,
+          status_acesso: u.status_acesso || solic?.status || "PENDENTE", // ✅ Usar status de SolicitacaoAcesso se User não tiver
+          equipe: u.equipe || (solic ? (solic.perfil === "UNIDADE_SAUDE" ? "unidade_saude" : 
+                   solic.perfil === "CERH" ? "cerh" : 
+                   solic.perfil === "ASSCARDIO" ? "asscardio" : 
+                   solic.perfil === "TRANSPORTE" ? "transporte" : "unidade_saude") : null),
+          unidade_saude: solic?.unidade_saude || u.unidade_saude,
+          registro_profissional_tipo: solic?.registro_profissional_tipo || u.registro_profissional_tipo,
+          registro_profissional_numero: solic?.registro_profissional_numero || u.registro_profissional_numero,
+          matricula: solic?.matricula || u.matricula,
         };
       });
 
