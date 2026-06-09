@@ -55,7 +55,7 @@ const FUNCAO_LABELS = {
 
 export default function ControleAcessos() {
   const queryClient = useQueryClient();
-  const [abaAtiva, setAbaAtiva]           = useState("pendentes");
+  const [abaAtiva, setAbaAtiva]           = useState("usuarios");
   const [busca, setBusca]                 = useState("");
   const [filtroStatus, setFiltroStatus]   = useState("todos");
   const [filtroEquipe, setFiltroEquipe]   = useState("todos");
@@ -299,20 +299,7 @@ export default function ControleAcessos() {
       {/* Abas */}
       <div className="flex gap-0 mb-6 border-b border-gray-200">
         <button
-          onClick={() => setAbaAtiva("pendentes")}
-          className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium border-b-2 transition-colors ${abaAtiva === "pendentes" ? "border-red-600 text-red-700" : "border-transparent text-gray-500 hover:text-gray-700"}`}
-        >
-          <Bell className="w-4 h-4" />
-          Aguardando Aprovação
-          {totalPendentes > 0 && (
-            <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">
-              {totalPendentes}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => setAbaAtiva("usuarios")}
-          className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium border-b-2 transition-colors ${abaAtiva === "usuarios" ? "border-red-600 text-red-700" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+          className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium border-b-2 border-red-600 text-red-700`}
         >
           <Users className="w-4 h-4" />
           Todos os Usuários
@@ -322,88 +309,7 @@ export default function ControleAcessos() {
         </button>
       </div>
 
-      {/* ── ABA: AGUARDANDO APROVAÇÃO ─────────────────────────────────────── */}
-      {abaAtiva === "pendentes" && (
-        <div>
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4" />
-            Novas Solicitações de Acesso
-            <span className="bg-orange-100 text-orange-800 border border-orange-300 text-xs px-2 py-0.5 rounded-full font-bold">
-              {solicPendentes.length}
-            </span>
-          </h2>
-
-          {isLoading ? (
-            <div className="text-center py-12 text-gray-400">Carregando...</div>
-          ) : solicPendentes.length === 0 ? (
-            <Card>
-              <CardContent className="py-10 text-center text-gray-400">
-                <CheckCircle2 className="w-10 h-10 mx-auto mb-3 text-green-400" />
-                <p className="text-sm font-medium">Nenhuma solicitação pendente.</p>
-                <p className="text-xs mt-1">Todas as solicitações foram processadas.</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-3">
-              {solicPendentes.map(sol => (
-                <Card key={sol.id} className="border border-orange-300 bg-orange-50">
-                  <CardContent className="pt-4 pb-4">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-semibold text-gray-900">{sol.nome_completo}</span>
-                          <span className="text-xs px-2 py-0.5 rounded-full border font-medium bg-orange-100 text-orange-800 border-orange-300">
-                            Nova Solicitação
-                          </span>
-                          {sol.perfil && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-                              {PERFIL_LABELS[sol.perfil] || sol.perfil}
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-sm text-gray-600 mt-1 flex flex-wrap gap-x-4 gap-y-1">
-                          <span>{sol.email}</span>
-                          {sol.cpf && <span>CPF: {sol.cpf}</span>}
-                          {sol.funcao && <span>Função: {FUNCAO_LABELS[sol.funcao] || sol.funcao}</span>}
-                          {sol.registro_profissional_tipo && sol.registro_profissional_numero && (
-                            <span>{sol.registro_profissional_tipo}: {sol.registro_profissional_numero}</span>
-                          )}
-                          {sol.telefone && <span>Tel: {sol.telefone}</span>}
-                          {sol.unidade_saude && <span>Unidade: {sol.unidade_saude}</span>}
-                        </div>
-                        <div className="text-xs text-gray-400 mt-1">
-                          Solicitado em: {sol.created_date ? new Date(sol.created_date).toLocaleString("pt-BR") : "—"}
-                        </div>
-                      </div>
-                      <div className="flex gap-2 shrink-0">
-                        <Button
-                          size="sm"
-                          className="bg-green-600 hover:bg-green-700 text-white gap-1"
-                          onClick={() => aprovarMutation.mutate(sol)}
-                          disabled={aprovarMutation.isPending || excluirSolicMutation.isPending}
-                        >
-                          <CheckCircle2 className="w-4 h-4" /> APROVAR
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-red-400 text-red-700 hover:bg-red-50 gap-1"
-                          onClick={() => excluirSolicMutation.mutate(sol)}
-                          disabled={aprovarMutation.isPending || excluirSolicMutation.isPending}
-                        >
-                          <Trash2 className="w-4 h-4" /> EXCLUIR
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ── ABA: TODOS OS USUÁRIOS ────────────────────────────────────────── */}
+{/* ── ABA: TODOS OS USUÁRIOS ────────────────────────────────────────── */}
       {abaAtiva === "usuarios" && (
         <>
           {/* Contadores */}
