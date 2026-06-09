@@ -220,8 +220,9 @@ export default function CadastroPerfil({ modoSolicitacao = false }) {
             </div>
             <h2 className="text-2xl font-bold text-gray-900">Cadastro em Análise</h2>
             <p className="text-gray-700 leading-relaxed">
-              Seu cadastro foi enviado com sucesso e está aguardando aprovação em até 72h do Administrador Manager da Secretaria de estado da saúde da PB. Mantenha ativo seu acesso pelo GOV.BR.
+             Seu cadastro foi enviado com sucesso e está aguardando aprovação em até 72h do Administrador Manager da Secretaria de estado da saúde da PB. Mantenha ativo seu acesso pelo GOV.BR.
             </p>
+            <p className="text-gray-600 text-sm mt-3">⏱ Aguarde até 72 horas para novo acesso.</p>
           </CardContent>
         </Card>
       </div>
