@@ -43,8 +43,10 @@ Deno.serve(async (req) => {
       const userFiltered = await base44.asServiceRole.entities.User.filter({ email: email.toLowerCase() });
       if (userFiltered && userFiltered.length > 0) {
         const existingUser = userFiltered[0]; // Pegar o primeiro resultado com match exato
+        // ⚠️ CRÍTICO: SEMPRE atualizar full_name com nome_completo do formulário
+        // Isso sobrescreve qualquer nome anterior que tenha sido extraído do email
         await base44.asServiceRole.entities.User.update(existingUser.id, {
-          full_name: nome_completo, // NUNCA sobrescrever com valor errado
+          full_name: nome_completo, // Sobrescrever com o REAL nome completo do usuário
           cpf: cpf || null,
           telefone: telefone || null,
           perfil: perfil || null,

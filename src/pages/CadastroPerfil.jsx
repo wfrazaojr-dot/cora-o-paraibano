@@ -202,8 +202,11 @@ export default function CadastroPerfil({ modoSolicitacao = false }) {
         setErro(response?.data?.error || "Erro ao registrar solicitação. Tente novamente.");
       }
     } else {
+      // ⚠️ CRÍTICO: Usar full_name (não nome_completo) para sincronizar com o User entity
+      // O User foi criado pelo GOV.BR callback com um nome extraído do email
+      // Aqui garantimos sobrescrever com o nome completo digitado no formulário
       await base44.auth.updateMe({
-        nome_completo: form.nome_completo,
+        full_name: form.nome_completo, // SOBRESCREVER o nome criado automaticamente
         email_cadastro: form.email || emailExibido,
         cpf: form.cpf,
         telefone: form.telefone || null,
