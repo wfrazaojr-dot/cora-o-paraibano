@@ -329,7 +329,6 @@ export default function CadastroPerfil({ modoSolicitacao = false }) {
             Após o envio, o Administrador Manager analisará seu pedido.<br />
             <span className="text-orange-600 font-medium">⏱ Aguarde até 72 horas para novo acesso.</span>
           </CardDescription>
-
         </CardHeader>
 
         <CardContent className="pt-6">
