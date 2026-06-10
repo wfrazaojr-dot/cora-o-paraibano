@@ -117,12 +117,17 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setIsAuthenticated(false);
     
-    if (shouldRedirect) {
-      // Use the SDK's logout method which handles token cleanup and redirect
-      base44.auth.logout(window.location.href);
-    } else {
-      // Just remove the token without redirect
-      base44.auth.logout();
+    try {
+      if (shouldRedirect) {
+        // Use the SDK's logout method which handles token cleanup and redirect
+        base44.auth.logout(window.location.href);
+      } else {
+        // Just remove the token without redirect
+        base44.auth.logout();
+      }
+    } catch (error) {
+      console.warn('Error during logout:', error);
+      // Continue with logout even if there's an error
     }
   };
 

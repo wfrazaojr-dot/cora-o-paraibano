@@ -24,7 +24,13 @@ function onAppError({ title, details, componentName, originalError }) {
 }
 
 function handleUnhandledRejection(event) {
-	const stack = event.reason.stack;
+	// Ignore WebSocket close errors (expected behavior)
+	if (event.reason?.message?.includes('WebSocket closed')) {
+		event.preventDefault();
+		return;
+	}
+	
+	const stack = event.reason?.stack || '';
 	// extract function name from "at X (eval" where x is the function name
 	const functionName = stack.match(/at\s+(\w+)\s+\(eval/)?.[1];
 	const msg = functionName ? `Error in ${functionName}: ${event.reason.toString()}` : event.reason.toString();
