@@ -16,9 +16,6 @@ import AcessoPendente from './pages/AcessoPendente';
 import SolicitarAcesso from './pages/SolicitarAcesso';
 import ControleAcessos from './pages/ControleAcessos.jsx';
 import PrimeiroAcesso from './pages/PrimeiroAcesso.jsx';
-import LoginEmail from './pages/LoginEmail';
-import LoginGovBr from './pages/LoginGovBr';
-import GovBrCallback from './pages/GovBrCallback';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import StatusGuard from '@/components/StatusGuard';
@@ -65,10 +62,7 @@ const AuthenticatedApp = () => {
   // Render the main app — rotas públicas (sem Layout/sidebar) ficam fora do LayoutWrapper
   return (
     <Routes>
-      {/* Rotas sem sidebar: cadastro, acesso pendente e login GOV.BR */}
-      <Route path="/" element={<LoginEmail />} />
-      <Route path="/govbr-login" element={<LoginGovBr />} />
-      <Route path="/govbr-callback" element={<GovBrCallback />} />
+      {/* Rotas sem sidebar: cadastro e acesso pendente */}
       <Route path="/CadastroPerfil" element={<CadastroPerfil />} />
       <Route path="/AcessoPendente" element={<AcessoPendente />} />
       <Route path="/SolicitarAcesso" element={<SolicitarAcesso />} />
