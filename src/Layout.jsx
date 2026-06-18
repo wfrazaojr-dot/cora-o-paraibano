@@ -319,7 +319,7 @@ export default function Layout({ children, currentPageName }) {
       `}</style>
       <div className="min-h-screen flex flex-col w-full bg-gray-50 ecg-background">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-2 py-2 shadow-sm" style={{ paddingRight: "var(--sidebar-width)" }}>
+        <header className="bg-white border-b border-gray-200 px-2 py-2 shadow-sm" style={{ paddingLeft: "var(--sidebar-width)" }}>
           <div className="flex items-center justify-center w-full">
             <img 
               src="https://media.base44.com/images/public/68fa0edee56f5a67f929da76/d2078127c_LOGOCARDIOPB.jpg" 
