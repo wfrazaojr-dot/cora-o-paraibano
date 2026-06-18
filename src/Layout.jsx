@@ -326,7 +326,7 @@ export default function Layout({ children, currentPageName }) {
               <img 
                 src="https://media.base44.com/images/public/68fa0edee56f5a67f929da76/0e16b728d_logoSecretariadeEstadodaSade.png" 
                 alt="Secretaria de Estado da Saúde" 
-                className="h-[4.4rem] md:h-[6.6rem] object-contain"
+                className="h-[4.4rem] max-w-[7rem] md:h-[6.6rem] md:max-w-[10rem] object-contain"
               />
             </div>
 
@@ -335,7 +335,7 @@ export default function Layout({ children, currentPageName }) {
               <img 
                 src="https://media.base44.com/images/public/68fa0edee56f5a67f929da76/d2078127c_LOGOCARDIOPB.jpg" 
                 alt="CARDIOPB" 
-                className="h-[4.4rem] md:h-[6.6rem] object-contain"
+                className="h-[4.4rem] max-w-[7rem] md:h-[6.6rem] md:max-w-[10rem] object-contain"
               />
             </div>
 
@@ -344,7 +344,7 @@ export default function Layout({ children, currentPageName }) {
               <img 
                 src="https://media.base44.com/images/public/68fa0edee56f5a67f929da76/940dd8bd1_LogoComplexoregulador.jpg" 
                 alt="Complexo Regulador" 
-                className="h-[4.4rem] md:h-[6.6rem] object-contain"
+                className="h-[4.4rem] max-w-[7rem] md:h-[6.6rem] md:max-w-[10rem] object-contain"
               />
             </div>
           </div>
