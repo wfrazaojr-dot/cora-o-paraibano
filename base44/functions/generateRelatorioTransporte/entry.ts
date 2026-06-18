@@ -210,13 +210,56 @@ Deno.serve(async (req) => {
     addKeyValue('Registrado por', user.full_name);
     addKeyValue('Email', user.email);
 
-    // RODAPÉ
-    doc.setFontSize(8);
+    // ASSINATURA DIGITAL
+    const gerarHex = (len) => {
+      const chars = '0123456789ABCDEF';
+      let r = '';
+      for (let i = 0; i < len; i++) r += chars[Math.floor(Math.random() * chars.length)];
+      return r;
+    };
+    const codigo = `TRA-${gerarHex(4)}-${gerarHex(4)}`;
+
+    try {
+      await base44.asServiceRole.entities.AssinaturaDigital.create({
+        documento_tipo: 'transporte',
+        documento_id: pacienteId || '',
+        hash_confirmacao: codigo,
+        usuario_nome: user.full_name || user.email,
+        usuario_email: user.email || '',
+        usuario_id: user.id || '',
+        paciente_nome: paciente.nome_completo || '',
+        metadata: { status: statusFinal },
+      });
+    } catch { /* non-blocking */ }
+
+    // RODAPÉ em todas as páginas
+    const totalPages = doc.internal.pages.length - 1;
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setFont(undefined, 'normal');
+      doc.setTextColor(128, 128, 128);
+      doc.text('Sistema de Triagem de Dor Torácica - Coração Paraibano', 20, pageHeight - 20);
+      doc.text('Desenvolvedor: Walber Alves Frazão Júnior - COREN 110.238', 20, pageHeight - 16);
+      doc.text(`Gerado em: ${fmt(new Date().toISOString())}`, 20, pageHeight - 12);
+    }
+
+    // Página extra com assinatura digital
+    doc.addPage();
+    doc.setDrawColor(76, 175, 80);
+    doc.setLineWidth(0.3);
+    doc.line(20, 25, pageWidth - 20, 25);
+    doc.setFontSize(9);
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(80, 80, 80);
+    doc.text('ASSINATURA DIGITAL CARDIOPB', pageWidth / 2, 32, { align: 'center' });
     doc.setFont(undefined, 'normal');
-    doc.setTextColor(128, 128, 128);
-    doc.text('Sistema de Triagem de Dor Torácica - Coração Paraibano', 20, pageHeight - 12);
-    doc.text('Desenvolvedor: Walber Alves Frazão Júnior - COREN 110.238', 20, pageHeight - 8);
-    doc.text(`Gerado em: ${fmt(new Date().toISOString())}`, 20, pageHeight - 4);
+    doc.setFontSize(10);
+    doc.setTextColor(40, 40, 40);
+    doc.text(`Código de Confirmação: ${codigo}`, pageWidth / 2, 40, { align: 'center' });
+    doc.setFontSize(8);
+    doc.setTextColor(120, 120, 120);
+    doc.text('Verifique a autenticidade em: https://cardiopb.base44.app/verificar?codigo=' + codigo, pageWidth / 2, 46, { align: 'center' });
 
     const pdfData = doc.output('arraybuffer');
     const pdfFile = new File([pdfData], `relatorio_transporte_${pacienteId}.pdf`, { type: 'application/pdf' });

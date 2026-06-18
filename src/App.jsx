@@ -13,6 +13,7 @@ import GestaoTrombolise from './pages/GestaoTrombolise';
 import RelatorioFarmacia from './pages/RelatorioFarmacia';
 import ControleAcessos from './pages/ControleAcessos.jsx';
 import PrimeiroAcesso from './pages/PrimeiroAcesso.jsx';
+import VerificarAssinatura from './pages/VerificarAssinatura.jsx';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import StatusGuard from '@/components/StatusGuard';
@@ -70,6 +71,7 @@ const AuthenticatedApp = () => {
             <Route path="/RelatorioFarmacia" element={<RelatorioFarmacia />} />
             <Route path="/ControleAcessos" element={<ControleAcessos />} />
       <Route path="/PrimeiroAcesso" element={<PrimeiroAcesso />} />
+      <Route path="/verificar" element={<VerificarAssinatura />} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </LayoutWrapper>
@@ -87,6 +89,9 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <NavigationTracker />
+          <Routes>
+            <Route path="/verificar" element={<VerificarAssinatura />} />
+          </Routes>
           <AuthenticatedApp />
         </Router>
         <Toaster />

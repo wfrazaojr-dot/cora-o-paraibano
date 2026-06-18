@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2, Download, Send, Cloud, CloudOff } from "lucide-react";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
+import { gerarCodigoConfirmacao } from "@/lib/assinaturaDigital";
 import SecaoDadosPessoais from "@/components/formularioVaga/SecaoDadosPessoais";
 import SecaoDadosUnidade from "@/components/formularioVaga/SecaoDadosUnidade";
 import SecaoDocumentos from "@/components/formularioVaga/SecaoDocumentos";
@@ -364,6 +365,38 @@ export default function FormularioVaga() {
     pdf.setFont(undefined, 'italic');
     pdf.text(`Gerado em: ${new Date().toLocaleString('pt-BR')} | Solicitante: ${user?.full_name || ""} (${user?.email || ""})`, margin, y);
     pdf.text(`CERH Destinatária (${getMacro()}): ${getEmailCERH()}`, margin, y + 5);
+
+    // Assinatura digital
+    const codigo = gerarCodigoConfirmacao("formulario_vaga");
+    if (user) {
+      base44.entities.AssinaturaDigital.create({
+        documento_tipo: "formulario_vaga",
+        documento_id: pacienteId || "",
+        hash_confirmacao: codigo,
+        usuario_nome: user.full_name || user.email,
+        usuario_email: user.email || "",
+        usuario_id: user.id || "",
+        paciente_nome: getNomePaciente(),
+        metadata: { especialidade: formData.especialidade_solicitada, macro: getMacro() },
+      }).catch(() => {});
+    }
+    y += 10;
+    pdf.setDrawColor(76, 175, 80);
+    pdf.setLineWidth(0.3);
+    pdf.line(margin, y, pageW - margin, y);
+    y += 5;
+    pdf.setFontSize(7);
+    pdf.setTextColor(80, 80, 80);
+    pdf.setFont(undefined, 'bold');
+    pdf.text("ASSINATURA DIGITAL CARDIOPB", pageW / 2, y, { align: "center" });
+    y += 5;
+    pdf.setFont(undefined, 'normal');
+    pdf.setTextColor(40, 40, 40);
+    pdf.text(`Código de Confirmação: ${codigo}`, pageW / 2, y, { align: "center" });
+    y += 4;
+    pdf.setFontSize(6);
+    pdf.setTextColor(120, 120, 120);
+    pdf.text(`Verifique a autenticidade em: ${window.location.origin}/verificar?codigo=${codigo}`, pageW / 2, y, { align: "center" });
 
     return pdf;
   };

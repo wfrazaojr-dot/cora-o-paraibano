@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import jsPDF from "jspdf";
 import * as XLSX from "xlsx";
+import { gerarCodigoConfirmacao } from "@/lib/assinaturaDigital";
+import { base44 } from "@/api/base44Client";
 
 const LOGO_GOV = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png";
 const LOGO_CORACAO = "https://media.base44.com/images/public/68fa0edee56f5a67f929da76/d2078127c_LOGOCARDIOPB.jpg";
@@ -122,11 +124,30 @@ export default function ExportarDados({ dados = [], colunas = [], titulo = "Rela
 
     // Rodapé
     const pageHeight = 210;
-    doc.setDrawColor(220, 38, 38);
-    doc.line(margin, pageHeight - 12, pageWidth - margin, pageHeight - 12);
+    const codigo = gerarCodigoConfirmacao("exportacao");
+    base44.entities.AssinaturaDigital.create({
+      documento_tipo: "exportacao",
+      documento_id: "",
+      hash_confirmacao: codigo,
+      usuario_nome: "Exportação",
+      usuario_email: "",
+      usuario_id: "",
+      metadata: { titulo, totalRegistros: dados.length },
+    }).catch(() => {});
+
+    doc.setDrawColor(76, 175, 80);
+    doc.setLineWidth(0.3);
+    doc.line(margin, pageHeight - 24, pageWidth - margin, pageHeight - 24);
+    doc.setFontSize(7);
+    doc.setTextColor(80, 80, 80);
+    doc.setFont("helvetica", "bold");
+    doc.text("ASSINATURA DIGITAL CARDIOPB", pageWidth / 2, pageHeight - 19, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(40, 40, 40);
+    doc.text(`Código de Confirmação: ${codigo}`, pageWidth / 2, pageHeight - 14, { align: "center" });
     doc.setFontSize(6);
     doc.setTextColor(120, 120, 120);
-    doc.text("Sistema CARDIOPB © 2025-2026 — SES-PB", pageWidth / 2, pageHeight - 7, { align: "center" });
+    doc.text(`Verifique a autenticidade em: ${window.location.origin}/verificar?codigo=${codigo}`, pageWidth / 2, pageHeight - 10, { align: "center" });
 
     doc.save(`${nomeArquivo}.pdf`);
     setExportando(false);

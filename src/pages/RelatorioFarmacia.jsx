@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import jsPDF from "jspdf";
 import * as XLSX from "xlsx";
+import { gerarCodigoConfirmacao, renderizarRodapeAssinatura } from "@/lib/assinaturaDigital";
 
 const MEDICAMENTOS = [
   "TENECTEPLASE (Ampola 40mg)",
@@ -269,6 +270,19 @@ export default function RelatorioFarmacia() {
       y += 6;
     });
 
+    // Assinatura digital
+    const codigo = gerarCodigoConfirmacao("farmacia");
+    if (user) {
+      base44.entities.AssinaturaDigital.create({
+        documento_tipo: "farmacia",
+        documento_id: "",
+        hash_confirmacao: codigo,
+        usuario_nome: user.full_name || user.email,
+        usuario_email: user.email || "",
+        usuario_id: user.id || "",
+        metadata: { periodo, mes, ano, totalRegistros: registrosFiltrados.length },
+      }).catch(() => {});
+    }
     // Rodapé
     const pageHeight = 297;
     doc.setDrawColor(220, 38, 38);
@@ -276,6 +290,10 @@ export default function RelatorioFarmacia() {
     doc.setFontSize(7); doc.setTextColor(100, 100, 100);
     doc.text("Sistema CARDIOPB © 2025-2026 - Secretaria de Estado de Saúde da Paraíba", pageWidth / 2, pageHeight - 14, { align: "center" });
     doc.text("Documento gerado eletronicamente — Uso exclusivo da Farmácia/Gestor", pageWidth / 2, pageHeight - 9, { align: "center" });
+
+    // Rodapé de assinatura (página extra)
+    doc.addPage();
+    renderizarRodapeAssinatura(doc, pageWidth, pageHeight, margin, codigo);
 
     const nomeArquivo = `Relatorio_Farmacia_${periodo === "mensal" ? `${meses[Number(mes) - 1]}_${ano}` : ano}.pdf`;
     doc.save(nomeArquivo);

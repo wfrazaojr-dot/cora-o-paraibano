@@ -16,6 +16,7 @@ import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import jsPDF from "jspdf";
+import { gerarCodigoConfirmacao, renderizarRodapeAssinatura } from "@/lib/assinaturaDigital";
 
 const MEDICAMENTOS = [
   "TENECTEPLASE (Ampola 40mg)",
@@ -297,6 +298,19 @@ export default function GestaoTrombolise() {
       doc.text(obs, margin + 3, y);
     }
 
+    // Assinatura digital
+    const codigo = gerarCodigoConfirmacao("trombolise");
+    if (user) {
+      base44.entities.AssinaturaDigital.create({
+        documento_tipo: "trombolise",
+        documento_id: registro.id || "",
+        hash_confirmacao: codigo,
+        usuario_nome: user.full_name || user.email,
+        usuario_email: user.email || "",
+        usuario_id: user.id || "",
+        paciente_nome: registro.paciente_nome || "",
+      }).catch(() => {});
+    }
     // Rodapé
     const pageHeight = 297;
     doc.setDrawColor(220, 38, 38);
@@ -305,6 +319,10 @@ export default function GestaoTrombolise() {
     doc.setTextColor(100, 100, 100);
     doc.text("Sistema CARDIOPB © 2025-2026 - Secretaria de Estado de Saúde da Paraíba", pageWidth / 2, pageHeight - 14, { align: "center" });
     doc.text("Documento gerado eletronicamente - Uso exclusivo da equipe de saúde", pageWidth / 2, pageHeight - 9, { align: "center" });
+
+    // Rodapé de assinatura (página extra)
+    doc.addPage();
+    renderizarRodapeAssinatura(doc, pageWidth, pageHeight, margin, codigo);
 
     doc.save(`Trombolise_${registro.paciente_nome?.replace(/\s+/g, "_")}_${format(new Date(), "dd-MM-yyyy")}.pdf`);
 

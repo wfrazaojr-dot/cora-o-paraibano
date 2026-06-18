@@ -13,6 +13,7 @@ import html2canvas from "html2canvas";
 import TempoDor from "./TempoDor";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { gerarCodigoConfirmacao, renderizarRodapeAssinatura } from "@/lib/assinaturaDigital";
 
 export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId, modoLeitura = false }) {
   const navigate = useNavigate();
@@ -72,6 +73,22 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
         pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
         heightLeft -= pdfHeight;
       }
+      // Assinatura digital
+      const codigo = gerarCodigoConfirmacao("triagem");
+      if (user) {
+        base44.entities.AssinaturaDigital.create({
+          documento_tipo: "triagem",
+          documento_id: pacienteId || "",
+          hash_confirmacao: codigo,
+          usuario_nome: user.full_name || user.email,
+          usuario_email: user.email || "",
+          usuario_id: user.id || "",
+          paciente_nome: dadosPaciente.nome_completo || "",
+        }).catch(() => {});
+      }
+      pdf.addPage();
+      renderizarRodapeAssinatura(pdf, pdfWidth, pdfHeight, 15, codigo);
+
       const pdfBlob = pdf.output('blob');
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
@@ -111,6 +128,22 @@ export default function Etapa4Relatorio({ dadosPaciente, onAnterior, pacienteId,
         pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
         heightLeft -= pdfHeight;
       }
+      // Assinatura digital
+      const codigo = gerarCodigoConfirmacao("triagem");
+      if (user) {
+        base44.entities.AssinaturaDigital.create({
+          documento_tipo: "triagem",
+          documento_id: pacienteId || "",
+          hash_confirmacao: codigo,
+          usuario_nome: user.full_name || user.email,
+          usuario_email: user.email || "",
+          usuario_id: user.id || "",
+          paciente_nome: dadosPaciente.nome_completo || "",
+        }).catch(() => {});
+      }
+      pdf.addPage();
+      renderizarRodapeAssinatura(pdf, pdfWidth, pdfHeight, 15, codigo);
+
       const pdfBlob = pdf.output('blob');
       const pdfFile = new File([pdfBlob], `Relatorio_${dadosPaciente.nome_completo?.replace(/ /g, "_")}_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`, { type: 'application/pdf' });
       const uploadResult = await base44.integrations.Core.UploadFile({ file: pdfFile });
