@@ -342,14 +342,14 @@ export default function Layout({ children, currentPageName }) {
         <div className="flex flex-1 min-h-0">
         <Sidebar className="border-r border-red-200 bg-white">
           <SidebarHeader className="border-b border-red-200 p-4 bg-white">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center">
               <img 
                 src="https://media.base44.com/images/public/68fa0edee56f5a67f929da76/d2078127c_LOGOCARDIOPB.jpg" 
                 alt="CARDIOPB" 
                 className="h-16 w-auto"
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">App CARDIOPB</p>
+            <p className="text-xs text-gray-500 mt-1 text-center">App CARDIOPB</p>
           </SidebarHeader>
           
           <SidebarContent className="p-2">
