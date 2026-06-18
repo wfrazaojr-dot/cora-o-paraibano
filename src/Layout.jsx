@@ -319,31 +319,31 @@ export default function Layout({ children, currentPageName }) {
         }
       `}</style>
       <div className="min-h-screen flex flex-col w-full bg-gray-50 ecg-background">
-        {/* Header com as 3 logos — distribuição proporcional */}
-        <header className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
-          <div className="grid grid-cols-3 items-center w-full max-w-6xl mx-auto">
-            {/* Logo Governo do Estado — Esquerda */}
-            <div className="flex justify-start">
+        {/* Header com as 3 logos */}
+        <header className="bg-white border-b border-gray-200 px-2 py-2 shadow-sm">
+          <div className="flex items-center justify-between w-full">
+            {/* Logo Governo — Esquerda */}
+            <div className="flex items-center min-w-0 flex-1">
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" 
-                alt="Secretaria de Estado da Saúde" 
-                className="h-10 md:h-14 w-auto object-contain"
+                alt="Governo" 
+                className="h-12 md:h-16 max-w-[30%] object-contain object-left"
               />
             </div>
-            {/* Logo CARDIOPB — Centro (destaque) */}
-            <div className="flex justify-center">
+            {/* Logo CARDIOPB — Centro */}
+            <div className="flex items-center justify-center flex-1 px-2">
               <img 
                 src="https://media.base44.com/images/public/68fa0edee56f5a67f929da76/d2078127c_LOGOCARDIOPB.jpg" 
                 alt="CARDIOPB" 
-                className="h-20 md:h-28 w-auto object-contain"
+                className="h-14 md:h-20 max-w-full object-contain"
               />
             </div>
             {/* Logo PBSAÚDE — Direita */}
-            <div className="flex justify-end">
+            <div className="flex items-center justify-end min-w-0 flex-1">
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png" 
                 alt="PBSAÚDE" 
-                className="h-8 md:h-10 w-auto object-contain"
+                className="h-8 md:h-12 max-w-[30%] object-contain object-right"
               />
             </div>
           </div>
