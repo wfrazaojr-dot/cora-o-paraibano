@@ -643,8 +643,8 @@ Programa CARDIOPB
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Button onClick={() => window.open(paciente.relatorio_triagem_url, '_blank')} className="w-full">
-                    <FileText className="w-4 h-4 mr-2" />Visualizar Relatório
+                  <Button onClick={() => downloadPdf(paciente.relatorio_triagem_url, `Relatorio_Triagem_${paciente.nome_completo}.pdf`)} className="w-full">
+                    <FileText className="w-4 h-4 mr-2" />Baixar Relatório
                   </Button>
                 </CardContent>
               </Card>
@@ -661,11 +661,11 @@ Programa CARDIOPB
                 </CardHeader>
                 <CardContent>
                   <Button
-                    onClick={() => window.open(paciente.relatorio_asscardio_url, '_blank')}
+                    onClick={() => downloadPdf(paciente.relatorio_asscardio_url, `Parecer_ASSCARDIO_${paciente.nome_completo}.pdf`)}
                     className="w-full bg-red-600 hover:bg-red-700 text-white"
                   >
                     <FileText className="w-4 h-4 mr-2" />
-                    ABRIR PARECER COMPLETO ASSCARDIO
+                    Baixar Parecer ASSCARDIO
                   </Button>
                 </CardContent>
               </Card>
