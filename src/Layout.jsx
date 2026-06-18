@@ -310,7 +310,7 @@ export default function Layout({ children, currentPageName }) {
           --primary-foreground: 0 0% 100%;
           --destructive: 0 84% 60%;
           --destructive-foreground: 0 0% 100%;
-          --sidebar-width: 9rem;
+          --sidebar-width: 6.3rem;
         }
         
         .ecg-background {
