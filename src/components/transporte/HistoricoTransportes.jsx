@@ -248,10 +248,25 @@ export default function HistoricoTransportes({ pacientes }) {
                           size="sm"
                           variant="outline"
                           className="text-xs border-yellow-400 text-yellow-700 hover:bg-yellow-50"
-                          onClick={() => window.open(p.relatorio_transporte_url, "_blank")}
+                          onClick={async () => {
+                            try {
+                              const res = await fetch(p.relatorio_transporte_url);
+                              const blob = await res.blob();
+                              const blobUrl = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = blobUrl;
+                              a.download = `Relatorio_Transporte_${p.nome_completo || 'paciente'}.pdf`;
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                              URL.revokeObjectURL(blobUrl);
+                            } catch {
+                              window.open(p.relatorio_transporte_url, '_blank');
+                            }
+                          }}
                         >
                           <FileText className="w-3 h-3 mr-1" />
-                          Relatório PDF
+                          Baixar PDF
                         </Button>
                       )}
                       <Button

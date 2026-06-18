@@ -374,7 +374,7 @@ export default function TransporteDetalhe() {
                       className="w-full bg-yellow-600 hover:bg-yellow-700 mt-2"
                     >
                       <Download className="w-3 h-3 mr-1" />
-                      Ver Relatório PDF
+                      Baixar Relatório PDF
                     </Button>
                   )}
                 </CardContent>
@@ -427,8 +427,8 @@ export default function TransporteDetalhe() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Button onClick={() => window.open(paciente.relatorio_triagem_url, '_blank')} className="w-full">
-                    <FileText className="w-4 h-4 mr-2" />Visualizar Relatório
+                  <Button onClick={() => downloadPdf(paciente.relatorio_triagem_url, `Relatorio_Triagem_${paciente.nome_completo}.pdf`)} className="w-full">
+                    <FileText className="w-4 h-4 mr-2" />Baixar Relatório
                   </Button>
                 </CardContent>
               </Card>
@@ -853,7 +853,7 @@ export default function TransporteDetalhe() {
                       className="w-full bg-yellow-600 hover:bg-yellow-700"
                     >
                       <Download className="w-4 h-4 mr-2" />
-                      Abrir Relatório PDF do Transporte
+                      Baixar Relatório PDF do Transporte
                     </Button>
                   )}
                 </CardContent>
