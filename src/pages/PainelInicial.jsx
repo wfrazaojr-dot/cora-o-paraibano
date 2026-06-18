@@ -15,46 +15,21 @@ export default function PainelInicial() {
   useEffect(() => {
     if (!user || isLoading) return;
 
-    const email = user?.email?.toLowerCase();
-    const isDev = email === "wfrazaojr@gmail.com";
+    // Acesso temporário: todo usuário autenticado entra direto, sem cadastro/aprovação.
+    // Marca a sessão para evitar o loop de redirect do Layout.
+    const perfil = user.perfil || user.equipe;
+    sessionStorage.setItem("perfil_selecionado_sessao", perfil || user.role || "user");
 
-    // DESENVOLVEDOR: acesso total
-    if (isDev || user?.role === "DESENVOLVEDOR") {
-      sessionStorage.setItem("perfil_selecionado_sessao", "DESENVOLVEDOR");
+    const equipesRegulacao = [
+      "cerh", "asscardio", "transporte", "hemodinamica",
+      "CERH", "ASSCARDIO", "TRANSPORTE", "HEMODINAMICA",
+    ];
+
+    if (equipesRegulacao.includes(perfil)) {
+      navigate(createPageUrl("Dashboard"), { replace: true });
+    } else {
+      // unidade de saúde, admin, dev e demais → Painel Assistencial
       navigate(createPageUrl("Historico"), { replace: true });
-      return;
-    }
-
-    // Cadastro incompleto: redirecionar para cadastro
-    if (!user?.cadastro_completo) {
-      navigate("/CadastroPerfil", { replace: true });
-      return;
-    }
-
-    // Status de acesso bloqueado ou inativo
-    if (user?.status_acesso === "BLOQUEADO" || user?.status_acesso === "INATIVO") {
-      navigate("/AcessoPendente", { replace: true });
-      return;
-    }
-
-    // Pendente de aprovação
-    if (!user?.status_acesso || user?.status_acesso === "PENDENTE") {
-      navigate("/AcessoPendente", { replace: true });
-      return;
-    }
-
-    // ATIVO: redirecionar para a página correta do perfil
-    if (user?.status_acesso === "ATIVO") {
-      sessionStorage.setItem("perfil_selecionado_sessao", user.perfil || user.equipe);
-
-      const perfil = user.perfil || user.equipe;
-      if (perfil === "UNIDADE_SAUDE" || perfil === "unidade_saude") {
-        navigate(createPageUrl("Historico"), { replace: true });
-      } else if (perfil === "ADMINISTRADOR_MANAGER" || user.role === "admin") {
-        navigate(createPageUrl("Dashboard"), { replace: true });
-      } else {
-        navigate(createPageUrl("Dashboard"), { replace: true });
-      }
     }
   }, [user, isLoading, navigate]);
 

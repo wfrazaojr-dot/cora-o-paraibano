@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 const UserNotRegisteredError = () => {
   // Redirecionar automaticamente para a página de solicitação de acesso
   useEffect(() => {
-    window.location.href = '/SolicitarAcesso';
+    window.location.href = '/';
   }, []);
 
   return (
