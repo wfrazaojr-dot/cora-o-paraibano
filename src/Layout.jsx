@@ -342,7 +342,7 @@ export default function Layout({ children, currentPageName }) {
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png" 
                 alt="PBSAÚDE" 
-                className="h-10 md:h-12 w-auto object-contain"
+                className="h-8 md:h-10 max-w-[60px] md:max-w-[80px] object-contain"
               />
             </div>
           </div>
