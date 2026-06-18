@@ -164,7 +164,7 @@ export default function RelatorioFarmacia() {
     let y = 8;
 
     const LOGO_GOV = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png";
-    const LOGO_CORACAO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/64cc9f6c6_LOGOCARDIOPB.jpg";
+    const LOGO_CORACAO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/9ba212c7d_LOGOCARDIOPB.jpg";
     const LOGO_PBSAUDE = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png";
 
     const [imgGov, imgCoracao, imgPbsaude] = await Promise.all([loadImg(LOGO_GOV), loadImg(LOGO_CORACAO), loadImg(LOGO_PBSAUDE)]);

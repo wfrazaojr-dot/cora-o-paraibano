@@ -191,7 +191,7 @@ export default function ASSCARDIODetalhe() {
     // Carregar logos
     const [logoGov, logoCoracao, logoComplexo] = await Promise.all([
       urlParaBase64("https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png"),
-      urlParaBase64("https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/64cc9f6c6_LOGOCARDIOPB.jpg"),
+      urlParaBase64("https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/9ba212c7d_LOGOCARDIOPB.jpg"),
       urlParaBase64("https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png"),
     ]);
 

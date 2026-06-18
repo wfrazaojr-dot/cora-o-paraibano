@@ -142,7 +142,7 @@ export default function SolicitarAcesso() {
       <Card className="w-full max-w-xl shadow-xl">
         <CardHeader className="text-center border-b pb-6">
           <div className="flex justify-center gap-4 mb-4">
-            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/64cc9f6c6_LOGOCARDIOPB.jpg" alt="CARDIOPB" className="h-12 w-auto object-contain" />
+            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/9ba212c7d_LOGOCARDIOPB.jpg" alt="CARDIOPB" className="h-12 w-auto object-contain" />
           </div>
           <div className="flex justify-center mb-2">
             <div className="bg-red-600 p-3 rounded-full">

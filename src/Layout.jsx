@@ -327,7 +327,7 @@ export default function Layout({ children, currentPageName }) {
               className="h-12 md:h-14 w-auto object-contain"
             />
             <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/64cc9f6c6_LOGOCARDIOPB.jpg" 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/9ba212c7d_LOGOCARDIOPB.jpg" 
               alt="CARDIOPB" 
               className="h-12 md:h-14 w-auto object-contain"
             />
@@ -344,7 +344,7 @@ export default function Layout({ children, currentPageName }) {
           <SidebarHeader className="border-b border-red-200 p-4 bg-white">
             <div className="flex items-center gap-3">
               <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/64cc9f6c6_LOGOCARDIOPB.jpg" 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/9ba212c7d_LOGOCARDIOPB.jpg" 
                 alt="CARDIOPB" 
                 className="h-12 w-auto"
               />

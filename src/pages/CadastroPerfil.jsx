@@ -331,7 +331,7 @@ export default function CadastroPerfil() {
           <CardHeader className="text-center border-b pb-6">
             <div className="flex justify-center gap-4 mb-3">
               <img
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/64cc9f6c6_LOGOCARDIOPB.jpg"
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/9ba212c7d_LOGOCARDIOPB.jpg"
                 alt="CARDIOPB"
                 className="h-12 w-auto object-contain"
               />
@@ -437,7 +437,7 @@ export default function CadastroPerfil() {
         <CardHeader className="text-center border-b pb-6">
           <div className="flex justify-center gap-4 mb-3">
             <img
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/64cc9f6c6_LOGOCARDIOPB.jpg"
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/9ba212c7d_LOGOCARDIOPB.jpg"
               alt="CARDIOPB"
               className="h-12 w-auto object-contain"
             />
