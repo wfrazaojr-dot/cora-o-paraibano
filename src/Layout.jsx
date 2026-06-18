@@ -318,24 +318,33 @@ export default function Layout({ children, currentPageName }) {
         }
       `}</style>
       <div className="min-h-screen flex flex-col w-full bg-gray-50 ecg-background">
-        {/* Header com as 3 logos */}
+        {/* Header com as 3 logos — distribuição proporcional */}
         <header className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
-          <div className="flex items-center justify-center gap-6 md:gap-8 w-full max-w-6xl mx-auto">
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" 
-              alt="Secretaria de Estado da Saúde" 
-              className="h-20 md:h-24 w-auto object-contain"
-            />
-            <img 
-              src="https://media.base44.com/images/public/68fa0edee56f5a67f929da76/d2078127c_LOGOCARDIOPB.jpg" 
-              alt="CARDIOPB" 
-              className="h-20 md:h-24 w-auto object-contain"
-            />
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png" 
-              alt="PBSAÚDE" 
-              className="h-20 md:h-24 w-auto object-contain"
-            />
+          <div className="flex items-center justify-between w-full max-w-6xl mx-auto">
+            {/* Logo Governo do Estado — Esquerda */}
+            <div className="flex-1 flex justify-start">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/8e093c8da_logoSecretariadeEstadodaSade.png" 
+                alt="Secretaria de Estado da Saúde" 
+                className="h-12 md:h-14 w-auto object-contain"
+              />
+            </div>
+            {/* Logo CARDIOPB — Centro */}
+            <div className="flex-1 flex justify-center">
+              <img 
+                src="https://media.base44.com/images/public/68fa0edee56f5a67f929da76/d2078127c_LOGOCARDIOPB.jpg" 
+                alt="CARDIOPB" 
+                className="h-20 md:h-24 w-auto object-contain"
+              />
+            </div>
+            {/* Logo PBSAÚDE — Direita */}
+            <div className="flex-1 flex justify-end">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68fa0edee56f5a67f929da76/873a4a563_logo.png" 
+                alt="PBSAÚDE" 
+                className="h-12 md:h-14 w-auto object-contain"
+              />
+            </div>
           </div>
         </header>
 
